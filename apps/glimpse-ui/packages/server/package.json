@@ -1,0 +1,11 @@
+{
+  "name": "rpitv-website-server",
+  "private": true,
+  "dependencies": {
+    "express": "latest"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js"
+  }
+}
