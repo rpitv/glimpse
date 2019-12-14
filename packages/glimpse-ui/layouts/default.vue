@@ -1,8 +1,10 @@
 <template>
-  <div>
-    <Header />
-    <nuxt />
-  </div>
+  <VApp>
+    <div>
+      <Header />
+      <nuxt />
+    </div>
+  </VApp>
 </template>
 
 <script lang="ts">
