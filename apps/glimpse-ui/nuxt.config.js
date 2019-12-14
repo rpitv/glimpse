@@ -18,18 +18,19 @@ export default {
   /*
   ** Customize the progress-bar color
   */
-  loading: { color: '#fff' },
+  loading: { color: '#ff3333' },
   /*
   ** Global CSS
   */
   css: [
-    'element-ui/lib/theme-chalk/index.css'
+    'vuetify/dist/vuetify.min.css',
+    '@fortawesome/fontawesome-svg-core/styles.css'
   ],
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '@/plugins/element-ui'
+    '~/plugins/fontawesome.ts'
   ],
   /*
   ** Nuxt.js dev-modules
@@ -37,7 +38,8 @@ export default {
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module',
-    '@nuxt/typescript-build'
+    '@nuxt/typescript-build',
+    '@nuxtjs/vuetify'
   ],
   /*
   ** Nuxt.js modules
@@ -59,7 +61,6 @@ export default {
   ** Build configuration
   */
   build: {
-    transpile: [/^element-ui/],
     /*
     ** You can extend webpack config here
     */
