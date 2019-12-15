@@ -1,21 +1,11 @@
 <template>
   <div class="container">
     <HomeBackgroundShape class="bg-shape" />
-    <VRow>
-      <VCol sm="8" class="home-top-col">
-        <VSheet><VSkeletonLoader type="image,article" height="400" class="intro-image-lg" boilerplate /></VSheet>
-      </VCol>
-      <VCol sm="4" class="home-top-col">
-        <VSheet><VSkeletonLoader type="image" class="intro-image-sm" boilerplate /></VSheet>
-        <VSheet><VSkeletonLoader type="image" class="intro-image-sm" boilerplate /></VSheet>
-      </VCol>
-    </VRow>
+    <LandingHighlights />
     <VRow>
       <VCol lg="6">
         <h1>Catch our next livestream:</h1>
-        <div class="player-wrapper">
-          <VSkeletonLoader type="image,card-heading,paragraph" class="player" boilerplate />
-        </div>
+        <NextLivestream />
       </VCol>
       <VCol lg="6">
         <h1>We are RPI TV.</h1>
@@ -32,16 +22,20 @@
       </VCol>
     </VRow>
     <h2>Recent Productions</h2>
-    <div class="past-prod-list">
-      <VSkeletonLoader v-for="n in 10" :index="n" type="card, list-item-two-line" class="past-prod-card" boilerplate />
-    </div>
+    <RecentProductionsList />
   </div>
 </template>
 
 <script lang="ts">
-import HomeBackgroundShape from '../components/HomeBackgroundShape.vue'
+import HomeBackgroundShape from '../components/TheHomeBackgroundShape.vue'
+import RecentProductionsList from '~/components/RecentProductionsList.vue'
+import NextLivestream from '~/components/NextLivestream.vue'
+import LandingHighlights from '~/components/LandingHighlights.vue'
 export default {
   components: {
+    LandingHighlights,
+    NextLivestream,
+    RecentProductionsList,
     HomeBackgroundShape
   }
 }
@@ -52,25 +46,5 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-  }
-  .home-top-col {
-    z-index: 1;
-  }
-  .player-wrapper .player {
-    height: 315px;
-  }
-  .intro-image-sm {
-    height: 160px;
-    margin-bottom: 15px;
-  }
-
-  .past-prod-list {
-    white-space: nowrap;
-    overflow-x: scroll;
-    .past-prod-card {
-      display: inline-block;
-      width: 300px;
-      margin-right: 20px;
-    }
   }
 </style>
