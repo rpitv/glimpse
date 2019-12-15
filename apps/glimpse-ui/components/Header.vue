@@ -134,7 +134,7 @@ export default {
 
     transition: opacity 0.5s;
     @media(min-width: 600px) and (max-width: 700px) {
-      display: none;
+      height: 30px !important;
     }
     @media (max-width: 1049px) {
       height: 60px;
