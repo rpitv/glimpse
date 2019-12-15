@@ -58,9 +58,9 @@
 
     <!-- Desktop nav bar -->
     <VAppBar
+      :color="this.$vuetify.theme.currentTheme.primary.darken1"
       app
       elevate-on-scroll
-      color="#a85c56"
       dark
     >
       <span class="hidden-sm-and-up">
@@ -165,8 +165,8 @@ export default {
   .drawer-item {
     padding-left: 15px;
     .drawer-icon {
-      --fa-primary-color: #b30000;
-      --fa-secondary-color: #ff3333;
+      --fa-primary-color: #b05454;
+      --fa-secondary-color: #f56e6c;
       --fa-secondary-opacity: 1.0;
     }
     .drawer-item-content {

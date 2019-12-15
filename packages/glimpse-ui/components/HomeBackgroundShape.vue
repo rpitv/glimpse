@@ -1,5 +1,5 @@
 <template>
-  <div class="red-box"></div>
+  <div class="red-box" />
 </template>
 
 <script lang="ts">
@@ -13,7 +13,7 @@ export default {
     transform: translateX(-50vw);
     border-left: 100vw solid transparent;
     border-right: 100vw solid transparent;
-    border-top: 25vw solid #a85c56;
+    border-top: 25vw solid #b05454; /* This should use --v-primary-darken1 however doesn't seem to be working... */
     overflow: hidden;
   }
 </style>

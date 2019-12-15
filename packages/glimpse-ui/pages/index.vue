@@ -59,6 +59,9 @@ export default {
     top: 0;
     left: 0;
   }
+  .home-top-col {
+    z-index: 1;
+  }
   .player-wrapper iframe {
     border: 0;
   }
