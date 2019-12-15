@@ -1,12 +1,13 @@
 <template>
   <div class="container">
+    <HomeBackgroundShape class="bg-shape" />
     <VRow>
-      <VCol sm="8">
-        <VSkeletonLoader type="image,article" height="400" class="intro-image-lg" />
+      <VCol sm="8" class="home-top-col">
+        <VSheet><VSkeletonLoader type="image,article" height="400" class="intro-image-lg" /></VSheet>
       </VCol>
-      <VCol sm="4">
-        <VSkeletonLoader type="image" class="intro-image-sm" />
-        <VSkeletonLoader type="image" class="intro-image-sm" />
+      <VCol sm="4" class="home-top-col">
+        <VSheet><VSkeletonLoader type="image" class="intro-image-sm" /></VSheet>
+        <VSheet><VSkeletonLoader type="image" class="intro-image-sm" /></VSheet>
       </VCol>
     </VRow>
     <VRow>
@@ -44,12 +45,20 @@
 </template>
 
 <script lang="ts">
+import HomeBackgroundShape from '../components/HomeBackgroundShape.vue'
 export default {
-
+  components: {
+    HomeBackgroundShape
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+  .bg-shape {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
   .player-wrapper iframe {
     border: 0;
   }
