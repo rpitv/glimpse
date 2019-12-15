@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { library, config } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fal } from '@fortawesome/pro-light-svg-icons'
+import { fab } from '@fortawesome/free-brands-svg-icons'
 import { fad } from '@fortawesome/pro-duotone-svg-icons'
 
 // This is important, we are going to let Nuxt.js worry about the CSS
@@ -11,6 +12,7 @@ config.autoAddCss = false
 // can add other styles or just individual icons.
 library.add(fal)
 library.add(fad)
+library.add(fab)
 
 // Register the component globally
 Vue.component('font-awesome-icon', FontAwesomeIcon)

@@ -8,6 +8,15 @@
           <img src="../assets/rpitv_logo.png" alt="Logo" class="tv-logo">
           <h3>RPI TV</h3>
         </VListItem>
+        <VListItemSubtitle class="drawer-social">
+          <a
+            v-for="item in socials"
+            :key="item.title"
+            :href="item.path"
+          >
+            <font-awesome-icon :icon="['fab', item.icon]" size="lg" />
+          </a>
+        </VListItemSubtitle>
 
         <VDivider />
 
@@ -48,7 +57,12 @@
     </VNavigationDrawer>
 
     <!-- Desktop nav bar -->
-    <VAppBar app elevate-on-scroll color="#a85c56" dark>
+    <VAppBar
+      app
+      elevate-on-scroll
+      color="#a85c56"
+      dark
+    >
       <span class="hidden-sm-and-up">
         <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
       </span>
@@ -90,13 +104,20 @@ export default {
   data (): any {
     return {
       sidebar: false, // Whether the sidebar is open. Should be false by default
+      socials: [
+        { title: 'YouTube', path: 'https://youtube.com/rpitv', icon: 'youtube' },
+        { title: 'Twitter', path: 'https://twitter.com/rpitv', icon: 'twitter' },
+        { title: 'Reddit', path: 'https://reddit.com/u/rpi_tv', icon: 'reddit-alien' }
+      ],
       leftMenuItems: [
         { title: 'Home', path: '/', icon: 'house' },
         { title: 'Productions', path: '/productions', icon: 'camera-movie' },
         { title: 'Request Us', path: '/request', icon: 'file-signature' },
-        { title: 'About', path: '/about', icon: 'info-circle' }
+        { title: 'About Us', path: '/about', icon: 'info-circle' }
       ],
       rightMenuItems: [
+        { title: 'Join The Club', path: '/join', icon: 'hands-helping' },
+        { title: 'Donate', path: '/donate', icon: 'donate' },
         { title: 'Login', path: '/login', icon: 'sign-in' }
       ]
     }
@@ -120,7 +141,8 @@ export default {
     padding-left: 15px;
     .drawer-icon {
       --fa-primary-color: #b30000;
-      --fa-secondary-color: #9c0000;
+      --fa-secondary-color: #ff3333;
+      --fa-secondary-opacity: 1.0;
     }
     .drawer-item-content {
       display: inline;
@@ -129,6 +151,16 @@ export default {
   .drawer-header .tv-logo {
     width: 75px;
     margin-right: 10px;
+  }
+  .drawer-social {
+    position: relative;
+    margin-bottom: 10px;
+    top: -10px;
+    left: 10px;
+
+    * {
+      margin-right: 10px;
+    }
   }
 
   /* Main nav bar */
