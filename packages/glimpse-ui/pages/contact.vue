@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <h1 class="title">Request Our Services</h1>
+    <h1 class="title">
+      Request Our Services
+    </h1>
   </div>
 </template>
 

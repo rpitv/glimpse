@@ -83,8 +83,33 @@
           {{ item.title }}
         </VBtn>
       </VToolbarItems>
+      <div class="d-none d-sm-flex d-md-none app-nav-right-items">
+        <VMenu open-on-hover>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              v-on="on"
+              text
+            >
+              More <font-awesome-icon :icon="['fal','chevron-down']" class="more-icon" />
+            </v-btn>
+          </template>
+
+          <VList>
+            <VListItem
+              v-for="item in rightMenuItems"
+              :key="item.title"
+              @click=""
+              :to="item.path"
+              :nuxt="true"
+              text
+            >
+              {{ item.title }}
+            </VListItem>
+          </VList>
+        </VMenu>
+      </div>
       <!-- Right menu items -->
-      <VToolbarItems class="hidden-xs-only app-nav-right-items">
+      <VToolbarItems class="hidden-sm-and-down app-nav-right-items">
         <VBtn
           v-for="item in rightMenuItems"
           :key="item.title"
@@ -112,8 +137,8 @@ export default {
       leftMenuItems: [
         { title: 'Home', path: '/', icon: 'house' },
         { title: 'Productions', path: '/productions', icon: 'camera-movie' },
-        { title: 'Request Us', path: '/request', icon: 'file-signature' },
-        { title: 'About Us', path: '/about', icon: 'info-circle' }
+        { title: 'Contact Us', path: '/contact', icon: 'file-signature' },
+        { title: 'About', path: '/about', icon: 'info-circle' }
       ],
       rightMenuItems: [
         { title: 'Join The Club', path: '/join', icon: 'hands-helping' },
@@ -167,6 +192,9 @@ export default {
   .app-nav-right-items {
     position: absolute;
     right: 15px;
+  }
+  .more-icon {
+    margin-left: 5px;
   }
   .app-nav-header .tv-logo {
     /* Logo is invisible by default until .visible is applied */
