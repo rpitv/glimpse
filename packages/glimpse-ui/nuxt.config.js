@@ -66,5 +66,11 @@ export default {
     */
     extend (config, ctx) {
     }
+  },
+  /*
+   ** Vuetify configuration
+   */
+  vuetify: {
+    optionsPath: './vuetify.config.js'
   }
 }
