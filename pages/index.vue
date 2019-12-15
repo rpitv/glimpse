@@ -54,7 +54,8 @@ export default {
     border: 0;
   }
   .intro-image-sm {
-    height: 165px;
+    height: 160px;
+    margin-bottom: 15px;
   }
 
   .past-prod-list {
