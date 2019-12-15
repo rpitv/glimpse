@@ -1,8 +1,9 @@
 <template>
   <div>
     <!-- Mobile Menu -->
-    <VNavigationDrawer v-model="sidebar" app temporary>
+    <VNavigationDrawer v-model="sidebar" app temporary dark>
       <VList nav>
+        <!-- Header -->
         <VListItem class="drawer-header">
           <img src="../assets/rpitv_logo.png" alt="Logo" class="tv-logo">
           <h3>RPI TV</h3>
@@ -10,6 +11,7 @@
 
         <VDivider />
 
+        <!-- Left menu items -->
         <VListItem
           v-for="item in leftMenuItems"
           :key="item.title"
@@ -27,6 +29,7 @@
 
         <VDivider />
 
+        <!-- Right menu items -->
         <VListItem
           v-for="item in rightMenuItems"
           :key="item.title"
@@ -44,7 +47,8 @@
       </VList>
     </VNavigationDrawer>
 
-    <v-app-bar app elevate-on-scroll>
+    <!-- Desktop nav bar -->
+    <VAppBar app elevate-on-scroll color="#a85c56" dark>
       <span class="hidden-sm-and-up">
         <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
       </span>
@@ -77,7 +81,7 @@
           {{ item.title }}
         </VBtn>
       </VToolbarItems>
-    </v-app-bar>
+    </VAppBar>
   </div>
 </template>
 
@@ -85,7 +89,7 @@
 export default {
   data (): any {
     return {
-      sidebar: false,
+      sidebar: false, // Whether the sidebar is open. Should be false by default
       leftMenuItems: [
         { title: 'Home', path: '/', icon: 'house' },
         { title: 'Productions', path: '/productions', icon: 'camera-movie' },
@@ -98,6 +102,10 @@ export default {
     }
   },
   methods: {
+    /**
+     * Fade in (or out) the logo. Used by load event of the logo, to fade in once loaded.
+     * @param e Event
+     */
     fadeInLogo (e: any) {
       e.target.classList.toggle('visible')
     }
@@ -106,11 +114,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .app-nav-right-items {
-    position: absolute;
-    right: 15px;
-  }
 
+  /* Drawer */
   .drawer-item {
     padding-left: 15px;
     .drawer-icon {
@@ -126,7 +131,13 @@ export default {
     margin-right: 10px;
   }
 
+  /* Main nav bar */
+  .app-nav-right-items {
+    position: absolute;
+    right: 15px;
+  }
   .app-nav-header .tv-logo {
+    /* Logo is invisible by default until .visible is applied */
     &.visible {
       opacity: 1;
     }

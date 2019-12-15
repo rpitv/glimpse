@@ -1,6 +1,8 @@
 <template>
-  <div class="container">
-
+  <div>
+    <VFooter absolute app>
+      <p>Copyright rpitv</p>
+    </VFooter>
   </div>
 </template>
 
@@ -11,7 +13,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .container {
-    min-height: 200vh
-  }
+
 </style>
