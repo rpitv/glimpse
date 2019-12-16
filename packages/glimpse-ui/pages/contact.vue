@@ -1,14 +1,21 @@
 <template>
   <div class="container">
-    <h1 class="title">
-      Request Our Services
-    </h1>
+    <VRow justify="center">
+      <VCol md="8" sm="10">
+        <ContactCard />
+      </VCol>
+    </VRow>
   </div>
 </template>
 
 <script lang="ts">
+import ContactCard from '~/components/ContactCard.vue'
 export default {
-
+  components: { ContactCard },
+  data (): any {
+    return {
+    }
+  }
 }
 </script>
 
