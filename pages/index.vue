@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <HomeBackgroundShape class="bg-shape" />
     <LandingHighlights />
     <VRow>
       <VCol lg="6">
@@ -27,7 +26,6 @@
 </template>
 
 <script lang="ts">
-import HomeBackgroundShape from '../components/TheHomeBackgroundShape.vue'
 import RecentProductionsList from '~/components/RecentProductionsList.vue'
 import NextLivestream from '~/components/NextLivestream.vue'
 import LandingHighlights from '~/components/LandingHighlights.vue'
@@ -35,16 +33,10 @@ export default {
   components: {
     LandingHighlights,
     NextLivestream,
-    RecentProductionsList,
-    HomeBackgroundShape
+    RecentProductionsList
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .bg-shape {
-    position: absolute;
-    top: -65px;
-    left: 0;
-  }
 </style>

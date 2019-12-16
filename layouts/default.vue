@@ -3,6 +3,7 @@
     <div class="default-layout-custom-bg" />
     <div>
       <Header />
+      <BackgroundShape class="bg-shape" />
       <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
@@ -16,9 +17,11 @@
 <script lang="ts">
 import Header from '../components/TheHeader.vue'
 import Footer from '../components/TheFooter.vue'
+import BackgroundShape from '~/components/BackgroundShape.vue'
 
 export default {
   components: {
+    BackgroundShape,
     Header,
     Footer
   }
@@ -59,5 +62,11 @@ html {
 *:after {
   box-sizing: border-box;
   margin: 0;
+}
+
+.bg-shape {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
