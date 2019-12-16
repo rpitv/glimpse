@@ -44,7 +44,7 @@ export default {
 <style lang="scss" scoped>
   .bg-shape {
     position: absolute;
-    top: 0;
+    top: -65px;
     left: 0;
   }
 </style>
