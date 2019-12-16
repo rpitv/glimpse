@@ -2,25 +2,28 @@
   <VApp class="default-layout-app">
     <div class="default-layout-custom-bg" />
     <div>
-      <TheHeader />
+      <Header transparent-at-top />
+      <BackgroundShape class="bg-shape" />
       <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
         </VContainer>
       </VContent>
-      <TheFooter />
+      <Footer />
     </div>
   </VApp>
 </template>
 
 <script lang="ts">
-import TheHeader from '../components/TheHeader.vue'
-import TheFooter from '../components/TheFooter.vue'
+import Header from '../components/TheHeader.vue'
+import Footer from '../components/TheFooter.vue'
+import BackgroundShape from '~/components/BackgroundShape.vue'
 
 export default {
   components: {
-    TheHeader,
-    TheFooter
+    BackgroundShape,
+    Header,
+    Footer
   }
 }
 </script>
@@ -31,6 +34,14 @@ export default {
 /* Margin to avoid overlap due to logo overhang */
 .default-layout-nuxt-content {
   margin-top: 10px;
+}
+
+.default-layout-custom-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 0;
+  background: linear-gradient(#383838, #282828) !important;
 }
 
 h1,h2,h3,h4,h5,h6 {

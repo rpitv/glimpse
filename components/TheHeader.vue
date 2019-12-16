@@ -58,7 +58,7 @@
 
     <!-- Desktop nav bar -->
     <VAppBar
-      :color="scrollDistance > 0 ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
+      :color="scrollDistance > 0 || !$props.transparentAtTop ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
       app
       elevate-on-scroll
       dark
@@ -126,6 +126,9 @@
 
 <script>
 export default {
+  props: {
+    transparentAtTop: Boolean
+  },
   data () {
     return {
       scrollDistance: 0, // Number of px scrolled down
