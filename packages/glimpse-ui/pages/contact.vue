@@ -11,6 +11,7 @@
 <script lang="ts">
 import ContactCard from '~/components/ContactCard.vue'
 export default {
+  layout: 'with-shape',
   components: { ContactCard },
   data (): any {
     return {

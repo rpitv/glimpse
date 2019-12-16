@@ -30,6 +30,7 @@ import RecentProductionsList from '~/components/RecentProductionsList.vue'
 import NextLivestream from '~/components/NextLivestream.vue'
 import LandingHighlights from '~/components/LandingHighlights.vue'
 export default {
+  layout: 'with-shape',
   components: {
     LandingHighlights,
     NextLivestream,
