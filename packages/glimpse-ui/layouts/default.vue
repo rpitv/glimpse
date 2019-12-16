@@ -1,5 +1,6 @@
 <template>
-  <VApp>
+  <VApp class="default-layout-app">
+    <div class="default-layout-custom-bg" />
     <div>
       <Header />
       <VContent>
@@ -30,6 +31,14 @@ export default {
 /* Margin to avoid overlap due to logo overhang */
 .default-layout-nuxt-content {
   margin-top: 10px;
+}
+
+.default-layout-custom-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 0;
+  background: linear-gradient(#383838, #282828) !important;
 }
 
 h1,h2,h3,h4,h5,h6 {
