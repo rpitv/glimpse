@@ -58,13 +58,11 @@
 
     <!-- Desktop nav bar -->
     <VAppBar
-      :color="this.$vuetify.theme.currentTheme.primary.darken1"
+      :color="scrollDistance > 0 ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
       app
       elevate-on-scroll
       dark
     >
-      <div :style="'top: -' + scrollDistance + 'px'" class="nav-bar-gradient-mask" />
-
       <span class="hidden-sm-and-up">
         <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
       </span>
@@ -165,7 +163,7 @@ export default {
     fadeInLogo (e) {
       e.target.classList.toggle('visible')
     },
-    scrollHandler (e) {
+    scrollHandler () {
       this.scrollDistance = window.scrollY
     }
   }
@@ -208,15 +206,6 @@ export default {
   }
   .more-icon {
     margin-left: 5px;
-  }
-  .nav-bar-gradient-mask {
-    width: 100%;
-    height: 60px;
-    position: absolute;
-    left: 0;
-    /* Top offset handled dynamically by scroll event listener */
-    background-image: linear-gradient(#00000060, #00000000);
-    background-size: 100% 60px;
   }
   .app-nav-header .tv-logo {
     /* Logo is invisible by default until .visible is applied */
