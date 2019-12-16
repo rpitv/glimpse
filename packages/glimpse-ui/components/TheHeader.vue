@@ -63,6 +63,8 @@
       elevate-on-scroll
       dark
     >
+      <div :style="'top: -' + scrollDistance + 'px'" class="nav-bar-gradient-mask" />
+
       <span class="hidden-sm-and-up">
         <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
       </span>
@@ -124,10 +126,11 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 export default {
-  data (): any {
+  data () {
     return {
+      scrollDistance: 0, // Number of px scrolled down
       sidebar: false, // Whether the sidebar is open. Should be false by default
       socials: [
         { title: 'YouTube', path: 'https://youtube.com/rpitv', icon: 'youtube' },
@@ -147,13 +150,23 @@ export default {
       ]
     }
   },
+  mounted () {
+    window.addEventListener('scroll', this.scrollHandler)
+    this.scrollHandler()
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scrollHandler)
+  },
   methods: {
     /**
      * Fade in (or out) the logo. Used by load event of the logo, to fade in once loaded.
      * @param e Event
      */
-    fadeInLogo (e: any) {
+    fadeInLogo (e) {
       e.target.classList.toggle('visible')
+    },
+    scrollHandler (e) {
+      this.scrollDistance = window.scrollY
     }
   }
 }
@@ -195,6 +208,15 @@ export default {
   }
   .more-icon {
     margin-left: 5px;
+  }
+  .nav-bar-gradient-mask {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    left: 0;
+    /* Top offset handled dynamically by scroll event listener */
+    background-image: linear-gradient(#00000060, #00000000);
+    background-size: 100% 60px;
   }
   .app-nav-header .tv-logo {
     /* Logo is invisible by default until .visible is applied */
