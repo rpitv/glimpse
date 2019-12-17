@@ -2,7 +2,7 @@
   "name": "rpitv-website",
   "version": "1.0.0",
   "description": "RPI TV Website",
-  "author": "Erik Roberts &lt;robere2@rpi.edu&gt;",
+  "author": "Erik Roberts",
   "private": true,
   "scripts": {
     "dev": "nuxt",
