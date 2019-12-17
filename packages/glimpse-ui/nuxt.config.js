@@ -1,15 +1,29 @@
 
+const defaultTitle = 'RPI TV - Your exclusive home for RPI Hockey and campus broadcasting.'
+const defaultDescription = 'RPI TV is a student-run broadcasting club committed to providing ' +
+  'professional coverage of campus events and sports games.'
+
 export default {
   mode: 'universal',
   /*
   ** Headers of the page
   */
   head: {
-    title: process.env.npm_package_name || '',
+    title: defaultTitle,
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
+      { hid: 'keywords', name: 'keywords', content: 'RPI,RPITV,RPI TV,Rensselaer,Polytechnic,Institute,RPI Hockey,RPI Club' },
+      { hid: 'apple-mobile-web-app-title', name: 'apple-mobile-web-app-title', content: 'RPI TV' },
+      { hid: 'og:site_name', name: 'og:site_name', content: 'RPI TV' },
+      { hid: 'twitter:card', name: 'twitter:card', content: 'true' },
+      { hid: 'twitter:site', name: 'twitter:site', content: 'rpitv' },
+      { hid: 'twitter:creator', name: 'twitter:creator', content: 'rpitv' },
+      // These SHOULD be changed by each page
+      { hid: 'og:title', name: 'og:title', content: defaultTitle },
+      { hid: 'og:description', name: 'og:description', content: defaultDescription },
+      { hid: 'twitter:description', name: 'twitter:description', content: defaultDescription },
+      { hid: 'description', name: 'description', content: defaultDescription }
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
