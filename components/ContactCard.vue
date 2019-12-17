@@ -44,10 +44,10 @@
   </VCard>
 </template>
 
-<script lang="ts">
+<script>
 export default {
   name: 'ContactCard',
-  data (): any {
+  data () {
     return {
       step: 1,
       selectedContactType: 'Service Request',
