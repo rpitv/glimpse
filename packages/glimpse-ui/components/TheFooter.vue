@@ -11,9 +11,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 export default {
-  data (): any {
+  data () {
     return {
       year: new Date().getFullYear()
     }

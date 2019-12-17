@@ -25,7 +25,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import RecentProductionsList from '~/components/RecentProductionsList.vue'
 import NextLivestream from '~/components/NextLivestream.vue'
 import LandingHighlights from '~/components/LandingHighlights.vue'

@@ -14,7 +14,7 @@
   </VApp>
 </template>
 
-<script lang="ts">
+<script>
 import Header from '../components/TheHeader.vue'
 import Footer from '../components/TheFooter.vue'
 import BackgroundShape from '~/components/BackgroundShape.vue'
