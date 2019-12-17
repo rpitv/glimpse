@@ -8,12 +8,12 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import ContactCard from '~/components/ContactCard.vue'
 export default {
   layout: 'with-shape',
   components: { ContactCard },
-  data (): any {
+  data () {
     return {
     }
   }

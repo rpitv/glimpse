@@ -30,7 +30,7 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/fontawesome.ts'
+    '~/plugins/fontawesome.js'
   ],
   /*
   ** Nuxt.js dev-modules
