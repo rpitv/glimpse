@@ -35,6 +35,24 @@ export default {
     LandingHighlights,
     NextLivestream,
     RecentProductionsList
+  },
+  data () {
+    return {
+      title: 'RPI TV Official Site - Your exclusive home for RPI Hockey and campus broadcasting.',
+      description: 'RPI TV is a student-run broadcasting club committed to providing ' +
+        'professional coverage of campus events and sports games.'
+    }
+  },
+  head () {
+    return {
+      title: this.title,
+      meta: [
+        { hid: 'og:title', name: 'og:title', content: this.title },
+        { hid: 'og:description', name: 'og:description', content: this.description },
+        { hid: 'description', name: 'description', content: this.description },
+        { hid: 'twitter:description', name: 'twitter:description', content: this.description }
+      ]
+    }
   }
 }
 </script>

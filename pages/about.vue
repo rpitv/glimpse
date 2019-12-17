@@ -50,7 +50,23 @@
 
 <script>
 export default {
-
+  data () {
+    return {
+      title: 'About us - RPI TV',
+      description: 'We\'re a student-run organization committed to providing professional-level TV coverage.'
+    }
+  },
+  head () {
+    return {
+      title: this.title,
+      meta: [
+        { hid: 'og:title', name: 'og:title', content: this.title },
+        { hid: 'og:description', name: 'og:description', content: this.description },
+        { hid: 'description', name: 'description', content: this.description },
+        { hid: 'twitter:description', name: 'twitter:description', content: this.description }
+      ]
+    }
+  }
 }
 </script>
 
