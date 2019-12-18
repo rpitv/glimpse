@@ -1,5 +1,8 @@
 language: node_js
 node_js:
   - 12
+script:
+  - npm run test
+  - npm run build
 before_install:
   - printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=\${NPM_TOKEN}" > .npmrc
