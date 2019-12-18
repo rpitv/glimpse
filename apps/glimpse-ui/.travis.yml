@@ -4,6 +4,7 @@ node_js:
 before_install:
   - printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=\${NPM_TOKEN}" > .npmrc
 install:
+  - npm i
   - npm i -g codecov
 script:
   - npm run test
