@@ -86,12 +86,12 @@
       <div class="d-none d-sm-flex d-md-none app-nav-right-items">
         <VMenu open-on-hover>
           <template v-slot:activator="{ on }">
-            <v-btn
+            <VBtn
               v-on="on"
               text
             >
               More <font-awesome-icon :icon="['fal','chevron-down']" class="more-icon" />
-            </v-btn>
+            </VBtn>
           </template>
 
           <VList>
