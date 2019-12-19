@@ -7,6 +7,14 @@
           Privacy Policy
         </NuxtLink>
       </p>
+      <p>
+        |
+      </p>
+      <p>
+        <a href="https://info.rpi.edu/statement-of-accessibility">
+          Accessibility Statement
+        </a>
+      </p>
     </VFooter>
   </div>
 </template>
