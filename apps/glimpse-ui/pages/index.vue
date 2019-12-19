@@ -15,7 +15,7 @@
         <p>
           Interested in joining the club? We meet every Tuesday at 9pm in the Rensselaer Union, room 3202. If
           this doesn't work for you, get in contact with us! <NuxtLink to="/join">
-            More information can be found here.
+            More information can be found on the Join page.
           </NuxtLink>
         </p>
       </VCol>
