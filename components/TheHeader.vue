@@ -63,7 +63,7 @@
       elevate-on-scroll
       dark
     >
-      <span class="hidden-sm-and-up">
+      <span class="hidden-sm-and-up" aria-label="open navigation drawer">
         <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
       </span>
 
