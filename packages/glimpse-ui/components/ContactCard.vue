@@ -19,8 +19,13 @@
           </VStepperHeader>
           <VStepperItems>
             <VStepperContent step="1">
-              <VSubheader>What are you contacting us about?</VSubheader>
-              <VSelect :items="contactTypes" v-model="selectedContactType" menu-props="auto" />
+              <VSelect
+                :items="contactTypes"
+                v-model="selectedContactType"
+                menu-props="auto"
+                label="What are you contacting us about?"
+                aria-required="true"
+              />
             </VStepperContent>
             <VStepperContent step="2">
               <VSubheader>What are you contacting us about?</VSubheader>
