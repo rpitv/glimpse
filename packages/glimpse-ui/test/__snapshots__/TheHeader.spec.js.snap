@@ -230,6 +230,7 @@ exports[`TheHeader Properly renders 1`] = `
     value="true"
   >
     <span
+      aria-label="open navigation drawer"
       class="hidden-sm-and-up"
     >
       <font-awesome-icon-stub
