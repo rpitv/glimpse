@@ -45,6 +45,7 @@
     "sinon": "^7.5.0",
     "ts-jest": "^24.2.0",
     "vue-jest": "^4.0.0-beta.2",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vue": "latest"
   }
 }
