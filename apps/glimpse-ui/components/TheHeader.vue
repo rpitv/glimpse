@@ -5,7 +5,7 @@
       <VList nav>
         <!-- Header -->
         <VListItem class="drawer-header">
-          <img src="../assets/rpitv_logo.png" alt="Logo" class="tv-logo">
+          <img src="../assets/rpitv_logo_400.png" alt="Logo" class="tv-logo">
           <h3>RPI TV</h3>
         </VListItem>
         <VListItemSubtitle class="drawer-social">
@@ -69,7 +69,7 @@
       </span>
 
       <VToolbarTitle class="app-nav-header">
-        <img @load="fadeInLogo" src="../assets/rpitv_logo.png" alt="Logo" class="tv-logo">
+        <img @load="fadeInLogo" src="../assets/rpitv_logo_400.png" alt="Logo" class="tv-logo">
       </VToolbarTitle>
 
       <!-- Left menu items -->
