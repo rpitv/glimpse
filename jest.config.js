@@ -15,8 +15,7 @@ module.exports = {
   'coverageDirectory': './coverage/',
   'collectCoverage': true,
   'collectCoverageFrom': [
-    '<rootDir>/components/**/*.vue',
-    '<rootDir>/pages/**/*.vue'
+    '<rootDir>/components/**/*.vue'
   ],
   'setupFilesAfterEnv': [
     '<rootDir>/test-init.js'
