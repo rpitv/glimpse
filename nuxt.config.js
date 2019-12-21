@@ -4,6 +4,7 @@ const defaultDescription = 'RPI TV is a student-run broadcasting club committed 
   'professional coverage of campus events and sports games.'
 
 export default {
+  name: 'RPI TV',
   mode: 'universal',
   /*
   ** Headers of the page
@@ -86,5 +87,26 @@ export default {
    */
   vuetify: {
     optionsPath: './vuetify.config.js'
+  },
+  /*
+   ** PWA Configuration
+   */
+  pwa: {
+    workbox: {
+
+    },
+    icon: {
+      iconSrc: 'static/rpitv-app-icon.png'
+    },
+    manifest: {
+      name: 'RPI TV',
+      short_name: 'RPI TV',
+      display: 'standalone',
+      background_color: '#f33',
+      description: 'Official Website for RPI TV.',
+      categories: ['entertainment', 'news', 'sports'],
+      lang: 'en-US',
+      theme_color: '#f33'
+    }
   }
 }
