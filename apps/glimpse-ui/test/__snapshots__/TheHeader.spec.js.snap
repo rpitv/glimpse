@@ -26,7 +26,7 @@ exports[`TheHeader Properly renders 1`] = `
         <img
           alt="Logo"
           class="tv-logo"
-          src="../assets/rpitv_logo.png"
+          src="../assets/rpitv_logo_400.png"
         />
          
         <h3>
@@ -38,6 +38,7 @@ exports[`TheHeader Properly renders 1`] = `
         class="drawer-social"
       >
         <a
+          aria-label="YouTube"
           href="https://youtube.com/rpitv"
         >
           <font-awesome-icon-stub
@@ -46,6 +47,7 @@ exports[`TheHeader Properly renders 1`] = `
           />
         </a>
         <a
+          aria-label="Twitter"
           href="https://twitter.com/rpitv"
         >
           <font-awesome-icon-stub
@@ -54,6 +56,7 @@ exports[`TheHeader Properly renders 1`] = `
           />
         </a>
         <a
+          aria-label="Reddit"
           href="https://reddit.com/u/rpi_tv"
         >
           <font-awesome-icon-stub
@@ -245,7 +248,7 @@ exports[`TheHeader Properly renders 1`] = `
       <img
         alt="Logo"
         class="tv-logo"
-        src="../assets/rpitv_logo.png"
+        src="../assets/rpitv_logo_400.png"
       />
     </vtoolbartitle-stub>
      
