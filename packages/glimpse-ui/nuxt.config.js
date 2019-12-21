@@ -99,14 +99,14 @@ export default {
       iconSrc: 'static/rpitv-app-icon.png'
     },
     manifest: {
-      name: 'RPI TV',
+      name: 'RPI TV Official',
       short_name: 'RPI TV',
       display: 'standalone',
-      background_color: '#f33',
+      background_color: '#313131',
       description: 'Official Website for RPI TV.',
       categories: ['entertainment', 'news', 'sports'],
       lang: 'en-US',
-      theme_color: '#f33'
+      theme_color: '#b05454'
     }
   }
 }
