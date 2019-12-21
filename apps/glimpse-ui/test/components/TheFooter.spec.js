@@ -2,7 +2,7 @@ import { shallowMount, RouterLinkStub } from '@vue/test-utils'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueRouter from 'vue-router'
-import VuetifyOptions from '../vuetify.config'
+import VuetifyOptions from '../../vuetify.config'
 import TheFooter from '~/components/TheFooter'
 
 Vue.use(VueRouter)
