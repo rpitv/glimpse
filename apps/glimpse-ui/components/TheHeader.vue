@@ -13,6 +13,7 @@
             v-for="item in socials"
             :key="item.title"
             :href="item.path"
+            :aria-label="item.title"
           >
             <font-awesome-icon :icon="['fab', item.icon]" size="lg" />
           </a>
