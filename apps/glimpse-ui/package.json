@@ -42,7 +42,9 @@
     "jest-serializer-vue": "^2.0.2",
     "node-sass": "^4.13.0",
     "sass-loader": "^8.0.0",
+    "sinon": "^7.5.0",
     "ts-jest": "^24.2.0",
-    "vue-jest": "^4.0.0-beta.2"
+    "vue-jest": "^4.0.0-beta.2",
+    "vue-router": "latest"
   }
 }

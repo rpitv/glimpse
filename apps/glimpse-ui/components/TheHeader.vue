@@ -69,7 +69,7 @@
       </span>
 
       <VToolbarTitle class="app-nav-header">
-        <img @load="fadeInLogo" src="../assets/rpitv_logo_400.png" alt="Logo" class="tv-logo">
+        <img src="../assets/rpitv_logo_400.png" alt="Logo" class="tv-logo">
       </VToolbarTitle>
 
       <!-- Left menu items -->
@@ -160,13 +160,6 @@ export default {
     window.removeEventListener('scroll', this.scrollHandler)
   },
   methods: {
-    /**
-     * Fade in (or out) the logo. Used by load event of the logo, to fade in once loaded.
-     * @param e Event
-     */
-    fadeInLogo (e) {
-      e.target.classList.toggle('visible')
-    },
     scrollHandler () {
       this.scrollDistance = window.scrollY
     }
@@ -212,11 +205,6 @@ export default {
     margin-left: 5px;
   }
   .app-nav-header .tv-logo {
-    /* Logo is invisible by default until .visible is applied */
-    &.visible {
-      opacity: 1;
-    }
-    opacity: 0;
 
     transition: opacity 0.5s;
     @media(min-width: 600px) and (max-width: 700px) {
