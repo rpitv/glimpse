@@ -2,6 +2,7 @@ import { shallowMount, RouterLinkStub } from '@vue/test-utils'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueRouter from 'vue-router'
+import Sinon from 'sinon'
 import VuetifyOptions from '../vuetify.config'
 import TheHeader from '@/components/TheHeader.vue'
 
@@ -34,9 +35,23 @@ describe('TheHeader', () => {
   test('Handles transparent top correctly', () => {
     mount({
       propsData: {
-        transparentAtTop: true
+        transparentAtTop: true,
+        attachToDocument: true
       }
     })
     expect(wrapper.find('vappbar-stub').element).toHaveAttribute('color', '#00000000')
+  })
+
+  test('Destroy unregisters event listener', () => {
+    const spy = Sinon.stub()
+    mount({
+      attachToDocument: true,
+      destroyed () {
+        spy()
+      }
+    })
+    wrapper.destroy()
+
+    expect(spy.calledOnce).toBe(true)
   })
 })
