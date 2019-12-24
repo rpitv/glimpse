@@ -42,18 +42,26 @@
                   :rules="rules.srContactEmail"
                   v-model="input.serviceRequest.contact.email"
                   required
+                  autocomplete="email"
                   aria-required="true"
                   label="Email *"
                   maxlength="320"
                   hint="We will contact this email to confirm whether we are available or not."
                 />
-                <VTextField v-model="input.serviceRequest.contact.name" :rules="rules.srContactName" required label="Name *" />
+                <VTextField
+                  v-model="input.serviceRequest.contact.name"
+                  :rules="rules.srContactName"
+                  required
+                  label="Name *"
+                  autocomplete="name"
+                />
                 <VRow>
                   <VCol cols="12" sm="4" md="3">
                     <VTextField
                       :rules="rules.srContactPhoneCC"
                       v-model="input.serviceRequest.contact.phoneCC"
                       v-mask="'+####'"
+                      autocomplete="tel-country-code"
                       required
                       aria-required="true"
                       label="Phone Country Code *"
@@ -64,6 +72,7 @@
                       :rules="rules.srContactPhone"
                       v-model="input.serviceRequest.contact.phone"
                       v-mask="'###-###-####'"
+                      autocomplete="tel"
                       required
                       aria-required="true"
                       label="Emergency Phone Number *"
