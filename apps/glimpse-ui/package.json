@@ -22,8 +22,10 @@
     "@nuxtjs/dotenv": "^1.4.0",
     "@nuxtjs/pwa": "^3.0.0-beta.19",
     "@types/jest": "^24.0.23",
+    "moment": "^2.24.0",
     "nuxt": "^2.0.0",
     "regenerator-runtime": "^0.13.3",
+    "vue-the-mask": "^0.11.1",
     "vuetify": "^2.1.14"
   },
   "devDependencies": {
