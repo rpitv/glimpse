@@ -9,7 +9,7 @@ Vue.use(VueRouter)
 Vue.use(Vuetify)
 const vuetifyInstance = new Vuetify(VuetifyOptions)
 
-describe('TheFooter', () => {
+describe('BackgroundShape', () => {
   let wrapper
   function mount (opts) {
     wrapper = shallowMount(BackgroundShape, {
