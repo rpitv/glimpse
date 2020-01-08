@@ -1,5 +1,5 @@
 /* eslint-disable jest-dom/prefer-enabled-disabled */
-import { shallowMount, RouterLinkStub } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import VueRouter from 'vue-router'
@@ -12,8 +12,8 @@ const vuetifyInstance = new Vuetify(VuetifyOptions)
 
 describe('ContactCard', () => {
   let wrapper
-  function mount (opts) {
-    wrapper = shallowMount(ContactCard, {
+  function mountFn (opts) {
+    wrapper = mount(ContactCard, {
       ...opts,
       vuetify: vuetifyInstance,
       router: new VueRouter(),
@@ -22,43 +22,94 @@ describe('ContactCard', () => {
       } })
   }
 
-  test('Initially renders', () => {
-    mount()
-    expect(wrapper.find('VStepper-stub').attributes().value).toEqual('1')
+  test('Initially renders', async () => {
+    mountFn()
+    const vStepper = wrapper.find('.v-stepper')
+    expect(vStepper).not.toBeNull()
+    const vStepperContent = vStepper.findAll('.v-stepper__items .v-stepper__content')
+    expect(vStepperContent).not.toBeNull()
+    expect(vStepperContent.length).toEqual(3)
+    await wrapper.vm.$nextTick()
+    expect(vStepperContent.at(0).element).toBeVisible()
+    expect(vStepperContent.at(1).element).not.toBeVisible()
+    expect(vStepperContent.at(2).element).not.toBeVisible()
   })
 
   test('Next/back buttons change pages', async () => {
-    mount()
-    const backBtn = wrapper.find('VBtn-stub.back-btn')
-    const nextBtn = wrapper.find('VBtn-stub.next-btn')
+    mountFn()
+    await wrapper.vm.$nextTick()
+    const backBtn = wrapper.find('.v-btn.back-btn')
+    const nextBtn = wrapper.find('.v-btn.next-btn')
+    const vStepperContent = wrapper.findAll('.v-stepper .v-stepper__items .v-stepper__content')
     nextBtn.vm.$emit('click')
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('VStepper-stub').attributes().value).toEqual('2')
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for animation
+    expect(vStepperContent.at(0).element).not.toBeVisible()
+    expect(vStepperContent.at(1).element).toBeVisible()
     backBtn.vm.$emit('click')
     await wrapper.vm.$nextTick()
-    expect(wrapper.find('VStepper-stub').attributes().value).toEqual('1')
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for animation
+    expect(vStepperContent.at(0).element).toBeVisible()
+    expect(vStepperContent.at(1).element).not.toBeVisible()
   })
 
   test('Back button is disabled when on first page', async () => {
-    mount()
-    const backBtn = wrapper.find('VBtn-stub.back-btn')
-    const nextBtn = wrapper.find('VBtn-stub.next-btn')
+    mountFn()
+    const backBtn = wrapper.find('.v-btn.back-btn')
+    const nextBtn = wrapper.find('.v-btn.next-btn')
+    await wrapper.vm.$nextTick()
     expect(backBtn.element).toHaveAttribute('disabled')
     nextBtn.vm.$emit('click')
     await wrapper.vm.$nextTick()
     expect(backBtn.element).not.toHaveAttribute('disabled')
   })
 
-  test('Next button is called \'Submit\' when on last page', async () => {
-    mount()
-    const nextBtn = wrapper.find('VBtn-stub.next-btn')
-    const pageCount = wrapper.findAll('VStepperStep-stub').length
+  test('Fields are required to advance passed second step', async () => {
+    mountFn()
+    const nextBtn = wrapper.find('.v-btn.next-btn')
+    const vStepperContent = wrapper.findAll('.v-stepper .v-stepper__items .v-stepper__content')
+    nextBtn.vm.$emit('click')
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for animation
+    expect(vStepperContent.at(1).element).toBeVisible()
+    nextBtn.vm.$emit('click')
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for animation
+    expect(vStepperContent.at(1).element).toBeVisible()
+    expect(nextBtn.element).toBeDisabled()
 
-    for (let i = 0; i < pageCount - 1; i++) {
-      expect(nextBtn.text()).toEqual('Next')
-      nextBtn.vm.$emit('click')
-      await wrapper.vm.$nextTick()
-    }
+    // Fill out form
+    wrapper.find('.contact-sr-email input').element.value = 'joe@example.com'
+    wrapper.find('.contact-sr-email input').trigger('input')
+    wrapper.find('.contact-sr-name input').element.value = 'Joe Smith'
+    wrapper.find('.contact-sr-name input').trigger('input')
+    wrapper.find('.contact-sr-phone input').element.value = '5715556969'
+    wrapper.find('.contact-sr-phone input').trigger('input')
+    await wrapper.vm.$nextTick()
+    nextBtn.vm.$emit('click')
+    await wrapper.vm.$nextTick()
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Wait for animation
+    expect(vStepperContent.at(2).element).toBeVisible()
+  })
+
+  test('Next button is called \'Submit\' when on last page', async () => {
+    mountFn()
+    const nextBtn = wrapper.find('.v-btn.next-btn')
+
+    nextBtn.vm.$emit('click')
+    await wrapper.vm.$nextTick()
+
+    // Fill out form
+    wrapper.find('.contact-sr-email input').element.value = 'joe@example.com'
+    wrapper.find('.contact-sr-email input').trigger('input')
+    wrapper.find('.contact-sr-name input').element.value = 'Joe Smith'
+    wrapper.find('.contact-sr-name input').trigger('input')
+    wrapper.find('.contact-sr-phone input').element.value = '5715556969'
+    wrapper.find('.contact-sr-phone input').trigger('input')
+
+    await wrapper.vm.$nextTick()
+    nextBtn.vm.$emit('click')
+    await wrapper.vm.$nextTick()
 
     expect(nextBtn.text()).toEqual('Submit')
   })
