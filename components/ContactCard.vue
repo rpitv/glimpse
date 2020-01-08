@@ -41,6 +41,7 @@
                 <VTextField
                   :rules="rules.srContactEmail"
                   v-model="input.serviceRequest.contact.email"
+                  class="contact-sr-email"
                   required
                   autocomplete="email"
                   aria-required="true"
@@ -51,6 +52,7 @@
                 <VTextField
                   v-model="input.serviceRequest.contact.name"
                   :rules="rules.srContactName"
+                  class="contact-sr-name"
                   required
                   label="Name *"
                   autocomplete="name"
@@ -61,6 +63,7 @@
                       :rules="rules.srContactPhoneCC"
                       v-model="input.serviceRequest.contact.phoneCC"
                       v-mask="'+####'"
+                      class="contact-sr-phone-cc"
                       autocomplete="tel-country-code"
                       required
                       aria-required="true"
@@ -72,6 +75,7 @@
                       :rules="rules.srContactPhone"
                       v-model="input.serviceRequest.contact.phone"
                       v-mask="'###-###-####'"
+                      class="contact-sr-phone"
                       autocomplete="tel"
                       required
                       aria-required="true"
@@ -93,11 +97,12 @@
                 <VTextField
                   :rules="rules.feedbackContactEmail"
                   v-model="input.feedback.contact.email"
+                  class="contact-feedback-email"
                   label="Email (optional)"
                   maxlength="320"
                   hint="We will respond to this email if we have one."
                 />
-                <VTextField v-model="input.feedback.contact.name" label="Name (optional)" />
+                <VTextField v-model="input.feedback.contact.name" class="contact-feedback-name" label="Name (optional)" />
               </div>
             </VStepperContent>
 
