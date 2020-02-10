@@ -25,6 +25,7 @@ const typeDefs = gql`
         embedLink: String
         videos: [Video!]
         category: Category
+        credits: [Credit]
         startsAt: Int! # Convert to DateTime?
         createdAt: Int! # Convert to DateTime?
         visible: Boolean! # Whether this production is visible to non-admins

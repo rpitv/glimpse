@@ -4,7 +4,9 @@ const gqlSchema = require('./schema');
 const gqlResolvers = require('./resolvers');
 const { ApolloServer } = require('apollo-server');
 
+console.log("Initializing...");
 initSchema().then(() => {
+    console.log("Schema updated.");
 
     const server = new ApolloServer({
         typeDefs: gqlSchema,
