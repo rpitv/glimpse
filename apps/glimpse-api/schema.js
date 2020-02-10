@@ -1,6 +1,8 @@
 const {gql} = require('apollo-server');
 
 const typeDefs = gql`
+    scalar DateTime
+    
     type Query {
         users: [User!]!
         members: [Person!]!
@@ -26,8 +28,8 @@ const typeDefs = gql`
         videos: [Video!]
         category: Category
         credits: [Credit]
-        startsAt: Int! # Convert to DateTime?
-        createdAt: Int! # Convert to DateTime?
+        startsAt: DateTime!
+        createdAt: DateTime!
         visible: Boolean! # Whether this production is visible to non-admins
     }
 
@@ -53,7 +55,7 @@ const typeDefs = gql`
     type User {
         id: ID!
         email: String
-        joined: Int # Should be changed to a Date scalar
+        joined: DateTime
         identity: Person
         isAdmin: Boolean
     }
@@ -63,7 +65,7 @@ const typeDefs = gql`
     type Person {
         id: ID!
         firstName: String!
-        preferredName: String!
+        preferredName: String
         lastName: String # Last names should not be required just in case
         classYear: Int # Graduating year
         roles: [Role!] # If null, assume this person has never been a member
@@ -73,8 +75,8 @@ const typeDefs = gql`
     # or they can have an unlimited number of roles. However, they should probably only have one at any given moment.
     type Role {
         name: String!
-        startDate: Int # Should be changed to a Date scalar
-        endDate: Int # Should be changed to a Date scalar
+        startDate: DateTime
+        endDate: DateTime
         priority: Int # Assuming this role is currently active, used to determine where the assigned
         # user should appear in relation to others with different roles.
     }
