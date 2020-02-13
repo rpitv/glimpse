@@ -10,7 +10,12 @@ initSchema().then(() => {
 
     const server = new ApolloServer({
         typeDefs: gqlSchema,
-        resolvers: gqlResolvers
+        resolvers: gqlResolvers,
+        context: () => {
+            return {
+                pool: require('./db-pool').pool
+            }
+        }
     });
 
 // The `listen` method launches a web server.
