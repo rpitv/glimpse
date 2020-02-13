@@ -18,12 +18,12 @@ const schema = Object.freeze({
         email: 'varchar(256) not null unique',
         joined: 'timestamp not null default NOW()',
         is_admin: 'boolean default false not null',
-        person: 'int references people(id)'
+        identity: 'int references people(id)'
     },
     roles: {
         id: 'serial not null primary key',
         name: 'varchar(128) not null',
-        person: 'int references people(id)',
+        person: 'int references people(id) not null',
         start_date: 'timestamp not null default NOW()',
         end_date: 'timestamp',
         appears_after: 'int references roles(id)' // Add constraint to prevent circular structures

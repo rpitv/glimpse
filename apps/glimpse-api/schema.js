@@ -74,11 +74,11 @@ const typeDefs = gql`
     # Roles are assigned to People to show their membership status. Not all people are required to have a role,
     # or they can have an unlimited number of roles. However, they should probably only have one at any given moment.
     type Role {
+        id: Int!
         name: String!
         startDate: DateTime
         endDate: DateTime
-        priority: Int # Assuming this role is currently active, used to determine where the assigned
-        # user should appear in relation to others with different roles.
+        appearsAfter: Role # This is the role that this role should appear after when displayed in a list.
     }
 `;
 
