@@ -17,7 +17,7 @@ class User {
      * {@link fetch}. If you call {@link save} before calling one of these two methods,
      * {@link save} will attempt to write "undefined" to all fields. Avoid using this
      * constructor directly, and use {@link getUserFromId} instead.
-     * @param id {number} ID to instantiate with.
+     * @param id {number} Numerical ID to instantiate with.
      */
     constructor(id) {
         this.id = id;
@@ -30,12 +30,12 @@ class User {
      *          e.g. row with {@link this.id} does not exist.
      */
     async fetch() {
-        const response = await pool.query('SELECT email,joined,is_admin FROM users WHERE id=$1 LIMIT 1', [this.id]);
+        const response = await pool.query('SELECT email,joined,permission_level FROM users WHERE id=$1 LIMIT 1', [this.id]);
         if(response.rows.length !== 0) {
             return false;
         }
         this.joined = response.rows[0].joined;
-        this.isAdmin = !!response.rows[0].is_admin;
+        this.permissionLevel = response.rows[0].permission_level;
         this.email = response.rows[0].email;
         return true;
     }
@@ -47,9 +47,9 @@ class User {
      * @returns {Promise<boolean>} True on successful save, false otherwise
      */
     async save() {
-        const response = await pool.query('UPDATE users SET email=$1, is_admin=$2, joined=$3 WHERE id=$4', [
+        const response = await pool.query('UPDATE users SET email=$1, permission_level=$2, joined=$3 WHERE id=$4', [
             this.email,
-            this.isAdmin,
+            this.permissionLevel,
             this.joined,
             this.id
         ]);
@@ -59,19 +59,18 @@ class User {
     /**
      * Create a new user in the database.
      * @param email {string} This user's email. Should be unique.
-     * @param isAdmin {boolean} Whether or not this user should be an admin
+     * @param permissionLevel {number} The permission level this user should have. 0 = User, 1 = Admin, 2 = Superadmin
      * @param identity {Person | number} This new user's associated Person identity
      * @returns {Promise<User>} the new User object
      * @throws PostgreSQL error
      */
-    static async createUser(email, isAdmin = false, identity = null) {
-        const response = await pool.query('INSERT INTO users (email, is_admin, identity) VALUES ($1, $2, $3) RETURNING *', [
-            email, isAdmin, identity
-        ]);
+    static async createUser(email, permissionLevel = 0, identity = null) {
+        const response = await pool.query('INSERT INTO users (email, permission_level, identity)' +
+            ' VALUES ($1, $2, $3) RETURNING *', [email, permissionLevel, identity]);
 
         const user = new User(response.rows[0].id);
         user.email = response.rows[0].email;
-        user.isAdmin = !!response.rows[0].is_admin;
+        user.permissionLevel = response.rows[0].permission_level;
         user.joined = response.rows[0].joined;
         return user;
     }
@@ -81,16 +80,54 @@ class User {
      * @returns {Promise<[User]>} All Users in the database.
      */
     static async getAllUsers() {
-        const response = await pool.query('SELECT id, email, joined, is_admin FROM users');
+        const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ASC');
         const users = [];
         for(let i = 0; i < response.rows.length; i++) {
             const user = new User(response.rows[i].id);
-            user.isAdmin = !!response.rows[i].is_admin;
+            user.permissionLevel = response.rows[i].permission_level;
             user.email = response.rows[i].email;
             user.joined = response.rows[i].joined;
             users.push(user);
         }
         return users;
+    }
+
+    /**
+     * Get a subset list of all users in a paginated manner.
+     * @param perPage {number} The total number of users to respond with per page. If less than or equal to 0, all users are
+     * returned.
+     * @param lastUserIndex {number} The index position of the last user in the list from the last time this method was called.
+     * If lastUserIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[User]>} An array of users.
+     */
+    static async getPaginatedUsers(perPage, lastUserIndex) {
+        // Go back to page one if an invalid lastUserIndex is provided.
+        if(lastUserIndex == null || lastUserIndex < -1)
+            lastUserIndex = -1;
+        // Return all users if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllUsers()).slice(lastUserIndex + 1);
+
+        const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ASC' +
+            ' LIMIT $1 OFFSET $2', [perPage, lastUserIndex + 1]);
+        const users = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const user = new User(response.rows[i].id);
+            user.permissionLevel = response.rows[i].permission_level;
+            user.email = response.rows[i].email;
+            user.joined = response.rows[i].joined;
+            users.push(user);
+        }
+        return users;
+    }
+
+    /**
+     * Get the total number of users in the database.
+     * @returns {Promise<number>} The total number of users in the database.
+     */
+    static async getUserCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM users;');
+        return response.rows[0].count;
     }
 
     /**
@@ -100,11 +137,11 @@ class User {
      * @throws PostgreSQL error
      */
     static async getUserFromEmail(email) {
-        const response = await pool.query('SELECT id,joined,is_admin FROM user WHERE email=$1 LIMIT 1', [email]);
+        const response = await pool.query('SELECT id,joined,permission_level FROM user WHERE email=$1 LIMIT 1', [email]);
         if(response.rows.length === 0)
             return null;
         const user = new User(response.rows[0].id);
-        user.isAdmin = !!response.rows[0].is_admin;
+        user.permissionLevel = response.rows[0].permission_level;
         user.email = email;
         user.joined = response.rows[0].joined;
         return user;

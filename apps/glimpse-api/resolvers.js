@@ -21,14 +21,24 @@ const resolvers = {
         }
     }),
     Query: {
-        users: async () => {
-            return User.getAllUsers();
+        users: async (obj, args) => {
+            return User.getPaginatedUsers(args.pageSize, args.prevUserIndex);
         },
-        members: async () => {
-            return Person.getAllMembers();
+        members: async (obj, args) => {
+            return Person.getPaginatedMembers(args.pageSize, args.prevPersonIndex);
         },
-        people: async () => {
-            return Person.getAllPeople();
+        people: async (obj, args) => {
+            return Person.getPaginatedPeople(args.pageSize, args.prevPersonIndex);
+        },
+
+        userCount: async () => {
+            return User.getUserCount();
+        },
+        peopleCount: async () => {
+            return Person.getPeopleCount();
+        },
+        memberCount: async () => {
+            return Person.getMemberCount();
         }
     },
     User: {

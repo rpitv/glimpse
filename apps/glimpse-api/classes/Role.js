@@ -26,7 +26,7 @@ class Role {
      * {@link fetch}. If you call {@link save} before calling one of these two methods,
      * {@link save} will attempt to write "undefined" to all fields. Avoid using this
      * constructor directly, and use {@link getRoleFromId} instead.
-     * @param id {number} ID to instantiate with.
+     * @param id {number} Numerical ID to instantiate with.
      */
     constructor(id) {
         this.id = id;
