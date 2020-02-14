@@ -17,7 +17,7 @@ const schema = Object.freeze({
         id: 'serial not null primary key',
         email: 'varchar(256) not null unique',
         joined: 'timestamp not null default NOW()',
-        is_admin: 'boolean default false not null',
+        permission_level: 'smallint default 0 not null',
         identity: 'int references people(id)'
     },
     roles: {
@@ -35,7 +35,8 @@ const schema = Object.freeze({
     images: {
         id: 'serial not null primary key',
         link: 'varchar(1000) not null',
-        name: 'varchar(100) not null'
+        name: 'varchar(100) not null',
+        added: 'timestamp not null default NOW()'
     },
     categories: {
         id: 'serial not null primary key',

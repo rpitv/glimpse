@@ -17,7 +17,7 @@ class Person {
      * {@link fetch}. If you call {@link save} before calling one of these two methods,
      * {@link save} will attempt to write "undefined" to all fields. Avoid using this
      * constructor directly, and use {@link getPersonFromId} instead.
-     * @param id {number} ID to instantiate with.
+     * @param id {number} Numerical ID to instantiate with.
      */
     constructor(id) {
         this.id = id;
@@ -102,7 +102,8 @@ class Person {
      * @returns {Promise<[Person]>} All People
      */
     static async getAllPeople() {
-        const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people');
+        const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people ' +
+            'ORDER BY first_name ASC, last_name ASC');
         const people = [];
         for(let i = 0; i < response.rows.length; i++) {
             const person = new Person(response.rows[i].id);
@@ -114,6 +115,85 @@ class Person {
         }
         return people;
     }
+
+    /**
+     * Get a subset list of all people in a paginated manner.
+     * @param perPage {number} The total number of people to respond with per page. If less than or equal to 0, all
+     * people are returned.
+     * @param lastPersonIndex {number} The index position of the last person in the list from the last time this method
+     * was called. If lastPersonIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Person]>} An array of people.
+     */
+    static async getPaginatedPeople(perPage, lastPersonIndex) {
+        // Go back to page one if an invalid lastPersonIndex is provided.
+        if(lastPersonIndex == null || lastPersonIndex < -1)
+            lastPersonIndex = -1;
+        // Return all users if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllPeople()).slice(lastPersonIndex + 1);
+
+        const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people ' +
+            'ORDER BY first_name ASC, last_name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastPersonIndex + 1]);
+        const people = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const person = new Person(response.rows[i].id);
+            person.firstName = response.rows[i].first_name;
+            person.lastName = response.rows[i].last_name;
+            person.preferredName = response.rows[i].preferred_name;
+            person.classYear = response.rows[i].class_year;
+            people.push(person);
+        }
+        return people;
+    }
+
+    /**
+     Get a subset list of all people with active roles in a paginated manner.
+     * @param perPage {number} The total number of people to respond with per page. If less than or equal to 0, all
+     * people are returned.
+     * @param lastMemberIndex {number} The index position of the last person in the list from the last time this method
+     * was called. If lastPersonIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Person]>} An array of people which are current members of the club.
+     */
+    static async getPaginatedMembers(perPage, lastMemberIndex) {
+        // Go back to page one if an invalid lastMemberIndex is provided.
+        if(lastMemberIndex == null || lastMemberIndex < -1)
+            lastMemberIndex = -1;
+        // Return all users if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllMembers()).slice(lastMemberIndex + 1);
+
+        // Select all people joined with any roles they have in the roles table, but limit the number of
+        // rows which can be returned for each person to only one, and constrain the results to only be
+        // people whose roles are currently active.
+        const response = pool.query('SELECT ' +
+            'people.id, people.first_name, people.last_name, people.preferred_name, people.class_year FROM people ' +
+            'RIGHT OUTER JOIN roles ON people.id = roles.person ' +
+            'WHERE roles.start_date < NOW() AND (roles.end_date IS NULL OR roles.end_date > NOW()) ' +
+            'GROUP BY people.id, people.first_name, people.last_name, people.class_year, people.preferred_name ' +
+            'ORDER BY people.first_name ASC, people.last_name ASC, people.id ASC ' +
+            'LIMIT $1 OFFSET $2', [perPage, lastMemberIndex + 1]);
+
+        const people = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const person = new Person(response.rows[i].id);
+            person.firstName = response.rows[i].first_name;
+            person.lastName = response.rows[i].last_name;
+            person.preferredName = response.rows[i].preferred_name;
+            person.classYear = response.rows[i].class_year;
+            people.push(person);
+        }
+        return people;
+    }
+
+    /**
+     * Get the total number of people in the database.
+     * @returns {Promise<number>} The total number of people in the database.
+     */
+    static async getPeopleCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM people;');
+        return response.rows[0].count;
+    }
+
 
     /**
      * Get all People in the club which are active members, i.e. they have an active Role in the club.
@@ -128,6 +208,16 @@ class Person {
             }
         }
         return members;
+    }
+
+    /**
+     * Get the total number of active members in the database.
+     * @returns {Promise<number>} The total number of active members in the database.
+     */
+    static async getMemberCount() {
+        const response = await pool.query('SELECT COUNT(DISTINCT person) FROM roles WHERE start_date < NOW() AND ' +
+            '(end_date IS NULL or end_date > NOW());');
+        return response.rows[0].count;
     }
 
     /**
