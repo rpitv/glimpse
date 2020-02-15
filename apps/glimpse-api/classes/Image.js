@@ -44,7 +44,7 @@ class Image {
      */
     async fetch() {
         const response = await pool.query('SELECT name,link,added FROM images WHERE id=$1 LIMIT 1', [this.id]);
-        if(response.rows.length !== 0) {
+        if(response.rows.length === 0) {
             return false;
         }
         this.name = response.rows[0].name;

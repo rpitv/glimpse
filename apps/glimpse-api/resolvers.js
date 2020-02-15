@@ -1,25 +1,11 @@
-const { GraphQLScalarType } = require('graphql');
 const { Person } = require('./classes/Person');
 const { User } = require('./classes/User');
 const { Role } = require('./classes/Role');
+const { DateTimeResolver } = require('graphql-scalars');
+
 
 const resolvers = {
-    DateTime: new GraphQLScalarType({
-        name: 'DateTime',
-        description: 'A timestamp containing a date and a time.',
-        serialize(val) {
-            return val.getTime()
-        },
-        parseValue(val) {
-            return new Date(val);
-        },
-        parseLiteral(ast) {
-            if (ast.kind === Kind.INT) {
-                return new Date(ast.value) // ast value is always in string format
-            }
-            return null;
-        }
-    }),
+    DateTime: DateTimeResolver,
     Query: {
         users: async (obj, args) => {
             return User.getPaginatedUsers(args.pageSize, args.prevUserIndex);
@@ -54,6 +40,73 @@ const resolvers = {
     Role: {
         appearsAfter: async(obj) => {
             return obj.getPreviousRole();
+        }
+    },
+
+    Mutation: {
+        createPerson: async (obj, args) => {
+            return Person.createPerson(args.firstName, args.lastName, args.preferredName, args.classYear);
+        },
+        updatePerson: async (obj, args) => {
+            const person = await Person.getPersonFromId(args.id);
+            if(person == null)
+                throw new Error('Person with the provided \'id\' does not exist!');
+            if(args.firstName !== undefined) {
+                person.firstName = args.firstName;
+            }
+            if(args.lastName !== undefined) {
+                person.lastName = args.lastName;
+            }
+            if(args.preferredName !== undefined) {
+                person.preferredName = args.preferredName;
+            }
+            if(args.classYear !== undefined) {
+                person.classYear = args.classYear;
+            }
+            if(await person.save())
+                return person;
+            return null;
+        },
+        deletePerson: async (obj, args) => {
+            const person = await Person.getPersonFromId(args.id);
+            if(person == null)
+                throw new Error('Person with the provided \'id\' does not exist!');
+            await person.delete();
+            return true;
+        },
+        createRole: async (obj, args) => {
+            return Role.createRole(await Person.getPersonFromId(args.owner), args.name, args.startDate,
+                args.endDate, await Role.getRoleFromId(args.appearsAfter));
+        },
+        updateRole: async (obj, args) => {
+            const role = await Role.getRoleFromId(args.id);
+            if(role == null)
+                throw new Error('Role with the provided \'id\' does not exist!');
+            if(args.name !== undefined) {
+                role.name = args.name;
+            }
+            if(args.owner !== undefined) {
+                await role.setOwner(args.owner);
+            }
+            if(args.startDate !== undefined) {
+                role.startDate = args.startDate;
+            }
+            if(args.endDate !== undefined) {
+                role.endDate = args.endDate;
+            }
+            if(args.appearsAfter !== undefined) {
+                await role.setPreviousRole(args.appearsAfter);
+            }
+            if(await role.save())
+                return role;
+            return null;
+        },
+        deleteRole: async (obj, args) => {
+            const role = Role.getRoleFromId(args.id);
+            if(role == null)
+                throw new Error('Role with the provided \'id\' does not exist!');
+            await role.delete();
+            return true;
         }
     }
 };

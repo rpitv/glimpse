@@ -23,7 +23,7 @@ const schema = Object.freeze({
     roles: {
         id: 'serial not null primary key',
         name: 'varchar(128) not null',
-        person: 'int references people(id) not null',
+        owner: 'int references people(id) not null',
         start_date: 'timestamp not null default NOW()',
         end_date: 'timestamp',
         appears_after: 'int references roles(id)' // Add constraint to prevent circular structures

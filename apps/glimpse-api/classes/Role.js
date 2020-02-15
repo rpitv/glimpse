@@ -41,7 +41,7 @@ class Role {
     async fetch() {
         const response = await pool.query('SELECT name,start_date,end_date FROM roles ' +
             'WHERE id=$1 LIMIT 1', [this.id]);
-        if(response.rows.length !== 0) {
+        if(response.rows.length === 0) {
             return false;
         }
         this.name = response.rows[0].name;
@@ -67,12 +67,42 @@ class Role {
     }
 
     /**
+     * Delete this role from the database.
+     * @returns {Promise<void>}
+     */
+    async delete() {
+        await pool.query('DELETE FROM roles WHERE id=$1', [this.id]);
+    }
+
+    /**
+     * Create a new role for some person and add it to the database.
+     * @param owner {Person} The person to create this role for.
+     * @param name {string} The name of this role.
+     * @param startDate {Date} When this role should start
+     * @param endDate {Date|null} When this role should end.
+     * @param appearsAfter {Role|null} The Role that this Role should appear after in an ordered Role list.
+     * @returns {Promise<Role>} The newly created Role
+     */
+    static async createRole(owner, name, startDate = new Date(), endDate = null,
+                            appearsAfter = null) {
+        const response = await pool.query('INSERT INTO roles (owner, name, start_date, end_date, appears_after) ' +
+            'VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [owner ? owner.id : null, name, startDate, endDate, appearsAfter ? appearsAfter.id : null]);
+
+        const role = new Role(response.rows[0].id);
+        role.name = response.rows[0].name;
+        role.startDate = response.rows[0].start_date;
+        role.endDate = response.rows[0].end_date;
+        return role;
+    }
+
+    /**
      * Get the owner {@link Person} of this role. This is the person whom this role belongs to.
      * @returns {Promise<Person>} The owner of this Role
      * @throws PostgreSQL error
      */
     async getOwner() {
-        const idResponse = await pool.query('SELECT person FROM roles WHERE id=$1 LIMIT 1', [this.id]);
+        const idResponse = await pool.query('SELECT owner FROM roles WHERE id=$1 LIMIT 1', [this.id]);
         if(idResponse.rows.length === 0 || idResponse.rows[0].person == null)
             return null;
         return Person.getPersonFromId(idResponse.rows[0].person);
@@ -86,7 +116,7 @@ class Role {
      */
     async setOwner(person) {
         const id = (person == null ? null : person instanceof Person ? person.id : person);
-        const response = await pool.query('UPDATE roles SET person=$1 WHERE id=$2 LIMIT 1', [id, this.id]);
+        const response = await pool.query('UPDATE roles SET owner=$1 WHERE id=$2', [id, this.id]);
         return response && response.rowCount > 0;
     }
 
@@ -97,7 +127,7 @@ class Role {
      */
     async getPreviousRole() {
         const idResponse = await pool.query('SELECT appears_after FROM roles WHERE id=$1 LIMIT 1', [this.id]);
-        if(idResponse.rows.length === 0 || idResponse.rows[0].person == null)
+        if(idResponse.rows.length === 0 || idResponse.rows[0].appears_after == null)
             return null;
         return Role.getRoleFromId(idResponse.rows[0].appears_after);
     }
@@ -111,7 +141,7 @@ class Role {
      */
     async setPreviousRole(newRole) {
         const id = (newRole == null ? null : newRole instanceof Role ? newRole.id : newRole);
-        const response = await pool.query('UPDATE roles SET appears_after=$1 WHERE id=$2 LIMIT 1', [id, this.id]);
+        const response = await pool.query('UPDATE roles SET appears_after=$1 WHERE id=$2', [id, this.id]);
         return response && response.rowCount > 0;
     }
 
@@ -122,6 +152,8 @@ class Role {
      * @throws PostgreSQL error
      */
     static async getRoleFromId(id) {
+        if(id == null)
+            return null;
         const role = new Role(id);
         if(await role.fetch()) {
             return role;
@@ -135,10 +167,12 @@ class Role {
      * @returns {Promise<[Role]>} Array of roles that belong to that person
      */
     static async getRolesForPerson(person) {
+        if(person == null)
+            return [];
         if(person instanceof Person) {
             person = person.id;
         }
-        const result = await pool.query('SELECT * FROM roles WHERE person=$1', [person]);
+        const result = await pool.query('SELECT * FROM roles WHERE owner=$1', [person]);
         const roles = [];
         for(let i = 0; i < result.rows.length; i++) {
             const item = result.rows[i];
