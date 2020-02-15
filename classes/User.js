@@ -31,7 +31,7 @@ class User {
      */
     async fetch() {
         const response = await pool.query('SELECT email,joined,permission_level FROM users WHERE id=$1 LIMIT 1', [this.id]);
-        if(response.rows.length !== 0) {
+        if(response.rows.length === 0) {
             return false;
         }
         this.joined = response.rows[0].joined;
@@ -154,6 +154,8 @@ class User {
      * @throws PostgreSQL error
      */
     static async getUserFromId(id) {
+        if(id == null)
+            return null;
         const user = new User(id);
         if(await user.fetch()) {
             return user;
@@ -169,7 +171,7 @@ class User {
      */
     async setIdentity(person) {
         const id = (person == null ? null : person instanceof Person ? person.id : person);
-        const response = await pool.query('UPDATE users SET identity=$1 WHERE id=$2 LIMIT 1', [id, this.id]);
+        const response = await pool.query('UPDATE users SET identity=$1 WHERE id=$2', [id, this.id]);
         return response && response.rowCount > 0;
     }
 

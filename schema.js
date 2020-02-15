@@ -15,9 +15,34 @@ const typeDefs = gql`
         imageCount: Int!
     }
     
-#    type Mutation {
-#
-#    }
+    type Mutation {
+        """
+        Create a new person in the database. Returns the newly created Person.
+        """
+        createPerson(firstName: String, lastName: String, preferredName: String, classYear: Int): Person
+        """
+        Update a person in the database with new information. Returns the updated person.
+        """
+        updatePerson(id: Int!, firstName: String, lastName: String, preferredName: String, classYear: Int): Person
+        """
+        Delete a person from the database. Will also delete all of their roles.
+        Returns true on success, false otherwise
+        """
+        deletePerson(id: Int!): Boolean
+        """
+        Add a role to a person in the database. Returns the newly created Role.
+        """
+        createRole(owner: Int!, name: String! startDate: DateTime, endDate: DateTime, appearsAfter: Int): Role
+        """
+        Update an existing Role in the database with new information. Returns the new Role.
+        """
+        updateRole(id: Int!, owner: Int, name: String, startDate: DateTime, endDate: DateTime, appearsAfter: Int): Role
+        """
+        Delete a role from the database.
+        Returns true on success, false otherwise.
+        """
+        deleteRole(id: Int!): Boolean
+    }
     
     type Image {
         id: ID!
@@ -75,9 +100,9 @@ const typeDefs = gql`
     """
     type Person {
         id: ID!
-        firstName: String!
+        firstName: String
         preferredName: String
-        lastName: String # Last names should not be required just in case
+        lastName: String
         classYear: Int # Graduating year
         roles: [Role!] # If null, assume this person has never been a member
     }

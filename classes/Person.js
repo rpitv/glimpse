@@ -61,6 +61,20 @@ class Person {
     }
 
     /**
+     * Delete this Person from the database. Also removes any roles associated with them, and removes
+     * any identity associations pointing to this user
+     * @returns {Promise<void>}
+     */
+    async delete() {
+        // Remove identity association
+        await pool.query('UPDATE users SET identity=null WHERE identity=$1', [this.id]);
+        // Remove roles
+        await pool.query('DELETE FROM roles WHERE owner=$1', [this.id]);
+        // Delete this person
+        await pool.query('DELETE FROM people WHERE id=$1', [this.id]);
+    }
+
+    /**
      * Create a new person and add them to the database
      * @param firstName {string} This person's first name - Required
      * @param lastName {string} This person's last name
@@ -89,6 +103,8 @@ class Person {
      * @throws PostgreSQL error
      */
     static async getPersonFromId(id) {
+        if(id == null)
+            return null;
         const person = new Person(id);
         if(await person.fetch()) {
             return person;
@@ -167,7 +183,7 @@ class Person {
         // people whose roles are currently active.
         const response = pool.query('SELECT ' +
             'people.id, people.first_name, people.last_name, people.preferred_name, people.class_year FROM people ' +
-            'RIGHT OUTER JOIN roles ON people.id = roles.person ' +
+            'RIGHT OUTER JOIN roles ON people.id = roles.owner ' +
             'WHERE roles.start_date < NOW() AND (roles.end_date IS NULL OR roles.end_date > NOW()) ' +
             'GROUP BY people.id, people.first_name, people.last_name, people.class_year, people.preferred_name ' +
             'ORDER BY people.first_name ASC, people.last_name ASC, people.id ASC ' +
@@ -215,7 +231,7 @@ class Person {
      * @returns {Promise<number>} The total number of active members in the database.
      */
     static async getMemberCount() {
-        const response = await pool.query('SELECT COUNT(DISTINCT person) FROM roles WHERE start_date < NOW() AND ' +
+        const response = await pool.query('SELECT COUNT(DISTINCT owner) FROM roles WHERE start_date < NOW() AND ' +
             '(end_date IS NULL or end_date > NOW());');
         return response.rows[0].count;
     }
@@ -228,7 +244,7 @@ class Person {
      */
     async isMember() {
         const result = await pool.query('SELECT * FROM roles ' +
-            'WHERE person=$1 AND start_date < NOW() AND (end_date IS NULL OR end_date > NOW()) LIMIT 1', [this.id]);
+            'WHERE owner=$1 AND start_date < NOW() AND (end_date IS NULL OR end_date > NOW()) LIMIT 1', [this.id]);
         return (result.rows.length > 0);
     }
 }
