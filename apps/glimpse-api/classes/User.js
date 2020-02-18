@@ -78,6 +78,7 @@ class User {
     /**
      * Get all Users in the database.
      * @returns {Promise<[User]>} All Users in the database.
+     * @throws PostgreSQL error
      */
     static async getAllUsers() {
         const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ASC');
@@ -99,6 +100,7 @@ class User {
      * @param lastUserIndex {number} The index position of the last user in the list from the last time this method was called.
      * If lastUserIndex < -1 then this value is defaulted to -1.
      * @returns {Promise<[User]>} An array of users.
+     * @throws PostgreSQL error
      */
     static async getPaginatedUsers(perPage, lastUserIndex) {
         // Go back to page one if an invalid lastUserIndex is provided.
@@ -124,6 +126,7 @@ class User {
     /**
      * Get the total number of users in the database.
      * @returns {Promise<number>} The total number of users in the database.
+     * @throws PostgreSQL error
      */
     static async getUserCount() {
         const response = await pool.query('SELECT COUNT(id) FROM users;');

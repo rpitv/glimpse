@@ -30,7 +30,9 @@ const schema = Object.freeze({
     },
     videos: {
         id: 'serial not null primary key',
-        link: 'varchar(1000) not null'
+        name: 'varchar(128) not null',
+        video_type: 'int not null default 0',
+        data: 'json not null'
     },
     images: {
         id: 'serial not null primary key',
@@ -49,9 +51,9 @@ const schema = Object.freeze({
         name: 'varchar(256) not null',
         createdBy: 'int not null references users(id)',
         description: 'varchar(1000)',
-        embed_link: 'varchar(2000)',
         start_time: 'timestamp not null default NOW()',
         create_time: 'timestamp not null default NOW()',
+        thumbnail: 'int references images(id)',
         visible: 'boolean default true',
         category: 'int references categories(id)'
     },
@@ -60,11 +62,16 @@ const schema = Object.freeze({
         production: 'int references productions(id)',
         video: 'int references videos(id)'
     },
+    production_images: {
+        id: 'serial not null primary key',
+        production: 'int references productions(id)',
+        image: 'int references images(id)'
+    },
     credits: {
         id: 'serial not null primary key',
         person: 'int references people(id) not null',
         job: 'varchar(200) not null',
-        production: 'int references productions(id)',
+        production: 'int references productions(id) not null',
         appears_after: 'int references credits(id)' // Add constraint to make sure both are on the same production
                                                     // Add constraint to prevent circular structures
     }

@@ -51,7 +51,7 @@ class Role {
     }
 
     /**
-     * Save any changes made to this person's "primitives" to the database
+     * Save any changes made to this role's "primitives" to the database
      * Simply pushes an update to the database to rows where id == this.id
      * @throws PostgreSQL error
      * @returns {Promise<boolean>} True on successful save, false otherwise
@@ -69,8 +69,14 @@ class Role {
     /**
      * Delete this role from the database.
      * @returns {Promise<void>}
+     * @throws PostgreSQL error
      */
     async delete() {
+        const thisPrevRole = await this.getPreviousRole();
+        // Update roles which this role appears before to instead appear after this role's appearAfter.
+        // E.g., if you have a chain A -> B -> C, when B is removed, relink the roles to be A -> C.
+        await pool.query('UPDATE roles SET appears_after=$1 WHERE appears_after=$2',
+            [thisPrevRole == null ? thisPrevRole : thisPrevRole.id, this.id]);
         await pool.query('DELETE FROM roles WHERE id=$1', [this.id]);
     }
 
@@ -82,6 +88,7 @@ class Role {
      * @param endDate {Date|null} When this role should end.
      * @param appearsAfter {Role|null} The Role that this Role should appear after in an ordered Role list.
      * @returns {Promise<Role>} The newly created Role
+     * @throws PostgreSQL error
      */
     static async createRole(owner, name, startDate = new Date(), endDate = null,
                             appearsAfter = null) {
@@ -124,6 +131,7 @@ class Role {
      * Get the role which this role appears after in a list. When a person's roles are all displayed, this role should
      * be displayed after the role returned by this method.
      * @returns {Promise<Role|null>} The role to display before this role, or null if it does not exist.
+     * @throws PostgreSQL error
      */
     async getPreviousRole() {
         const idResponse = await pool.query('SELECT appears_after FROM roles WHERE id=$1 LIMIT 1', [this.id]);
@@ -138,6 +146,7 @@ class Role {
      * the role that sequentially appears before this one when all of a users roles are listed out. Pass null if you
      * wish to remove this role's previous node.
      * @returns {Promise<boolean>} True on successful update, false otherwise.
+     * @throws PostgreSQL error
      */
     async setPreviousRole(newRole) {
         const id = (newRole == null ? null : newRole instanceof Role ? newRole.id : newRole);
@@ -165,6 +174,7 @@ class Role {
      * Get an array of a person's roles; Current, past, and future.
      * @param person {Person|number} The person to get the roles of
      * @returns {Promise<[Role]>} Array of roles that belong to that person
+     * @throws PostgreSQL error
      */
     static async getRolesForPerson(person) {
         if(person == null)
