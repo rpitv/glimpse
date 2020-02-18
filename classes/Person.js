@@ -64,6 +64,7 @@ class Person {
      * Delete this Person from the database. Also removes any roles associated with them, and removes
      * any identity associations pointing to this user
      * @returns {Promise<void>}
+     * @throws PostgreSQL error
      */
     async delete() {
         // Remove identity association
@@ -116,6 +117,7 @@ class Person {
     /**
      * Get all People in the database, active members or not.
      * @returns {Promise<[Person]>} All People
+     * @throws PostgreSQL error
      */
     static async getAllPeople() {
         const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people ' +
@@ -139,6 +141,7 @@ class Person {
      * @param lastPersonIndex {number} The index position of the last person in the list from the last time this method
      * was called. If lastPersonIndex < -1 then this value is defaulted to -1.
      * @returns {Promise<[Person]>} An array of people.
+     * @throws PostgreSQL error
      */
     static async getPaginatedPeople(perPage, lastPersonIndex) {
         // Go back to page one if an invalid lastPersonIndex is provided.
@@ -169,6 +172,7 @@ class Person {
      * @param lastMemberIndex {number} The index position of the last person in the list from the last time this method
      * was called. If lastPersonIndex < -1 then this value is defaulted to -1.
      * @returns {Promise<[Person]>} An array of people which are current members of the club.
+     * @throws PostgreSQL error
      */
     static async getPaginatedMembers(perPage, lastMemberIndex) {
         // Go back to page one if an invalid lastMemberIndex is provided.
@@ -204,6 +208,7 @@ class Person {
     /**
      * Get the total number of people in the database.
      * @returns {Promise<number>} The total number of people in the database.
+     * @throws PostgreSQL error
      */
     static async getPeopleCount() {
         const response = await pool.query('SELECT COUNT(id) FROM people;');
@@ -214,6 +219,7 @@ class Person {
     /**
      * Get all People in the club which are active members, i.e. they have an active Role in the club.
      * @returns {Promise<[Person]>} Array of members in the club.
+     * @throws PostgreSQL error
      */
     static async getAllMembers() {
         const people = await this.getAllPeople();
@@ -229,6 +235,7 @@ class Person {
     /**
      * Get the total number of active members in the database.
      * @returns {Promise<number>} The total number of active members in the database.
+     * @throws PostgreSQL error
      */
     static async getMemberCount() {
         const response = await pool.query('SELECT COUNT(DISTINCT owner) FROM roles WHERE start_date < NOW() AND ' +

@@ -54,6 +54,17 @@ class Image {
     }
 
     /**
+     * Delete this Image from the database. Also removes any image associations/thumbnails with productions.
+     * @returns {Promise<void>}
+     * @throws PostgreSQL error
+     */
+    async delete() {
+        await pool.query('UPDATE productions SET thumbnail=null WHERE thumbnail=$1', [this.id]);
+        await pool.query('DELETE FROM production_images WHERE image=$1', [this.id]);
+        await pool.query('DELETE FROM images WHERE id=$1', [this.id]);
+    }
+
+    /**
      * Get an Image from the database, given it's unique ID.
      * @param id {number} Numerical ID of the image in the database.
      * @returns {Promise<Image|null>} An instance of this class with the given image's data, or null if the image
