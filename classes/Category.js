@@ -121,6 +121,60 @@ class Category {
     }
 
     /**
+     * Get the total number of categories in the database.
+     * @returns {Promise<number>} The total number of categories in the database.
+     * @throws PostgreSQL error
+     */
+    static async getCategoryCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM categories');
+        return response.rows[0].count;
+    }
+
+    /**
+     * Get all categories in the database
+     * @returns {Promise<[Category]>} A list of categories
+     * @throws PostgreSQL error
+     */
+    static async getAllCategories() {
+        const response = await pool.query('SELECT id,name FROM categories ORDER BY name ASC, id ASC');
+        const categories = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const category = new Category(response.rows[i].id);
+            category.name = response.rows[i].name;
+            categories.push(category);
+        }
+        return categories;
+    }
+
+    /**
+     * Get a subset list of all categories in a paginated manner.
+     * @param perPage {number} The total number of categories to respond with per page. If less than or equal to 0, all
+     * productions are returned.
+     * @param lastCategoryIndex {number} The index position of the last category in the list from the last time this
+     * method was called. If lastCategoryIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Production]>} An array of productions.
+     * @throws PostgreSQL error
+     */
+    static async getPaginatedCategories(perPage, lastCategoryIndex) {
+        // Go back to page one if an invalid lastCategoryIndex is provided.
+        if(lastCategoryIndex == null || lastCategoryIndex < -1)
+            lastCategoryIndex = -1;
+        // Return all categories if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllCategories()).slice(lastCategoryIndex + 1);
+
+        const response = await pool.query('SELECT id, name FROM categories ' +
+            'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastCategoryIndex + 1]);
+        const categories = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const category = new Category(response.rows[i].id);
+            category.name = response.rows[i].name;
+            categories.push(category);
+        }
+        return categories;
+    }
+
+    /**
      * Get a Category from the database, given it's unique ID.
      * @param id {number} ID of the Category to fetch.
      * @returns {Promise<Category|null>} The fetched Category, or null if the Category does not exist.

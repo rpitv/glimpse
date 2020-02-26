@@ -65,6 +65,16 @@ class Image {
     }
 
     /**
+     * Get the total number of images in the database.
+     * @returns {Promise<number>} The total number of images in the database.
+     * @throws PostgreSQL error
+     */
+    static async getImageCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM images');
+        return response.rows[0].count;
+    }
+
+    /**
      * Get an Image from the database, given it's unique ID.
      * @param id {number} Numerical ID of the image in the database.
      * @returns {Promise<Image|null>} An instance of this class with the given image's data, or null if the image
@@ -77,6 +87,55 @@ class Image {
             return image;
         }
         return null;
+    }
+
+    /**
+     * Get all images from the database
+     * @returns {Promise<[Image]>} A list of images
+     * @throws PostgreSQL error
+     */
+    static async getAllImages() {
+        const response = await pool.query('SELECT id, name, link, added FROM images ' +
+            'ORDER BY name ASC, added ASC, id ASC');
+        const images = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const img = new Image(response.rows[i].id);
+            img.name = response.rows[i].name;
+            img.link = response.rows[i].link;
+            img.added = response.rows[i].added;
+            images.push(img);
+        }
+        return images;
+    }
+
+    /**
+     * Get a subset list of all images in a paginated manner.
+     * @param perPage {number} The total number of images to respond with per page. If less than or equal to 0, all
+     * images are returned.
+     * @param lastImageIndex {number} The index position of the last image in the list from the last time this method
+     * was called. If lastImageIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Image]>} An array of images.
+     * @throws PostgreSQL error
+     */
+    static async getPaginatedImages(perPage, lastImageIndex) {
+        // Go back to page one if an invalid lastImageIndex is provided.
+        if(lastImageIndex == null || lastImageIndex < -1)
+            lastImageIndex = -1;
+        // Return all images if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllImages()).slice(lastImageIndex + 1);
+
+        const response = await pool.query('SELECT id, name, link, added FROM images ' +
+            'ORDER BY name ASC, added ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastImageIndex + 1]);
+        const images = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const img = new Image(response.rows[i].id);
+            img.name = response.rows[i].name;
+            img.link = response.rows[i].link;
+            img.added = response.rows[i].added;
+            images.push(img);
+        }
+        return images;
     }
 }
 

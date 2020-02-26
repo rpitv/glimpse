@@ -8,11 +8,26 @@ const typeDefs = gql`
         members(pageSize: Int, prevPersonIndex: Int): [Person!]!
         people(pageSize: Int, prevPersonIndex: Int): [Person!]!
         images(pageSize: Int, prevImageIndex: Int): [Image!]!
-
+        videos(pageSize: Int, prevVideoIndex: Int): [Video!]!
+        productions(pageSize: Int, prevProductionIndex: Int): [Production!]!
+        categories(pageSize: Int, prevCategoryIndex: Int): [Category!]!
+        
+        getUser(id: Int!): User
+        getPerson(id: Int!): Person
+        getRole(id: Int!): Role
+        getImage(id: Int!): Image
+        getVideo(id: Int!): Video
+        getProduction(id: Int!): Production
+        getCredit(id: Int!): Credit
+        getCategory(id: Int!): Category
+        
         userCount: Int!
         memberCount: Int!
         peopleCount: Int!
         imageCount: Int!
+        videoCount: Int!
+        productionCount: Int!
+        categoryCount: Int!
     }
     
     type Mutation {
@@ -56,8 +71,9 @@ const typeDefs = gql`
         name: String!
         createdBy: User
         description: String
-        embedLink: String
         videos: [Video!]
+        images: [Image!]
+        thumbnail: Image
         category: Category
         credits: [Credit]
         startsAt: DateTime!
@@ -68,18 +84,19 @@ const typeDefs = gql`
     type Credit {
         person: Person!
         job: String
-        priority: Int
+        appearsAfter: Credit
     }
 
     type Video {
         id: ID!
-        link: String!
+        videoType: Int!
+        data: String! # JSON
     }
 
     type Category {
         name: String!
-        priority: Int
         parent: Category
+        appearsAfter: Category
     }
 
     """

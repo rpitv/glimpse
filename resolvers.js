@@ -1,6 +1,11 @@
 const { Person } = require('./classes/Person');
 const { User } = require('./classes/User');
 const { Role } = require('./classes/Role');
+const { Image } = require('./classes/Image');
+const { Video } = require('./classes/Video');
+const { Production } = require('./classes/Production');
+const { Category } = require('./classes/Category');
+const { Credit } = require('./classes/Credit');
 const { DateTimeResolver } = require('graphql-scalars');
 
 
@@ -16,6 +21,43 @@ const resolvers = {
         people: async (obj, args) => {
             return Person.getPaginatedPeople(args.pageSize, args.prevPersonIndex);
         },
+        images: async (obj, args) => {
+            return Image.getPaginatedImages(args.pageSize, args.prevImageIndex);
+        },
+        videos: async (obj, args) => {
+            return Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex);
+        },
+        productions: async (obj, args) => {
+            return Production.getPaginatedProductions(args.pageSize, args.prevProductionIndex);
+        },
+        categories: async (obj, args) => {
+            return Category.getPaginatedCategories(args.pageSize, args.prevCategoryIndex);
+        },
+
+        getUser: async (obj, args) => {
+            return User.getUserFromId(args.id);
+        },
+        getPerson: async (obj, args) => {
+            return Person.getPersonFromId(args.id);
+        },
+        getRole: async (obj, args) => {
+            return Role.getRoleFromId(args.id);
+        },
+        getImage: async (obj, args) => {
+            return Image.getImageFromId(args.id);
+        },
+        getVideo: async (obj, args) => {
+            return Video.getVideoFromId(args.id);
+        },
+        getProduction: async (obj, args) => {
+            return Production.getProductionFromId(args.id);
+        },
+        getCategory: async (obj, args) => {
+            return Category.getCategoryFromId(args.id);
+        },
+        getCredit: async (obj, args) => {
+            return Credit.getCreditFromId(args.id);
+        },
 
         userCount: async () => {
             return User.getUserCount();
@@ -25,6 +67,18 @@ const resolvers = {
         },
         memberCount: async () => {
             return Person.getMemberCount();
+        },
+        imageCount: async () => {
+            return Image.getImageCount();
+        },
+        videoCount: async () => {
+            return Video.getVideoCount();
+        },
+        productionCount: async () => {
+            return Production.getProductionCount();
+        },
+        categoryCount: async () => {
+            return Category.getCategoryCount();
         }
     },
     User: {
@@ -40,6 +94,42 @@ const resolvers = {
     Role: {
         appearsAfter: async(obj) => {
             return obj.getPreviousRole();
+        }
+    },
+    Production: {
+        videos: async (obj) => {
+            return obj.getProductionVideos();
+        },
+        images: async (obj) => {
+            return obj.getProductionImages();
+        },
+        createdBy: async (obj) => {
+            return obj.getCreator();
+        },
+        category: async (obj) => {
+            return obj.getCategory();
+        },
+        thumbnail: async (obj) => {
+            return obj.getThumbnail();
+        },
+        credits: async (obj) => {
+            return Credit.getCreditsForProduction(obj);
+        }
+    },
+    Credit: {
+        person: async (obj) => {
+            return obj.getPerson();
+        },
+        appearsAfter: async (obj) => {
+            return obj.getPreviousCredit();
+        }
+    },
+    Category: {
+        parent: async (obj) => {
+            return obj.getParentCategory();
+        },
+        appearsAfter: async (obj) => {
+            return obj.getPreviousCategory();
         }
     },
 
