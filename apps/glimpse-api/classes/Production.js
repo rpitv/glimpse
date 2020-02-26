@@ -234,6 +234,65 @@ class Production {
     }
 
     /**
+     * Get the total number of productions in the database.
+     * @returns {Promise<number>} The total number of productions in the database.
+     * @throws PostgreSQL error
+     */
+    static async getProductionCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM productions');
+        return response.rows[0].count;
+    }
+
+    static async getAllProductions() {
+        const response = await pool.query('SELECT id,name,description,start_time,create_time,visible FROM ' +
+            'productions ORDER BY create_time ASC, name ASC, id ASC');
+        const productions = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const prod = new Production(response.rows[i].id);
+            prod.name = response.rows[i].name;
+            prod.description = response.rows[i].description;
+            prod.startTime = response.rows[i].start_time;
+            prod.createTime = response.rows[i].create_time;
+            prod.visible = !!response.rows[i].visible;
+            productions.push(prod);
+        }
+        return productions;
+    }
+
+    /**
+     * Get a subset list of all productions in a paginated manner.
+     * @param perPage {number} The total number of productions to respond with per page. If less than or equal to 0, all
+     * productions are returned.
+     * @param lastProductionIndex {number} The index position of the last production in the list from the last time this
+     * method was called. If lastProductionIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Production]>} An array of productions.
+     * @throws PostgreSQL error
+     */
+    static async getPaginatedProductions(perPage, lastProductionIndex) {
+        // Go back to page one if an invalid lastProductionIndex is provided.
+        if(lastProductionIndex == null || lastProductionIndex < -1)
+            lastProductionIndex = -1;
+        // Return all productions if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllProductions()).slice(lastProductionIndex + 1);
+
+        const response = await pool.query('SELECT id, name, description, start_time, create_time, visible, added ' +
+            'FROM productions ' +
+            'ORDER BY create_time ASC, name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastProductionIndex + 1]);
+        const productions = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const prod = new Production(response.rows[i].id);
+            prod.name = response.rows[i].name;
+            prod.description = response.rows[i].description;
+            prod.startTime = response.rows[i].start_time;
+            prod.createTime = response.rows[i].create_time;
+            prod.visible = !!response.rows[i].visible;
+            productions.push(prod);
+        }
+        return productions;
+    }
+
+    /**
      * Get a production from the database, given it's unique ID.
      * @param id {number} ID of the production to fetch.
      * @returns {Promise<Production|null>} The fetched production, or null if the production does not exist.

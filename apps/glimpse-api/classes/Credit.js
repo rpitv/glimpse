@@ -157,6 +157,23 @@ class Credit {
         }
         return null;
     }
+
+    /**
+     * Fetch all the credits that belong to a given production.
+     * @param production {Production|number} The production to fetch credits for, or the production's ID.
+     * @returns {Promise<[Credit]>} Array of credits for the given production.
+     */
+    static async getCreditsForProduction(production) {
+        const id = production instanceof Production ? production.id : production;
+        const response = await pool.query('SELECT id,job FROM credits WHERE production = $1', [id]);
+        const credits = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const credit = new Credit(response.rows[i].id);
+            credit.job = response.rows[i].job;
+            credits.push(credit);
+        }
+        return credits;
+    }
 }
 
 module.exports = { Credit };

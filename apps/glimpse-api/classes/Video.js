@@ -74,6 +74,64 @@ class Video {
     }
 
     /**
+     * Get the total number of videos in the database.
+     * @returns {Promise<number>} The total number of videos in the database.
+     * @throws PostgreSQL error
+     */
+    static async getVideoCount() {
+        const response = await pool.query('SELECT COUNT(id) FROM videos');
+        return response.rows[0].count;
+    }
+
+    /**
+     * Get all videos from the database.
+     * @returns {Promise<[Video]>} A list of videos
+     * @throws PostgreSQL error
+     */
+    static async getAllVideos() {
+        const response = await pool.query('SELECT id, name, video_type, data FROM videos ORDER BY name ASC, id ASC');
+        const videos = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const video = new Video(response.rows[i].id);
+            video.name = response.rows[i].name;
+            video.videoType = response.rows[i].video_type;
+            video.data = response.rows[i].data;
+            videos.push(video);
+        }
+        return videos;
+    }
+
+    /**
+     * Get a subset list of all videos in a paginated manner.
+     * @param perPage {number} The total number of videos to respond with per page. If less than or equal to 0, all
+     * videos are returned.
+     * @param lastVideoIndex {number} The index position of the last video in the list from the last time this method
+     * was called. If lastVideoIndex < -1 then this value is defaulted to -1.
+     * @returns {Promise<[Video]>} An array of videos.
+     * @throws PostgreSQL error
+     */
+    static async getPaginatedVideos(perPage, lastVideoIndex) {
+        // Go back to page one if an invalid lastVideoIndex is provided.
+        if(lastVideoIndex == null || lastVideoIndex < -1)
+            lastVideoIndex = -1;
+        // Return all images if no item count per page is provided.
+        if(perPage == null || perPage <= 0)
+            return (await this.getAllVideos()).slice(lastVideoIndex + 1);
+
+        const response = await pool.query('SELECT id, name, video_type, data FROM videos ' +
+            'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastVideoIndex + 1]);
+        const videos = [];
+        for(let i = 0; i < response.rows.length; i++) {
+            const video = new Video(response.rows[i].id);
+            video.name = response.rows[i].name;
+            video.videoType = response.rows[i].video_type;
+            video.data = response.rows[i].data;
+            videos.push(video);
+        }
+        return videos;
+    }
+
+    /**
      * Get a Video from the database, given its unique ID.
      * @param id {number} ID to search for in the database
      * @returns {Promise<null|Video>} The fetched Video, or null if the Video does not exist.
