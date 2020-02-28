@@ -49,7 +49,7 @@ const schema = Object.freeze({
     productions: {
         id: 'serial not null primary key',
         name: 'varchar(256) not null',
-        createdBy: 'int not null references users(id)',
+        created_by: 'int not null references users(id)',
         description: 'varchar(1000)',
         start_time: 'timestamp not null default NOW()',
         create_time: 'timestamp not null default NOW()',
