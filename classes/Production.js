@@ -129,10 +129,10 @@ class Production {
      * @returns {Promise<User>} The user that created this production
      */
     async getCreator() {
-        const idResponse = await pool.query('SELECT createdBy FROM productions WHERE id=$1 LIMIT 1', [this.id]);
+        const idResponse = await pool.query('SELECT created_by FROM productions WHERE id=$1 LIMIT 1', [this.id]);
         if(idResponse.rows.length === 0)
             return null;
-        return User.getUserFromId(idResponse.rows[0].createdBy);
+        return User.getUserFromId(idResponse.rows[0].created_by);
     }
 
     /**
@@ -143,7 +143,7 @@ class Production {
      */
     async setCreator(user) {
         const id = user instanceof User ? user.id : user;
-        const response = await pool.query('UPDATE productions SET createdBy=$1 WHERE id=$2', [id, this.id]);
+        const response = await pool.query('UPDATE productions SET created_by=$1 WHERE id=$2', [id, this.id]);
         return response && response.rowCount > 0;
     }
 

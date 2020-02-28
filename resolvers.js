@@ -6,11 +6,12 @@ const { Video } = require('./classes/Video');
 const { Production } = require('./classes/Production');
 const { Category } = require('./classes/Category');
 const { Credit } = require('./classes/Credit');
-const { DateTimeResolver } = require('graphql-scalars');
+const { DateTimeResolver, JSONResolver } = require('graphql-scalars');
 
 
 const resolvers = {
     DateTime: DateTimeResolver,
+    JSON: JSONResolver,
     Query: {
         users: async (obj, args) => {
             return User.getPaginatedUsers(args.pageSize, args.prevUserIndex);
