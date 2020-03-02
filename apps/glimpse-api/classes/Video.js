@@ -160,7 +160,7 @@ class Video {
             [name, videoType, data]);
         const video = new Video(response.rows[0].id);
         video.name = response.rows[0].name;
-        video.videoType = response.rows[0].videoType;
+        video.videoType = response.rows[0].video_type;
         video.data = response.rows[0].data;
         return video;
     }

@@ -263,6 +263,7 @@ const typeDefs = gql`
     by the backend, allowing for complex ordering of which Credits should appear first.
     """
     type Credit {
+        id: Int!
         person: Person!
         job: String
         appearsAfter: Credit
