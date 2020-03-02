@@ -8,7 +8,6 @@ const { Category } = require('./classes/Category');
 const { Credit } = require('./classes/Credit');
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars');
 
-
 const resolvers = {
     DateTime: DateTimeResolver,
     JSON: JSONResolver,
@@ -197,6 +196,197 @@ const resolvers = {
             if(role == null)
                 throw new Error('Role with the provided \'id\' does not exist!');
             await role.delete();
+            return true;
+        },
+        uploadImage: async (obj, args) => {
+            return Image.uploadImage(args.name, (await args.file).stream);
+        },
+        createOffsiteImage: async (obj, args) => {
+            return Image.createImage(args.name, args.link);
+        },
+        deleteImage: async (obj, args) => {
+            const img = Image.getImageFromId(args.id);
+            if(img == null) {
+                throw new Error('Image with the provided \'id\' does not exist!');
+            }
+            await img.delete();
+            return true;
+        },
+        updateImage: async (obj, args) => {
+            const img = Image.getImageFromId(args.id);
+            if(img == null) {
+                throw new Error('Image with the provided \'id\' does not exist!');
+            }
+            if(args.name !== undefined) {
+                img.name = args.name;
+            }
+            if(await img.save()) {
+                return img;
+            }
+            return null;
+        },
+        createVideo: async (obj, args) => {
+            return Video.createVideo(args.name, args.videoType, args.data);
+        },
+        updateVideo: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.id);
+            if(video == null) {
+                throw new Error('Video with the provided \'id\' does not exist!');
+            }
+            if(args.name !== undefined) {
+                video.name = args.name;
+            }
+            if(args.videoType !== undefined) {
+                video.videoType = args.videoType;
+            }
+            if(args.data !== undefined) {
+                video.data = args.data;
+            }
+            if(await video.save())
+                return video;
+            return null;
+
+        },
+        deleteVideo: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.id);
+            if(video == null) {
+                throw new Error('Video with the provided \'id\' does not exist!');
+            }
+            await video.delete();
+            return true;
+        },
+        createProduction: async (obj, args) => {
+            return Production.createProduction(args.name, args.description,
+                await Image.getImageFromId(args.thumbnail), await Category.getCategoryFromId(args.category),
+                args.startTime, args.visible);
+        },
+        updateProduction: async (obj, args) => {
+            const production = Production.getProductionFromId(args.id);
+            if(production == null) {
+                throw new Error('Production with the provided \'id\' does not exist!');
+            }
+            if(args.name !== undefined) {
+                production.name = args.name;
+            }
+            if(args.description !== undefined) {
+                production.description = args.description;
+            }
+            if(args.thumbnail !== undefined) {
+                await production.setThumbnail(await Image.getImageFromId(args.thumbnail));
+            }
+            if(args.category !== undefined) {
+                await production.setCategory(await Category.getCategoryFromId(args.category));
+            }
+            if(args.startTime !== undefined) {
+                production.startTime = args.startTime;
+            }
+            if(args.visible !== undefined) {
+                production.visible = args.visible;
+            }
+            if(await production.save())
+                return production;
+            return null;
+        },
+        deleteProduction: async (obj, args) => {
+            const production = await Production.getProductionFromId(args.id);
+            if(production == null)
+                throw new Error('Production with the provided \'id\' does not exist!');
+            await production.delete();
+            return true;
+
+        },
+        addVideoToProduction: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.video);
+            const production = await Production.getProductionFromId(args.production);
+            if(video == null)
+                throw new Error('Video with the provided \'id\' does not exist!');
+            if(production == null)
+                throw new Error('Production with the provided \'id\' does not exist!');
+            await production.addProductionVideo(video);
+            return true;
+        },
+        removeVideoFromProduction: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.video);
+            const production = await Production.getProductionFromId(args.production);
+            if(video == null)
+                throw new Error('Video with the provided \'id\' does not exist!');
+            if(production == null)
+                throw new Error('Production with the provided \'id\' does not exist!');
+            await production.removeProductionVideo(video);
+            return true;
+        },
+        addImageToProduction: async (obj, args) => {
+            const image = await Image.getImageFromId(args.image);
+            const production = await Production.getProductionFromId(args.production);
+            if(image == null)
+                throw new Error('Image with the provided \'id\' does not exist!');
+            if(production == null)
+                throw new Error('Production with the provided \'id\' does not exist!');
+            await production.addProductionImage(image);
+            return true;
+        },
+        removeImageFromProduction: async (obj, args) => {
+            const image = await Image.getImageFromId(args.image);
+            const production = await Production.getProductionFromId(args.production);
+            if(image == null)
+                throw new Error('Image with the provided \'id\' does not exist!');
+            if(production == null)
+                throw new Error('Production with the provided \'id\' does not exist!');
+            await production.removeProductionImage(image);
+            return true;
+        },
+        addCredit: async (obj, args) => {
+            return Credit.createCredit(args.production, args.person, args.job, args.appearsAfter)
+        },
+        updateCredit: async (obj, args) => {
+            const credit = await Credit.getCreditFromId(args.id);
+            if(credit == null)
+                throw new Error('Credit with the provided \'id\' does not exist!');
+            if(args.person !== undefined) {
+                await credit.setPerson(args.person);
+            }
+            if(args.appearsAfter !== undefined) {
+                await credit.setPreviousCredit(args.appearsAfter);
+            }
+            if(args.job !== undefined) {
+                credit.job = args.job;
+            }
+            if(await credit.save())
+                return credit;
+            return null;
+        },
+        deleteCredit: async (obj, args) => {
+            const credit = await Credit.getCreditFromId(args.id);
+            if(credit == null)
+                throw new Error('Credit with the provided \'id\' does not exist!');
+            await credit.delete();
+            return true;
+        },
+        createCategory: async (obj, args) => {
+            return Category.createCategory(args.name, args.parent, args.appearsAfter);
+        },
+        updateCategory: async (obj, args) => {
+            const category = await Category.getCategoryFromId(args.id);
+            if(category == null)
+                throw new Error('Category with the provided \'id\' does not exist!');
+            if(args.name !== undefined) {
+                category.name = args.name;
+            }
+            if(args.parent !== undefined) {
+                await category.setParentCategory(args.parent);
+            }
+            if(args.appearsAfter !== undefined) {
+                await category.setPreviousCategory(args.appearsAfter);
+            }
+            if(await category.save())
+                return category;
+            return null;
+        },
+        deleteCategory: async (obj, args) => {
+            const category = await Category.getCategoryFromId(args.id);
+            if(category == null)
+                throw new Error('Category with the provided \'id\' does not exist!');
+            await category.delete();
             return true;
         }
     }

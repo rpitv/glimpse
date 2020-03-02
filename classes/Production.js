@@ -306,6 +306,34 @@ class Production {
             return prod;
         return null;
     }
+
+    /**
+     * Create a new Production and add it to the database
+     * @param name {string} Name of the production - required
+     * @param description {string|undefined} Description of this production. Defaults to empty string.
+     * @param thumbnail {Image|number|null|undefined} Thumbnail that should be displayed for this Production, or its ID.
+     * Defaults to null.
+     * @param category {Category|number|null|undefined} Category this Production should fall under, or its ID.
+     * Defaults to null.
+     * @param startTime {Date|undefined} Start time of this production. Defaults to now.
+     * @param visible {boolean|undefined} Whether this production should be visible or not. Defaults to true.
+     * @returns {Promise<Production>} The newly created production.
+     * @throws PostgreSQL error
+     */
+    static async createProduction(name, description = "", thumbnail = null,
+                                  category = null, startTime = new Date(),
+                                  visible = true) {
+        const response = await pool.query('INSERT INTO productions (name, description, start_time, visible) VALUES ' +
+            '($1, $2, $3, $4, $5, $6) RETURNING *', [name, description, startTime, visible]);
+        const production = new Production(response.rows[0].id);
+        production.name = response.rows[0].name;
+        production.description = response.rows[0].description;
+        production.startTime = response.rows[0].start_time;
+        production.visible = response.rows[0].visible;
+        await production.setCategory(category);
+        await production.setThumbnail(thumbnail);
+        return production;
+    }
 }
 
 module.exports = { Production };

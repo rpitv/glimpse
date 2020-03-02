@@ -137,6 +137,34 @@ class Image {
         }
         return images;
     }
+
+    /**
+     * Upload a new Image to the server, and then create a new image in the database.
+     * @param name {string} Name of the image. Required
+     * @param file {Stream} File stream of the image to upload. Required
+     * @returns {Promise<Image>} The newly uploaded image
+     * @throws PostgreSQL error
+     */
+    static async uploadImage(name, file) {
+        // TODO
+        console.warn('This method has not yet been implemented.');
+    }
+
+    /**
+     * Create a new Image and add it to the database.
+     * @param name {string} Name of the image. Required
+     * @param link {string} URL to the image. Required
+     * @returns {Promise<Image>} The newly created image
+     * @throws PostgreSQL error
+     */
+    static async createImage(name, link) {
+        const response = await pool.query('INSERT INTO images (name, link) VALUES ($1, $2) RETURNING *', [name, link]);
+        const img = new Image(response.rows[0].id);
+        img.name = response.rows[0].name;
+        img.link = response.rows[0].link;
+        img.added = response.rows[0].added;
+        return img;
+    }
 }
 
 module.exports = { Image };
