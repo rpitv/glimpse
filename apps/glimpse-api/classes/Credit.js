@@ -174,6 +174,30 @@ class Credit {
         }
         return credits;
     }
+
+    /**
+     * Create a new Credit for a specified production and person and add it to the database.
+     * @param production {Production|number} The Production to add this Credit for, or it's ID. Required
+     * @param person {Person|number} The person the new Credit should belong to, or it's ID. Required
+     * @param job {string} The job this person did at this production. Required
+     * @param appearsAfter {Credit|number|null|undefined} The Credit which this Credit should appear after sequentially
+     * @returns {Promise<Credit>} The newly created Credit
+     * @throws PostgreSQL error
+     */
+    static async createCredit(production, person, job,
+                              appearsAfter= null) {
+        production = production instanceof Production ? production : await Production.getProductionFromId(production);
+        person = person instanceof Person ? person : await Person.getPersonFromId(person);
+        appearsAfter = appearsAfter instanceof Credit ? appearsAfter : await Credit.getCreditFromId(appearsAfter);
+
+        const response = await pool.query('INSERT INTO credits (production, person, job, appearsAfter) VALUES ' +
+            '($1, $2, $3, $4) RETURNING *', [production.id, person.id, job, appearsAfter.id]);
+
+        const credit = new Credit(response.rows[0].id);
+        credit.job = response.rows[0].job;
+        return credit;
+
+    }
 }
 
 module.exports = { Credit };

@@ -189,6 +189,25 @@ class Category {
         }
         return null;
     }
+
+    /**
+     * Create a new Category and add it to the database.
+     * @param name {string} The name of this Category
+     * @param parent {Category|number|null|undefined} The parent Category of this Category, or it's ID.
+     * Defaults to null.
+     * @param appearsAfter {Category|number|null|undefined} The Category which this Category appears after
+     * sequentially, or it's ID. Defaults to null.
+     * @returns {Promise<Category>} The newly created Category
+     * @throws PostgreSQL error
+     */
+    static async createCategory(name, parent = null, appearsAfter = null) {
+        const response = await pool.query('INSERT INTO categories (name) VALUES ($1) RETURNING *', [name]);
+        const category = new Category(response.rows[0].id);
+        category.name = response.rows[0].name;
+        await category.setParentCategory(parent);
+        await category.setPreviousCategory(appearsAfter);
+        return category;
+    }
 }
 
 module.exports = { Category };

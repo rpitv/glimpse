@@ -145,6 +145,25 @@ class Video {
             return video;
         return null;
     }
+
+    /**
+     * Create a new Video and add it to the database.
+     * TODO Separate this method into a number of other methods for each video type.
+     * @param name {string} The name of this video - required
+     * @param videoType {VideoTypes} The type of video this video is - required
+     * @param data {object | null} The video data this Video contains. Does not follow a schema at the moment.
+     * @returns {Promise<Video>} The new Video object
+     * @throws PostgreSQL error
+     */
+    static async createVideo(name, videoType, data = {}) {
+        const response = await pool.query('INSERT INTO videos (name, video_type, data) VALUES ($1, $2, $3) RETURNING *',
+            [name, videoType, data]);
+        const video = new Video(response.rows[0].id);
+        video.name = response.rows[0].name;
+        video.videoType = response.rows[0].videoType;
+        video.data = response.rows[0].data;
+        return video;
+    }
 }
 
 module.exports = { Video, VideoTypes };
