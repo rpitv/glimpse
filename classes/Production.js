@@ -323,8 +323,9 @@ class Production {
     static async createProduction(name, description = "", thumbnail = null,
                                   category = null, startTime = new Date(),
                                   visible = true) {
-        const response = await pool.query('INSERT INTO productions (name, description, start_time, visible) VALUES ' +
-            '($1, $2, $3, $4, $5, $6) RETURNING *', [name, description, startTime, visible]);
+        // TODO - Implement user detection for created_by
+        const response = await pool.query('INSERT INTO productions (name, description, start_time, visible, ' +
+            'created_by) VALUES ($1, $2, $3, $4, $5) RETURNING *', [name, description, startTime, visible, 1]);
         const production = new Production(response.rows[0].id);
         production.name = response.rows[0].name;
         production.description = response.rows[0].description;

@@ -59,6 +59,8 @@ class Category {
         const prevCategory = await this.getPreviousCategory();
         await pool.query('UPDATE productions SET category=$1 WHERE category=$2',
             [parent == null ? null : parent.id, this.id]);
+        await pool.query('UPDATE categories SET parent=$1 WHERE parent=$2',
+            [parent == null ? null : parent.id, this.id]);
         await pool.query('UPDATE categories SET appears_after=$1 WHERE appears_after=$2',
             [prevCategory == null ? null : prevCategory.id, this.id]);
         await pool.query('DELETE FROM categories WHERE id=$1', [this.id]);

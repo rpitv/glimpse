@@ -27,7 +27,7 @@ class Image {
      * @returns {Promise<boolean>} True on successful save, false otherwise
      */
     async save() {
-        const response = await pool.query('UPDATE roles SET name=$1, link=$2, added=$3 WHERE id=$4', [
+        const response = await pool.query('UPDATE images SET name=$1, link=$2, added=$3 WHERE id=$4', [
             this.name,
             this.link,
             this.added,

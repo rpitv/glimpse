@@ -192,7 +192,7 @@ const resolvers = {
             return null;
         },
         deleteRole: async (obj, args) => {
-            const role = Role.getRoleFromId(args.id);
+            const role = await Role.getRoleFromId(args.id);
             if(role == null)
                 throw new Error('Role with the provided \'id\' does not exist!');
             await role.delete();
@@ -205,7 +205,7 @@ const resolvers = {
             return Image.createImage(args.name, args.link);
         },
         deleteImage: async (obj, args) => {
-            const img = Image.getImageFromId(args.id);
+            const img = await Image.getImageFromId(args.id);
             if(img == null) {
                 throw new Error('Image with the provided \'id\' does not exist!');
             }
@@ -213,7 +213,7 @@ const resolvers = {
             return true;
         },
         updateImage: async (obj, args) => {
-            const img = Image.getImageFromId(args.id);
+            const img = await Image.getImageFromId(args.id);
             if(img == null) {
                 throw new Error('Image with the provided \'id\' does not exist!');
             }
@@ -261,7 +261,7 @@ const resolvers = {
                 args.startTime, args.visible);
         },
         updateProduction: async (obj, args) => {
-            const production = Production.getProductionFromId(args.id);
+            const production = await Production.getProductionFromId(args.id);
             if(production == null) {
                 throw new Error('Production with the provided \'id\' does not exist!');
             }
