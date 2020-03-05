@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server');
+const {gql} = require('apollo-server-express');
 
 // Bodge fix for GraphQL JS Webstorm Plugin type checking - Upload is inserted by Apollo
 gql`
@@ -133,7 +133,7 @@ const typeDefs = gql`
         """
         Upload an image to the database.
         """
-        uploadImage(file: Upload!): Image
+        uploadImage(name: String!, file: Upload!): Image
         """
         Create a new image which is hosted at an off-site URL.
         """
