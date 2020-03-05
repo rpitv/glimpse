@@ -19,10 +19,17 @@
   },
   "homepage": "https://github.com/rpitv/glimpse-api#readme",
   "dependencies": {
-    "apollo-server": "^2.10.0",
+    "apollo-server-express": "latest",
     "dotenv": "^8.2.0",
+    "express": "latest",
+    "fs-extra": "^8.1.0",
     "graphql": "^14.6.0",
     "graphql-scalars": "^1.0.6",
-    "pg": "^7.18.1"
+    "pg": "^7.18.1",
+    "sharp": "^0.24.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
+    "@types/sharp": "^0.24.0"
   }
 }

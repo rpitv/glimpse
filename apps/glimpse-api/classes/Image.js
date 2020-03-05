@@ -1,4 +1,11 @@
 const { pool } = require('../db-pool');
+const fs = require('fs-extra');
+const sharp = require('sharp');
+const crypto = require('crypto');
+
+const MAX_IMAGE_SIZE = 10000000; // 10MB
+const PERMITTED_FILETYPES = ["png", "jpeg", "jpg", "jfif", "gif", "webp"];
+const PERMITTED_MIMETYPES = ["image/png", "image/gif", "image/jpeg", "image/webp"];
 
 /**
  * Image class
@@ -141,13 +148,79 @@ class Image {
     /**
      * Upload a new Image to the server, and then create a new image in the database.
      * @param name {string} Name of the image. Required
-     * @param file {Stream} File stream of the image to upload. Required
+     * @param file {File} File stream of the image to upload. Required
      * @returns {Promise<Image>} The newly uploaded image
      * @throws PostgreSQL error
      */
     static async uploadImage(name, file) {
-        // TODO
-        console.warn('This method has not yet been implemented.');
+
+        // Enforce file types
+        const splitFileName = file.filename.split('.');
+        const fileType = splitFileName[splitFileName.length - 1];
+        if(!PERMITTED_MIMETYPES.includes(file.mimetype.toLowerCase()) ||
+            !PERMITTED_FILETYPES.includes(fileType.toLowerCase())) {
+            throw new Error("Invalid image format! PNG, JPG, JFIF, JPEG, GIF, and WEBP are permitted.")
+        }
+
+        // Image width & height are set temporarily to 0 but are modified by the metadata processor
+        let width = 0;
+        let height = 0;
+        // Hash instance to get a hash digest of the files contents, which serves as the new file name.
+        const nameHash = crypto.createHash('sha1');
+
+        // Validate & get metadata
+        await new Promise((resolve, reject) => {
+            const readStream = file.createReadStream();
+            readStream.on('data', (chunk) => {
+                nameHash.update(chunk);
+            });
+            const metadataFetch = sharp();
+            metadataFetch.metadata()
+                .then(info => {
+                    width = info.width;
+                    height = info.height;
+
+                    // Enforce max image sze
+                    if(info.size > MAX_IMAGE_SIZE) {
+                        reject(new Error("Image too big! Max image size is " + MAX_IMAGE_SIZE / 1000000 + " MB."));
+                    }
+                    // Enforce file types (again) - Might be unnecessary
+                    if(!PERMITTED_FILETYPES.includes(info.format)) {
+                        reject(new Error("Invalid image format! PNG, JPG, JPEG, JFIF, GIF, and WEBP are permitted."));
+                    }
+                    resolve();
+                });
+
+            readStream.on('error', reject);
+            readStream
+                .pipe(metadataFetch)
+                .on('error', reject);
+        });
+
+        const newFileName = nameHash.digest('hex');
+
+        // Image transformer
+        const transformer = sharp()
+            // Resize image to 100% sanitize
+            .resize(width + 1, height + 1)
+            .resize(width, height);
+
+        // Transform image & save it
+        const globalLink = "/static/uploads/" + newFileName + "." + fileType;
+        const localLink = "." + globalLink;
+        await fs.createFile(localLink);
+        const writeStream = fs.createWriteStream(localLink);
+        const readStream = file.createReadStream();
+        await new Promise((resolve, reject) => {
+            readStream.on('error', reject);
+            readStream
+                .pipe(transformer)
+                .pipe(writeStream)
+                .on('error', reject)
+                .on('finish', resolve);
+        });
+
+        return this.createImage(name, globalLink);
     }
 
     /**

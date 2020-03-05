@@ -199,7 +199,7 @@ const resolvers = {
             return true;
         },
         uploadImage: async (obj, args) => {
-            return Image.uploadImage(args.name, (await args.file).stream);
+            return Image.uploadImage(args.name, await args.file);
         },
         createOffsiteImage: async (obj, args) => {
             return Image.createImage(args.name, args.link);
