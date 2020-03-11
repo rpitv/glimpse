@@ -1,7 +1,6 @@
 const { pool } = require('../db-pool');
 const fs = require('fs-extra');
 const sharp = require('sharp');
-const crypto = require('crypto');
 
 const MAX_IMAGE_SIZE = 10000000; // 10MB
 const PERMITTED_FILETYPES = ["png", "jpeg", "jpg", "jfif", "gif", "webp"];
@@ -156,7 +155,7 @@ class Image {
 
         // Enforce file types
         const splitFileName = file.filename.split('.');
-        const fileType = splitFileName[splitFileName.length - 1];
+        const fileType = splitFileName.pop();
         if(!PERMITTED_MIMETYPES.includes(file.mimetype.toLowerCase()) ||
             !PERMITTED_FILETYPES.includes(fileType.toLowerCase())) {
             throw new Error("Invalid image format! PNG, JPG, JFIF, JPEG, GIF, and WEBP are permitted.")
@@ -165,15 +164,10 @@ class Image {
         // Image width & height are set temporarily to 0 but are modified by the metadata processor
         let width = 0;
         let height = 0;
-        // Hash instance to get a hash digest of the files contents, which serves as the new file name.
-        const nameHash = crypto.createHash('sha1');
 
         // Validate & get metadata
         await new Promise((resolve, reject) => {
             const readStream = file.createReadStream();
-            readStream.on('data', (chunk) => {
-                nameHash.update(chunk);
-            });
             const metadataFetch = sharp();
             metadataFetch.metadata()
                 .then(info => {
@@ -197,7 +191,8 @@ class Image {
                 .on('error', reject);
         });
 
-        const newFileName = nameHash.digest('hex');
+        // TODO change file name to use the uploading user's ID instead of the original file name
+        const newFileName = Date.now() + "-" + splitFileName.join('-').replace(/[\W_]+/g,"-");
 
         // Image transformer
         const transformer = sharp()
