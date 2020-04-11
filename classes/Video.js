@@ -132,6 +132,19 @@ class Video {
     }
 
     /**
+     * Unpack the data in {@link this.data} to comply with the more structured system in GraphQL.
+     * The reason for this design choice is unfortunately Javascript classes are kind of wonky...
+     * I believe it would be difficult to maintain an inheritance-based structure for Videos in JS.
+     * Could always change later.
+     */
+    unpackForClient() {
+        if(this.videoType === VideoTypes.EMBED || this.videoType === VideoTypes.RTMP) {
+            this.url = this.data.url;
+        }
+        delete this.data;
+    }
+
+    /**
      * Get a Video from the database, given its unique ID.
      * @param id {number} ID to search for in the database
      * @returns {Promise<null|Video>} The fetched Video, or null if the Video does not exist.
