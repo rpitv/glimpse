@@ -89,3 +89,6 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# API Schema Introspection
+./api-schema.graphql
