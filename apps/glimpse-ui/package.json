@@ -18,10 +18,12 @@
     "@fortawesome/pro-duotone-svg-icons": "^5.12.0",
     "@fortawesome/pro-light-svg-icons": "^5.12.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
+    "@nuxtjs/apollo": "^4.0.0-rc19",
     "@nuxtjs/axios": "^5.3.6",
     "@nuxtjs/dotenv": "^1.4.0",
     "@nuxtjs/pwa": "^3.0.0-beta.19",
     "@types/jest": "^24.0.23",
+    "graphql-tag": "^2.10.3",
     "moment": "^2.24.0",
     "nuxt": "^2.0.0",
     "regenerator-runtime": "^0.13.3",
@@ -42,12 +44,12 @@
     "eslint-plugin-nuxt": ">=0.4.2",
     "jest": "^24.1.0",
     "jest-serializer-vue": "^2.0.2",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.13.1",
     "sass-loader": "^8.0.0",
     "sinon": "^7.5.0",
     "ts-jest": "^24.2.0",
+    "vue": "latest",
     "vue-jest": "^4.0.0-beta.2",
-    "vue-router": "latest",
-    "vue": "latest"
+    "vue-router": "latest"
   }
 }

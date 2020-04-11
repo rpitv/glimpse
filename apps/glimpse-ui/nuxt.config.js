@@ -64,8 +64,18 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv'
+    '@nuxtjs/dotenv',
+    '@nuxtjs/apollo'
   ],
+  apollo: {
+    clientConfigs: {
+      default: {
+        // required
+        httpEndpoint: 'http://localhost:4000/graphql'
+      }
+    }
+  },
+
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
