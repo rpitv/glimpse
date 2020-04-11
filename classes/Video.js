@@ -141,7 +141,6 @@ class Video {
         if(this.videoType === VideoTypes.EMBED || this.videoType === VideoTypes.RTMP) {
             this.url = this.data.url;
         }
-        delete this.data;
     }
 
     /**
