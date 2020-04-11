@@ -1,12 +1,27 @@
 <template>
   <div class="past-prod-list">
-    <VSkeletonLoader v-for="n in 10" :index="n" type="card, list-item-two-line" class="past-prod-card" boilerplate />
+    <VSkeletonLoader
+      v-for="n in 10"
+      :index="n"
+      :key="n"
+      type="card, list-item-two-line"
+      class="past-prod-card"
+      boilerplate
+    />
   </div>
 </template>
 
 <script>
+import gql from 'graphql-tag'
+
 export default {
-  name: 'RecentProductionsList'
+  name: 'RecentProductionsList',
+  apollo: {
+    productions: gql`query { productions {
+        name
+        id
+}}`
+  }
 }
 </script>
 
