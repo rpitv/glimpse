@@ -156,22 +156,22 @@ const typeDefs = gql`
         """
         Create a new embed-based video in the database. Requires a url that begins with "http://" or "https://".
         """
-        createEmbedVideo(name: String!, url: String!): Video
+        createEmbedVideo(name: String!, url: String!): EmbedVideo
         """
         Create a new RTMP-based video in the database. Requires a url that begins with "rtmp://". RTMP requires
         Flash Player, and as such, this type of video should soon be deprecated.
         """
-        createRTMPVideo(name: String!, rtmpUrl: String!): Video
+        createRTMPVideo(name: String!, rtmpUrl: String!): RTMPVideo
         """
         Update an embed-based video in the database.
         If the video with the provided ID is not an embed video, an error will be thrown.
         """
-        updateEmbedVideo(id: Int!, name: String, url: String): Video
+        updateEmbedVideo(id: Int!, name: String, url: String): EmbedVideo
         """
         Update an RTMP-based video in the database. 
         If the video with the provided ID is not an RTMP video, an error will be thrown.
         """
-        updateRTMPVideo(id: Int!, name: String, rtmpUrl: String): Video
+        updateRTMPVideo(id: Int!, name: String, rtmpUrl: String): RTMPVideo
         """
         Delete a video from the database. Also deletes any video-links to productions using this Video.
         Returns true on success, false otherwise.
@@ -286,14 +286,32 @@ const typeDefs = gql`
 
     """
     Videos are a type of media content which contain the metadata for a given video file on the site.
-    Different types of videos can have different attributes, so a loosely-defined schema exists in this type's
-    "data" field.
+    Different types of videos can have different attributes, as defined by types that inherit this.
     """
-    type Video {
+    interface Video {
         id: ID!
         name: String!
         videoType: VideoType!
-        data: JSON!
+    }
+
+    """
+    Embed-based video. Embedded videos are things such as YouTube videos which go in an iframe on the client.
+    """
+    type EmbedVideo implements Video {
+        id: ID!
+        name: String!
+        videoType: VideoType!
+        url: String!
+    }
+    
+    """
+    RTMP-based video. RTMP-based videos require an Adobe Flash video player, and as such should be deprecated soon.
+    """
+    type RTMPVideo implements Video {
+        id: ID!
+        name: String!
+        videoType: VideoType!
+        url: String!
     }
 
     """
