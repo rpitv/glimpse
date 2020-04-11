@@ -225,22 +225,50 @@ const resolvers = {
             }
             return null;
         },
-        createVideo: async (obj, args) => {
-            return Video.createVideo(args.name, args.videoType, args.data);
+        createEmbedVideo: async (obj, args) => {
+            return Video.createEmbedVideo(args.name, args.url);
         },
-        updateVideo: async (obj, args) => {
+        createRTMPVideo: async (obj, args) => {
+            return Video.createRTMPVideo(args.name, args.rtmpUrl);
+        },
+        updateEmbedVideo: async (obj, args) => {
             const video = await Video.getVideoFromId(args.id);
             if(video == null) {
                 throw new Error('Video with the provided \'id\' does not exist!');
             }
+            if(video.videoType !== "EMBED") {
+                throw new Error('Video with the provided \'id\' is not an embed-type Video!');
+            }
             if(args.name !== undefined) {
                 video.name = args.name;
             }
-            if(args.videoType !== undefined) {
-                video.videoType = args.videoType;
+            if(args.url !== undefined) {
+                if(!args.url.match(/^https?:\/\//)) {
+                    throw new Error("Malformed url: Beginning must match \"https?:\\/\\/\"!")
+                }
+                video.data.url = args.url;
             }
-            if(args.data !== undefined) {
-                video.data = args.data;
+            if(await video.save())
+                return video;
+            return null;
+
+        },
+        updateRTMPVideo: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.id);
+            if(video == null) {
+                throw new Error('Video with the provided \'id\' does not exist!');
+            }
+            if(video.videoType !== "RTMP") {
+                throw new Error('Video with the provided \'id\' is not an RTMP-type Video!');
+            }
+            if(args.name !== undefined) {
+                video.name = args.name;
+            }
+            if(args.rtmpUrl !== undefined) {
+                if(!args.rtmpUrl.startsWith("rtmp://")) {
+                    throw new Error("Malformed rtmpUrl: Must begin with \"rtmp://\"!")
+                }
+                video.data.rtmpUrl = args.rtmpUrl;
             }
             if(await video.save())
                 return video;

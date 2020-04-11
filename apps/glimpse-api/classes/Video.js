@@ -1,9 +1,8 @@
 const { pool } = require('../db-pool');
 
 const VideoTypes = {
-    MPEG_DASH: 0,
-    RTMP: 1,
-    EMBED: 2
+    RTMP: "RTMP", // Soon to be deprecated
+    EMBED: "EMBED"
 
 };
 
@@ -13,7 +12,7 @@ const VideoTypes = {
  * exist, and this class mainly exists to connect streamable content to its display name and content type.
  * Since there are different formats supported, and each format may have different metadata associated with it,
  * non-relational data is stored in {@link this.data}. However, all videos must have AT LEAST a name {@link this.name}
- * and a type {@link this.videoType}.
+ * and a type {@link this.videoType}. You should never edit {@link this.data} without asserting the video's type first.
  * @see VideoTypes
  */
 class Video {
@@ -24,6 +23,7 @@ class Video {
      * {@link fetch}. If you call {@link save} before calling one of these two methods,
      * {@link save} will attempt to write "undefined" to all fields. Avoid using this
      * constructor directly, and use {@link getVideoFromId} instead.
+     *
      * @param id {number} Numerical ID to instantiate with.
      */
     constructor(id) {
@@ -89,7 +89,7 @@ class Video {
      * @throws PostgreSQL error
      */
     static async getAllVideos() {
-        const response = await pool.query('SELECT id, name, video_type, data FROM videos ORDER BY name ASC, id ASC');
+        const response = await pool.query('SELECT id, name, video_type, data FROM videos ORDER BY name, id');
         const videos = [];
         for(let i = 0; i < response.rows.length; i++) {
             const video = new Video(response.rows[i].id);
@@ -147,17 +147,54 @@ class Video {
     }
 
     /**
-     * Create a new Video and add it to the database.
-     * TODO Separate this method into a number of other methods for each video type.
+     * Create a new embedded Video and add it to the database. Embedded videos are usually YouTube videos.
      * @param name {string} The name of this video - required
-     * @param videoType {VideoTypes} The type of video this video is - required
-     * @param data {object | null} The video data this Video contains. Does not follow a schema at the moment.
+     * @param url {string} The (probably external) url to embed in an iframe.
+     *          Required and must start with "http://" or "https://"
      * @returns {Promise<Video>} The new Video object
      * @throws PostgreSQL error
+     * @throws Error missing 'url' parameter
+     * @throws Error 'url' parameter does not begin with "http://" or "https://"
      */
-    static async createVideo(name, videoType, data = {}) {
+    static async createEmbedVideo(name, url) {
+        if(!url) {
+            throw new Error("Missing required parameter 'url'!")
+        }
+        if(!url.match(/^https?:\/\//)) {
+            throw new Error("Malformed url: Beginning must match \"https?:\\/\\/\"!")
+        }
+
+        const data = { url }
         const response = await pool.query('INSERT INTO videos (name, video_type, data) VALUES ($1, $2, $3) RETURNING *',
-            [name, videoType, data]);
+            [name, VideoTypes.EMBED, data]);
+        const video = new Video(response.rows[0].id);
+        video.name = response.rows[0].name;
+        video.videoType = response.rows[0].video_type;
+        video.data = response.rows[0].data;
+        return video;
+    }
+
+    /**
+     * Create a new RTMP protocol Video and add it to the database. RTMP videos must use a flash-based video player,
+     * and as such, this video type will soon be deprecated.
+     * @param name {string} The name of this video - required
+     * @param rtmpUrl {string} The URL to the RTMP feed. Required and must begin with "rtmp://".
+     * @returns {Promise<Video>} The new Video object
+     * @throws PostgreSQL error
+     * @throws Error missing 'rtmpUrl' parameter
+     * @throws Error 'rtmpUrl' parameter does not begin with "rtmp://"
+     */
+    static async createRTMPVideo(name, rtmpUrl) {
+        if(!rtmpUrl) {
+            throw new Error("Missing required parameter 'url'!")
+        }
+        if(!rtmpUrl.startsWith("rtmp://")) {
+            throw new Error("Malformed rtmpUrl: Must begin with \"rtmp://\"!")
+        }
+
+        const data = { url: rtmpUrl }
+        const response = await pool.query('INSERT INTO videos (name, video_type, data) VALUES ($1, $2, $3) RETURNING *',
+            [name, VideoTypes.RTMP, data]);
         const video = new Video(response.rows[0].id);
         video.name = response.rows[0].name;
         video.videoType = response.rows[0].video_type;
