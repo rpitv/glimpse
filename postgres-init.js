@@ -31,7 +31,7 @@ const schema = Object.freeze({
     videos: {
         id: 'serial not null primary key',
         name: 'varchar(128) not null',
-        video_type: 'int not null default 0',
+        video_type: 'varchar(32) not null default \'RTMP\'', // TODO could be changed to enum
         data: 'json not null'
     },
     images: {

@@ -2,7 +2,7 @@ const { Person } = require('./classes/Person');
 const { User } = require('./classes/User');
 const { Role } = require('./classes/Role');
 const { Image } = require('./classes/Image');
-const { Video } = require('./classes/Video');
+const { Video, VideoTypes } = require('./classes/Video');
 const { Production } = require('./classes/Production');
 const { Category } = require('./classes/Category');
 const { Credit } = require('./classes/Credit');
@@ -25,7 +25,11 @@ const resolvers = {
             return Image.getPaginatedImages(args.pageSize, args.prevImageIndex);
         },
         videos: async (obj, args) => {
-            return Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex);
+            const vids = await Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex);
+            for(let i = 0; i < vids.length; i++) {
+                vids[i].unpackForClient();
+            }
+            return vids;
         },
         productions: async (obj, args) => {
             return Production.getPaginatedProductions(args.pageSize, args.prevProductionIndex);
@@ -47,7 +51,9 @@ const resolvers = {
             return Image.getImageFromId(args.id);
         },
         getVideo: async (obj, args) => {
-            return Video.getVideoFromId(args.id);
+            const vid = await Video.getVideoFromId(args.id);
+            vid.unpackForClient();
+            return vid;
         },
         getProduction: async (obj, args) => {
             return Production.getProductionFromId(args.id);
@@ -98,7 +104,11 @@ const resolvers = {
     },
     Production: {
         videos: async (obj) => {
-            return obj.getProductionVideos();
+            const vids = await obj.getProductionVideos();
+            for(let i = 0; i < vids.length; i++) {
+                vids[i].unpackForClient();
+            }
+            return vids;
         },
         images: async (obj) => {
             return obj.getProductionImages();
@@ -130,6 +140,16 @@ const resolvers = {
         },
         appearsAfter: async (obj) => {
             return obj.getPreviousCategory();
+        }
+    },
+    Video: {
+        __resolveType(vid) {
+            switch(vid.videoType) {
+                case VideoTypes.EMBED:
+                    return "EmbedVideo";
+                case VideoTypes.RTMP:
+                    return "RTMPVideo"
+            }
         }
     },
 
@@ -225,25 +245,61 @@ const resolvers = {
             }
             return null;
         },
-        createVideo: async (obj, args) => {
-            return Video.createVideo(args.name, args.videoType, args.data);
+        createEmbedVideo: async (obj, args) => {
+            const vid = await Video.createEmbedVideo(args.name, args.url);
+            vid.unpackForClient();
+            return vid;
         },
-        updateVideo: async (obj, args) => {
+        createRTMPVideo: async (obj, args) => {
+            const vid = await Video.createRTMPVideo(args.name, args.rtmpUrl);
+            vid.unpackForClient();
+            return vid;
+        },
+        updateEmbedVideo: async (obj, args) => {
             const video = await Video.getVideoFromId(args.id);
             if(video == null) {
                 throw new Error('Video with the provided \'id\' does not exist!');
             }
+            if(video.videoType !== VideoTypes.EMBED) {
+                throw new Error('Video with the provided \'id\' is not an embed-type Video!');
+            }
             if(args.name !== undefined) {
                 video.name = args.name;
             }
-            if(args.videoType !== undefined) {
-                video.videoType = args.videoType;
+            if(args.url !== undefined) {
+                if(!args.url.match(/^https?:\/\//)) {
+                    throw new Error("Malformed url: Beginning must match \"https?:\\/\\/\"!")
+                }
+                video.data.url = args.url;
             }
-            if(args.data !== undefined) {
-                video.data = args.data;
-            }
-            if(await video.save())
+            if(await video.save()) {
+                video.unpackForClient();
                 return video;
+            }
+            return null;
+
+        },
+        updateRTMPVideo: async (obj, args) => {
+            const video = await Video.getVideoFromId(args.id);
+            if(video == null) {
+                throw new Error('Video with the provided \'id\' does not exist!');
+            }
+            if(video.videoType !== VideoTypes.RTMP) {
+                throw new Error('Video with the provided \'id\' is not an RTMP-type Video!');
+            }
+            if(args.name !== undefined) {
+                video.name = args.name;
+            }
+            if(args.rtmpUrl !== undefined) {
+                if(!args.rtmpUrl.startsWith("rtmp://")) {
+                    throw new Error("Malformed rtmpUrl: Must begin with \"rtmp://\"!")
+                }
+                video.data.url = args.rtmpUrl;
+            }
+            if(await video.save()) {
+                video.unpackForClient();
+                return video;
+            }
             return null;
 
         },
