@@ -1,4 +1,4 @@
-
+import { createProxyMiddleware } from 'http-proxy-middleware'
 const defaultTitle = 'RPI TV - Your exclusive home for RPI Hockey and campus broadcasting.'
 const defaultDescription = 'RPI TV is a student-run broadcasting club committed to providing ' +
   'professional coverage of campus events and sports games.'
@@ -30,6 +30,10 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
+  serverMiddleware: [
+    // Proxy static assets
+    { path: '/static', handler: createProxyMiddleware({ target: 'http://localhost:4000/' }) }
+  ],
   /*
   ** Customize the progress-bar color
   */
