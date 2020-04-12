@@ -61,10 +61,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /* Fix word wrapping in cards - See vuetifyjs/vuetify/issues/9130 */
-  .v-card__text, .v-card__title {
-    word-break: normal;
-  }
 
   .past-prod-list {
     white-space: nowrap;
