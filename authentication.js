@@ -2,6 +2,7 @@ const DOMParser = require('xmldom').DOMParser;
 const express = require('express');
 const LoginRouter = express.Router();
 const LogoutRouter = express.Router();
+const SyncRouter = express.Router();
 const axios = require('axios');
 
 LoginRouter.post('/', async (req, res) => {
@@ -18,8 +19,8 @@ LoginRouter.post('/', async (req, res) => {
 	const userNodes = doc.getElementsByTagName("cas:user")
 	// If a user node exists and has text inside it, respond with that username & a new session cookie
 	if(userNodes && userNodes.length > 0 && userNodes[0] && userNodes[0].textContent) {
-		req.session.name = userNodes[0].textContent.toLowerCase();
-		return res.json({ username: userNodes[0].textContent.toLowerCase() + "@rpi.edu" });
+		req.session.rcs_id = userNodes[0].textContent.toLowerCase();
+		return res.json({ rcs_id: userNodes[0].textContent.toLowerCase(), admin: !!req.session.admin });
 	}
 
 	const failureNodes = doc.getElementsByTagName("cas:authenticationFailure");
@@ -34,8 +35,13 @@ LoginRouter.post('/', async (req, res) => {
 
 });
 
-LogoutRouter.post('/', (req, res, next) => {
-
+SyncRouter.get('/', (req, res) => {
+	return res.json({ rcs_id: req.session.rcs_id || '', admin: !!req.session.admin });
 });
 
-module.exports = { LoginRouter, LogoutRouter };
+LogoutRouter.get('/', (req, res) => {
+	req.session.destroy();
+	res.sendStatus(200);
+});
+
+module.exports = { LoginRouter, LogoutRouter, SyncRouter };

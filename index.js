@@ -50,8 +50,9 @@ initSchema(true).then(async () => {
     server.applyMiddleware({ app: expApp });
 
     expApp.use('/static', express.static('static'));
-    expApp.use('/login', Authentication.LoginRouter);
-    expApp.use('/logout', Authentication.LogoutRouter);
+    expApp.use('/auth/login', Authentication.LoginRouter);
+    expApp.use('/auth/sync', Authentication.SyncRouter);
+    expApp.use('/auth/logout', Authentication.LogoutRouter);
 
     expApp.listen({port: 4000}, () => {
         console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
