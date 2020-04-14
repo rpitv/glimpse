@@ -31,8 +31,17 @@ export default {
     ]
   },
   serverMiddleware: [
-    // Proxy static assets
-    { path: '/static', handler: createProxyMiddleware({ target: 'http://localhost:4000/' }) }
+    // Proxy (non-graphql) API requests
+    { path: '/api',
+      handler: createProxyMiddleware({
+        target: 'http://localhost:4000/',
+        pathRewrite: {
+          '^/api': '/'
+        }
+      }) },
+    // Proxy static assets w/o "/api" prefix
+    { path: '/static',
+      handler: createProxyMiddleware({ target: 'http://localhost:4000/' }) }
   ],
   /*
   ** Customize the progress-bar color
