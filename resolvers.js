@@ -27,7 +27,8 @@ const resolvers = {
         videos: async (obj, args) => {
             const vids = await Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex);
             for(let i = 0; i < vids.length; i++) {
-                vids[i].unpackForClient();
+                if(vids[i] !== null)
+                    vids[i].unpackForClient();
             }
             return vids;
         },
@@ -52,7 +53,8 @@ const resolvers = {
         },
         getVideo: async (obj, args) => {
             const vid = await Video.getVideoFromId(args.id);
-            vid.unpackForClient();
+            if(vid !== null)
+                vid.unpackForClient();
             return vid;
         },
         getProduction: async (obj, args) => {
@@ -106,7 +108,8 @@ const resolvers = {
         videos: async (obj) => {
             const vids = await obj.getProductionVideos();
             for(let i = 0; i < vids.length; i++) {
-                vids[i].unpackForClient();
+                if(vids[i] !== null)
+                    vids[i].unpackForClient();
             }
             return vids;
         },
@@ -247,12 +250,14 @@ const resolvers = {
         },
         createEmbedVideo: async (obj, args) => {
             const vid = await Video.createEmbedVideo(args.name, args.url);
-            vid.unpackForClient();
+            if(vid !== null)
+                vid.unpackForClient();
             return vid;
         },
         createRTMPVideo: async (obj, args) => {
             const vid = await Video.createRTMPVideo(args.name, args.rtmpUrl);
-            vid.unpackForClient();
+            if(vid !== null)
+                vid.unpackForClient();
             return vid;
         },
         updateEmbedVideo: async (obj, args) => {
