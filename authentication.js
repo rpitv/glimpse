@@ -18,6 +18,7 @@ LoginRouter.post('/', async (req, res) => {
 	const userNodes = doc.getElementsByTagName("cas:user")
 	// If a user node exists and has text inside it, respond with that username & a new session cookie
 	if(userNodes && userNodes.length > 0 && userNodes[0] && userNodes[0].textContent) {
+		req.session.name = userNodes[0].textContent.toLowerCase();
 		return res.json({ username: userNodes[0].textContent.toLowerCase() + "@rpi.edu" });
 	}
 

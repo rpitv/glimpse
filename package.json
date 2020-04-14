@@ -20,9 +20,9 @@
   "homepage": "https://github.com/rpitv/glimpse-api#readme",
   "dependencies": {
     "apollo-server-express": "latest",
+    "connect-pg-simple": "^6.1.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
-    "cas-authentication": "0.0.8",
     "dotenv": "^8.2.0",
     "express": "latest",
     "express-session": "^1.17.0",
