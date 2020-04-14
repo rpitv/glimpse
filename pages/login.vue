@@ -49,6 +49,10 @@ export default {
     }
   },
   async mounted () {
+    if (this.isAuthenticated) {
+      this.$router.push('/')
+    }
+
     try {
       const response = await axios.post('/api/auth/login', {
         ticket: this.$route.query.ticket
