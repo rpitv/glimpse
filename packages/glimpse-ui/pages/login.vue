@@ -35,13 +35,26 @@ export default {
       error: ''
     }
   },
+  computed: {
+    isAuthenticated () {
+      return this.$store.getters.isAuthenticated
+    }
+  },
+  watch: {
+    // Watch for changes in the isAuthenticated state in the store: redirect once its true.
+    isAuthenticated (newVal) {
+      if (newVal) {
+        this.$router.push('/')
+      }
+    }
+  },
   async mounted () {
     try {
-      await axios.post('/api/login', {
+      const response = await axios.post('/api/auth/login', {
         ticket: this.$route.query.ticket
       }, { withCredentials: true })
-
-      await this.$router.push('/')
+      // No error so commit new admin & rcs id to store
+      this.$store.commit('SET_AUTH', { rcs_id: response.data.rcs_id, admin: !!response.data.admin })
     } catch (e) {
       if (e.response && e.response.data && e.response.data.error) {
         this.error = e.response.data.error
