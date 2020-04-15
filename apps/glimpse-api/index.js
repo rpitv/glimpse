@@ -1,14 +1,16 @@
 require('dotenv').config();
-const { initSchema } = require('./postgres-init');
+const { initSchema } = require('./util/postgres-init');
 const gqlSchema = require('./schema');
 const gqlResolvers = require('./resolvers');
-const { pool } = require('./db-pool');
+const { pool } = require('./util/db-pool');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { ApolloServer } = require('apollo-server-express');
-const Authentication = require('./authentication');
+const Authentication = require('./util/authentication');
+const { User } = require('./classes/User');
+const { Model } = require('./classes/Model');
 const fs = require('fs-extra');
 
 console.log("Initializing...");
@@ -17,13 +19,29 @@ initSchema(true).then(async () => {
 
     await fs.mkdirs('./static/uploads');
 
+    // The public model is the accessible model that faces users when they are not logged in.
+    const publicModel = new Model(null, false);
     const server = new ApolloServer({
         typeDefs: gqlSchema,
         resolvers: gqlResolvers,
-        context: () => {
-            return {
-                pool: pool
+        context: async ({req}) => {
+            const response = {
+                pool: pool,
+                user: null,
+                model: publicModel
+            };
+
+            const rcs_id = req.session.rcs_id;
+
+            if(rcs_id) {
+                const usr = await User.getUserFromEmail(rcs_id + '@rpi.edu')
+                if(usr != null) {
+                    response.user = usr;
+                    response.model = new Model(usr, false);
+                }
             }
+
+            return response;
         }
     });
 
