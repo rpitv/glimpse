@@ -81,11 +81,16 @@ const schema = Object.freeze({
  * Initiate the PostgreSQL schema if it does not exist already.
  * Will create new columns, but will not modify or drop existing columns to prevent data loss.
  * @see schema WARNING! This variable is taken in and fed to the database directly w/o sanitization.
+ * @param onlyInitOnDev {boolean} Whether this function should only initialize the schema if it is not in production.
+ *      This should probably be true. Database schema changes should be added manually for safety in production.
  * @throws If a client couldn't be pulled from the pool.
  * @throws If something goes wrong while creating/modifying tables (e.g. SQL syntax error)
  * @returns {Promise<void>}
  */
-async function initSchema() {
+async function initSchema(onlyInitOnDev) {
+    if(onlyInitOnDev && process.env.NODE_ENV === "production")
+        return;
+
     const client = await pool.connect();
     try {
         for(const table in schema) {
@@ -106,6 +111,34 @@ async function initSchema() {
                 }
             }
         }
+    } finally {
+        client.release();
+    }
+
+    try {
+        await createSessionTable();
+    } catch(e) {
+        console.warn('There was an error while creating the session table: ' + e.message)
+    }
+}
+
+/**
+ * Create the table for Express session data, used by the store "connect-pg-simple".
+ * @see https://github.com/voxpelli/node-connect-pg-simple/blob/HEAD/table.sql
+ * @return {Promise<void>}
+ */
+async function createSessionTable() {
+    const client = await pool.connect();
+    try {
+        await client.query('CREATE TABLE IF NOT EXISTS "session" (' +
+            '"sid" varchar NOT NULL COLLATE "default",' +
+            '"sess" json NOT NULL,' +
+            '"expire" timestamp(6) NOT NULL' +
+            ')' +
+            'WITH (OIDS=FALSE);');
+        await client.query('ALTER TABLE "session" ADD CONSTRAINT "session_pkey" ' +
+            'PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;');
+        await client.query('CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");');
     } finally {
         client.release();
     }
