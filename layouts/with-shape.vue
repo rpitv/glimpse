@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import Header from '../components/TheHeader.vue'
+import Header from '../components/header/TheHeader.vue'
 import Footer from '../components/TheFooter.vue'
 import BackgroundShape from '~/components/BackgroundShape.vue'
 
