@@ -20,6 +20,7 @@ module.exports = {
     "jest-dom/prefer-required": "error",
     "jest-dom/prefer-enabled-disabled": "error",
     "jest-dom/prefer-checked": "error",
-    "jest-dom/prefer-to-have-attribute": "error"
+    "jest-dom/prefer-to-have-attribute": "error",
+    "no-console": "off"
   }
 }

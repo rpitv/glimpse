@@ -1,5 +1,8 @@
 <template>
   <VApp class="default-layout-app">
+    <VSnackbar v-model="showFailedAuth" :timeout="5000" :bottom="true" color="error">
+      Authentication failed! Try refreshing.
+    </VSnackbar>
     <div class="default-layout-custom-bg" />
     <div>
       <Header transparent-at-top />
@@ -24,6 +27,11 @@ export default {
     BackgroundShape,
     Header,
     Footer
+  },
+  computed: {
+    showFailedAuth () {
+      return this.$store.state.showFailedAuth
+    }
   }
 }
 </script>
