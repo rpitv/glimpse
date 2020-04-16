@@ -69,7 +69,7 @@ export default {
   mounted () {
     this.$refs.pastProdList.SimpleBar.getScrollElement().addEventListener('scroll', this.handleScroll)
   },
-  destroyed () {
+  beforeDestroy () {
     this.$refs.pastProdList.SimpleBar.getScrollElement().removeEventListener('scroll', this.handleScroll)
   },
   methods: {
