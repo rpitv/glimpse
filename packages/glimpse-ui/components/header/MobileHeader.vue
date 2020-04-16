@@ -1,5 +1,5 @@
 <template>
-  <VNavigationDrawer v-model="expanded" app temporary dark>
+  <VNavigationDrawer v-model="localValue" app temporary dark>
     <VList nav>
       <!-- Header -->
       <VListItem class="drawer-header">
@@ -26,7 +26,6 @@
           :key="item.title"
           :to="item.path"
           :nuxt="true"
-          class="drawer-item"
         >
           <VListItemIcon>
             <font-awesome-icon :icon="item.icon" class="drawer-icon" />
@@ -56,7 +55,6 @@
           :to="item.path"
           :class="item.customClass"
           :nuxt="true"
-          class="drawer-item"
         >
           <VListItemIcon>
             <font-awesome-icon :icon="item.icon" class="drawer-icon" />
@@ -87,10 +85,10 @@ export default {
   components: { HeaderDropdown },
   props: {
     items: {
-      type: Array,
+      type: Object,
       required: true
     },
-    expanded: {
+    value: {
       type: Boolean,
       default: false
     }
@@ -103,6 +101,16 @@ export default {
         { title: 'Reddit', path: 'https://reddit.com/u/rpi_tv', icon: 'reddit-alien' }
       ]
     }
+  },
+  computed: {
+    localValue: {
+      get () {
+        return this.value
+      },
+      set (newVal) {
+        this.$emit('input', newVal)
+      }
+    }
   }
 }
 </script>
@@ -110,13 +118,12 @@ export default {
 <style lang="scss" scoped>
 
   /* Drawer */
-  .drawer-item {
-    .drawer-icon {
-      --fa-primary-color: #b05454;
-      --fa-secondary-color: #f56e6c;
-      --fa-secondary-opacity: 1.0;
-    }
+  .drawer-icon {
+    --fa-primary-color: #b05454;
+    --fa-secondary-color: #f56e6c;
+    --fa-secondary-opacity: 1.0;
   }
+
   .drawer-header .tv-logo {
     width: 75px;
     margin-right: 10px;

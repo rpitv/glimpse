@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MobileHeader :items="menuItems" :expanded="sidebar" class="hidden-sm-and-up" />
+    <MobileHeader :items="menuItems" v-model="sidebar" class="hidden-sm-and-up" />
     <!-- Desktop nav bar -->
     <VAppBar
       :color="scrollDistance > 0 || !$props.transparentAtTop ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
