@@ -1,5 +1,5 @@
 <template>
-  <VNavigationDrawer v-model="sidebar" app temporary dark>
+  <VNavigationDrawer v-model="expanded" app temporary dark>
     <VList nav>
       <!-- Header -->
       <VListItem class="drawer-header">
@@ -9,7 +9,6 @@
       <VListItemSubtitle class="drawer-social">
         <a
           v-for="item in socials"
-          v-if="!item.shouldDisplay || item.shouldDisplay()"
           :key="item.title"
           :href="item.path"
           :aria-label="item.title"
@@ -21,86 +20,88 @@
       <VDivider />
 
       <!-- Left menu items -->
-      <VListItem
-        v-for="item in leftMenuItems"
-        v-if="!item.shouldDisplay || item.shouldDisplay()"
-        :key="item.title"
-        :to="item.path"
-        class="drawer-item"
-      >
-        <VListItemAction>
-          <font-awesome-icon :icon="['fad', item.icon]" class="drawer-icon" />
-        </VListItemAction>
+      <span v-for="item in items.LEFT">
+        <VListItem
+          v-if="(!item.sublist || item.sublist.length === 0) && (!item.conditional || item.conditional())"
+          :key="item.title"
+          :to="item.path"
+          :nuxt="true"
+          class="drawer-item"
+        >
+          <VListItemIcon>
+            <font-awesome-icon :icon="item.icon" class="drawer-icon" />
+          </VListItemIcon>
 
-        <VListItemContent class="drawer-item-content">
-          {{ item.title }}
-        </VListItemContent>
-      </VListItem>
+          <VListItemTitle>
+            {{ item.title }}
+          </VListItemTitle>
+        </VListItem>
+
+        <HeaderDropdown
+          v-else-if="item.sublist && item.sublist.length > 0 && (!item.conditional || item.conditional())"
+          :title="item.title"
+          :items="item.sublist"
+          :icon="item.icon"
+          :depth="1"
+        />
+      </span>
 
       <VDivider />
 
       <!-- Right menu items -->
-      <VListItem
-        v-for="item in rightMenuItems"
-        v-if="!item.shouldDisplay || item.shouldDisplay()"
-        :key="item.title"
-        :to="item.path"
-        class="drawer-item"
-      >
-        <VListItemAction>
-          <font-awesome-icon :icon="['fad', item.icon]" class="drawer-icon" />
-        </VListItemAction>
+      <span v-for="item in items.RIGHT">
+        <VListItem
+          v-if="(!item.sublist || item.sublist.length === 0) && (!item.conditional || item.conditional())"
+          :key="item.title"
+          :to="item.path"
+          :class="item.customClass"
+          :nuxt="true"
+          class="drawer-item"
+        >
+          <VListItemIcon>
+            <font-awesome-icon :icon="item.icon" class="drawer-icon" />
+          </VListItemIcon>
 
-        <VListItemContent class="drawer-item-content">
-          {{ item.title }}
-        </VListItemContent>
-      </VListItem>
+          <VListItemTitle>
+            {{ item.title }}
+          </VListItemTitle>
+        </VListItem>
+
+        <HeaderDropdown
+          v-else-if="item.sublist && item.sublist.length > 0 && (!item.conditional || item.conditional())"
+          :title="item.title"
+          :items="item.sublist"
+          :icon="item.icon"
+          :class="item.customClass"
+          :depth="1"
+        />
+      </span>
     </VList>
   </VNavigationDrawer>
 </template>
 
 <script>
+import HeaderDropdown from '~/components/header/HeaderDropdown'
 export default {
+  name: 'MobileHeader',
+  components: { HeaderDropdown },
   props: {
-    transparentAtTop: Boolean
+    items: {
+      type: Array,
+      required: true
+    },
+    expanded: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
-      scrollDistance: 0, // Number of px scrolled down
-      sidebar: false, // Whether the sidebar is open. Should be false by default
       socials: [
         { title: 'YouTube', path: 'https://youtube.com/rpitv', icon: 'youtube' },
         { title: 'Twitter', path: 'https://twitter.com/rpitv', icon: 'twitter' },
         { title: 'Reddit', path: 'https://reddit.com/u/rpi_tv', icon: 'reddit-alien' }
-      ],
-      leftMenuItems: [
-        { title: 'Home', path: '/', icon: 'house' },
-        { title: 'Productions', path: '/productions', icon: 'camera-movie' },
-        { title: 'Contact Us', path: '/contact', icon: 'file-signature' },
-        { title: 'About', path: '/about', icon: 'info-circle' }
-      ],
-      rightMenuItems: [
-        { title: 'Join The Club', path: '/join', icon: 'hands-helping' },
-        { title: this.$store.state.rcs_id + '@rpi.edu',
-          path: '#',
-          icon: 'user-circle',
-          shouldDisplay: () => this.$store.getters.isAuthenticated },
-        { title: 'Donate', path: '/donate', icon: 'donate', shouldDisplay: () => !this.$store.getters.isAuthenticated },
-        { title: 'Login', path: '/login', icon: 'sign-in', shouldDisplay: () => !this.$store.getters.isAuthenticated },
-        { title: 'Logout', path: '/logout', icon: 'sign-out', shouldDisplay: () => this.$store.getters.isAuthenticated }
       ]
-    }
-  },
-  mounted () {
-    window.addEventListener('scroll', this.scrollHandler)
-    this.scrollHandler()
-  },
-  destroyed () {
-    window.removeEventListener('scroll', this.scrollHandler)
-  },
-  methods: {
-    scrollHandler () {
-      this.scrollDistance = window.scrollY
     }
   }
 }
@@ -110,14 +111,10 @@ export default {
 
   /* Drawer */
   .drawer-item {
-    padding-left: 15px;
     .drawer-icon {
       --fa-primary-color: #b05454;
       --fa-secondary-color: #f56e6c;
       --fa-secondary-opacity: 1.0;
-    }
-    .drawer-item-content {
-      display: inline;
     }
   }
   .drawer-header .tv-logo {
@@ -132,35 +129,6 @@ export default {
 
     * {
       margin-right: 10px;
-    }
-  }
-
-  /* Main nav bar */
-  .app-nav-right-items {
-    position: absolute;
-    right: 15px;
-  }
-  .more-icon {
-    margin-left: 5px;
-  }
-  .app-nav-header .tv-logo {
-
-    transition: opacity 0.5s;
-    @media(min-width: 600px) and (max-width: 700px) {
-      height: 30px !important;
-    }
-    @media (max-width: 1049px) {
-      height: 60px;
-      float: left;
-      margin-right: 15px;
-    }
-    @media (min-width: 1050px), (max-width: 600px) {
-      pointer-events: none;
-      position: absolute;
-      height: 150px;
-      left: calc(50% - 100px);
-      top: -20px;
-      z-index: 3000;
     }
   }
 </style>
