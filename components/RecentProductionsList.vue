@@ -1,5 +1,5 @@
 <template>
-  <div ref="pastProdList" @scroll.passive="handleScroll" class="past-prod-list">
+  <simplebar ref="pastProdList" class="past-prod-list">
     <VCard
       :href="'/productions/' + prod.id"
       v-for="prod in productions"
@@ -46,20 +46,31 @@
     >
       <font-awesome-icon :icon="['fal','chevron-right']" size="lg" />
     </VBtn>
-  </div>
+  </simplebar>
 </template>
 
 <script>
 import gql from 'graphql-tag'
 import moment from 'moment'
+import simplebar from 'simplebar-vue'
+import 'simplebar/dist/simplebar.min.css'
 
 export default {
   name: 'RecentProductionsList',
+  components: {
+    simplebar
+  },
   data () {
     return {
       productions: [],
       showScrollButton: true
     }
+  },
+  mounted () {
+    this.$refs.pastProdList.SimpleBar.getScrollElement().addEventListener('scroll', this.handleScroll)
+  },
+  destroyed () {
+    this.$refs.pastProdList.SimpleBar.getScrollElement().removeEventListener('scroll', this.handleScroll)
   },
   methods: {
     getFormattedDate (production) {
@@ -74,11 +85,11 @@ export default {
      * It scrolls in an ease-out manner one full width, or until the end of the list is hit.
      */
     pushLeft () {
-      let pxToPush = this.$refs.pastProdList.offsetWidth // Scroll the width of the element
+      let pxToPush = this.$refs.pastProdList.SimpleBar.getScrollElement().offsetWidth // Scroll the width of the element
       // Runs every 5ms
       const interval = setInterval(() => {
         const pushAmount = pxToPush / 35 // Scroll by 1/35th of the remaining amount - Creates ease-out effect
-        this.$refs.pastProdList.scrollLeft += pushAmount
+        this.$refs.pastProdList.SimpleBar.getScrollElement().scrollLeft += pushAmount
 
         pxToPush -= pushAmount
 
@@ -112,6 +123,11 @@ export default {
     @media(min-device-width: 500px) {
       white-space: nowrap;
       overflow-x: scroll;
+
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       .past-prod-card {
         margin-right: 20px;
