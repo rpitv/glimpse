@@ -11,6 +11,7 @@
         <VListItemSubtitle class="drawer-social">
           <a
             v-for="item in socials"
+            v-if="!item.shouldDisplay || item.shouldDisplay()"
             :key="item.title"
             :href="item.path"
             :aria-label="item.title"
@@ -24,6 +25,7 @@
         <!-- Left menu items -->
         <VListItem
           v-for="item in leftMenuItems"
+          v-if="!item.shouldDisplay || item.shouldDisplay()"
           :key="item.title"
           :to="item.path"
           class="drawer-item"
@@ -42,6 +44,7 @@
         <!-- Right menu items -->
         <VListItem
           v-for="item in rightMenuItems"
+          v-if="!item.shouldDisplay || item.shouldDisplay()"
           :key="item.title"
           :to="item.path"
           class="drawer-item"
@@ -76,6 +79,7 @@
       <VToolbarItems class="hidden-xs-only">
         <VBtn
           v-for="item in leftMenuItems"
+          v-if="!item.shouldDisplay || item.shouldDisplay()"
           :key="item.title"
           :to="item.path"
           :nuxt="true"
@@ -98,6 +102,7 @@
           <VList>
             <VListItem
               v-for="item in rightMenuItems"
+              v-if="!item.shouldDisplay || item.shouldDisplay()"
               :key="item.title"
               @click=""
               :to="item.path"
@@ -148,7 +153,11 @@ export default {
       ],
       rightMenuItems: [
         { title: 'Join The Club', path: '/join', icon: 'hands-helping' },
-        { title: 'Donate', path: '/donate', icon: 'donate' },
+        { title: this.$store.state.rcs_id + '@rpi.edu',
+          path: '#',
+          icon: 'user-circle',
+          shouldDisplay: () => this.$store.getters.isAuthenticated },
+        { title: 'Donate', path: '/donate', icon: 'donate', shouldDisplay: () => !this.$store.getters.isAuthenticated },
         { title: 'Login', path: '/login', icon: 'sign-in', shouldDisplay: () => !this.$store.getters.isAuthenticated },
         { title: 'Logout', path: '/logout', icon: 'sign-out', shouldDisplay: () => this.$store.getters.isAuthenticated }
       ]
