@@ -1,5 +1,8 @@
 <template>
   <VApp class="default-layout-app">
+    <VSnackbar v-model="showFailedAuth" :timeout="5000" :bottom="true" color="error">
+      Authentication failed! Try refreshing.
+    </VSnackbar>
     <div class="default-layout-custom-bg" />
     <div>
       <TheHeader />
@@ -21,6 +24,11 @@ export default {
   components: {
     TheHeader,
     TheFooter
+  },
+  computed: {
+    showFailedAuth () {
+      return this.$store.state.showFailedAuth
+    }
   }
 }
 </script>
@@ -57,5 +65,10 @@ html {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* Fix word wrapping in cards - See vuetifyjs/vuetify/issues/9130 */
+.v-card__text, .v-card__title {
+  word-break: normal;
 }
 </style>

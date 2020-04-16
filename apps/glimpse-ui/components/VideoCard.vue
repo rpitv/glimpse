@@ -24,7 +24,7 @@ export default {
       query: gql`
         query getVideo($id: Int!) {
           video:getVideo(id: $id) {
-            data
+#            data
             id
             name
             videoType
