@@ -1,5 +1,6 @@
 <template>
   <div>
+    <MobileHeader :items="menuItems" :expanded="sidebar" class="hidden-sm-and-up" />
     <!-- Desktop nav bar -->
     <VAppBar
       :color="scrollDistance > 0 || !$props.transparentAtTop ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
@@ -59,8 +60,9 @@
 <script>
 import HeaderButton from '~/components/header/HeaderButton'
 import HeaderDropdown from '~/components/header/HeaderDropdown'
+import MobileHeader from '~/components/header/MobileHeader'
 export default {
-  components: { HeaderDropdown, HeaderButton },
+  components: { MobileHeader, HeaderDropdown, HeaderButton },
   props: {
     transparentAtTop: Boolean
   },
@@ -109,7 +111,7 @@ export default {
             'path': '/join',
             'icon': ['fal', 'hands-helping'],
             'sublist': [],
-            'customClass': 'hidden-sm-and-down',
+            'customClass': 'hidden-sm-only',
             'conditional': () => !this.$store.getters.isAuthenticated
           },
           {
@@ -117,7 +119,7 @@ export default {
             'path': '/donate',
             'icon': ['fal', 'donate'],
             'sublist': [],
-            'customClass': 'hidden-sm-and-down',
+            'customClass': 'hidden-sm-only',
             'conditional': () => !this.$store.getters.isAuthenticated
           },
           {
@@ -125,7 +127,7 @@ export default {
             'path': '/login',
             'icon': ['fal', 'sign-in'],
             'sublist': [],
-            'customClass': 'hidden-sm-and-down',
+            'customClass': 'hidden-sm-only',
             'conditional': () => !this.$store.getters.isAuthenticated
           },
           {
@@ -150,7 +152,7 @@ export default {
                 'conditional': () => this.$store.state.admin
               }
             ],
-            'customClass': 'hidden-sm-and-down',
+            'customClass': 'hidden-sm-only',
             'conditional': () => this.$store.getters.isAuthenticated
           },
           {
@@ -158,7 +160,7 @@ export default {
             'path': '/logout',
             'icon': ['fal', 'sign-out'],
             'sublist': [],
-            'customClass': 'hidden-sm-and-down',
+            'customClass': 'hidden-sm-only',
             'conditional': () => this.$store.getters.isAuthenticated
           },
           {
@@ -223,7 +225,7 @@ export default {
                 'conditional': () => this.$store.getters.isAuthenticated
               }
             ],
-            'customClass': 'hidden-md-and-up',
+            'customClass': 'hidden-md-and-up hidden-xs-only',
             'conditional': null
           }
         ]
