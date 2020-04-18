@@ -174,7 +174,7 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
             }
 
             email = email.toLowerCase();
-            const response = await pool.query('SELECT id,joined,permission_level FROM "user" WHERE email=$1 LIMIT 1', [email]);
+            const response = await pool.query('SELECT id,joined,permission_level FROM "users" WHERE email=$1 LIMIT 1', [email]);
             if(response.rows.length === 0)
                 return null;
             const user = new User(response.rows[0].id);
