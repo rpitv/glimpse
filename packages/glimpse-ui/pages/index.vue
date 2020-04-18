@@ -1,23 +1,29 @@
 <template>
   <div class="container">
-    <LandingHighlights v-if="$vuetify.breakpoint.smAndUp" />
+    <LandingHighlights class="hidden-sm-and-down" />
     <VRow>
-      <VCol sm="12" lg="6">
+      <VCol cols="12" sm="6">
         <h1>Catch our next livestream:</h1>
         <NextLivestream />
       </VCol>
-      <VCol sm="12" lg="6">
-        <h1>We are RPI TV.</h1>
-        <p>
-          RPI TV is a student-run organization at Rensselaer Polytechnic Institute dedicated to providing
-          the best television broadcasts of RPI events.
-        </p>
-        <p>
-          Interested in joining the club? We meet every Tuesday at 9pm in the Rensselaer Union, room 3202. If
-          this doesn't work for you, get in contact with us! <NuxtLink to="/join">
-            More information can be found on the Join page.
-          </NuxtLink>
-        </p>
+      <VCol cols="12" sm="6">
+        <VSheet
+          :color="this.$vuetify.breakpoint.smOnly ? 'rgba(30,30,30,0.6)' : '#00000000'"
+          :elevation="this.$vuetify.breakpoint.smOnly ? 10 : 0"
+          class="about-wrapper"
+        >
+          <h1>We are RPI TV.</h1>
+          <p>
+            RPI TV is a student-run organization at Rensselaer Polytechnic Institute dedicated to providing
+            the best television broadcasts of RPI events.
+          </p>
+          <p>
+            Interested in joining the club? We meet every Tuesday at 9pm in the Rensselaer Union, room 3202. If
+            this doesn't work for you, get in contact with us! <NuxtLink to="/join">
+              More information can be found on the Join page.
+            </NuxtLink>
+          </p>
+        </VSheet>
       </VCol>
     </VRow>
     <h2>Recent Productions</h2>
@@ -58,4 +64,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .about-wrapper {
+    padding: 15px;
+  }
 </style>
