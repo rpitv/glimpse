@@ -4,7 +4,7 @@ import Vuetify from 'vuetify'
 import VueRouter from 'vue-router'
 import Sinon from 'sinon'
 import VuetifyOptions from '../../vuetify.config'
-import TheHeader from '@/components/TheHeader.vue'
+import TheHeader from '~/components/header/TheHeader.vue'
 
 Vue.use(VueRouter)
 Vue.use(Vuetify)
