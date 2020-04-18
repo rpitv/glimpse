@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <LandingHighlights />
+    <LandingHighlights v-if="$vuetify.breakpoint.smAndUp" />
     <VRow>
-      <VCol lg="6">
+      <VCol sm="12" lg="6">
         <h1>Catch our next livestream:</h1>
         <NextLivestream />
       </VCol>
-      <VCol lg="6">
+      <VCol sm="12" lg="6">
         <h1>We are RPI TV.</h1>
         <p>
           RPI TV is a student-run organization at Rensselaer Polytechnic Institute dedicated to providing
