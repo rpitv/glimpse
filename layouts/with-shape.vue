@@ -5,28 +5,28 @@
     </VSnackbar>
     <div class="default-layout-custom-bg" />
     <div>
-      <Header transparent-at-top />
+      <TheHeader transparent-at-top />
       <BackgroundShape class="bg-shape" />
       <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
         </VContainer>
       </VContent>
-      <Footer />
+      <TheFooter />
     </div>
   </VApp>
 </template>
 
 <script>
-import Header from '../components/TheHeader.vue'
-import Footer from '../components/TheFooter.vue'
+import TheHeader from '../components/TheHeader.vue'
+import TheFooter from '../components/TheFooter.vue'
 import BackgroundShape from '~/components/BackgroundShape.vue'
 
 export default {
   components: {
     BackgroundShape,
-    Header,
-    Footer
+    TheHeader,
+    TheFooter
   },
   computed: {
     showFailedAuth () {
