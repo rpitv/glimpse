@@ -53,6 +53,7 @@
     "ts-jest": "^24.2.0",
     "vue": "latest",
     "vue-jest": "^4.0.0-beta.2",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "vuex": "^3.1.3"
   }
 }
