@@ -33,7 +33,7 @@ describe('LandingHighlights', () => {
             link: 'https://upload.wikimedia.org/wikipedia/en/9/95/Legendary_kiss_V%E2%80%93J_day_in_Times_Square_Alfred_Eisenstaedt.jpg',
             name: 'Image #1'
           },
-          startTime: new Date()
+          startTime: new Date('2018-07-14 15:32')
         },
         {
           id: 2,
@@ -43,7 +43,7 @@ describe('LandingHighlights', () => {
             link: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Boris_Johnson_official_portrait_%28cropped%29.jpg',
             name: 'Image #2'
           },
-          startTime: new Date()
+          startTime: new Date('2019-02-03 03:15')
         },
         {
           id: 3,
@@ -53,7 +53,7 @@ describe('LandingHighlights', () => {
             link: 'https://upload.wikimedia.org/wikipedia/commons/4/43/Netflix_Germany_House_of_Cards_%2848605916667%29.jpg',
             name: 'Image #3'
           },
-          startTime: new Date()
+          startTime: new Date('2003-11-19 16:03')
         }
       ]
     })
