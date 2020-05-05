@@ -42,7 +42,7 @@ exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
       class="hidden-xs-only"
     >
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -51,7 +51,7 @@ exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -60,7 +60,7 @@ exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -69,7 +69,7 @@ exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -177,7 +177,7 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
       class="hidden-xs-only"
     >
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -186,7 +186,7 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -195,7 +195,7 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -204,7 +204,7 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -270,6 +270,102 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
 </div>
 `;
 
+exports[`TheHeader (Custom) Properly renders 1`] = `
+<div>
+  <mobileheader-stub
+    class="hidden-sm-and-up"
+    items="[object Object]"
+  />
+   
+  <vappbar-stub
+    app="true"
+    color="#b05454"
+    dark="true"
+    elevateonscroll="true"
+    extensionheight="48"
+    src=""
+    tag="header"
+    tile="true"
+    value="true"
+  >
+    <span
+      aria-label="open navigation drawer"
+      class="hidden-sm-and-up"
+    >
+      <font-awesome-icon-stub
+        class="drawer-icon"
+        icon="fal,bars"
+      />
+    </span>
+     
+    <vtoolbartitle-stub
+      class="app-nav-header"
+    >
+      <img
+        alt="Logo"
+        class="tv-logo"
+        src="../../assets/rpitv_logo_400.png"
+      />
+    </vtoolbartitle-stub>
+     
+    <vtoolbaritems-stub
+      class="hidden-xs-only"
+    >
+      <div
+        class="item-wrapper sample-class-left1"
+      >
+        <headerbutton-stub
+          class="sample-class-left1"
+          path="/samplel1"
+          title="Sample Left #1"
+        />
+      </div>
+      <div
+        class="item-wrapper sample-class-left2"
+      >
+        <headerbutton-stub
+          class="sample-class-left2"
+          path="/samplel2"
+          title="Sample Left #2"
+        />
+      </div>
+    </vtoolbaritems-stub>
+     
+    <div
+      class="app-nav-right-items"
+    >
+      <vtoolbaritems-stub
+        class="hidden-xs-only"
+      >
+        <div
+          class="item-wrapper sample-r1"
+        >
+          <headerbutton-stub
+            class="sample-r1"
+            path="/sampler1"
+            title="SampleRight #1"
+          />
+        </div>
+        <div
+          class="item-wrapper sample-r2"
+        >
+          <headerbutton-stub
+            class="sample-r2"
+            path="/sampler2"
+            title="SampleRight #2"
+          />
+        </div>
+        <div
+          class="item-wrapper sample-r3"
+        >
+          <!---->
+        </div>
+      </vtoolbaritems-stub>
+    </div>
+  </vappbar-stub>
+</div>
+`;
+
 exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
 <div>
   <mobileheader-stub
@@ -312,7 +408,7 @@ exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
       class="hidden-xs-only"
     >
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -321,7 +417,7 @@ exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -330,7 +426,7 @@ exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
@@ -339,7 +435,7 @@ exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
         />
       </div>
       <div
-        class="item-wrapper"
+        class="item-wrapper "
       >
         <headerbutton-stub
           class=""
