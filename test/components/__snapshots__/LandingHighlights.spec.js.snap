@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LandingHighlights Renders properly 1`] = `
+<div>
+  <vrow-stub
+    class="justify-md-center"
+    tag="div"
+  >
+    <vcol-stub
+      md="6"
+      sm="8"
+      tag="div"
+    >
+      <vsheet-stub
+        tag="div"
+      >
+        <vcard-stub
+          class="the-card"
+          loaderheight="4"
+          nuxt="true"
+          tag="div"
+          to="/productions/1"
+        >
+          <vimg-stub
+            maxheight="370"
+            options="[object Object]"
+            position="center center"
+            src="https://upload.wikimedia.org/wikipedia/en/9/95/Legendary_kiss_V%E2%80%93J_day_in_Times_Square_Alfred_Eisenstaedt.jpg"
+            transition="fade-transition"
+          />
+           
+          <div
+            class="card-contents-wrapper"
+          >
+            <div
+              class="card-contents"
+            >
+              <vcardtitle-stub>
+                
+                  Production #1
+                
+              </vcardtitle-stub>
+               
+              <vcardsubtitle-stub>
+                
+                  Apr 19th 2020
+                
+              </vcardsubtitle-stub>
+               
+              <vcardtext-stub>
+                
+                  Sample data
+                
+              </vcardtext-stub>
+            </div>
+          </div>
+        </vcard-stub>
+      </vsheet-stub>
+    </vcol-stub>
+     
+    <vcol-stub
+      sm="4"
+      tag="div"
+    >
+      <vsheet-stub
+        tag="div"
+      >
+        <vcard-stub
+          class="the-card top-small-card"
+          loaderheight="4"
+          nuxt="true"
+          tag="div"
+          to="/productions/2"
+        >
+          <vimg-stub
+            maxheight="175"
+            options="[object Object]"
+            position="center center"
+            src="https://upload.wikimedia.org/wikipedia/commons/7/76/Boris_Johnson_official_portrait_%28cropped%29.jpg"
+            transition="fade-transition"
+          />
+           
+          <div
+            class="card-contents-wrapper"
+          >
+            <div
+              class="card-contents"
+            >
+              <vcardtitle-stub>
+                
+                  Production #2
+                
+              </vcardtitle-stub>
+               
+              <vcardsubtitle-stub>
+                
+                  Apr 19th 2020
+                
+              </vcardsubtitle-stub>
+               
+              <vcardtext-stub>
+                
+                  Sample data #2
+                
+              </vcardtext-stub>
+            </div>
+          </div>
+        </vcard-stub>
+      </vsheet-stub>
+       
+      <vsheet-stub
+        tag="div"
+      >
+        <vcard-stub
+          class="the-card"
+          loaderheight="4"
+          nuxt="true"
+          tag="div"
+          to="/productions/3"
+        >
+          <vimg-stub
+            maxheight="175"
+            options="[object Object]"
+            position="center center"
+            src="https://upload.wikimedia.org/wikipedia/commons/4/43/Netflix_Germany_House_of_Cards_%2848605916667%29.jpg"
+            transition="fade-transition"
+          />
+           
+          <div
+            class="card-contents-wrapper"
+          >
+            <div
+              class="card-contents"
+            >
+              <vcardtitle-stub>
+                
+                  Production #3
+                
+              </vcardtitle-stub>
+               
+              <vcardsubtitle-stub>
+                
+                  Apr 19th 2020
+                
+              </vcardsubtitle-stub>
+               
+              <vcardtext-stub>
+                
+                  Sample data #3
+                
+              </vcardtext-stub>
+            </div>
+          </div>
+        </vcard-stub>
+      </vsheet-stub>
+    </vcol-stub>
+  </vrow-stub>
+</div>
+`;
