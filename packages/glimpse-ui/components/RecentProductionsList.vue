@@ -5,8 +5,8 @@
       v-for="prod in productions"
       :index="prod.id"
       :key="prod.id"
+      :nuxt="true"
       class="past-prod-card"
-      boilerplate
     >
       <VImg :src="prod.thumbnail.link" :title="prod.thumbnail.name" height="200px" />
       <div class="prod-card-text-wrapper">
