@@ -13,7 +13,8 @@ module.exports = {
   extends: [
     '@nuxtjs',
     'plugin:nuxt/recommended',
-    "plugin:jest-dom/recommended"
+    "plugin:jest-dom/recommended",
+    "plugin:cypress/recommended"
   ],
   // add your custom rules here
   rules: {
