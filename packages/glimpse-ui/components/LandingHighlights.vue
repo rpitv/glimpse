@@ -87,7 +87,7 @@ export default {
   },
   apollo: {
     productions: {
-      query: gql`query productions($perPage: Int!) {
+      query: gql`query LandingHighlightsProductions($perPage: Int!) {
             productions(pageSize: $perPage) {
               id
               description
