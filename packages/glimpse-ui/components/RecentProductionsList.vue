@@ -100,7 +100,7 @@ export default {
     }
   },
   apollo: {
-    productions: gql`query { productions {
+    productions: gql`query RecentProductionsListProductions { productions {
         id
         description
         name
