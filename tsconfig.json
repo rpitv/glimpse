@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es2018",
     "module": "esnext",
+    "skipLibCheck": true,
     "moduleResolution": "node",
     "lib": [
       "esnext",
