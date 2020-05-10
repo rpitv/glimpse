@@ -12,7 +12,7 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest'
   },
   'testURL': 'http://localhost/',
-  'testRegex': '(/__tests__/.*|/test/.*/(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
+  'testRegex': '(/__tests__/.*|/test/.*(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
   'coverageDirectory': './coverage/',
   'collectCoverage': true,
   'collectCoverageFrom': [
