@@ -1,0 +1,13 @@
+{
+  "operation": "VideoCardGetVideo",
+  "response": {
+    "data": {
+      "video":{
+        "__typename":"EmbedVideo",
+        "id":"3",
+        "name":"Mock Embedded Video",
+        "videoType":"EMBED"
+      }
+    }
+  }
+}

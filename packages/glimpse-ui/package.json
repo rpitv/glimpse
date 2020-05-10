@@ -45,7 +45,6 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.1.0",
     "cypress": "^4.5.0",
-    "cypress-graphql-mock": "^0.5.0-alpha.4",
     "eslint": "^6.1.0",
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-jest-dom": "^1.4.2",
