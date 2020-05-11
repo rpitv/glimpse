@@ -15,5 +15,5 @@ script:
   - npm run test
   - codecov
   - npm run build
-  - npm start & wait-on http://localhost:3000
+  - npm start && wait-on http://localhost:3000
   - cypress run --record --key ${CYPRESS_TOKEN}
