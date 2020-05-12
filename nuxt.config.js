@@ -81,9 +81,7 @@ export default {
     '@nuxtjs/apollo'
   ],
   apollo: {
-    defaultOptions: {
-      $prefetch: false
-    },
+    $prefetch: false,
     clientConfigs: {
       default: {
         // required
