@@ -100,16 +100,20 @@ export default {
     }
   },
   apollo: {
-    productions: gql`query RecentProductionsListProductions { productions {
-        id
-        description
-        name
-        thumbnail {
-            name
-            link
+    productions: {
+      query: gql`query RecentProductionsListProductions {
+        productions {
+          id
+          description
+          name
+          thumbnail {
+              name
+              link
+          }
+          startTime
         }
-        startTime
-}}`
+      }`
+    }
   }
 }
 </script>
