@@ -26,7 +26,7 @@ export const actions = {
       // Attempt syncronization server-side by using the client's cookies. This isn't super secure/ideal and would
       // break if we were to add any IP-based verification. Should be changed but it works... Kind of slow though. TODO
       const config = process.browser ? {} : {
-        headers: { Cookie: payload.cookies }
+        headers: { Cookie: payload.cookies ? payload.cookies : '' }
       }
       const url = process.browser ? '/api/auth/sync' : (process.env.BASE_URL + '/api/auth/sync')
 

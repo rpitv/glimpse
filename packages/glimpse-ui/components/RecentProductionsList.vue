@@ -25,7 +25,7 @@
         </VCol>
         <VCol>
           <VCardActions class="prod-actions">
-            <VBtn :href="'/productions/' + prod.id" text color="primary">
+            <VBtn text color="primary">
               Watch
             </VBtn>
           </VCardActions>
