@@ -31,7 +31,7 @@ export default {
     ]
   },
   serverMiddleware: [
-    // Proxy (non-graphql) API requests
+    // Proxy API requests (including GraphQL)
     { path: '/api',
       handler: createProxyMiddleware({
         target: 'http://localhost:4000/',
@@ -81,6 +81,9 @@ export default {
     '@nuxtjs/apollo'
   ],
   apollo: {
+    defaultOptions: {
+      $prefetch: false
+    },
     clientConfigs: {
       default: {
         // required
