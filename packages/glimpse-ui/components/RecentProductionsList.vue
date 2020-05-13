@@ -101,6 +101,7 @@ export default {
   },
   apollo: {
     productions: {
+      prefetch: false,
       query: gql`query RecentProductionsListProductions {
         productions {
           id

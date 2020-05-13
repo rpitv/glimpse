@@ -87,6 +87,7 @@ export default {
   },
   apollo: {
     productions: {
+      prefetch: false,
       query: gql`query LandingHighlightsProductions($perPage: Int!) {
             productions(pageSize: $perPage) {
               id
