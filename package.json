@@ -10,8 +10,17 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "cypress:open": "cypress open",
-    "test": "jest"
+    "cy:open": "cypress open",
+    "test": "npm run test:jest && npm run test:cy",
+    "test:jest": "jest",
+    "pretest:cy": "rm -rf .nyc_output || true",
+    "test:cy": "dotenv -- cypress run --record",
+    "posttest": "npm run report:combined",
+    "copy:reports": "cp coverage/cypress/coverage-final.json coverage/from-cypress.json && cp coverage/jest/coverage-final.json coverage/from-jest.json",
+    "precombine:reports": "npm run copy:reports && mkdir .nyc_output || true && node combine-reports-data-flattening.js",
+    "combine:reports": "npx nyc merge coverage && mv coverage.json .nyc_output/out.json",
+    "prereport:combined": "npm run combine:reports",
+    "report:combined": "npx nyc report --reporter text --report-dir coverage"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.26",
@@ -47,6 +56,7 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.1.0",
     "cypress": "^4.5.0",
+    "dotenv-cli": "^3.1.0",
     "eslint": "^6.1.0",
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-jest-dom": "^1.4.2",
@@ -65,5 +75,20 @@
     "vue-jest": "^3.0.5",
     "vue-router": "latest",
     "vuex": "^3.1.3"
+  },
+  "nyc": {
+    "extension": [".vue"],
+    "report-dir": "coverage/cypress",
+    "exclude": [
+      ".nuxt/**/*"
+    ],
+    "include": [
+      "components/**/*",
+      "layouts/**/*",
+      "middleware/**/*",
+      "pages/**/*",
+      "plugins/**/*",
+      "store/**/*"
+    ]
   }
 }
