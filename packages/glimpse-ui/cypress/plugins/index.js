@@ -18,9 +18,11 @@ const fs = require('fs-extra')
 /**
  * @type {Cypress.PluginConfig}
  */
-module.exports = (on) => {
+module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+
+  require('@cypress/code-coverage/task')(on, config)
 
   on('task', {
     getSchema () {
@@ -30,4 +32,6 @@ module.exports = (on) => {
       )
     }
   })
+
+  return config
 }
