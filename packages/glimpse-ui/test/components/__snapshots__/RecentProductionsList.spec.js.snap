@@ -91,9 +91,9 @@ exports[`RecentProductionsList Properly renders 1`] = `
                   <div
                     class="v-card__actions prod-actions"
                   >
-                    <a
+                    <button
                       class="v-btn v-btn--flat v-btn--text theme--light v-size--default primary--text"
-                      href="/productions/0"
+                      type="button"
                     >
                       <span
                         class="v-btn__content"
@@ -102,7 +102,7 @@ exports[`RecentProductionsList Properly renders 1`] = `
             Watch
           
                       </span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -168,9 +168,9 @@ exports[`RecentProductionsList Properly renders 1`] = `
                   <div
                     class="v-card__actions prod-actions"
                   >
-                    <a
+                    <button
                       class="v-btn v-btn--flat v-btn--text theme--light v-size--default primary--text"
-                      href="/productions/23"
+                      type="button"
                     >
                       <span
                         class="v-btn__content"
@@ -179,7 +179,7 @@ exports[`RecentProductionsList Properly renders 1`] = `
             Watch
           
                       </span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -245,9 +245,9 @@ exports[`RecentProductionsList Properly renders 1`] = `
                   <div
                     class="v-card__actions prod-actions"
                   >
-                    <a
+                    <button
                       class="v-btn v-btn--flat v-btn--text theme--light v-size--default primary--text"
-                      href="/productions/10"
+                      type="button"
                     >
                       <span
                         class="v-btn__content"
@@ -256,7 +256,7 @@ exports[`RecentProductionsList Properly renders 1`] = `
             Watch
           
                       </span>
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
