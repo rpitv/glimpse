@@ -12,8 +12,7 @@ install:
   - npm i -g wait-on
 script:
   - npm run lint
-  - npm run test
-  - codecov
   - NODE_ENV=test npm run build
   - npm start & wait-on http://localhost:3000
-  - cypress run --record --key ${CYPRESS_TOKEN}
+  - npm run test
+  - codecov

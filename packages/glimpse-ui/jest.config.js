@@ -13,7 +13,7 @@ module.exports = {
   },
   'testURL': 'http://localhost/',
   'testRegex': '(/__tests__/.*|/test/.*(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
-  'coverageDirectory': './coverage/',
+  'coverageDirectory': './coverage/jest/',
   'collectCoverage': true,
   'collectCoverageFrom': [
     '<rootDir>/components/**/*.vue'
