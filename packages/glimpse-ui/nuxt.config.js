@@ -99,6 +99,25 @@ export default {
   ** Build configuration
   */
   build: {
+    babel: {
+      babelrc: false,
+      plugins: process.env.NODE_ENV === 'test' ? [
+        ['istanbul',
+          {
+            'exclude': [
+              '.nuxt/**/*'
+            ],
+            'include': [
+              'components/**/*',
+              'layouts/**/*',
+              'middleware/**/*',
+              'pages/**/*',
+              'plugins/**/*',
+              'store/**/*'
+            ]
+          }]
+      ] : []
+    },
     /*
     ** You can extend webpack config here
     */
