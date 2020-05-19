@@ -34,14 +34,14 @@ export default {
     // Proxy API requests (including GraphQL)
     { path: '/api',
       handler: createProxyMiddleware({
-        target: 'http://localhost:4000/',
+        target: process.env.API_URL,
         pathRewrite: {
           '^/api': '/'
         }
       }) },
     // Proxy static assets w/o "/api" prefix
     { path: '/static',
-      handler: createProxyMiddleware({ target: 'http://localhost:4000/' }) }
+      handler: createProxyMiddleware({ target: process.env.API_URL }) }
   ],
   /*
   ** Customize the progress-bar color
@@ -89,7 +89,7 @@ export default {
     clientConfigs: {
       default: {
         // required
-        httpEndpoint: 'http://localhost:3000/api/graphql'
+        httpEndpoint: process.env.BASE_URL + 'api/graphql'
       }
     }
   },
