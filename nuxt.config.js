@@ -78,8 +78,13 @@ export default {
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
     '@nuxtjs/dotenv',
-    '@nuxtjs/apollo'
+    '@nuxtjs/apollo',
+    '@nuxtjs/sentry'
   ],
+  sentry: {
+    dsn: 'https://54941f6193e54057862ad82f766fc330@o392437.ingest.sentry.io/5239916'
+    // disabled: (process.env.NODE_ENV === 'production')
+  },
   apollo: {
     clientConfigs: {
       default: {
