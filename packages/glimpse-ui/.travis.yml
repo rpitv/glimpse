@@ -12,6 +12,8 @@ install:
   - npm i -g wait-on
 script:
   - npm run lint
+  - set BASE_URL=http://localhost:3000
+  - set API_URL=http://localhost:4000
   - NODE_ENV=test npm run build
   - npm start & wait-on http://localhost:3000
   - npm run test
