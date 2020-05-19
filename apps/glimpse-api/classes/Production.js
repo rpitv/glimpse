@@ -309,7 +309,7 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
             if(perPage == null || perPage <= 0)
                 return (await this.getAllProductions()).slice(lastProductionIndex + 1);
 
-            const response = await pool.query('SELECT id, name, description, start_time, create_time, visible, added ' +
+            const response = await pool.query('SELECT id, name, description, start_time, create_time, visible ' +
                 'FROM productions ' +
                 'ORDER BY create_time ASC, name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastProductionIndex + 1]);
             const productions = [];
