@@ -34,6 +34,13 @@ export default {
   },
   async mounted () {
     await axios.get('/api/auth/logout', { withCredentials: true })
+
+    this.$sentry.addBreadcrumb({
+      category: 'auth',
+      message: 'Unauthenticated user ' + this.$store.state.rcs_id,
+      level: this.$sentry.Severity.Info
+    })
+    this.$store.commit('SET_AUTH', {})
     window.location.replace('https://cas-auth.rpi.edu/cas/logout?service=' + encodeURIComponent(process.env.BASE_URL))
   }
 }
