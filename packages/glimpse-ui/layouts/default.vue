@@ -29,6 +29,18 @@ export default {
     showFailedAuth () {
       return this.$store.state.showFailedAuth
     }
+  },
+  mounted () {
+    this.$sentry.configureScope((scope) => {
+      if (!this.$store.getters.isAuthenticated) {
+        return
+      }
+
+      scope.setUser({
+        email: this.$store.state.rcs_id + '@rpi.edu'
+      })
+      scope.setTag('admin', this.$store.state.admin)
+    })
   }
 }
 </script>
