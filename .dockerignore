@@ -1,0 +1,12 @@
+node_modules
+.vagrant
+.env
+.git
+.gitignore
+.idea
+README.md
+LICENSE
+Vagrantfile
+bootstrap.sh
+docker
+.vscode
