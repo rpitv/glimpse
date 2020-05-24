@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  api:
+    depends_on:
+      - db
+    build:
+      context: ..
+      dockerfile: ./docker/api/Dockerfile
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    env_file:
+      - ../.env
+  db:
+    image: postgres:12.3-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      POSTGRES_USER_FILE: /run/secrets/postgres-user
+      POSTGRES_DB_FILE: /run/secrets/postgres-db
+    secrets:
+      - postgres-password
+      - postgres-user
+      - postgres-db
+secrets:
+  postgres-password:
+    file: ./secrets/postgres-password
+  postgres-user:
+    file: ./secrets/postgres-user
+  postgres-db:
+    file: ./secrets/postgres-db
