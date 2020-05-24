@@ -111,5 +111,8 @@ dist
 # Vagrant files
 .vagrant/
 
+# Docker Secrets
+docker/secrets/
+
 # Static uploads
 static/uploads/
