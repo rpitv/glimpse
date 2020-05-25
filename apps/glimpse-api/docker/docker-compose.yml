@@ -3,9 +3,7 @@ services:
   api:
     depends_on:
       - db
-    build:
-      context: ..
-      dockerfile: ./docker/api/Dockerfile
+    image: rpitv/glimpse-api
     ports:
       - "4000:80"
     restart: unless-stopped
