@@ -114,5 +114,8 @@ dist
 # Docker Secrets
 docker/secrets/
 
+# Docker postgres mount
+docker/db/postgres-data
+
 # Static uploads
 static/uploads/

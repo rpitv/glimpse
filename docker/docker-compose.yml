@@ -12,5 +12,7 @@ services:
   db:
     image: postgres:12.3-alpine
     restart: unless-stopped
+    volumes:
+      - ./db/postgres-data:/var/lib/postgresql/data
     env_file:
       - db/.env
