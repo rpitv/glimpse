@@ -93,7 +93,7 @@ export default {
     clientConfigs: {
       default: {
         // required
-        httpEndpoint: process.env.BASE_URL + 'api/graphql'
+        httpEndpoint: process.env.BASE_URL + '/api/graphql'
       }
     }
   },
