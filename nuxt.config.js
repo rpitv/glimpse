@@ -6,6 +6,10 @@ const defaultDescription = 'RPI TV is a student-run broadcasting club committed 
 export default {
   name: 'RPI TV',
   mode: 'universal',
+  server: {
+    port: process.env.PORT || 3000,
+    server: '0.0.0.0'
+  },
   /*
   ** Headers of the page
   */
