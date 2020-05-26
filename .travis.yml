@@ -3,10 +3,9 @@ notifications:
   slack:
     secure: IiejvWVEHSJzhxaia3EFuOmMMJUK35CU57MCpz6OwHlhRsNn3eY8Lbs9Cgok9kJpWDaEICfRQNguk9Votx7xvJIjAxWI7AOypoydY4H5pphQJPmhMefLrpSThH5MmbLaMPEzFcrIt6TNCELn93KrTobtWunAM2YcXC5HbxuASsbHp8r3P969z1Tm/cyPMkom4X2FmBg3c3BpReV8ec6mVPrei8KqPwrpHouGgF0JRo9Wgdt8F6RVGRCxjeodktEkDubU8DZgOtQi7zLdsDL7r5UDxnTN1O2ZmJ9mN21gmgIAhystwJHx+tvgSDTwFtSwFlhxogunApwepf2VEziGGMplVzzRzi3FSA7epWfZtrye0Bwt7EopBH9TLYLlEnSneqv7VjuFV2IObFNez/0wGZUtT7C54ObiiS+5TDU12hC0fhJJ7npR/Ho0eAUObuTFKEQayYkiS87bRCtkCFHLiZiyuM8cAsyYPohyryDA4hg/OiAtE/SzjMzDEFJoPov6f5WCPqEwRY48NnWKa7aL+JF+2RTWD5PExO/Kig1dyFIpMez3onizGrSH4zqov0/m2onP/i5nNLPeBZr2DrFDyAfq1FcePBL4IoEs6BGK6dEqGH/BkGfMxEiCQEzB0OjSH19C31QO+Q2YxcC0RBUsJ4A0eM1OZ0WcGqiWWuxWOWA=
 node_js:
-  - 12
+  - 14
 env:
-  - BASE_URL=http://localhost:3000
-  - API_URL=http://localhost:4000/
+  - BASE_URL=http://localhost:3000 API_URL=http://localhost:4000/ NODE_ENV=test
 before_install:
   - printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=\${NPM_TOKEN}" > .npmrc
 install:
@@ -15,7 +14,7 @@ install:
   - npm i -g wait-on
 script:
   - npm run lint
-  - NODE_ENV=test npm run build
+  - npm run build
   - npm start & wait-on http://localhost:3000
   - npm run test
   - codecov
