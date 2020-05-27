@@ -96,3 +96,5 @@ cypress/videos
 cypress.env.json
 
 api-schema.graphql
+
+.npmrc
