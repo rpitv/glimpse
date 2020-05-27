@@ -10,8 +10,8 @@ env:
   - BASE_URL=http://localhost:3000 API_URL=http://localhost:4000/ NODE_ENV=test
 before_install:
   - printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=\${NPM_TOKEN}" > .npmrc
-  - docker build --build-arg BASE_URL --build-arg API_URL --build-arg NODE_ENV -t rpitv/glimpse-ui .
-  - docker run ---name rpitv-glimpse-ui -e BASE_URL -e API_URL -e NODE_ENV -d -p 3000:80 .
+  - docker build --build-arg NPM_TOKEN=${NPM_TOKEN} -t rpitv/glimpse-ui .
+  - docker run --name rpitv-glimpse-ui -e BASE_URL -e API_URL -e NODE_ENV -d -p 3000:80 .
 install:
   - npm i
   - npm i -g codecov
