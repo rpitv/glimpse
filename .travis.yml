@@ -18,11 +18,9 @@ before_install:
 install:
   - npm i
   - npm i -g codecov
-  - npm i -g wait-on
 script:
   - npm run lint
-  - wait-on http://localhost:3000
   - npm run test
   - codecov
-after_script:
+after_failure:
   - docker logs rpitv-glimpse-ui
