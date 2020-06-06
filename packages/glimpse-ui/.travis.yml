@@ -24,3 +24,5 @@ script:
   - wait-on http://localhost:3000
   - npm run test
   - codecov
+after_script:
+  - docker logs rpitv-glimpse-ui
