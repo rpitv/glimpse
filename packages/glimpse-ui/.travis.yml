@@ -18,10 +18,12 @@ before_install:
 install:
   - npm i
   - npm i -g codecov
+  - npm i -g wait-on
 after_install:
   - rm .npmrc
 script:
   - npm run lint
+  - wait-on http://localhost:3000
   - npm run test
   - codecov
 after_failure:
