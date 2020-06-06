@@ -18,6 +18,8 @@ before_install:
 install:
   - npm i
   - npm i -g codecov
+after_install:
+  - rm .npmrc
 script:
   - npm run lint
   - npm run test
