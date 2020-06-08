@@ -40,7 +40,7 @@ export default {
       handler: createProxyMiddleware({
         target: process.env.API_URL,
         pathRewrite: {
-          '^/api': '/'
+          '^/api': ''
         }
       }) },
     // Proxy static assets w/o "/api" prefix
@@ -87,7 +87,6 @@ export default {
   ],
   sentry: {
     dsn: 'https://54941f6193e54057862ad82f766fc330@o392437.ingest.sentry.io/5239916'
-    // disabled: (process.env.NODE_ENV === 'production')
   },
   apollo: {
     clientConfigs: {
