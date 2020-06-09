@@ -31,7 +31,6 @@ describe('Home Page Wrapper', () => {
 
     describe('RecentProductionsList Unit', function () {
       it('Contains proper metadata', function () {
-
         for (let i = 0; i < this.RPLMock.response.data.productions.length; i++) { // Foreach item...
           cy.get('.past-prod-list a.past-prod-card') // Get the card (anchor element) for this item in RPLMock
             .contains(this.RPLMock.response.data.productions[i].name)
