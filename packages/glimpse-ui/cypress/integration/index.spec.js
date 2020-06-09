@@ -28,5 +28,55 @@ describe('Home Page Wrapper', () => {
         }
       })
     })
+
+    describe('RecentProductionsList Unit', function () {
+      it('Contains proper metadata', function () {
+
+        for (let i = 0; i < this.RPLMock.response.data.productions.length; i++) { // Foreach item...
+          cy.get('.past-prod-list a.past-prod-card') // Get the card (anchor element) for this item in RPLMock
+            .contains(this.RPLMock.response.data.productions[i].name)
+            .parent()
+            .parent()
+            .as('cardAnchor')
+
+          cy.get('@cardAnchor').scrollIntoView()
+
+          // Image links
+          cy.get('@cardAnchor').find('.v-image__image[style*=\'background-image: url("' +
+            this.RPLMock.response.data.productions[i].thumbnail.link + '")\']')
+            .should('exist')
+
+          // Description
+          cy.get('@cardAnchor')
+            .find('.prod-card-text-wrapper')
+            .should('contain', this.RPLMock.response.data.productions[i].description)
+
+          // Timestamp
+          cy.get('@cardAnchor').find('.row .v-card__subtitle').should('contain',
+            moment(this.RPLMock.response.data.productions[i].startTime).format('MMM Do YYYY'))
+
+          // Image title
+          cy.get('@cardAnchor').find('.v-image')
+            .should('have.attr', 'title', this.RPLMock.response.data.productions[i].thumbnail.name)
+        }
+      })
+
+      it('Shows button when scrollX == 0', function () {
+        cy.get('.past-prod-list .simplebar-content-wrapper').invoke('scrollLeft')
+          .should('eq', 0)
+        cy.get('.past-prod-list .scroll-btn').should('be.visible')
+      })
+
+      it('Smoothly scrolls when clicking the right chevron button', function () {
+        cy.get('.past-prod-list .scroll-btn').click()
+        cy.get('.past-prod-list .simplebar-content-wrapper').invoke('scrollLeft')
+          .should('be.greaterThan', 0)
+      })
+
+      it('Hides button when scrollX > 0', function () {
+        cy.get('.past-prod-list .simplebar-content-wrapper').scrollTo('right')
+        cy.get('.past-prod-list .scroll-btn').should('not.be.visible')
+      })
+    })
   })
 })
