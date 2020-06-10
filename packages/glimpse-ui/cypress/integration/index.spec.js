@@ -67,6 +67,7 @@ describe('Home Page Wrapper', () => {
       })
 
       it('Smoothly scrolls when clicking the right chevron button', function () {
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.get('.past-prod-list .scroll-btn').click().wait(2000) // Wait 2000ms for animation
         cy.get('.past-prod-list .simplebar-content-wrapper').invoke('scrollLeft')
           .should('be.greaterThan', 0)
