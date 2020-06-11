@@ -1,44 +1,32 @@
 <template>
   <div class="container">
-    <LandingHighlights class="hidden-sm-and-down" />
+    <div class="about-wrapper">
+      <h1>We are RPI TV.</h1>
+      <p>
+        RPI TV is a student-run organization at Rensselaer Polytechnic Institute dedicated to providing
+        the best television broadcasts of RPI events.
+      </p>
+    </div>
+
     <VRow>
       <VCol cols="12" sm="6">
         <h1>Catch our next livestream:</h1>
         <NextLivestream />
       </VCol>
       <VCol cols="12" sm="6">
-        <VSheet
-          :color="this.$vuetify.breakpoint.smOnly ? 'rgba(30,30,30,0.6)' : '#00000000'"
-          :elevation="this.$vuetify.breakpoint.smOnly ? 10 : 0"
-          class="about-wrapper"
-        >
-          <h1>We are RPI TV.</h1>
-          <p>
-            RPI TV is a student-run organization at Rensselaer Polytechnic Institute dedicated to providing
-            the best television broadcasts of RPI events.
-          </p>
-          <p>
-            Interested in joining the club? We meet every Tuesday at 9pm in the Rensselaer Union, room 3202. If
-            this doesn't work for you, get in contact with us! <NuxtLink to="/join">
-              More information can be found on the Join page.
-            </NuxtLink>
-          </p>
-        </VSheet>
+        <h2>Recent Productions</h2>
+        <RecentProductionsList />
       </VCol>
     </VRow>
-    <h2>Recent Productions</h2>
-    <RecentProductionsList />
   </div>
 </template>
 
 <script>
 import RecentProductionsList from '~/components/RecentProductionsList.vue'
 import NextLivestream from '~/components/NextLivestream.vue'
-import LandingHighlights from '~/components/LandingHighlights.vue'
 export default {
   layout: 'with-shape',
   components: {
-    LandingHighlights,
     NextLivestream,
     RecentProductionsList
   },
@@ -65,6 +53,20 @@ export default {
 
 <style lang="scss" scoped>
   .about-wrapper {
+    margin-top: 8%;
+    width: 100%;
+    text-align: center;
     padding: 15px;
+    h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 20px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 200;
+      display: inline-block;
+      max-width: 600px;
+    }
   }
 </style>

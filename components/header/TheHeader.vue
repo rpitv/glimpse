@@ -3,9 +3,9 @@
     <MobileHeader :items="menuItems" v-model="sidebar" class="hidden-sm-and-up" />
     <!-- Desktop nav bar -->
     <VAppBar
-      :color="scrollDistance > 0 || !$props.transparentAtTop ? this.$vuetify.theme.currentTheme.primary.darken1 : '#00000000'"
+      :color="scrollDistance > 0 || !$props.transparentAtTop ? '#00000080' : '#00000000'"
       app
-      elevate-on-scroll
+      elevation="0"
       dark
     >
       <span class="hidden-sm-and-up" aria-label="open navigation drawer">

@@ -6,7 +6,9 @@
     <div class="default-layout-custom-bg" />
     <div>
       <TheHeader transparent-at-top />
-      <BackgroundShape class="bg-shape" />
+      <div class="bg-shape-wrapper">
+        <BackgroundShape class="bg-shape" />
+      </div>
       <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
@@ -49,7 +51,7 @@ export default {
   height: 100vh;
   position: fixed;
   z-index: 0;
-  background: linear-gradient(#383838, #282828) !important;
+  background: linear-gradient(#1E2225, #111315) !important;
 }
 
 h1,h2,h3,h4,h5,h6 {

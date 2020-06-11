@@ -6,6 +6,7 @@
       :index="prod.id"
       :key="prod.id"
       :nuxt="true"
+      color="blue-grey darken-4"
       class="past-prod-card"
     >
       <VImg :src="prod.thumbnail.link" :title="prod.thumbnail.name" height="200px" />
@@ -171,7 +172,7 @@ export default {
       position:absolute;
       left:0;
       bottom: 78px;
-      background:linear-gradient(transparent, map.get($grey, "darken-3"));
+      background:linear-gradient(transparent, map.get($blue-grey, "darken-4"));
     }
   }
   .scroll-btn {
