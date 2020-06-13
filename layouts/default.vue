@@ -53,6 +53,14 @@ export default {
   margin-top: 10px;
 }
 
+.default-layout-custom-bg {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 0;
+  background: linear-gradient(#1E2225, #111315) !important;
+}
+
 h1,h2,h3,h4,h5,h6 {
   font-family: 'Oswald', sans-serif;
 }

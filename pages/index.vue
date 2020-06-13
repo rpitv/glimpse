@@ -10,11 +10,15 @@
 
     <VRow>
       <VCol cols="12" sm="6">
-        <h1>Catch our next livestream:</h1>
+        <h1 class="item-header">
+          Catch our next livestream:
+        </h1>
         <NextLivestream />
       </VCol>
       <VCol cols="12" sm="6">
-        <h2>Recent Productions</h2>
+        <h1 class="item-header">
+          Our recent productions:
+        </h1>
         <RecentProductionsList />
       </VCol>
     </VRow>
@@ -52,8 +56,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .item-header {
+    text-align: center;
+  }
   .about-wrapper {
-    margin-top: 8%;
+    margin-top: 8vw;
     width: 100%;
     text-align: center;
     padding: 15px;

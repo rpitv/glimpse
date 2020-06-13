@@ -27,6 +27,9 @@ export default {
 
 <style lang="scss" scoped>
   .shape-wrapper {
+    @media (min-width: 1200px) {
+      top: -5%;
+    }
     filter: drop-shadow(5px 5px 10px #00000080);
     width: 100%;
     position: absolute;

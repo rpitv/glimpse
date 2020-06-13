@@ -1,110 +1,70 @@
 <template>
-  <simplebar ref="pastProdList" class="past-prod-list">
-    <VCard
-      :href="'/productions/' + prod.id"
-      v-for="prod in productions"
-      :index="prod.id"
-      :key="prod.id"
-      :nuxt="true"
-      color="blue-grey darken-4"
-      class="past-prod-card"
-    >
-      <VImg :src="prod.thumbnail.link" :title="prod.thumbnail.name" height="200px" />
-      <div class="prod-card-text-wrapper">
-        <VCardTitle>
-          {{ prod.name }}
-        </VCardTitle>
-        <VCardSubtitle>
-          {{ prod.description }}
-        </VCardSubtitle>
-      </div>
-      <VRow>
-        <VCol>
-          <VCardText class="v-card__subtitle">
-            {{ getFormattedDate(prod) }}
-          </VCardText>
-        </VCol>
-        <VCol>
-          <VCardActions class="prod-actions">
-            <VBtn text color="primary">
-              Watch
-            </VBtn>
-          </VCardActions>
-        </VCol>
-      </VRow>
-    </VCard>
-
-    <VBtn
-      v-if="showScrollButton"
-      @click="pushLeft"
-      fab
-      dark
-      x-large
-      color="primary"
-      class="scroll-btn"
-      title="Click to scroll left"
-      aria-label="Click to scroll left"
-    >
-      <font-awesome-icon :icon="['fal','chevron-right']" size="lg" />
-    </VBtn>
-  </simplebar>
+  <div class="recent-prod">
+    <VRow>
+      <VCol v-for="n in 2" :key="n" sm="6">
+        <span v-if="productions[n]">
+          <NuxtLink :to="'/productions/' + productions[n].id" class="recent-prod-link">
+            <VImg
+              :src="productions[n].thumbnail.link"
+              :title="productions[n].name"
+              :aspect-ratio="16/9"
+              gradient="to top, rgba(0,0,0,0.3), rgba(0,0,0,0)"
+            />
+          </NuxtLink>
+        </span>
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol v-for="n in 3" :key="n" sm="3">
+        <span v-if="productions[n+2]">
+          <NuxtLink :to="'/productions/' + productions[n+2].id" class="recent-prod-link">
+            <VImg
+              :src="productions[n+2].thumbnail.link"
+              :title="productions[n+2].name"
+              :aspect-ratio="16/9"
+              gradient="to top, rgba(0,0,0,0.3), rgba(0,0,0,0)"
+            />
+          </NuxtLink>
+        </span>
+      </VCol>
+      <VCol sm="3">
+        <NuxtLink to="/productions" class="recent-prod-link">
+          <VResponsive :aspect-ratio="16/9" class="view-more">
+            <h3>View More</h3>
+          </VResponsive>
+        </NuxtLink>
+      </VCol>
+    </VRow>
+  </div>
 </template>
 
 <script>
 import gql from 'graphql-tag'
 import moment from 'moment'
-import simplebar from 'simplebar-vue'
 import 'simplebar/dist/simplebar.min.css'
 
 export default {
   name: 'RecentProductionsList',
   components: {
-    simplebar
   },
   data () {
     return {
-      productions: [],
-      showScrollButton: true
+      productions: []
     }
-  },
-  mounted () {
-    this.$refs.pastProdList.SimpleBar.getScrollElement().addEventListener('scroll', this.handleScroll)
-  },
-  beforeDestroy () {
-    this.$refs.pastProdList.SimpleBar.getScrollElement().removeEventListener('scroll', this.handleScroll)
   },
   methods: {
     getFormattedDate (production) {
       return moment(production.startTime).format('MMM Do YYYY')
-    },
-    handleScroll (evt) {
-      this.showScrollButton = (evt.target.scrollLeft === 0)
-    },
-    /**
-     * Push this list left (or right, depending on how you think about it) one full width.
-     * This exists for the right-chevron button, to demonstrate that this list is scrollable.
-     * It scrolls in an ease-out manner one full width, or until the end of the list is hit.
-     */
-    pushLeft () {
-      let pxToPush = this.$refs.pastProdList.SimpleBar.getScrollElement().offsetWidth // Scroll the width of the element
-      // Runs every 5ms
-      const interval = setInterval(() => {
-        const pushAmount = pxToPush / 35 // Scroll by 1/35th of the remaining amount - Creates ease-out effect
-        this.$refs.pastProdList.SimpleBar.getScrollElement().scrollLeft += pushAmount
-
-        pxToPush -= pushAmount
-
-        if (pxToPush <= 1) { // Stop when 1 px left, with 0 it breaks as you infinitely approach 0
-          clearInterval(interval)
-        }
-      }, 5)
     }
   },
   apollo: {
     productions: {
       prefetch: false,
-      query: gql`query RecentProductionsListProductions {
-        productions {
+      variables: {
+        count: 6
+      },
+      query: gql`query RecentProductionsListProductions($count: Int!) {
+        productions(pageSize: $count) {
           id
           description
           name
@@ -121,69 +81,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @use "sass:map";
-  @import "~vuetify/src/styles/styles.sass";
-
-  .past-prod-list {
-    position: relative;
-    @media(min-device-width: 500px) {
-      white-space: nowrap;
-      overflow-x: scroll;
-
-      -ms-overflow-style: none;
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      .past-prod-card {
-        margin-right: 20px;
-      }
+  .view-more {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    background-color: #00000030;
+    font-size: 1vw;
+    @media (max-width 2500px) {
+      font-size: 1.5vw;
     }
-
-    @media (max-device-width: 500px) {
-      text-align: center;
-      .past-prod-card {
-        text-align: initial;
-        margin-bottom: 20px;
-      }
-      .scroll-btn {
-        display: none;
-      }
-    }
-    .past-prod-card {
-      display: inline-block;
-      width: 300px;
-      margin-bottom: 20px;
-    }
-
-    .prod-actions {
-      float: right;
+    @media (max-width: 600px) {
+      font-size: 3vw;
     }
   }
-  .prod-card-text-wrapper {
-    height: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &:before {
-      content:'';
-      width:100%;
-      height: 12%;
-      position:absolute;
-      left:0;
-      bottom: 78px;
-      background:linear-gradient(transparent, map.get($blue-grey, "darken-4"));
-    }
-  }
-  .scroll-btn {
-    opacity: 0.7;
-    &:hover {
-      opacity: 1;
-    }
-    position: absolute;
-    z-index: 100;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+  .recent-prod-link {
+    color: white;
+    text-decoration: none;
   }
 </style>
