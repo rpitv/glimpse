@@ -161,7 +161,7 @@ function PersonModelFactory(SEEKER, SUPER_ACCESS) {
                 lastPersonIndex = -1;
             // Return all users if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllPeople()).slice(lastPersonIndex);
+                return (await this.getAllPeople()).slice(lastPersonIndex + 1);
 
             const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people ' +
                 'ORDER BY first_name ASC, last_name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastPersonIndex + 1]);
@@ -192,7 +192,7 @@ function PersonModelFactory(SEEKER, SUPER_ACCESS) {
                 lastMemberIndex = -1;
             // Return all users if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllMembers()).slice(lastMemberIndex);
+                return (await this.getAllMembers()).slice(lastMemberIndex + 1);
 
             // Select all people joined with any roles they have in the roles table, but limit the number of
             // rows which can be returned for each person to only one, and constrain the results to only be

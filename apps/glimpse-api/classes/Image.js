@@ -139,7 +139,7 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
                 lastImageIndex = -1;
             // Return all images if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllImages()).slice(lastImageIndex);
+                return (await this.getAllImages()).slice(lastImageIndex + 1);
 
             const response = await pool.query('SELECT id, name, link, added FROM images ' +
                 'ORDER BY name ASC, added ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastImageIndex + 1]);
