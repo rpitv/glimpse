@@ -113,6 +113,7 @@ export default {
   }
   .header-btn {
     height: 100% !important;
+    font-family: 'Oswald Light', sans-serif;
   }
 
   .dropdown-icon {

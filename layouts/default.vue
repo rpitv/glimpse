@@ -46,7 +46,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('https://fonts.googleapis.com/css?family=Ubuntu|Oswald&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Ubuntu|Oswald:wght@200;300;400&display=swap');
 
 /* Margin to avoid overlap due to logo overhang */
 .default-layout-nuxt-content {
@@ -62,7 +62,7 @@ export default {
 }
 
 h1,h2,h3,h4,h5,h6 {
-  font-family: 'Oswald', sans-serif;
+  font-family: 'Oswald Light', sans-serif;
 }
 html {
   font-family: 'Ubuntu', sans-serif;

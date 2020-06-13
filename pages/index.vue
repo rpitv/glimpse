@@ -65,6 +65,7 @@ export default {
     text-align: center;
     padding: 15px;
     h1 {
+      font-family: 'Oswald', sans-serif;
       font-size: 40px;
       margin-bottom: 20px;
     }

@@ -2,11 +2,11 @@
   <div class="recent-prod">
     <VRow>
       <VCol v-for="n in 2" :key="n" sm="6">
-        <span v-if="productions[n]">
+        <span v-if="productions[n-1]">
           <NuxtLink :to="'/productions/' + productions[n].id" class="recent-prod-link">
             <VImg
-              :src="productions[n].thumbnail.link"
-              :title="productions[n].name"
+              :src="productions[n-1].thumbnail.link"
+              :title="productions[n-1].name"
               :aspect-ratio="16/9"
               gradient="to top, rgba(0,0,0,0.3), rgba(0,0,0,0)"
             />
@@ -16,11 +16,11 @@
     </VRow>
     <VRow>
       <VCol v-for="n in 3" :key="n" sm="3">
-        <span v-if="productions[n+2]">
-          <NuxtLink :to="'/productions/' + productions[n+2].id" class="recent-prod-link">
+        <span v-if="productions[n+1]">
+          <NuxtLink :to="'/productions/' + productions[n+1].id" class="recent-prod-link">
             <VImg
-              :src="productions[n+2].thumbnail.link"
-              :title="productions[n+2].name"
+              :src="productions[n+1].thumbnail.link"
+              :title="productions[n+1].name"
               :aspect-ratio="16/9"
               gradient="to top, rgba(0,0,0,0.3), rgba(0,0,0,0)"
             />
@@ -61,10 +61,10 @@ export default {
     productions: {
       prefetch: false,
       variables: {
-        count: 6
+        count: 5
       },
       query: gql`query RecentProductionsListProductions($count: Int!) {
-        productions(pageSize: $count) {
+        productions(pageSize: $count, prevProductionIndex: -1) {
           id
           description
           name

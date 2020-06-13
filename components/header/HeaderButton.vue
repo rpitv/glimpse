@@ -28,6 +28,7 @@ export default {
 
 <style lang="scss" scoped>
   .header-btn {
+    font-family: 'Oswald Light', sans-serif;
     height: 100% !important;
     margin: 0;
   }
