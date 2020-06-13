@@ -2,7 +2,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^~/(.*)$': '<rootDir>/$1',
-    '^vue$': 'vue/dist/vue.common.js'
+    '^vue$': 'vue/dist/vue.common.js',
+    '\\.css$': 'identity-obj-proxy'
   },
   moduleFileExtensions: ['js', 'ts', 'vue', 'json'],
   transform: {
@@ -11,8 +12,8 @@ module.exports = {
     '^.+\\.tsx?$': 'ts-jest'
   },
   'testURL': 'http://localhost/',
-  'testRegex': '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
-  'coverageDirectory': './coverage/',
+  'testRegex': '(/__tests__/.*|/test/.*(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
+  'coverageDirectory': './coverage/jest/',
   'collectCoverage': true,
   'collectCoverageFrom': [
     '<rootDir>/components/**/*.vue'

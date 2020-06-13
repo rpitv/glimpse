@@ -5,8 +5,8 @@
       v-for="prod in productions"
       :index="prod.id"
       :key="prod.id"
+      :nuxt="true"
       class="past-prod-card"
-      boilerplate
     >
       <VImg :src="prod.thumbnail.link" :title="prod.thumbnail.name" height="200px" />
       <div class="prod-card-text-wrapper">
@@ -25,7 +25,7 @@
         </VCol>
         <VCol>
           <VCardActions class="prod-actions">
-            <VBtn :href="'/productions/' + prod.id" text color="primary">
+            <VBtn text color="primary">
               Watch
             </VBtn>
           </VCardActions>
@@ -100,16 +100,21 @@ export default {
     }
   },
   apollo: {
-    productions: gql`query { productions {
-        id
-        description
-        name
-        thumbnail {
-            name
-            link
+    productions: {
+      prefetch: false,
+      query: gql`query RecentProductionsListProductions {
+        productions {
+          id
+          description
+          name
+          thumbnail {
+              name
+              link
+          }
+          startTime
         }
-        startTime
-}}`
+      }`
+    }
   }
 }
 </script>

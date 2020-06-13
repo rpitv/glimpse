@@ -18,7 +18,7 @@
 
       <!-- Left menu items -->
       <VToolbarItems class="hidden-xs-only">
-        <div v-for="item in menuItems.LEFT" :key="item.title" :class="'item-wrapper' + (item.customClass || '')">
+        <div v-for="item in menuItems.LEFT" :key="item.title" :class="'item-wrapper ' + (item.customClass || '')">
           <HeaderButton
             v-if="(!item.sublist || item.sublist.length === 0) && (!item.conditional || item.conditional())"
             :class="item.customClass || ''"
