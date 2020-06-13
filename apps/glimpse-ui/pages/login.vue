@@ -49,22 +49,30 @@ export default {
     }
   },
   async mounted () {
-    if (this.isAuthenticated) {
-      this.$router.push('/')
-    }
-
     try {
       const response = await axios.post('/api/auth/login', {
         ticket: this.$route.query.ticket
       }, { withCredentials: true })
       // No error so commit new admin & rcs id to store
       this.$store.commit('SET_AUTH', { rcs_id: response.data.rcs_id, admin: !!response.data.admin })
+      this.$sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Authenticated user ' + response.data.rcs_id,
+        level: this.$sentry.Severity.Info
+      })
     } catch (e) {
       if (e.response && e.response.data && e.response.data.error) {
         this.error = e.response.data.error
       } else {
         this.error = e.response.statusText.toUpperCase()
       }
+
+      this.$sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'Authentication failed',
+        data: e,
+        level: this.$sentry.Severity.Warning
+      })
     }
   },
   head () {

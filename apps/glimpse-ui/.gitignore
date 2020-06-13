@@ -90,5 +90,11 @@ sw.*
 # Vim swap files
 *.swp
 
-# API Schema Introspection
+# Cypress files
+cypress/screenshots
+cypress/videos
+cypress.env.json
+
 api-schema.graphql
+
+.npmrc

@@ -21,8 +21,9 @@ export default {
   },
   apollo: {
     video: {
+      prefetch: false,
       query: gql`
-        query getVideo($id: Int!) {
+        query VideoCardGetVideo($id: Int!) {
           video:getVideo(id: $id) {
 #            data
             id

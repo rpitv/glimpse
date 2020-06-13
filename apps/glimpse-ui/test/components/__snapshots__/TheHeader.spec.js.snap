@@ -1,225 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TheHeader Properly renders 1`] = `
+exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
 <div>
-  <vnavigationdrawer-stub
-    app="true"
-    dark="true"
-    height="100vh"
-    minivariantwidth="80"
-    mobilebreakpoint="1264"
-    src=""
-    tag="nav"
-    temporary="true"
-    width="256"
-  >
-    <vlist-stub
-      nav="true"
-      tag="div"
-      tile="true"
-    >
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-header"
-        tag="div"
-      >
-        <img
-          alt="Logo"
-          class="tv-logo"
-          src="../assets/rpitv_logo_400.png"
-        />
-         
-        <h3>
-          RPI TV
-        </h3>
-      </vlistitem-stub>
-       
-      <vlistitemsubtitle-stub
-        class="drawer-social"
-      >
-        <a
-          aria-label="YouTube"
-          href="https://youtube.com/rpitv"
-        >
-          <font-awesome-icon-stub
-            icon="fab,youtube"
-            size="lg"
-          />
-        </a>
-        <a
-          aria-label="Twitter"
-          href="https://twitter.com/rpitv"
-        >
-          <font-awesome-icon-stub
-            icon="fab,twitter"
-            size="lg"
-          />
-        </a>
-        <a
-          aria-label="Reddit"
-          href="https://reddit.com/u/rpi_tv"
-        >
-          <font-awesome-icon-stub
-            icon="fab,reddit-alien"
-            size="lg"
-          />
-        </a>
-      </vlistitemsubtitle-stub>
-       
-      <vdivider-stub />
-       
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,house"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Home
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/productions"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,camera-movie"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Productions
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/contact"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,file-signature"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Contact Us
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/about"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,info-circle"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          About
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-       
-      <vdivider-stub />
-       
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/join"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,hands-helping"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Join The Club
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/donate"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,donate"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Donate
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-      <vlistitem-stub
-        activeclass=""
-        class="drawer-item"
-        tag="div"
-        to="/login"
-      >
-        <vlistitemaction-stub>
-          <font-awesome-icon-stub
-            class="drawer-icon"
-            icon="fad,sign-in"
-          />
-        </vlistitemaction-stub>
-         
-        <vlistitemcontent-stub
-          class="drawer-item-content"
-        >
-          
-          Login
-        
-        </vlistitemcontent-stub>
-      </vlistitem-stub>
-    </vlist-stub>
-  </vnavigationdrawer-stub>
+  <mobileheader-stub
+    class="hidden-sm-and-up"
+    items="[object Object]"
+  />
    
   <vappbar-stub
     app="true"
@@ -248,166 +34,472 @@ exports[`TheHeader Properly renders 1`] = `
       <img
         alt="Logo"
         class="tv-logo"
-        src="../assets/rpitv_logo_400.png"
+        src="../../assets/rpitv_logo_400.png"
       />
     </vtoolbartitle-stub>
      
     <vtoolbaritems-stub
       class="hidden-xs-only"
     >
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/"
-        type="button"
+      <div
+        class="item-wrapper "
       >
-        
-        Home
-      
-      </vbtn-stub>
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/productions"
-        type="button"
+        <headerbutton-stub
+          class=""
+          path="/"
+          title="Home"
+        />
+      </div>
+      <div
+        class="item-wrapper "
       >
-        
-        Productions
-      
-      </vbtn-stub>
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/contact"
-        type="button"
+        <headerbutton-stub
+          class=""
+          path="/productions"
+          title="Productions"
+        />
+      </div>
+      <div
+        class="item-wrapper "
       >
-        
-        Contact Us
-      
-      </vbtn-stub>
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/about"
-        type="button"
+        <headerbutton-stub
+          class=""
+          path="/contact"
+          title="Contact Us"
+        />
+      </div>
+      <div
+        class="item-wrapper "
       >
-        
-        About
-      
-      </vbtn-stub>
+        <headerbutton-stub
+          class=""
+          path="/about"
+          title="About"
+        />
+      </div>
     </vtoolbaritems-stub>
      
     <div
-      class="d-none d-sm-flex d-md-none app-nav-right-items"
+      class="app-nav-right-items"
     >
-      <vmenu-stub
-        closedelay="0"
-        closeonclick="true"
-        closeoncontentclick="true"
-        contentclass=""
-        maxheight="auto"
-        maxwidth="auto"
-        nudgebottom="0"
-        nudgeleft="0"
-        nudgeright="0"
-        nudgetop="0"
-        nudgewidth="0"
-        opendelay="0"
-        openonclick="true"
-        openonhover="true"
-        origin="top left"
-        transition="v-menu-transition"
+      <vtoolbaritems-stub
+        class="hidden-xs-only"
       >
-         
-        <vlist-stub
-          tag="div"
-          tile="true"
+        <div
+          class="item-wrapper hidden-sm-only"
         >
-          <vlistitem-stub
-            activeclass=""
-            nuxt="true"
-            tag="div"
-            text=""
-            to="/join"
-          >
-            
-            Join The Club
-          
-          </vlistitem-stub>
-          <vlistitem-stub
-            activeclass=""
-            nuxt="true"
-            tag="div"
-            text=""
-            to="/donate"
-          >
-            
-            Donate
-          
-          </vlistitem-stub>
-          <vlistitem-stub
-            activeclass=""
-            nuxt="true"
-            tag="div"
-            text=""
-            to="/login"
-          >
-            
-            Login
-          
-          </vlistitem-stub>
-        </vlist-stub>
-      </vmenu-stub>
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerdropdown-stub
+            class="hidden-sm-only"
+            depth="0"
+            items="[object Object],[object Object]"
+            title="undefined@rpi.edu"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerbutton-stub
+            class="hidden-sm-only"
+            path="/logout"
+            title="Logout"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-md-and-up hidden-xs-only"
+        >
+          <headerdropdown-stub
+            class="hidden-md-and-up hidden-xs-only"
+            depth="0"
+            items="[object Object],[object Object],[object Object],[object Object],[object Object]"
+            title="More"
+          />
+        </div>
+      </vtoolbaritems-stub>
     </div>
+  </vappbar-stub>
+</div>
+`;
+
+exports[`TheHeader (Authenticated User) Properly renders 1`] = `
+<div>
+  <mobileheader-stub
+    class="hidden-sm-and-up"
+    items="[object Object]"
+  />
+   
+  <vappbar-stub
+    app="true"
+    color="#b05454"
+    dark="true"
+    elevateonscroll="true"
+    extensionheight="48"
+    src=""
+    tag="header"
+    tile="true"
+    value="true"
+  >
+    <span
+      aria-label="open navigation drawer"
+      class="hidden-sm-and-up"
+    >
+      <font-awesome-icon-stub
+        class="drawer-icon"
+        icon="fal,bars"
+      />
+    </span>
+     
+    <vtoolbartitle-stub
+      class="app-nav-header"
+    >
+      <img
+        alt="Logo"
+        class="tv-logo"
+        src="../../assets/rpitv_logo_400.png"
+      />
+    </vtoolbartitle-stub>
      
     <vtoolbaritems-stub
-      class="hidden-sm-and-down app-nav-right-items"
+      class="hidden-xs-only"
     >
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/join"
-        type="button"
+      <div
+        class="item-wrapper "
       >
-        
-        Join The Club
-      
-      </vbtn-stub>
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/donate"
-        type="button"
+        <headerbutton-stub
+          class=""
+          path="/"
+          title="Home"
+        />
+      </div>
+      <div
+        class="item-wrapper "
       >
-        
-        Donate
-      
-      </vbtn-stub>
-      <vbtn-stub
-        activeclass=""
-        nuxt="true"
-        tag="button"
-        text="true"
-        to="/login"
-        type="button"
+        <headerbutton-stub
+          class=""
+          path="/productions"
+          title="Productions"
+        />
+      </div>
+      <div
+        class="item-wrapper "
       >
-        
-        Login
-      
-      </vbtn-stub>
+        <headerbutton-stub
+          class=""
+          path="/contact"
+          title="Contact Us"
+        />
+      </div>
+      <div
+        class="item-wrapper "
+      >
+        <headerbutton-stub
+          class=""
+          path="/about"
+          title="About"
+        />
+      </div>
     </vtoolbaritems-stub>
+     
+    <div
+      class="app-nav-right-items"
+    >
+      <vtoolbaritems-stub
+        class="hidden-xs-only"
+      >
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerdropdown-stub
+            class="hidden-sm-only"
+            depth="0"
+            items="[object Object],[object Object]"
+            title="undefined@rpi.edu"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerbutton-stub
+            class="hidden-sm-only"
+            path="/logout"
+            title="Logout"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-md-and-up hidden-xs-only"
+        >
+          <headerdropdown-stub
+            class="hidden-md-and-up hidden-xs-only"
+            depth="0"
+            items="[object Object],[object Object],[object Object],[object Object],[object Object]"
+            title="More"
+          />
+        </div>
+      </vtoolbaritems-stub>
+    </div>
+  </vappbar-stub>
+</div>
+`;
+
+exports[`TheHeader (Custom) Properly renders 1`] = `
+<div>
+  <mobileheader-stub
+    class="hidden-sm-and-up"
+    items="[object Object]"
+  />
+   
+  <vappbar-stub
+    app="true"
+    color="#b05454"
+    dark="true"
+    elevateonscroll="true"
+    extensionheight="48"
+    src=""
+    tag="header"
+    tile="true"
+    value="true"
+  >
+    <span
+      aria-label="open navigation drawer"
+      class="hidden-sm-and-up"
+    >
+      <font-awesome-icon-stub
+        class="drawer-icon"
+        icon="fal,bars"
+      />
+    </span>
+     
+    <vtoolbartitle-stub
+      class="app-nav-header"
+    >
+      <img
+        alt="Logo"
+        class="tv-logo"
+        src="../../assets/rpitv_logo_400.png"
+      />
+    </vtoolbartitle-stub>
+     
+    <vtoolbaritems-stub
+      class="hidden-xs-only"
+    >
+      <div
+        class="item-wrapper sample-class-left1"
+      >
+        <headerbutton-stub
+          class="sample-class-left1"
+          path="/samplel1"
+          title="Sample Left #1"
+        />
+      </div>
+      <div
+        class="item-wrapper sample-class-left2"
+      >
+        <headerbutton-stub
+          class="sample-class-left2"
+          path="/samplel2"
+          title="Sample Left #2"
+        />
+      </div>
+    </vtoolbaritems-stub>
+     
+    <div
+      class="app-nav-right-items"
+    >
+      <vtoolbaritems-stub
+        class="hidden-xs-only"
+      >
+        <div
+          class="item-wrapper sample-r1"
+        >
+          <headerbutton-stub
+            class="sample-r1"
+            path="/sampler1"
+            title="SampleRight #1"
+          />
+        </div>
+        <div
+          class="item-wrapper sample-r2"
+        >
+          <headerbutton-stub
+            class="sample-r2"
+            path="/sampler2"
+            title="SampleRight #2"
+          />
+        </div>
+        <div
+          class="item-wrapper sample-r3"
+        >
+          <!---->
+        </div>
+      </vtoolbaritems-stub>
+    </div>
+  </vappbar-stub>
+</div>
+`;
+
+exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
+<div>
+  <mobileheader-stub
+    class="hidden-sm-and-up"
+    items="[object Object]"
+  />
+   
+  <vappbar-stub
+    app="true"
+    color="#b05454"
+    dark="true"
+    elevateonscroll="true"
+    extensionheight="48"
+    src=""
+    tag="header"
+    tile="true"
+    value="true"
+  >
+    <span
+      aria-label="open navigation drawer"
+      class="hidden-sm-and-up"
+    >
+      <font-awesome-icon-stub
+        class="drawer-icon"
+        icon="fal,bars"
+      />
+    </span>
+     
+    <vtoolbartitle-stub
+      class="app-nav-header"
+    >
+      <img
+        alt="Logo"
+        class="tv-logo"
+        src="../../assets/rpitv_logo_400.png"
+      />
+    </vtoolbartitle-stub>
+     
+    <vtoolbaritems-stub
+      class="hidden-xs-only"
+    >
+      <div
+        class="item-wrapper "
+      >
+        <headerbutton-stub
+          class=""
+          path="/"
+          title="Home"
+        />
+      </div>
+      <div
+        class="item-wrapper "
+      >
+        <headerbutton-stub
+          class=""
+          path="/productions"
+          title="Productions"
+        />
+      </div>
+      <div
+        class="item-wrapper "
+      >
+        <headerbutton-stub
+          class=""
+          path="/contact"
+          title="Contact Us"
+        />
+      </div>
+      <div
+        class="item-wrapper "
+      >
+        <headerbutton-stub
+          class=""
+          path="/about"
+          title="About"
+        />
+      </div>
+    </vtoolbaritems-stub>
+     
+    <div
+      class="app-nav-right-items"
+    >
+      <vtoolbaritems-stub
+        class="hidden-xs-only"
+      >
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerbutton-stub
+            class="hidden-sm-only"
+            path="/join"
+            title="Join The Club"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerbutton-stub
+            class="hidden-sm-only"
+            path="/donate"
+            title="Donate"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <headerbutton-stub
+            class="hidden-sm-only"
+            path="/login"
+            title="Login"
+          />
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-sm-only"
+        >
+          <!---->
+        </div>
+        <div
+          class="item-wrapper hidden-md-and-up hidden-xs-only"
+        >
+          <headerdropdown-stub
+            class="hidden-md-and-up hidden-xs-only"
+            depth="0"
+            items="[object Object],[object Object],[object Object],[object Object],[object Object]"
+            title="More"
+          />
+        </div>
+      </vtoolbaritems-stub>
+    </div>
   </vappbar-stub>
 </div>
 `;
