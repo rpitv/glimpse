@@ -131,7 +131,7 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
                 lastUserIndex = -1;
             // Return all users if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllUsers()).slice(lastUserIndex);
+                return (await this.getAllUsers()).slice(lastUserIndex + 1);
 
             const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined' +
                 ' LIMIT $1 OFFSET $2', [perPage, lastUserIndex + 1]);
