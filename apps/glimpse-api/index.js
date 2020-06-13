@@ -72,7 +72,7 @@ initSchema(true).then(async () => {
     expApp.use('/auth/sync', Authentication.SyncRouter);
     expApp.use('/auth/logout', Authentication.LogoutRouter);
 
-    expApp.listen({port: process.env.PORT || 4000}, () => {
+    expApp.listen({port: process.env.PORT || 4000, host: '0.0.0.0'}, () => {
         console.log(`🚀 Server ready at http://localhost:${process.env.PORT || 4000}${server.graphqlPath}`);
     });
 
