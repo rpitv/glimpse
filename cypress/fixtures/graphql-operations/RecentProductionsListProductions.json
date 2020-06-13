@@ -1,0 +1,98 @@
+{
+  "operation": "RecentProductionsListProductions",
+  "response": {
+    "data": {
+      "productions": [
+        {
+          "id": "12",
+          "description": "Mock #1 Description",
+          "__typename": "Production",
+          "name": "Mock #1 Name",
+          "thumbnail": {
+            "name": "Image for Mock #1",
+            "__typename": "Image",
+            "link": "https://image.shutterstock.com/image-photo/hot-dog-mustard-ketchup-side-260nw-683413162.jpg"
+          },
+          "startTime": "2018-03-01T00:00:00.000Z"
+        }, {
+          "id": "4",
+          "description": "Mock #2 Description",
+          "__typename": "Production",
+          "name": "Mock #2 Name",
+          "thumbnail": {
+            "name": "Image for Mock #2",
+            "__typename": "Image",
+            "link": "https://www.seriouseats.com/recipes/images/2015/07/20150702-sous-vide-hamburger-anova-primary-1500x1125.jpg"
+          },
+          "startTime": "2013-02-22T03:11:47.256Z"
+        }, {
+          "id": "31",
+          "description": "Mock #3 Description",
+          "__typename": "Production",
+          "name": "Mock #3 Name",
+          "thumbnail": {
+            "name": "Image for Mock #3",
+            "__typename": "Image",
+            "link": "https://www.brproud.com/wp-content/uploads/sites/80/2019/08/AdobeStock_93955356.jpeg?w=2560&h=1440&crop=1"
+          },
+          "startTime": "2020-02-16T01:32:00.000Z"
+        }, {
+          "id": "19",
+          "description": "Mock #4 Description",
+          "__typename": "Production",
+          "name": "Mock #4 Name",
+          "thumbnail": {
+            "name": "Image for Mock #4",
+            "__typename": "Image",
+            "link": "https://i.redd.it/019q9zbg2j151.jpg"
+          },
+          "startTime": "2020-02-19T09:00:12.000Z"
+        }, {
+          "id": "139",
+          "description": "Mock #5 Description",
+          "__typename": "Production",
+          "name": "Mock #5 Name",
+          "thumbnail": {
+            "name": "Image for Mock #5",
+            "__typename": "Image",
+            "link": "https://i.redd.it/sp3tjpbmt9351.jpg"
+          },
+          "startTime": "2020-02-19T09:00:12.000Z"
+        }, {
+          "id": "246",
+          "description": "Mock #6 Description",
+          "__typename": "Production",
+          "name": "Mock #6 Name",
+          "thumbnail": {
+            "name": "Image for Mock #6",
+            "__typename": "Image",
+            "link": "https://i.redd.it/u87vkfcgf3z41.jpg"
+          },
+          "startTime": "2020-02-19T09:00:12.000Z"
+        }, {
+          "id": "1395",
+          "description": "Mock #7 Description",
+          "__typename": "Production",
+          "name": "Mock #7 Name",
+          "thumbnail": {
+            "name": "Image for Mock #7",
+            "__typename": "Image",
+            "link": "https://i.redd.it/r00aurp9sz251.jpg"
+          },
+          "startTime": "2020-02-19T09:00:12.000Z"
+        }, {
+          "id": "2860",
+          "description": "Mock #8 Description",
+          "__typename": "Production",
+          "name": "Mock #8 Name",
+          "thumbnail": {
+            "name": "Image for Mock #8",
+            "__typename": "Image",
+            "link": "https://i.redd.it/vmza0xc2fn631.jpg"
+          },
+          "startTime": "2020-02-19T09:00:12.000Z"
+        }
+      ]
+    }
+  }
+}

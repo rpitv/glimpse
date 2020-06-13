@@ -6,6 +6,10 @@ const defaultDescription = 'RPI TV is a student-run broadcasting club committed 
 export default {
   name: 'RPI TV',
   mode: 'universal',
+  server: {
+    port: process.env.PORT || 3000,
+    server: '0.0.0.0'
+  },
   /*
   ** Headers of the page
   */
@@ -31,17 +35,17 @@ export default {
     ]
   },
   serverMiddleware: [
-    // Proxy (non-graphql) API requests
+    // Proxy API requests (including GraphQL)
     { path: '/api',
       handler: createProxyMiddleware({
-        target: 'http://localhost:4000/',
+        target: process.env.API_URL,
         pathRewrite: {
-          '^/api': '/'
+          '^/api': ''
         }
       }) },
     // Proxy static assets w/o "/api" prefix
     { path: '/static',
-      handler: createProxyMiddleware({ target: 'http://localhost:4000/' }) }
+      handler: createProxyMiddleware({ target: process.env.API_URL }) }
   ],
   /*
   ** Customize the progress-bar color
@@ -78,13 +82,17 @@ export default {
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
     '@nuxtjs/dotenv',
-    '@nuxtjs/apollo'
+    '@nuxtjs/apollo',
+    '@nuxtjs/sentry'
   ],
+  sentry: {
+    dsn: 'https://54941f6193e54057862ad82f766fc330@o392437.ingest.sentry.io/5239916'
+  },
   apollo: {
     clientConfigs: {
       default: {
         // required
-        httpEndpoint: 'http://localhost:4000/graphql'
+        httpEndpoint: process.env.BASE_URL + '/api/graphql'
       }
     }
   },
@@ -99,6 +107,10 @@ export default {
   ** Build configuration
   */
   build: {
+    babel: {
+      babelrc: false,
+      plugins: process.env.NODE_ENV !== 'production' ? ['istanbul'] : []
+    },
     /*
     ** You can extend webpack config here
     */
