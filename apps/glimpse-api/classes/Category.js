@@ -178,7 +178,7 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
                 lastCategoryIndex = -1;
             // Return all categories if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllCategories()).slice(lastCategoryIndex);
+                return (await this.getAllCategories()).slice(lastCategoryIndex + 1);
 
             const response = await pool.query('SELECT id, name FROM categories ' +
                 'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastCategoryIndex + 1]);
