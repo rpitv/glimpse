@@ -307,7 +307,7 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
                 lastProductionIndex = -1;
             // Return all productions if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllProductions()).slice(lastProductionIndex + 1);
+                return (await this.getAllProductions()).slice(lastProductionIndex);
 
             const response = await pool.query('SELECT id, name, description, start_time, create_time, visible ' +
                 'FROM productions ' +

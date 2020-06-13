@@ -131,7 +131,7 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
                 lastVideoIndex = -1;
             // Return all images if no item count per page is provided.
             if(perPage == null || perPage <= 0)
-                return (await this.getAllVideos()).slice(lastVideoIndex + 1);
+                return (await this.getAllVideos()).slice(lastVideoIndex);
 
             const response = await pool.query('SELECT id, name, video_type, data FROM videos ' +
                 'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastVideoIndex + 1]);
