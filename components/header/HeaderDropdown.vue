@@ -3,16 +3,21 @@
     <VMenu
       v-if="depth === 0"
       :close-on-content-click="false"
+      :attach="'*[data-for=\'' + $options._scopeId + '\']'"
       open-on-hover
       class="header-dropdown"
       auto
       nudge-bottom="56"
+      nudge-width="40"
+      nudge-left="50"
     >
       <template v-slot:activator="{ on }">
         <VBtn
           v-on="on"
+          :data-for="$options._scopeId"
           text
           class="header-btn"
+          aria-haspopup="listbox"
         >
           {{ title }} <font-awesome-icon :icon="['fal','chevron-down']" class="dropdown-icon" />
         </VBtn>
@@ -30,7 +35,7 @@
             <VListItemIcon>
               <font-awesome-icon v-if="item.icon != null" :icon="item.icon" />
             </VListItemIcon>
-            <VListItemTitle>
+            <VListItemTitle class="item-title">
               {{ item.title }}
             </VListItemTitle>
           </VListItem>
@@ -51,7 +56,7 @@
           <font-awesome-icon :icon="icon" />
         </VListItemIcon>
 
-        <VListItemTitle>
+        <VListItemTitle class="item-title">
           {{ title }}
         </VListItemTitle>
       </template>
@@ -114,6 +119,12 @@ export default {
   .header-btn {
     height: 100% !important;
     font-family: 'Oswald Light', sans-serif;
+
+  }
+  .item-title {
+    font-family: 'Ubuntu', sans-serif;
+    text-transform: initial;
+    font-size: 1.2em;
   }
 
   .dropdown-icon {

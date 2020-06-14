@@ -9,9 +9,9 @@ exports[`TheHeader (Authenticated Admin) Properly renders 1`] = `
    
   <vappbar-stub
     app="true"
-    color="#b05454"
+    color="#00000080"
     dark="true"
-    elevateonscroll="true"
+    elevation="0"
     extensionheight="48"
     src=""
     tag="header"
@@ -144,9 +144,9 @@ exports[`TheHeader (Authenticated User) Properly renders 1`] = `
    
   <vappbar-stub
     app="true"
-    color="#b05454"
+    color="#00000080"
     dark="true"
-    elevateonscroll="true"
+    elevation="0"
     extensionheight="48"
     src=""
     tag="header"
@@ -279,9 +279,9 @@ exports[`TheHeader (Custom) Properly renders 1`] = `
    
   <vappbar-stub
     app="true"
-    color="#b05454"
+    color="#00000080"
     dark="true"
-    elevateonscroll="true"
+    elevation="0"
     extensionheight="48"
     src=""
     tag="header"
@@ -375,9 +375,9 @@ exports[`TheHeader (Unauthenticated) Properly renders 1`] = `
    
   <vappbar-stub
     app="true"
-    color="#b05454"
+    color="#00000080"
     dark="true"
-    elevateonscroll="true"
+    elevation="0"
     extensionheight="48"
     src=""
     tag="header"

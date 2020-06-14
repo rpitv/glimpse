@@ -1,5 +1,6 @@
 <template>
   <VBtn
+    :aria-label="title"
     :to="path"
     :nuxt="true"
     text

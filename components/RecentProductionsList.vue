@@ -3,7 +3,7 @@
     <VRow>
       <VCol v-for="n in 2" :key="n" sm="6">
         <span v-if="productions[n-1]">
-          <NuxtLink :to="'/productions/' + productions[n].id" class="recent-prod-link">
+          <NuxtLink :to="'/productions/' + productions[n-1].id" class="recent-prod-link">
             <VImg
               :src="productions[n-1].thumbnail.link"
               :title="productions[n-1].name"
@@ -66,13 +66,10 @@ export default {
       query: gql`query RecentProductionsListProductions($count: Int!) {
         productions(pageSize: $count, prevProductionIndex: -1) {
           id
-          description
           name
           thumbnail {
-              name
               link
           }
-          startTime
         }
       }`
     }

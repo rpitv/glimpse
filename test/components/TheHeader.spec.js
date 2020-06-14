@@ -181,9 +181,9 @@ describe('TheHeader (Unauthenticated)', () => {
     expect(wrapper.find('headerbutton-stub[path=\'/login\']').attributes().title).toBe('Login')
   })
 
-  test('Handles opaque top correctly', () => {
+  test('Handles translucent top correctly', () => {
     mount({ store })
-    expect(wrapper.find('vappbar-stub').element).toHaveAttribute('color', '#b05454')
+    expect(wrapper.find('vappbar-stub').element).toHaveAttribute('color', '#00000080')
   })
 
   test('Handles transparent top correctly', () => {
