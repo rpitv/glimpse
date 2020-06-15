@@ -4,6 +4,8 @@ const LoginRouter = express.Router();
 const LogoutRouter = express.Router();
 const SyncRouter = express.Router();
 const axios = require('axios');
+const { User } = require('../classes/User')
+const { PermissionTools } = require('./Permissions')
 
 LoginRouter.post('/', async (req, res) => {
 	// Validate the token passed by the client
@@ -20,6 +22,8 @@ LoginRouter.post('/', async (req, res) => {
 	// If a user node exists and has text inside it, respond with that username & a new session cookie
 	if(userNodes && userNodes.length > 0 && userNodes[0] && userNodes[0].textContent) {
 		req.session.rcs_id = userNodes[0].textContent.toLowerCase();
+		const user = await User.getUserFromEmail(req.session.rcs_id + '@rpi.edu')
+		req.session.admin = PermissionTools.isAdmin(user)
 		return res.json({ rcs_id: userNodes[0].textContent.toLowerCase(), admin: !!req.session.admin });
 	}
 
