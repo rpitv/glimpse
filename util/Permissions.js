@@ -16,6 +16,13 @@ class PermissionTools {
 		}
 	}
 
+	static isAdmin(user) {
+		// noinspection RedundantIfStatementJS
+		if (!user || user.permissionLevel < PermissionLevels.ADMIN)
+			return false
+		return true
+	}
+
 	static assertIsUser(user, superAccess) {
 		if(superAccess) {
 			return;
