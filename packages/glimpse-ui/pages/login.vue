@@ -37,7 +37,7 @@ export default {
   },
   computed: {
     isAuthenticated () {
-      return this.$store.getters.isAuthenticated
+      return this.$store.getters['auth/isAuthenticated']
     }
   },
   watch: {
@@ -54,7 +54,7 @@ export default {
         ticket: this.$route.query.ticket
       }, { withCredentials: true })
       // No error so commit new admin & rcs id to store
-      this.$store.commit('SET_AUTH', { rcs_id: response.data.rcs_id, admin: !!response.data.admin })
+      this.$store.commit('auth/SET_AUTH', { rcs_id: response.data.rcs_id, admin: !!response.data.admin })
       this.$sentry.addBreadcrumb({
         category: 'auth',
         message: 'Authenticated user ' + response.data.rcs_id,
