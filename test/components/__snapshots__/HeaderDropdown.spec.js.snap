@@ -53,7 +53,6 @@ exports[`HeaderDropdown Properly renders w/ depth 0 1`] = `
      
     <vlist-stub
       class="header-dropdown"
-      color="blue-grey darken-4"
       tag="div"
       tile="true"
     >
