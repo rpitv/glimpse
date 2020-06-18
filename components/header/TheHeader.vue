@@ -112,7 +112,7 @@ export default {
             'icon': ['fal', 'hands-helping'],
             'sublist': [],
             'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters.isAuthenticated
+            'conditional': () => !this.$store.getters['auth/isAuthenticated']
           },
           {
             'title': 'Donate',
@@ -120,7 +120,7 @@ export default {
             'icon': ['fal', 'donate'],
             'sublist': [],
             'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters.isAuthenticated
+            'conditional': () => !this.$store.getters['auth/isAuthenticated']
           },
           {
             'title': 'Login',
@@ -128,10 +128,10 @@ export default {
             'icon': ['fal', 'sign-in'],
             'sublist': [],
             'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters.isAuthenticated
+            'conditional': () => !this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': this.$store.state.rcs_id + '@rpi.edu',
+            'title': this.$store.state.auth.rcs_id + '@rpi.edu',
             'path': '#',
             'icon': ['fal', 'user-circle'],
             'sublist': [
@@ -149,11 +149,11 @@ export default {
                 'icon': ['fal', 'toolbox'],
                 'sublist': [],
                 'customClass': '',
-                'conditional': () => this.$store.state.admin
+                'conditional': () => this.$store.state.auth.admin
               }
             ],
             'customClass': 'hidden-sm-only',
-            'conditional': () => this.$store.getters.isAuthenticated
+            'conditional': () => this.$store.getters['auth/isAuthenticated']
           },
           {
             'title': 'Logout',
@@ -161,7 +161,7 @@ export default {
             'icon': ['fal', 'sign-out'],
             'sublist': [],
             'customClass': 'hidden-sm-only',
-            'conditional': () => this.$store.getters.isAuthenticated
+            'conditional': () => this.$store.getters['auth/isAuthenticated']
           },
           {
             'title': 'More',
@@ -174,7 +174,7 @@ export default {
                 'icon': ['fal', 'hands-helping'],
                 'sublist': [],
                 'customClass': '',
-                'conditional': () => !this.$store.getters.isAuthenticated
+                'conditional': () => !this.$store.getters['auth/isAuthenticated']
               },
               {
                 'title': 'Donate',
@@ -182,7 +182,7 @@ export default {
                 'icon': ['fal', 'donate'],
                 'sublist': [],
                 'customClass': '',
-                'conditional': () => !this.$store.getters.isAuthenticated
+                'conditional': () => !this.$store.getters['auth/isAuthenticated']
               },
               {
                 'title': 'Login',
@@ -190,10 +190,10 @@ export default {
                 'icon': ['fal', 'sign-in'],
                 'sublist': [],
                 'customClass': '',
-                'conditional': () => !this.$store.getters.isAuthenticated
+                'conditional': () => !this.$store.getters['auth/isAuthenticated']
               },
               {
-                'title': this.$store.state.rcs_id + '@rpi.edu',
+                'title': this.$store.state.auth.rcs_id + '@rpi.edu',
                 'path': '#',
                 'icon': ['fal', 'user-circle'],
                 'sublist': [
@@ -211,10 +211,10 @@ export default {
                     'icon': ['fal', 'toolbox'],
                     'sublist': [],
                     'customClass': '',
-                    'conditional': () => this.$store.state.admin
+                    'conditional': () => this.$store.state.auth.admin
                   }
                 ],
-                'conditional': () => this.$store.getters.isAuthenticated
+                'conditional': () => this.$store.getters['auth/isAuthenticated']
               },
               {
                 'title': 'Logout',
@@ -222,7 +222,7 @@ export default {
                 'icon': ['fal', 'sign-out'],
                 'sublist': [],
                 'customClass': '',
-                'conditional': () => this.$store.getters.isAuthenticated
+                'conditional': () => this.$store.getters['auth/isAuthenticated']
               }
             ],
             'customClass': 'hidden-md-and-up hidden-xs-only',

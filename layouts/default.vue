@@ -27,19 +27,19 @@ export default {
   },
   computed: {
     showFailedAuth () {
-      return this.$store.state.showFailedAuth
+      return this.$store.state.auth.showFailedAuth
     }
   },
   mounted () {
     this.$sentry.configureScope((scope) => {
-      if (!this.$store.getters.isAuthenticated) {
+      if (!this.$store.getters['auth/isAuthenticated']) {
         return
       }
 
       scope.setUser({
-        email: this.$store.state.rcs_id + '@rpi.edu'
+        email: this.$store.state.auth.rcs_id + '@rpi.edu'
       })
-      scope.setTag('admin', this.$store.state.admin)
+      scope.setTag('admin', this.$store.state.auth.admin)
     })
   }
 }
