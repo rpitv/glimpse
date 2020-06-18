@@ -23,7 +23,7 @@
         </VBtn>
       </template>
 
-      <VList class="header-dropdown" color="blue-grey darken-4">
+      <VList class="header-dropdown">
         <span v-for="item in items" :key="item.title" :class="item.customClass || ''">
           <VListItem
             @click=""
