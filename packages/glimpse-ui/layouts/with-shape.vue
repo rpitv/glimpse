@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     showFailedAuth () {
-      return this.$store.state.showFailedAuth
+      return this.$store.state.auth.showFailedAuth
     }
   }
 }
