@@ -15,26 +15,33 @@
         </VAlert>
       </VCardTitle>
       <VCardText>
-        <VRow>
-          <VCol cols="12" sm="4">
-            <VTextField :disabled="submitting" v-model="formFirstName" label="First Name *" required />
-          </VCol>
-          <VCol cols="12" sm="4">
-            <VTextField :disabled="submitting" v-model="formPreferredName" label="Preferred Name" />
-          </VCol>
-          <VCol cols="12" sm="4">
-            <VTextField :disabled="submitting" v-model="formLastName" label="Last Name" />
-          </VCol>
-        </VRow>
-        <VTextField v-model.number="formClassYear" :disabled="submitting" label="Class Year" type="number" />
-        <small>*indicates required field</small>
+        <div v-if="!$store.state.auth.admin">
+          <VAlert color="error">
+            You do not have permission to view this resource!
+          </VAlert>
+        </div>
+        <div v-else>
+          <VRow>
+            <VCol cols="12" sm="4">
+              <VTextField :disabled="submitting" v-model="formFirstName" label="First Name *" required />
+            </VCol>
+            <VCol cols="12" sm="4">
+              <VTextField :disabled="submitting" v-model="formPreferredName" label="Preferred Name" />
+            </VCol>
+            <VCol cols="12" sm="4">
+              <VTextField :disabled="submitting" v-model="formLastName" label="Last Name" />
+            </VCol>
+          </VRow>
+          <VTextField v-model.number="formClassYear" :disabled="submitting" label="Class Year" type="number" />
+          <small>*indicates required field</small>
+        </div>
       </VCardText>
       <VCardActions>
         <VSpacer />
         <VBtn @click="cancel" color="error" text>
-          Cancel
+          {{ $store.state.auth.admin ? 'Cancel' : 'OK' }}
         </VBtn>
-        <VBtn @click="create" text>
+        <VBtn @click="create" v-if="$store.state.auth.admin" text>
           Create
         </VBtn>
       </VCardActions>
