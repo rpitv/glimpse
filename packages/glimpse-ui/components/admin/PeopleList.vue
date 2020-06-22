@@ -164,7 +164,6 @@ export default {
       this.permalink()
     },
     changeItemCount (count) {
-      this.$store.commit('admin/people/CLEAR_CACHED')
       this.$store.dispatch('admin/people/setItemsPerPageCount', { itemsPerPage: count })
       const newPage = Math.min(this.$store.state.admin.people.currentPage, this.$store.getters['admin/people/pageCount'])
       this.localPageNumber = newPage
