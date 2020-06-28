@@ -104,7 +104,7 @@ export const actions = {
         }
       }
       if (payload && payload.noCache) {
-        options.fetchPolicy = 'no-cache'
+        options.fetchPolicy = 'network-only'
       }
       const query = this.app.apolloProvider.defaultClient.query(options)
       const res = await query
