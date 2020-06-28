@@ -150,8 +150,8 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('admin/people/populateList')
     this.$store.dispatch('admin/people/getPeopleCount')
+    this.$store.dispatch('admin/people/gotoPage', { page: this.localPageNumber })
     window.addEventListener('resize', this.screenResize)
     this.screenResize()
   },
@@ -194,7 +194,7 @@ export default {
       }
 
       this.$apollo.mutate({
-        mutation: gql`mutation($id: Int!) {
+        mutation: gql`mutation DeletePerson($id: Int!) {
             deletePerson(id: $id)
         }`,
         variables: {

@@ -1,0 +1,49 @@
+{
+  "operation": "GetPeople",
+  "response": {
+    "data": {
+      "people": [
+        {
+          "id": "11",
+          "firstName": "",
+          "preferredName": "",
+          "lastName": "",
+          "classYear": 2026,
+          "__typename": "Person"
+        },
+        {
+          "id": "12",
+          "firstName": "",
+          "preferredName": "",
+          "lastName": "",
+          "classYear": 2026,
+          "__typename": "Person"
+        },
+        {
+          "id": "13",
+          "firstName": "Erik",
+          "preferredName": "",
+          "lastName": "Roberts",
+          "classYear": 2022,
+          "__typename": "Person"
+        },
+        {
+          "id": "14",
+          "firstName": "Tatum",
+          "preferredName": "",
+          "lastName": "Hobby",
+          "classYear": 2021,
+          "__typename": "Person"
+        },
+        {
+          "id": "15",
+          "firstName": "Andrew",
+          "preferredName": "",
+          "lastName": "Armenia",
+          "classYear": 2010,
+          "__typename": "Person"
+        }
+      ]
+    }
+  }
+}

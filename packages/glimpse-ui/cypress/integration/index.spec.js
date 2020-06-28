@@ -2,14 +2,13 @@ const moment = require('moment')
 
 describe('Home Page Wrapper', () => {
   beforeEach(function () {
-    cy.fixture('graphql-operations/LandingHighlightsProductions.json').as('LHPMock')
     cy.fixture('graphql-operations/VideoCardGetVideo.json').as('VideoCardMock')
     cy.fixture('graphql-operations/RecentProductionsListProductions.json').as('RPLMock')
   })
 
   describe('Home Page', () => {
     beforeEach(function () {
-      cy.mockGraphql([this.LHPMock, this.VideoCardMock, this.RPLMock])
+      cy.mockGraphql([this.VideoCardMock, this.RPLMock])
       cy.visit('/')
     })
 
