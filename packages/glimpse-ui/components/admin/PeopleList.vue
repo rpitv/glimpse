@@ -160,6 +160,11 @@ export default {
   },
   methods: {
     changePage (page) {
+      const pageCount = this.$store.getters['admin/people/pageCount']
+      if (page > pageCount) {
+        page = pageCount
+      }
+      this.localPageNumber = page
       this.$store.dispatch('admin/people/gotoPage', { page })
       this.permalink()
     },
@@ -179,9 +184,16 @@ export default {
       }
     },
     async permalink () {
+      const newPage = this.$store.state.admin.people.currentPage
+      const newCount = this.$store.state.admin.people.itemsPerPage
+      // Don't permalink if already contains the correct info
+      if (this.$route.query.page === newPage && this.$route.query.count === newCount) {
+        return
+      }
+
       await this.$router.push({ query: Object.assign({}, this.$route.query, {
-        page: this.$store.state.admin.people.currentPage,
-        count: this.$store.state.admin.people.itemsPerPage
+        page: newPage,
+        count: newCount
       })
       })
     },
@@ -200,10 +212,10 @@ export default {
         variables: {
           id: parseInt(person.id)
         }
-      }).then(() => {
+      }).then(async () => {
         this.$store.commit('admin/people/CLEAR_CACHED')
+        await this.$store.dispatch('admin/people/getPeopleCount')
         this.changePage(this.localPageNumber)
-        this.$store.dispatch('admin/people/getPeopleCount')
       }).catch((err) => {
         this.$sentry.captureException(err)
         this.error = err
