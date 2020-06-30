@@ -9,7 +9,6 @@ describe('People List Page Wrapper', () => {
   })
 
   describe('People list Page', () => {
-
     describe('PeopleList Unit', function () {
       it('Initiates with loading attribute', function () {
         cy.visit('/admin/people')
@@ -73,7 +72,6 @@ describe('People List Page Wrapper', () => {
         // Row eleven - "", Tests no-name names
         cy.get('.people-table tbody tr:not(.v-data-table__empty-wrapper)').eq(10)
           .find('td').eq(0).should('contain.text', '')
-
       })
 
       it('Fetches next pages on page switch', function () {
@@ -81,15 +79,14 @@ describe('People List Page Wrapper', () => {
           const req = args[1]
           const body = JSON.parse(req.body)
           if (body.operationName === 'GetPeople') {
-            if(body.variables.cursor === -1) {
+            if (body.variables.cursor === -1) {
               return JSON.stringify(this.perPage5Page1.response)
             } else {
               return JSON.stringify(this.perPage5Page2.response)
             }
-          } else if(body.operationName === 'PeopleCount') {
+          } else if (body.operationName === 'PeopleCount') {
             return JSON.stringify(this.peopleCount15.response)
           }
-
         })
         cy.visit('/admin/people?count=5')
         cy.login()
@@ -116,8 +113,6 @@ describe('People List Page Wrapper', () => {
           .find('td').eq(0).should('contain.text', 'First Name Only')
         cy.get('.people-table tbody tr:not(.v-data-table__empty-wrapper)').eq(4)
           .find('td').eq(0).should('contain.text', '"Preferred" Last')
-
-
       })
 
       it('Does not fetch cached pages', function () {
@@ -128,14 +123,14 @@ describe('People List Page Wrapper', () => {
           const req = args[1]
           const body = JSON.parse(req.body)
           if (body.operationName === 'GetPeople') {
-            if(body.variables.cursor === -1) {
+            if (body.variables.cursor === -1) {
               page1Requests++
               return JSON.stringify(this.perPage5Page1.response)
             } else {
               page2Requests++
               return JSON.stringify(this.perPage5Page2.response)
             }
-          } else if(body.operationName === 'PeopleCount') {
+          } else if (body.operationName === 'PeopleCount') {
             countRequests++
             return JSON.stringify(this.peopleCount15.response)
           }
@@ -155,12 +150,10 @@ describe('People List Page Wrapper', () => {
         })
         // Go to prev page
         cy.get('.paginators li').first().find('button').click().then(() => {
-
           expect(page1Requests, 'Page 1 requests #3').to.equal(1)
           expect(page2Requests, 'Page 2 requests #3').to.equal(1)
           expect(countRequests, 'Page count requests #3').to.equal(1)
         })
-
       })
 
       it('Clears cache when itemsPerPage is changed', function () {
@@ -171,13 +164,13 @@ describe('People List Page Wrapper', () => {
           const req = args[1]
           const body = JSON.parse(req.body)
           if (body.operationName === 'GetPeople') {
-            if(body.variables.cursor === -1) {
+            if (body.variables.cursor === -1) {
               page1Requests++
             } else {
               page2Requests++
             }
             return JSON.stringify(this.perPage5Page1.response)
-          } else if(body.operationName === 'PeopleCount') {
+          } else if (body.operationName === 'PeopleCount') {
             countRequests++
             return JSON.stringify(this.peopleCount1000.response)
           }
@@ -212,7 +205,7 @@ describe('People List Page Wrapper', () => {
         })
       })
 
-      it.only('Clears cache on record deletion', function () {
+      it('Clears cache on record deletion', function () {
         let peopleRequests = 0
         cy.mockGraphql((args) => {
           const req = args[1]
@@ -220,8 +213,7 @@ describe('People List Page Wrapper', () => {
           if (body.operationName === 'GetPeople') {
             peopleRequests++
             return JSON.stringify(this.perPage5Page1.response)
-
-          } else if(body.operationName === 'PeopleCount') {
+          } else if (body.operationName === 'PeopleCount') {
             return JSON.stringify(this.peopleCount1000.response)
           } else if (body.operationName === 'DeletePerson') {
             return JSON.stringify({
@@ -245,7 +237,7 @@ describe('People List Page Wrapper', () => {
         cy.get('.people-table tbody tr:not(.v-data-table__empty-wrapper)').eq(0)
           .find('td').eq(3).find('svg').eq(1).click().then(() => {
             expect(peopleRequests, 'Page requests #2').to.equal(3)
-        })
+          })
 
         // Go to next page and then prev page
         cy.get('.paginators li').last().find('button').click()
@@ -273,7 +265,6 @@ describe('People List Page Wrapper', () => {
       it('Displays error on no permission', function () {
 
       })
-
     })
     describe('CreatePersonDialog Unit', function () {
       it('Creates a new Person with the specified attributes', function () {
