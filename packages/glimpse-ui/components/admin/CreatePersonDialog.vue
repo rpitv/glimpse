@@ -3,7 +3,7 @@
     <template v-slot:activator="{ on, attrs }">
       <slot :attrs="attrs" :on="on" name="activator" />
     </template>
-    <VCard>
+    <VCard class="create-person-dialog">
       <VCardTitle>
         <h2>Create Person</h2>
         <div v-if="submitting" class="loading-wrapper">
@@ -16,32 +16,54 @@
       </VCardTitle>
       <VCardText>
         <div v-if="!$store.state.auth.admin">
-          <VAlert color="error">
+          <VAlert color="error" class="create-person-no-permission">
             You do not have permission to view this resource!
           </VAlert>
         </div>
         <div v-else>
           <VRow>
             <VCol cols="12" sm="4">
-              <VTextField :disabled="submitting" v-model="formFirstName" label="First Name *" required />
+              <VTextField
+                :disabled="submitting"
+                v-model="formFirstName"
+                label="First Name *"
+                class="first-name-input"
+                required
+              />
             </VCol>
             <VCol cols="12" sm="4">
-              <VTextField :disabled="submitting" v-model="formPreferredName" label="Preferred Name" />
+              <VTextField
+                :disabled="submitting"
+                v-model="formPreferredName"
+                class="pref-name-input"
+                label="Preferred Name"
+              />
             </VCol>
             <VCol cols="12" sm="4">
-              <VTextField :disabled="submitting" v-model="formLastName" label="Last Name" />
+              <VTextField
+                :disabled="submitting"
+                v-model="formLastName"
+                class="last-name-input"
+                label="Last Name"
+              />
             </VCol>
           </VRow>
-          <VTextField v-model.number="formClassYear" :disabled="submitting" label="Class Year" type="number" />
+          <VTextField
+            v-model.number="formClassYear"
+            :disabled="submitting"
+            class="class-year-input"
+            label="Class Year"
+            type="number"
+          />
           <small>*indicates required field</small>
         </div>
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn @click="cancel" color="error" text>
+        <VBtn @click="cancel" color="error" class="cancel-button" text>
           {{ $store.state.auth.admin ? 'Cancel' : 'OK' }}
         </VBtn>
-        <VBtn @click="create" v-if="$store.state.auth.admin" text>
+        <VBtn @click="create" v-if="$store.state.auth.admin" class="create-button" text>
           Create
         </VBtn>
       </VCardActions>
@@ -76,7 +98,7 @@ export default {
     create () {
       this.submitting = true
       this.$apollo.mutate({
-        mutation: gql`mutation($firstName: String, $preferredName: String, $lastName: String, $classYear: Int) {
+        mutation: gql`mutation CreatePerson($firstName: String, $preferredName: String, $lastName: String, $classYear: Int) {
             createPerson(firstName: $firstName, preferredName: $preferredName, lastName: $lastName, classYear: $classYear) {
                 id
             }
