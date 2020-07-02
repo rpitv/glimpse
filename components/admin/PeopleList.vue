@@ -62,8 +62,6 @@ export default {
       localPageNumber: this.$store.state.admin.people.currentPage,
       localItemCount: this.$store.state.admin.people.itemsPerPage,
       visibleIcons: 6,
-      error: null,
-      showError: false,
       countOptions: [5, 10, 20, 50, 100],
       tableHeaders: [
         {
@@ -143,8 +141,6 @@ export default {
         this.changePage(this.localPageNumber)
       }).catch((err) => {
         this.$sentry.captureException(err)
-        this.error = err
-        this.showError = true
       })
     },
     refresh () {
