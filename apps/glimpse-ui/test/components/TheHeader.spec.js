@@ -77,8 +77,12 @@ describe('TheHeader (Custom)', () => {
   let store
   beforeEach(() => {
     store = new Vuex.Store({
-      getters: {
-        isAuthenticated: () => false
+      modules: {
+        auth: {
+          getters: {
+            isAuthenticated: () => false
+          }
+        }
       }
     })
   })
@@ -90,7 +94,7 @@ describe('TheHeader (Custom)', () => {
     expect(wrapper.findAll('headerbutton-stub').length).toEqual(4)
   })
 
-  test('Items contain correct attributes', async (done) => {
+  test('Contains correct item attributes', async (done) => {
     mount({ store })
     await wrapper.vm.$nextTick()
     const leftButtons = wrapper.findAll('vappbar-stub > vtoolbaritems-stub .item-wrapper')
@@ -151,39 +155,10 @@ describe('TheHeader (Custom)', () => {
 
     done()
   })
-})
 
-describe('TheHeader (Unauthenticated)', () => {
-  let wrapper
-
-  function mount (opts) {
-    wrapper = shallowMount(TheHeader, {
-      ...opts,
-      vuetify: vuetifyInstance,
-      router: new VueRouter(),
-      stubs: {
-        NuxtLink: RouterLinkStub
-      } })
-  }
-
-  let store
-  beforeEach(() => {
-    store = new Vuex.Store({
-      getters: {
-        isAuthenticated: () => false
-      }
-    })
-  })
-
-  test('Properly renders', () => {
+  test('Handles translucent top correctly', () => {
     mount({ store })
-    expect(wrapper.element).toMatchSnapshot()
-    expect(wrapper.find('headerbutton-stub[path=\'/login\']').attributes().title).toBe('Login')
-  })
-
-  test('Handles opaque top correctly', () => {
-    mount({ store })
-    expect(wrapper.find('vappbar-stub').element).toHaveAttribute('color', '#b05454')
+    expect(wrapper.find('vappbar-stub').element).toHaveAttribute('color', '#00000080')
   })
 
   test('Handles transparent top correctly', () => {
@@ -209,65 +184,5 @@ describe('TheHeader (Unauthenticated)', () => {
     wrapper.destroy()
 
     expect(spy.calledOnce).toBe(true)
-  })
-})
-
-describe('TheHeader (Authenticated User)', () => {
-  let wrapper
-
-  function mount (opts) {
-    wrapper = shallowMount(TheHeader, {
-      ...opts,
-      vuetify: vuetifyInstance,
-      router: new VueRouter(),
-      stubs: {
-        NuxtLink: RouterLinkStub
-      } })
-  }
-
-  let store
-  beforeEach(() => {
-    store = new Vuex.Store({
-      getters: {
-        isAuthenticated: () => true
-      }
-    })
-  })
-
-  test('Properly renders', () => {
-    mount({ store })
-    expect(wrapper.element).toMatchSnapshot()
-    expect(wrapper.find('headerbutton-stub[path=\'/logout\']').attributes().title).toBe('Logout')
-  })
-})
-
-describe('TheHeader (Authenticated Admin)', () => {
-  let wrapper
-
-  function mount (opts) {
-    wrapper = shallowMount(TheHeader, {
-      ...opts,
-      vuetify: vuetifyInstance,
-      router: new VueRouter(),
-      stubs: {
-        NuxtLink: RouterLinkStub
-      } })
-  }
-
-  let store
-  beforeEach(() => {
-    store = new Vuex.Store({
-      getters: {
-        isAuthenticated: () => true
-      },
-      state: {
-        admin: true
-      }
-    })
-  })
-
-  test('Properly renders', () => {
-    mount({ store })
-    expect(wrapper.element).toMatchSnapshot()
   })
 })

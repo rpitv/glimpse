@@ -1,0 +1,8 @@
+{
+  "operation": "PeopleCount",
+  "response": {
+    "data": {
+      "peopleCount": 1000
+    }
+  }
+}

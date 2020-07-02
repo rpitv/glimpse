@@ -1,0 +1,49 @@
+{
+  "operation": "GetPeople",
+  "response": {
+    "data": {
+      "people": [
+        {
+          "id": "5",
+          "firstName": "First Name Only",
+          "preferredName": "",
+          "lastName": "",
+          "classYear": 2014,
+          "__typename": "Person"
+        },
+        {
+          "id": "7",
+          "firstName": "",
+          "preferredName": "",
+          "lastName": "Last Name Only",
+          "classYear": 2012,
+          "__typename": "Person"
+        },
+        {
+          "id": "8",
+          "firstName": "",
+          "preferredName": "Preferred Name Only",
+          "lastName": "",
+          "classYear": 2012,
+          "__typename": "Person"
+        },
+        {
+          "id": "9",
+          "firstName": "First",
+          "preferredName": "Preferred",
+          "lastName": "",
+          "classYear": 2022,
+          "__typename": "Person"
+        },
+        {
+          "id": "10",
+          "firstName": "",
+          "preferredName": "Preferred",
+          "lastName": "Last",
+          "classYear": 2023,
+          "__typename": "Person"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+
+@import '~vuetify/src/styles/styles.sass';
+
+$rpitv-grey: () !default;
+$rpitv-grey: map-deep-merge(
+    (
+      'base': #67777e,
+      'lighten-5': #ebeeef,
+      'lighten-4': #cfd5d8,
+      'lighten-3': #b0babf,
+      'lighten-2': #8f9da3,
+      'lighten-1': #788991,
+      'darken-1': #57646b,
+      'darken-2': #454f54,
+      'darken-3': #2d3437,
+      'darken-4': #151819
+    ),
+    $rpitv-grey
+);
+
+$material-dark: map-deep-merge($material-dark, (
+  'cards': map-get($rpitv-grey, 'darken-3'),
+  'text': (
+    'link-hover': map-get($rpitv-grey, 'lighten-3')
+  ),
+  'calendar': (
+    'background-color': #262b2e,
+    'outside-background-color': map-get($rpitv-grey, 'darken-4'),
+    'line-color': map-get($rpitv-grey, 'base'),
+    'interval-color': map-get($rpitv-grey, 'lighten-3'),
+    'interval-line-color': map-get($rpitv-grey, 'darken-2')
+  ),
+  'picker': (
+    'body': map-get($rpitv-grey, 'darken-3'),
+    'clock': map-get($rpitv-grey, 'darken-2'),
+    'indeterminateTime': map-get($rpitv-grey, 'darken-1'),
+    'title': map-get($rpitv-grey, 'darken-2')
+  ),
+  'expansion-panels': (
+    'focus': #495459
+  ),
+  'selection-controls': (
+    'thumb': (
+      'inactive': map-get($rpitv-grey, 'lighten-1'),
+      'disabled': map-get($rpitv-grey, 'darken-3')
+    )
+  ),
+  'table': (
+    'active': #495459,
+    'group': map-get($rpitv-grey, 'darken-2'),
+    'hover': map-get($rpitv-grey, 'darken-2'),
+  ),
+  'background': #2b3236,
+  'bg-color': #2b3236
+));

@@ -121,7 +121,12 @@ export default {
    ** Vuetify configuration
    */
   vuetify: {
-    optionsPath: './vuetify.config.js'
+    optionsPath: './vuetify.config.js',
+    treeShake: true,
+    customVariables: ['~/vuetify-variables.scss'],
+    options: {
+      customProperties: true
+    }
   },
   /*
    ** PWA Configuration
