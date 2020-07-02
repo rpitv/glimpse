@@ -74,6 +74,17 @@ describe('People List Page Wrapper', () => {
           .find('td').eq(0).should('contain.text', '')
       })
 
+      it('Contains the correct number of arrows', function () {
+        cy.mockGraphql([this.perPage20Page1, this.peopleCount1000])
+        cy.visit('/admin/people').login()
+        cy.viewport(800, 800)
+        cy.get('.paginators li:eq(7)').should('exist')
+        cy.viewport(2300, 2300)
+        cy.get('.paginators li:eq(11)').should('exist')
+        cy.viewport(400, 400)
+        cy.get('.paginators li:eq(5)').should('exist')
+      })
+
       it('Obeys query parameters on initial load', function () {
         cy.mockGraphql([this.perPage20Page1, this.peopleCount1000])
         // Page & No Count
@@ -96,6 +107,13 @@ describe('People List Page Wrapper', () => {
         cy.visit('/admin/people?count=7').login()
         cy.get('.count-select .v-select__selection').should('not.exist')
         cy.get('.paginators button.v-pagination__item.primary').should('contain.text', '1')
+      })
+
+      it('Caps page at pageCount when changing pages', function () {
+        cy.mockGraphql([this.perPage20Page1, this.peopleCount1000])
+        cy.visit('/admin/people?page=30000').login()
+        cy.get('.paginators li').eq(0).click()
+        cy.get('.paginators li button.primary').should('contain.text', '50')
       })
 
       it('Displays error on no permission', function () {
@@ -276,6 +294,39 @@ describe('People List Page Wrapper', () => {
         cy.get('.paginators li').first().find('button').click().then(() => {
           expect(peopleRequests, 'Page requests #2').to.equal(4) // +1 request for page 2
         })
+      })
+
+      it('Does not delete records if confirmation is cancelled', function () {
+        let deleteRequests = 0
+        let receivedConfirm = false
+        cy.mockGraphql((args) => {
+          const req = args[1]
+          const body = JSON.parse(req.body)
+          if (body.operationName === 'GetPeople') {
+            return JSON.stringify(this.perPage5Page1.response)
+          } else if (body.operationName === 'PeopleCount') {
+            return JSON.stringify(this.peopleCount1000.response)
+          } else if (body.operationName === 'DeletePerson') {
+            deleteRequests++
+            return JSON.stringify({
+              data: {
+                deletePerson: true
+              }
+            })
+          }
+        })
+        cy.on('window:confirm', () => {
+          receivedConfirm = true
+          return false
+        })
+        cy.visit('/admin/people?count=5').login()
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.get('.people-table tbody tr:not(.loading-text)').eq(0)
+          .find('td').eq(3).find('svg').eq(1).click().then(() => {
+          // eslint-disable-next-line no-unused-expressions
+            expect(receivedConfirm).to.be.true
+            expect(deleteRequests, 'Deletion requests').to.equal(0)
+          })
       })
 
       it('Refreshes page when Refresh button is pressed', function () {
