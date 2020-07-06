@@ -7,8 +7,8 @@
 This is the backend API for Glimpse, the RPI TV website.
 ## Getting Started
 
-### Method 1: Docker (Recommended for Production)
-Using Docker and Docker Compose is the recommended method to deploy to production. Using
+### Method 1: Docker (Recommended)
+Using Docker and Docker Compose is the recommended method for both local development and deploying to production. Using
 Docker Compose, no database setup is necessary.
 
 #### Prerequisites
@@ -24,7 +24,15 @@ values for your use case (Note: `PGHOST=db` should not change).
 $ cd docker
 $ docker-compose up -d
 ```
-to start your Docker Compose instance. This will automatically start both the API and DB containers.
+to start your Docker Compose instance. To start in development mode, instead run: 
+```shell script
+$ cd docker
+$ docker-compose -f ./docker-compose-dev.yml -d
+```
+This will automatically start both the API and DB containers. In development mode, files in the project directory will
+automatically be copied to the Docker working directory (except `node_modules`). The server will also restart when
+changes are detected. Changes will not affect the image, so you will still have to build before pushing to Docker Hub.
+
 4. If something goes wrong with the database, make sure Docker is able to write to the directory `/db/postgres-data`.
 5. Execute `docker-compose down` to bring down the Docker container.
 
@@ -35,8 +43,8 @@ $ docker build -t rpitv/glimpse-api -f docker/api/Dockerfile .
 $ docker push rpitv/glimpse-api
 ```
 
-### Method 2: Vagrant (Recommended for Development)
-Vagrant is currently the recommended way of getting started for development.
+### Method 2: Vagrant (Development only)
+Vagrant is no longer the recommended way of running a local development server, but it is still available.
 
 1. [Install Vagrant and VirtualBox](https://www.vagrantup.com/intro/getting-started/install.html).
 2. Start up your Vagrant box with `vagrant up` in this directory.
