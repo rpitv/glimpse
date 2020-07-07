@@ -6,10 +6,11 @@ services:
     image: rpitv/glimpse-api
     ports:
       - "4000:80"
+      - "5858:5858"
     restart: unless-stopped
     env_file:
       - ../.env
-    command: npm run dev
+    command: npm run dev.debug
     volumes:
       - ..:/usr/src/app
       - /usr/src/app/node_modules
