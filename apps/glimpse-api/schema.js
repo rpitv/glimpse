@@ -26,7 +26,7 @@ const typeDefs = gql`
         """
         Get a list of all Person objects regardless of member status in a paginated or non-paginated manner.
         """
-        people(pageSize: Int, prevPersonIndex: Int): [Person!]!
+        people(pageSize: Int, prevPersonIndex: Int, searchCtx: String): [Person!]!
         """
         Get a list of all Image objects in the database in a paginated or non-paginated manner.
         """
