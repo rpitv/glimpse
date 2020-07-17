@@ -1,5 +1,6 @@
 const { pool } = require('../util/db-pool');
 const { PermissionTools } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 function PersonModelFactory(SEEKER, SUPER_ACCESS) {
 
@@ -152,19 +153,44 @@ function PersonModelFactory(SEEKER, SUPER_ACCESS) {
          * people are returned.
          * @param lastPersonIndex {number} The index position of the last person in the list from the last time this method
          * was called. If lastPersonIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[Person]>} An array of people.
          * @throws PostgreSQL error
          */
-        static async getPaginatedPeople(perPage, lastPersonIndex) {
+        static async getPaginatedPeople(perPage, lastPersonIndex, searchCtx) {
             // Go back to page one if an invalid lastPersonIndex is provided.
             if(lastPersonIndex == null || lastPersonIndex < -1)
                 lastPersonIndex = -1;
-            // Return all users if no item count per page is provided.
+            // Default per page count to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllPeople()).slice(lastPersonIndex + 1);
+                perPage = 20
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'first_name',
+                type: String
+            },{
+                name: 'preferred_name',
+                type: String
+            },{
+                name: 'last_name',
+                type: String
+            },{
+                name: 'class_year',
+                type: Number
+            }
+            ])
+
+            const paramArray = search.getParamArray()
 
             const response = await pool.query('SELECT id, first_name, last_name, preferred_name, class_year FROM people ' +
-                'ORDER BY first_name ASC, last_name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastPersonIndex + 1]);
+                searchClause + ` ORDER BY first_name ASC, last_name ASC, id ASC LIMIT $${paramArray.length + 1} 
+                OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastPersonIndex + 1]);
             const people = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const person = new Person(response.rows[i].id);
@@ -190,9 +216,9 @@ function PersonModelFactory(SEEKER, SUPER_ACCESS) {
             // Go back to page one if an invalid lastMemberIndex is provided.
             if(lastMemberIndex == null || lastMemberIndex < -1)
                 lastMemberIndex = -1;
-            // Return all users if no item count per page is provided.
+            // Default per page count to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllMembers()).slice(lastMemberIndex + 1);
+                perPage = 20
 
             // Select all people joined with any roles they have in the roles table, but limit the number of
             // rows which can be returned for each person to only one, and constrain the results to only be
