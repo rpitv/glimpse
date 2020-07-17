@@ -12,7 +12,7 @@ const resolvers = {
             return ctx.model.Person.getPaginatedMembers(args.pageSize, args.prevPersonIndex);
         },
         people: async (obj, args, ctx) => {
-            return ctx.model.Person.getPaginatedPeople(args.pageSize, args.prevPersonIndex);
+            return ctx.model.Person.getPaginatedPeople(args.pageSize, args.prevPersonIndex, args.searchCtx);
         },
         images: async (obj, args, ctx) => {
             return ctx.model.Image.getPaginatedImages(args.pageSize, args.prevImageIndex);
