@@ -171,6 +171,9 @@ function PersonModelFactory(SEEKER, SUPER_ACCESS) {
                 throw new Error('Please use less than 10 search terms.')
             }
             const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
                 name: 'first_name',
                 type: String
             },{

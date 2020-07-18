@@ -1,5 +1,6 @@
 const { pool } = require('../util/db-pool');
 const { PermissionTools } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 const VideoTypes = Object.freeze({
     RTMP: "RTMP", // Soon to be deprecated
@@ -120,11 +121,13 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
          * videos are returned.
          * @param lastVideoIndex {number} The index position of the last video in the list from the last time this method
          * was called. If lastVideoIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[Video]>} An array of videos.
          * @throws PostgreSQL error
          * @throws {PermissionError} Insufficient permissions
          */
-        static async getPaginatedVideos(perPage, lastVideoIndex) {
+        static async getPaginatedVideos(perPage, lastVideoIndex, searchCtx) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
             // Go back to page one if an invalid lastVideoIndex is provided.
             if(lastVideoIndex == null || lastVideoIndex < -1)
@@ -133,8 +136,24 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
             if(perPage == null || perPage <= 0)
                 return (await this.getAllVideos()).slice(lastVideoIndex + 1);
 
-            const response = await pool.query('SELECT id, name, video_type, data FROM videos ' +
-                'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastVideoIndex + 1]);
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'name',
+                type: String
+            }
+            ])
+            const paramArray = search.getParamArray()
+
+            const response = await pool.query('SELECT id, name, video_type, data FROM videos ' + searchClause +
+                ` ORDER BY name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastVideoIndex + 1]);
             const videos = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const video = new Video(response.rows[i].id);
