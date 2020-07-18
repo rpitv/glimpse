@@ -104,8 +104,10 @@ class Search {
 		}
 
 		// If either optional string or optional range exist, wrap in parentheses, in case we combine with required
-		optionalSegment = '(' + optionalSegment + ')'
-		clause += optionalSegment
+		if (optionalSegment) {
+			optionalSegment = '(' + optionalSegment + ')'
+			clause += optionalSegment
+		}
 
 		let requiredSegment = ''
 		// Append required range, if it exists.
