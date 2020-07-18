@@ -1,5 +1,6 @@
 const { pool } = require('../util/db-pool');
 const { PermissionTools } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
 
@@ -169,19 +170,37 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
          * productions are returned.
          * @param lastCategoryIndex {number} The index position of the last category in the list from the last time this
          * method was called. If lastCategoryIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[Production]>} An array of productions.
          * @throws PostgreSQL error
          */
-        static async getPaginatedCategories(perPage, lastCategoryIndex) {
+        static async getPaginatedCategories(perPage, lastCategoryIndex, searchCtx) {
             // Go back to page one if an invalid lastCategoryIndex is provided.
             if(lastCategoryIndex == null || lastCategoryIndex < -1)
                 lastCategoryIndex = -1;
-            // Return all categories if no item count per page is provided.
+            // Default perPage to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllCategories()).slice(lastCategoryIndex + 1);
+                perPage = 20
 
-            const response = await pool.query('SELECT id, name FROM categories ' +
-                'ORDER BY name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastCategoryIndex + 1]);
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'name',
+                type: String
+            }
+            ])
+            const paramArray = search.getParamArray()
+
+            const response = await pool.query('SELECT id, name FROM categories ' + searchClause +
+                ` ORDER BY name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastCategoryIndex + 1]);
             const categories = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const category = new Category(response.rows[i].id);

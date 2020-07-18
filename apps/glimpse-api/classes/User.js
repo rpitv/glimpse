@@ -1,6 +1,7 @@
 const { pool } = require('../util/db-pool');
 const { Person } = require('./Person');
 const { PermissionTools } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 
 function UserModelFactory(SEEKER, SUPER_ACCESS) {
@@ -120,21 +121,40 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
          * returned.
          * @param lastUserIndex {number} The index position of the last user in the list from the last time this method was called.
          * If lastUserIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[User]>} An array of users.
          * @throws PostgreSQL error
          * @throws {PermissionError} Insufficient permissions
          */
-        static async getPaginatedUsers(perPage, lastUserIndex) {
+        static async getPaginatedUsers(perPage, lastUserIndex, searchCtx) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
             // Go back to page one if an invalid lastUserIndex is provided.
             if(lastUserIndex == null || lastUserIndex < -1)
                 lastUserIndex = -1;
-            // Return all users if no item count per page is provided.
+            // Default per page count to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllUsers()).slice(lastUserIndex + 1);
+                perPage = 20
 
-            const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined' +
-                ' LIMIT $1 OFFSET $2', [perPage, lastUserIndex + 1]);
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'email',
+                type: String
+            },{
+                name: 'id',
+                type: Number
+            }
+            ])
+            const paramArray = search.getParamArray()
+
+
+            const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ' +
+                searchClause + ` $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastUserIndex + 1]);
             const users = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const user = new User(response.rows[i].id);
