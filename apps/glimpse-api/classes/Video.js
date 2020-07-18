@@ -132,9 +132,9 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
             // Go back to page one if an invalid lastVideoIndex is provided.
             if(lastVideoIndex == null || lastVideoIndex < -1)
                 lastVideoIndex = -1;
-            // Return all images if no item count per page is provided.
+            // Default per page count to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllVideos()).slice(lastVideoIndex + 1);
+                perPage = 20
 
             // Default searchCtx is blank
             let search = new Search(searchCtx || '')
