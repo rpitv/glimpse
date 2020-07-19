@@ -152,7 +152,7 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
             const paramArray = search.getParamArray()
 
             const response = await pool.query('SELECT id, name, video_type, data FROM videos ' + searchClause +
-                ` ORDER BY name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                ` ORDER BY name ASC, id ASC LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastVideoIndex + 1]);
             const videos = [];
             for(let i = 0; i < response.rows.length; i++) {

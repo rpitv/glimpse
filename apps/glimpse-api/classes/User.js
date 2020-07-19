@@ -153,7 +153,7 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
 
 
             const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ' +
-                searchClause + ` $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                searchClause + ` LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastUserIndex + 1]);
             const users = [];
             for(let i = 0; i < response.rows.length; i++) {
