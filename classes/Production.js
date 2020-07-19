@@ -4,6 +4,7 @@ const { Category } = require('./Category');
 const { User } = require('./User');
 const { Video } = require('./Video');
 const { PermissionTools, PermissionLevels } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
 
@@ -298,20 +299,41 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
          * productions are returned.
          * @param lastProductionIndex {number} The index position of the last production in the list from the last time this
          * method was called. If lastProductionIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[Production]>} An array of productions.
          * @throws PostgreSQL error
          */
-        static async getPaginatedProductions(perPage, lastProductionIndex) {
+        static async getPaginatedProductions(perPage, lastProductionIndex, searchCtx) {
             // Go back to page one if an invalid lastProductionIndex is provided.
             if(lastProductionIndex == null || lastProductionIndex < -1)
                 lastProductionIndex = -1;
-            // Return all productions if no item count per page is provided.
+            // Default per page to 20
             if(perPage == null || perPage <= 0)
-                return (await this.getAllProductions()).slice(lastProductionIndex + 1);
+                perPage = 20
+
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'name',
+                type: String
+            },{
+                name: 'description',
+                type: String
+            }
+            ])
+            const paramArray = search.getParamArray()
 
             const response = await pool.query('SELECT id, name, description, start_time, create_time, visible ' +
-                'FROM productions ' +
-                'ORDER BY create_time ASC, name ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastProductionIndex + 1]);
+                'FROM productions ' + searchClause +
+                ` ORDER BY create_time ASC, name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastProductionIndex + 1]);
             const productions = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const prod = new Production(response.rows[i].id);

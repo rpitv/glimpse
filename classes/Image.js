@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const sharp = require('sharp');
 const crypto = require('crypto');
 const { PermissionTools } = require('../util/Permissions');
+const { Search } = require('../util/Search')
 
 const MAX_IMAGE_SIZE = 10000000; // 10MB
 const PERMITTED_FILETYPES = ["png", "jpeg", "jpg", "jfif", "gif", "webp"];
@@ -130,19 +131,42 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
          * images are returned.
          * @param lastImageIndex {number} The index position of the last image in the list from the last time this method
          * was called. If lastImageIndex < -1 then this value is defaulted to -1.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<[Image]>} An array of images.
          * @throws PostgreSQL error
          */
-        static async getPaginatedImages(perPage, lastImageIndex) {
+        static async getPaginatedImages(perPage, lastImageIndex, searchCtx) {
             // Go back to page one if an invalid lastImageIndex is provided.
             if(lastImageIndex == null || lastImageIndex < -1)
                 lastImageIndex = -1;
-            // Return all images if no item count per page is provided.
+            // Default to 20 items per page
             if(perPage == null || perPage <= 0)
-                return (await this.getAllImages()).slice(lastImageIndex + 1);
+                perPage = 20
 
-            const response = await pool.query('SELECT id, name, link, added FROM images ' +
-                'ORDER BY name ASC, added ASC, id ASC LIMIT $1 OFFSET $2', [perPage, lastImageIndex + 1]);
+            // Default searchCtx is blank
+            let search = new Search(searchCtx || '')
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'link',
+                type: String
+            },{
+                name: 'name',
+                type: String
+            }
+            ])
+
+            const paramArray = search.getParamArray()
+
+            const response = await pool.query('SELECT id, name, link, added FROM images ' + searchClause +
+                ` ORDER BY name ASC, added ASC, id ASC LIMIT LIMIT $${paramArray.length + 1} 
+                OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastImageIndex + 1]);
             const images = [];
             for(let i = 0; i < response.rows.length; i++) {
                 const img = new Image(response.rows[i].id);
