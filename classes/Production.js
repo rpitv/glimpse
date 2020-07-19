@@ -330,9 +330,14 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
             ])
             const paramArray = search.getParamArray()
 
+            console.log('SELECT id, name, description, start_time, create_time, visible ' +
+                'FROM productions ' + searchClause +
+                ` ORDER BY create_time ASC, name ASC, id ASC LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                [...paramArray, perPage, lastProductionIndex + 1])
+
             const response = await pool.query('SELECT id, name, description, start_time, create_time, visible ' +
                 'FROM productions ' + searchClause +
-                ` ORDER BY create_time ASC, name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                ` ORDER BY create_time ASC, name ASC, id ASC LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastProductionIndex + 1]);
             const productions = [];
             for(let i = 0; i < response.rows.length; i++) {
