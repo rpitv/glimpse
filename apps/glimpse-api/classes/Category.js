@@ -199,7 +199,7 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
             const paramArray = search.getParamArray()
 
             const response = await pool.query('SELECT id, name FROM categories ' + searchClause +
-                ` ORDER BY name ASC, id ASC $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+                ` ORDER BY name ASC, id ASC LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastCategoryIndex + 1]);
             const categories = [];
             for(let i = 0; i < response.rows.length; i++) {

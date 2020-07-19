@@ -164,7 +164,7 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
             const paramArray = search.getParamArray()
 
             const response = await pool.query('SELECT id, name, link, added FROM images ' + searchClause +
-                ` ORDER BY name ASC, added ASC, id ASC LIMIT LIMIT $${paramArray.length + 1} 
+                ` ORDER BY name ASC, added ASC, id ASC LIMIT $${paramArray.length + 1} 
                 OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastImageIndex + 1]);
             const images = [];
