@@ -76,6 +76,15 @@ class Search {
 		let clause = ''
 		const map = this.getParamMap()
 
+		// Verify that all the scopes provided in the search are valid scopes in the passed cols
+		const colsMap = {}
+		cols.forEach(col => colsMap[col.name] = true)
+		for(let i = 0; i < this.components.length; i++) {
+			if(this.components[i].scope && !colsMap[this.components[i].scope]) {
+				throw new Error('Invalid scope: ' + this.components[i].scope)
+			}
+		}
+
 		const optionalRangeSegment = this._buildFitRangeComponent(cols, map, false)
 		const requiredRangeSegment = this._buildFitRangeComponent(cols, map, true)
 		const optionalStringSegment = this._buildMatchStringsComponent(cols, map, false)
@@ -134,35 +143,45 @@ class Search {
 
 	_buildFitRangeComponent(cols, paramsMap, required) {
 		let piece = ''
-		let joinedPieces = 0
-		// For each column, add it's options
-		for(let i = 0; i < cols.length; i++) {
-			// Skip columns which are not numbers
-			if (cols[i].type !== Number) {
+		let addedPieces = 0
+		for(let i = 0; i < this.components.length; i++) {
+			// Skip components which are not required
+			if (!!this.components[i].required !== !!required) {
 				continue
 			}
-			for (let j = 0; j < this.components.length; j++) {
-				// Skip components which do not match the current required state
-				if (!!this.components[j].required !== !!required) {
+			// Skip components which are not FIT_RANGE mode
+			if(this.components[i].mode !== SearchModes.FIT_RANGE) {
+				continue
+			}
+			let subpiece = '('
+			let addedSubpieces = 0
+			// Compare this component to each column
+			for(let j = 0; j < cols.length; j++) {
+				// Skip columns which are not numbers
+				if (cols[j].type !== Number) {
 					continue
 				}
 				// Skip components which do not apply to this scope
-				if (this.components[j].scope && this.components[j].scope !== cols[i].name) {
+				if (this.components[i].scope && this.components[i].scope !== cols[j].name) {
 					continue
 				}
-				// Skip components which are not FIT_RANGE mode
-				if(this.components[j].mode !== SearchModes.FIT_RANGE) {
-					continue
+				if(addedSubpieces++ > 0) {
+					subpiece += ' OR '
 				}
-
-				const min = '$' + paramsMap[this.components[j].min]
-				const max = '$' + paramsMap[this.components[j].max]
-
-				if(joinedPieces++ > 0) {
-					piece += (required ? ' AND ' : ' OR ')
-				}
-				piece += cols[i].name + ' BETWEEN ' + min + ' AND ' + max // Append escaped input parameters
+				const min = '$' + paramsMap[this.components[i].min]
+				const max = '$' + paramsMap[this.components[i].max]
+				subpiece += cols[j].name + ' BETWEEN ' + min + ' AND ' + max
 			}
+			subpiece += ')'
+			// Pieces which contain at least one comparison/statement will always be at least 3 chars long
+			if(subpiece.length <= 2) {
+				continue
+			}
+			if(addedPieces++ > 0) {
+				piece += (required ? ' AND ' : ' OR ')
+			}
+			piece += subpiece
+
 		}
 		return piece
 	}
@@ -171,40 +190,41 @@ class Search {
 
 		let piece = ''
 		let addedPieces = 0
-		// For each column, add it's options
-		for(let i = 0; i < cols.length; i++) {
-			let subpiece = ''
-			if (addedPieces > 0) { // Append 'OR' for all but first
-				subpiece += (required ? ' AND ' : ' OR ')
+		for(let i = 0; i < this.components.length; i++) {
+			// Skip components which are not required
+			if (!!this.components[i].required !== !!required) {
+				continue
 			}
-			let addedParams = 0
-			subpiece += cols[i].name + '::text~*concat(' // append colName, regex match symbol, opening quote
-			for (let j = 0; j < this.components.length; j++) {
-				// Skip components which do not match the current required state
-				if (!!this.components[j].required !== !!required) {
-					continue
-				}
+			// Skip components which are not MATCH_STRING mode
+			if(this.components[i].mode !== SearchModes.MATCH_STRING) {
+				continue
+			}
+			let subpiece = '('
+			let addedSubpieces = 0
+			// Compare this component to each column
+			for(let j = 0; j < cols.length; j++) {
 				// Skip components which do not apply to this scope
-				if (this.components[j].scope && this.components[j].scope !== cols[i].name) {
+				if (this.components[i].scope && this.components[i].scope !== cols[j].name) {
 					continue
 				}
-				// Skip components which are not MATCH_STRING mode
-				if(this.components[j].mode !== SearchModes.MATCH_STRING) {
-					continue
+				if(addedSubpieces++ > 0) {
+					subpiece += ' OR '
 				}
+				subpiece += cols[j].name + '::text~*$' +
+					paramsMap[Search._escapeRegex(this.components[i].value)] + '::text'
+			}
+			subpiece += ')'
+			// Pieces which contain at least one comparison/statement will always be at least 3 chars long
+			if(subpiece.length <= 2) {
+				continue
+			}
+			if(addedPieces++ > 0) {
+				piece += (required ? ' AND ' : ' OR ')
+			}
+			piece += subpiece
 
-				const param = '$' + paramsMap[Search._escapeRegex(this.components[j].value)] + '::text'
-				if (addedParams++ > 0) {
-					subpiece += ',\'|\',' // Pre-append OR symbol, if not the first item
-				}
-				subpiece += param // Append escaped input parameter
-			}
-			subpiece += ')' // Append closing quote
-			if(addedParams > 0) {
-				piece += subpiece
-				addedPieces++
-			}
 		}
+
 		return piece
 	}
 
@@ -362,11 +382,11 @@ class Search {
 
 	/**
 	 * Escape a string of any regex special characters
-	 * @param regex {String} Input untrusted string
+	 * @param str {String} Input untrusted string
 	 * @return {String} Input string with regex special characters escaped
 	 */
-	static _escapeRegex (regex) {
-		return regex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	static _escapeRegex (str) {
+		return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 	}
 
 
