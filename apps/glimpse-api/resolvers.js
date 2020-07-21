@@ -61,25 +61,25 @@ const resolvers = {
         },
 
         userCount: async (obj, args, ctx) => {
-            return ctx.model.User.getUserCount();
+            return ctx.model.User.getUserCount(args.searchCtx);
         },
         peopleCount: async (obj, args, ctx) => {
-            return ctx.model.Person.getPeopleCount();
+            return ctx.model.Person.getPeopleCount(args.searchCtx);
         },
         memberCount: async (obj, args, ctx) => {
             return ctx.model.Person.getMemberCount();
         },
         imageCount: async (obj, args, ctx) => {
-            return ctx.model.Image.getImageCount();
+            return ctx.model.Image.getImageCount(args.searchCtx);
         },
         videoCount: async (obj, args, ctx) => {
-            return ctx.model.Video.getVideoCount();
+            return ctx.model.Video.getVideoCount(args.searchCtx);
         },
         productionCount: async (obj, args, ctx) => {
-            return ctx.model.Production.getProductionCount();
+            return ctx.model.Production.getProductionCount(args.searchCtx);
         },
         categoryCount: async (obj, args, ctx) => {
-            return ctx.model.Category.getCategoryCount();
+            return ctx.model.Category.getCategoryCount(args.searchCtx);
         }
     },
     User: {

@@ -83,11 +83,32 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
 
         /**
          * Get the total number of images in the database.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<number>} The total number of images in the database.
          * @throws PostgreSQL error
          */
-        static async getImageCount() {
-            const response = await pool.query('SELECT COUNT(id) FROM images');
+        static async getImageCount(searchCtx) {
+            const search = new Search(searchCtx || '')
+
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'link',
+                type: String
+            },{
+                name: 'name',
+                type: String
+            }
+            ])
+
+            const paramArray = search.getParamArray()
+            const response = await pool.query('SELECT COUNT(id) FROM (SELECT id FROM images ' + searchClause + ') AS derived;',
+                paramArray);
             return response.rows[0].count;
         }
 

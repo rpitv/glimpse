@@ -169,13 +169,31 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
         /**
          * Get the total number of users in the database.
          * Requires ADMIN permission
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<number>} The total number of users in the database.
          * @throws {PermissionError} Insufficient permissions
          * @throws PostgreSQL error
          */
-        static async getUserCount() {
+        static async getUserCount(searchCtx) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
-            const response = await pool.query('SELECT COUNT(id) FROM users;');
+            const search = new Search(searchCtx || '')
+
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'email',
+                type: String
+            },{
+                name: 'id',
+                type: Number
+            }
+            ])
+
+            const paramArray = search.getParamArray()
+            const response = await pool.query('SELECT COUNT(id) FROM (SELECT id FROM users ' + searchClause + ') AS derived;',
+                paramArray);
             return response.rows[0].count;
         }
 
