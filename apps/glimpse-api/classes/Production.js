@@ -269,11 +269,32 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
 
         /**
          * Get the total number of productions in the database.
+         * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
+         * will provide limitations on the search query. searchCtx defaults to an empty string.
          * @returns {Promise<number>} The total number of productions in the database.
          * @throws PostgreSQL error
          */
-        static async getProductionCount() {
-            const response = await pool.query('SELECT COUNT(id) FROM productions');
+        static async getProductionCount(searchCtx) {
+            const search = new Search(searchCtx || '')
+
+            if (search.count() > 10) {
+                throw new Error('Please use less than 10 search terms.')
+            }
+            const searchClause = search.buildSQL([{
+                name: 'id',
+                type: Number
+            },{
+                name: 'name',
+                type: String
+            },{
+                name: 'description',
+                type: String
+            }
+            ])
+
+            const paramArray = search.getParamArray()
+            const response = await pool.query('SELECT COUNT(id) FROM (SELECT id FROM productions ' + searchClause + ') AS derived;',
+                paramArray);
             return response.rows[0].count;
         }
 
@@ -329,11 +350,6 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
             }
             ])
             const paramArray = search.getParamArray()
-
-            console.log('SELECT id, name, description, start_time, create_time, visible ' +
-                'FROM productions ' + searchClause +
-                ` ORDER BY create_time ASC, name ASC, id ASC LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
-                [...paramArray, perPage, lastProductionIndex + 1])
 
             const response = await pool.query('SELECT id, name, description, start_time, create_time, visible ' +
                 'FROM productions ' + searchClause +

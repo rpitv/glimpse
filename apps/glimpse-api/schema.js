@@ -79,33 +79,33 @@ const typeDefs = gql`
         getCategory(id: Int!): Category
         
         """
-        The total number of Users in the database.
+        The total number of Users in the database. Optionally provide a search context.
         """
-        userCount: Int!
+        userCount(searchCtx: String): Int!
         """
         The total number of Persons in the database which have an active Role at the given moment.
         """
         memberCount: Int!
         """
-        The total number of Persons in the database.
+        The total number of Persons in the database. Optionally provide a search context.
         """
-        peopleCount: Int!
+        peopleCount(searchCtx: String): Int!
         """
-        The total number of Images in the database.
+        The total number of Images in the database. Optionally provide a search context.
         """
-        imageCount: Int!
+        imageCount(searchCtx: String): Int!
         """
-        The total number of Videos in the database.
+        The total number of Videos in the database. Optionally provide a search context.
         """
-        videoCount: Int!
+        videoCount(searchCtx: String): Int!
         """
-        The total number of Productions in the database.
+        The total number of Productions in the database. Optionally provide a search context.
         """
-        productionCount: Int!
+        productionCount(searchCtx: String): Int!
         """
-        The total number of Categories in the database.
+        The total number of Categories in the database. Optionally provide a search context.
         """
-        categoryCount: Int!
+        categoryCount(searchCtx: String): Int!
     }
     
     type Mutation {
