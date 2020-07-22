@@ -24,6 +24,15 @@ export const state = () => ({
    */
   totalItems: 0,
   /**
+   * Search context string to be sent to GraphQL. Input by the user in the search box.
+   */
+  searchString: '',
+  /**
+   * State of whether advanced search is enabled or not. If not, then simple search is used where all search terms are
+   * modified to be required.
+   */
+  advancedSearch: false,
+  /**
    * Whether the list is currently being populated, i.e. a request is pending
    */
   loading: true,
@@ -47,6 +56,12 @@ export const mutations = {
   SET_ITEMS_PER_PAGE: function (state, data) {
     state.itemsPerPage = data.itemsPerPage
   },
+  SET_SEARCH_STRING: function (state, data) {
+    state.searchString = data.searchString
+  },
+  SET_ADVANCED_SEARCH: function (state, data) {
+    state.advancedSearch = data.advancedSearch
+  },
   SET_PEOPLE_LIST: function (state, data) {
     state.peopleList = data.peopleList
   },
@@ -67,6 +82,16 @@ export const mutations = {
 }
 
 export const actions = {
+  /**
+   * Change the current search value, clear cache, and re-execute query.
+   * @param ctx Store context
+   * @param payload {{value: String}} Action payload, search value
+   */
+  search: function (ctx, payload) {
+    ctx.commit('SET_SEARCH_STRING', { searchString: payload.value })
+    ctx.commit('CLEAR_CACHED')
+    ctx.dispatch('getPeopleCount')
+  },
   /**
    * Change the current page to the specified page in payload. Fetches it from GQL and adds the page to cache list.
    * @param ctx Store context
@@ -89,8 +114,8 @@ export const actions = {
       ctx.commit('SET_LOADING_STATE', { loading: true })
       const options = {
         query: gql`
-          query GetPeople($cursor: Int!, $count: Int!) {
-            people(prevPersonIndex: $cursor, pageSize: $count) {
+          query GetPeople($cursor: Int!, $count: Int!, $search: String) {
+            people(prevPersonIndex: $cursor, pageSize: $count, searchCtx: $search) {
               id
               firstName
               preferredName
@@ -100,7 +125,8 @@ export const actions = {
           }`,
         variables: {
           cursor: ((ctx.state.currentPage - 1) * ctx.state.itemsPerPage) - 1,
-          count: ctx.state.itemsPerPage
+          count: ctx.state.itemsPerPage,
+          search: ctx.state.searchString
         }
       }
       if (payload && payload.noCache) {
@@ -126,9 +152,12 @@ export const actions = {
 
       const query = this.app.apolloProvider.defaultClient.query({
         fetchPolicy: 'no-cache',
-        query: gql`query PeopleCount {
-          peopleCount
-        }`
+        query: gql`query PeopleCount($search: String!) {
+          peopleCount(searchCtx: $search)
+        }`,
+        variables: {
+          search: ctx.state.searchString
+        }
       })
       const res = await query
       ctx.commit('SET_PEOPLE_COUNT', { count: res.data.peopleCount })

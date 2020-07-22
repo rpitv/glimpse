@@ -32,7 +32,26 @@
         </div>
       </VCardTitle>
       <VCardText class="card-text">
-        <VTextField @change="searchInput" class="search" label="Search..." />
+        <VTextField @change="searchInput" v-model="localSearchCtx" class="search" label="Search..." />
+        <VTooltip top>
+          <template v-slot:activator="{ on }">
+            <font-awesome-icon
+              :icon="['fas', 'question-circle']"
+              @click="showAdvancedInfo"
+              v-on="on"
+              class="advanced-search-info"
+            />
+          </template>
+          <span>Click for more info</span>
+        </VTooltip>
+        <AdvancedSearchDialog v-model="showAdvancedSearchDialog" :fields="advancedSearchFields" />
+        <VSwitch
+          @change="searchInput"
+          v-model="advancedSearch"
+          label="Advanced Search"
+          class="advanced-switch"
+          color="primary"
+        />
         <div class="action-buttons-wrapper">
           <div class="action-buttons">
             <slot name="actionButtons" />
@@ -70,8 +89,10 @@
 </template>
 
 <script>
+import AdvancedSearchDialog from '../AdvancedSearchDialog'
 export default {
   name: 'AdminPaginatedTable',
+  components: { AdvancedSearchDialog },
   props: {
     itemCount: {
       type: Number,
@@ -88,6 +109,14 @@ export default {
     permalinkCount: {
       type: String,
       default: 'count'
+    },
+    permalinkSearch: {
+      type: String,
+      default: 'search'
+    },
+    initialSearchCtx: {
+      type: String,
+      default: ''
     },
     initialPage: {
       type: Number,
@@ -112,10 +141,17 @@ export default {
     loading: {
       type: Boolean,
       default: false
+    },
+    advancedSearchFields: {
+      type: Array,
+      default: undefined
     }
   },
   data () {
     return {
+      showAdvancedSearchDialog: false,
+      advancedSearch: false,
+      localSearchCtx: this.initialSearchCtx,
       localPageNumber: this.initialPage,
       localItemsPerPage: this.initialItemsPerPage,
       visibleIcons: 6,
@@ -127,6 +163,30 @@ export default {
   computed: {
     pageCount () {
       return Math.ceil(this.itemCount / this.localItemsPerPage)
+    },
+    // Search context is different depending on the state of advanced search. Specifically, in simple search, all
+    // search terms actually have an exclamation point on the end, marking them as "required".
+    trueSearchCtx () {
+      if (this.advancedSearch) {
+        return this.localSearchCtx
+      }
+
+      let val = ''
+      let inQuotes = false
+      // Iterate over chars in string
+      for (let i = 0; i < this.localSearchCtx.length; i++) {
+        // Quotes signify string literals, i.e. spaces are allowed
+        if (this.localSearchCtx[i] === '"') {
+          inQuotes = !inQuotes
+        } else if (this.localSearchCtx[i] === ' ') {
+          // If not in quotes and the last character before a space is not !, append !.
+          if (!inQuotes && val[val.length - 1] !== '!') {
+            val += '!'
+          }
+        }
+        val += this.localSearchCtx[i]
+      }
+      return val
     }
   },
   mounted () {
@@ -137,8 +197,12 @@ export default {
     window.removeEventListener('resize', this.screenResize)
   },
   methods: {
-    searchInput (val) {
-      this.$emit('searchInput', val)
+    showAdvancedInfo () {
+      this.showAdvancedSearchDialog = true
+    },
+    searchInput () {
+      this.$emit('searchInput', this.trueSearchCtx)
+      this.changePage(1)
     },
     changePage (page) {
       if (page > this.pageCount) {
@@ -164,14 +228,18 @@ export default {
     async permalink () {
       const newPage = this.localPageNumber
       const newCount = this.localItemsPerPage
+      const newSearch = this.localSearchCtx
       // Don't permalink if already contains the correct info
-      if (this.$route.query[this.permalinkPage] === newPage && this.$route.query[this.permalinkCount] === newCount) {
+      if (this.$route.query[this.permalinkPage] === newPage &&
+        this.$route.query[this.permalinkCount] === newCount &&
+        this.$route.query[this.permalinkSearch] === newSearch) {
         return
       }
 
       await this.$router.push({ query: Object.assign({}, this.$route.query, {
         [this.permalinkPage]: newPage,
-        [this.permalinkCount]: newCount
+        [this.permalinkCount]: newCount,
+        [this.permalinkSearch]: newSearch === '' ? undefined : newSearch
       })
       })
     }
@@ -186,6 +254,19 @@ export default {
   .title {
     padding-bottom: 0;
     justify-content: space-between;
+  }
+
+  .advanced-search-info {
+    margin-top: 5px;
+    float: right;
+    cursor: pointer;
+  }
+  .advanced-switch {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin-right: 10px;
+    float: right;
   }
   .actions-wrapper {
 
