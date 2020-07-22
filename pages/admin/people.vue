@@ -45,6 +45,9 @@ export default {
         value: this.$route.query.search
       })
     }
+    if (this.$route.query.adv) {
+      this.$store.commit('admin/people/SET_ADVANCED_SEARCH', { advancedSearch: !!this.$route.query.adv })
+    }
   }
 }
 </script>
