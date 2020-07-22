@@ -2,7 +2,7 @@
   <div class="recent-prod">
     <VRow>
       <VCol v-for="n in 2" :key="n" sm="6">
-        <span v-if="productions[n-1]">
+        <span v-if="productions && productions[n-1]">
           <NuxtLink :to="'/productions/' + productions[n-1].id" class="recent-prod-link">
             <VImg
               :src="productions[n-1].thumbnail.link"
@@ -16,7 +16,7 @@
     </VRow>
     <VRow>
       <VCol v-for="n in 3" :key="n" sm="3">
-        <span v-if="productions[n+1]">
+        <span v-if="productions && productions[n+1]">
           <NuxtLink :to="'/productions/' + productions[n+1].id" class="recent-prod-link">
             <VImg
               :src="productions[n+1].thumbnail.link"
