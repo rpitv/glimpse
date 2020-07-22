@@ -31,12 +31,18 @@ export default {
     }
   },
   created () {
+    // Parse querystring for initial parameters & send them to the store
     if (this.$route.query.page && parseInt(this.$route.query.page) >= 1) {
       this.$store.dispatch('admin/people/gotoPage', { page: parseInt(this.$route.query.page) })
     }
     if (this.$route.query.count && parseInt(this.$route.query.count) >= 1) {
       this.$store.dispatch('admin/people/setItemsPerPageCount', {
         itemsPerPage: parseInt(this.$route.query.count)
+      })
+    }
+    if (this.$route.query.search) {
+      this.$store.dispatch('admin/people/search', {
+        value: this.$route.query.search
       })
     }
   }

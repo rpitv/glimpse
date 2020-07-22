@@ -2,11 +2,13 @@
   <div>
     <AdminPaginatedTable
       :item-count="$store.state.admin.people.totalItems"
+      :initial-search-ctx="$store.state.admin.people.searchString"
       :initial-page="$store.state.admin.people.currentPage"
       :initial-items-per-page="$store.state.admin.people.itemsPerPage"
       :table-headers="tableHeaders"
       :table-items="tableItems"
       :loading="$store.state.admin.people.loading || $store.state.admin.people.loadingCount"
+      :advanced-search-fields="['id', 'class_year', 'first_name', 'preferred_name', 'last_name']"
       @changePage="changePage"
       @changeItemsPerPage="changeItemCount"
       @searchInput="searchInput"
@@ -119,6 +121,9 @@ export default {
       this.$store.dispatch('admin/people/setItemsPerPageCount', { itemsPerPage: count })
     },
     searchInput (input) {
+      input = input.trim()
+      this.$store.dispatch('admin/people/search', { value: input })
+      this.changePage(1)
     },
     editPerson (person) {
       this.$router.push('/admin/person/' + person.id)
