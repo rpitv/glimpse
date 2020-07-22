@@ -5,6 +5,7 @@
       :initial-search-ctx="$store.state.admin.people.searchString"
       :initial-page="$store.state.admin.people.currentPage"
       :initial-items-per-page="$store.state.admin.people.itemsPerPage"
+      :initial-adv-search="$store.state.admin.people.advancedSearch"
       :table-headers="tableHeaders"
       :table-items="tableItems"
       :loading="$store.state.admin.people.loading || $store.state.admin.people.loadingCount"

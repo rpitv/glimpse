@@ -114,9 +114,17 @@ export default {
       type: String,
       default: 'search'
     },
+    permalinkAdvancedSearch: {
+      type: String,
+      default: 'adv'
+    },
     initialSearchCtx: {
       type: String,
       default: ''
+    },
+    initialAdvSearch: {
+      type: Boolean,
+      default: false
     },
     initialPage: {
       type: Number,
@@ -150,7 +158,7 @@ export default {
   data () {
     return {
       showAdvancedSearchDialog: false,
-      advancedSearch: false,
+      advancedSearch: this.initialAdvSearch,
       localSearchCtx: this.initialSearchCtx,
       localPageNumber: this.initialPage,
       localItemsPerPage: this.initialItemsPerPage,
@@ -229,17 +237,20 @@ export default {
       const newPage = this.localPageNumber
       const newCount = this.localItemsPerPage
       const newSearch = this.localSearchCtx
+      const newAdvancedSearch = this.advancedSearch ? '1' : ''
       // Don't permalink if already contains the correct info
       if (this.$route.query[this.permalinkPage] === newPage &&
         this.$route.query[this.permalinkCount] === newCount &&
-        this.$route.query[this.permalinkSearch] === newSearch) {
+        this.$route.query[this.permalinkSearch] === newSearch &&
+      this.$route.query[this.permalinkAdvancedSearch] === newAdvancedSearch) {
         return
       }
 
       await this.$router.push({ query: Object.assign({}, this.$route.query, {
         [this.permalinkPage]: newPage,
         [this.permalinkCount]: newCount,
-        [this.permalinkSearch]: newSearch === '' ? undefined : newSearch
+        [this.permalinkSearch]: newSearch === '' ? undefined : newSearch,
+        [this.permalinkAdvancedSearch]: newAdvancedSearch === '' ? undefined : newAdvancedSearch
       })
       })
     }
