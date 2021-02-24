@@ -26,7 +26,7 @@ const typeDefs = gql`
         """
         Get a list of all Person objects regardless of member status in a paginated or non-paginated manner.
         """
-        people(pageSize: Int, prevPersonIndex: Int, searchCtx: String): [Person!]!
+        people(pageSize: Int, prevPersonIndex: Int, searchCtx: String, advancedSearch: Boolean): [Person!]!
         """
         Get a list of all Image objects in the database in a paginated or non-paginated manner.
         """
@@ -81,7 +81,7 @@ const typeDefs = gql`
         """
         The total number of Users in the database. Optionally provide a search context.
         """
-        userCount(searchCtx: String): Int!
+        userCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Persons in the database which have an active Role at the given moment.
         """
@@ -89,23 +89,23 @@ const typeDefs = gql`
         """
         The total number of Persons in the database. Optionally provide a search context.
         """
-        peopleCount(searchCtx: String): Int!
+        peopleCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Images in the database. Optionally provide a search context.
         """
-        imageCount(searchCtx: String): Int!
+        imageCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Videos in the database. Optionally provide a search context.
         """
-        videoCount(searchCtx: String): Int!
+        videoCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Productions in the database. Optionally provide a search context.
         """
-        productionCount(searchCtx: String): Int!
+        productionCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Categories in the database. Optionally provide a search context.
         """
-        categoryCount(searchCtx: String): Int!
+        categoryCount(searchCtx: String, advancedSearch: Boolean): Int!
     }
     
     type Mutation {
