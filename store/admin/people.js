@@ -89,6 +89,7 @@ export const actions = {
    */
   search: function (ctx, payload) {
     ctx.commit('SET_SEARCH_STRING', { searchString: payload.value })
+    ctx.commit('SET_ADVANCED_SEARCH', { advancedSearch: payload.isAdvanced })
     ctx.commit('CLEAR_CACHED')
     ctx.dispatch('getPeopleCount')
   },
@@ -114,8 +115,8 @@ export const actions = {
       ctx.commit('SET_LOADING_STATE', { loading: true })
       const options = {
         query: gql`
-          query GetPeople($cursor: Int!, $count: Int!, $search: String) {
-            people(prevPersonIndex: $cursor, pageSize: $count, searchCtx: $search) {
+          query GetPeople($cursor: Int!, $count: Int!, $search: String, $adv: Boolean) {
+            people(prevPersonIndex: $cursor, pageSize: $count, searchCtx: $search, advancedSearch: $adv) {
               id
               firstName
               preferredName
@@ -126,7 +127,8 @@ export const actions = {
         variables: {
           cursor: ((ctx.state.currentPage - 1) * ctx.state.itemsPerPage) - 1,
           count: ctx.state.itemsPerPage,
-          search: ctx.state.searchString
+          search: ctx.state.searchString,
+          adv: ctx.state.advancedSearch
         }
       }
       if (payload && payload.noCache) {
@@ -152,11 +154,12 @@ export const actions = {
 
       const query = this.app.apolloProvider.defaultClient.query({
         fetchPolicy: 'no-cache',
-        query: gql`query PeopleCount($search: String!) {
-          peopleCount(searchCtx: $search)
+        query: gql`query PeopleCount($search: String!, $adv: Boolean) {
+          peopleCount(searchCtx: $search, advancedSearch: $adv)
         }`,
         variables: {
-          search: ctx.state.searchString
+          search: ctx.state.searchString,
+          adv: ctx.state.advancedSearch
         }
       })
       const res = await query
