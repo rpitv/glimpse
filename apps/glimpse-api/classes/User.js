@@ -171,13 +171,14 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
          * Requires ADMIN permission
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<number>} The total number of users in the database.
          * @throws {PermissionError} Insufficient permissions
          * @throws PostgreSQL error
          */
-        static async getUserCount(searchCtx) {
+        static async getUserCount(searchCtx, advancedSearch) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
-            const search = new Search(searchCtx || '')
+            const search = new Search(searchCtx || '', advancedSearch)
 
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')

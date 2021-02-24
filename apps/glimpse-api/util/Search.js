@@ -8,10 +8,20 @@ class Search {
 	/**
 	 * Constructor
 	 * @param searchStr {String} Raw source search string provided by the client
+	 * @param advancedMode {boolean} Flag for whether this is an advanced search or not.
 	 */
-	constructor (searchStr) {
+	constructor (searchStr, advancedMode = false) {
 		this.raw = searchStr
-		this.components = Search.parseInputString(this.raw)
+		this.advanced = advancedMode
+		if(this.advanced) {
+			this.components = Search.parseInputString(this.raw)
+		} else {
+			this.components = [{
+				mode: SearchModes.MATCH_STRING,
+				value: searchStr,
+				required: true
+			}]
+		}
 	}
 
 	/**
@@ -243,7 +253,9 @@ class Search {
 	 * Combines the methods {@link Search._removeArtifacts}, {@link Search._parseModes},
 	 * {@link Search._parseScopes}, and {@link Search._split} in the correct order.
 	 * @param str {String} Input raw search string
-	 * @return {Array} Array of fully parsed components
+	 * @return {Array} Array of fully parsed components in the form of
+	 *      [{min: number?, max: number?, mode: string,
+	 *      value: string, required: boolean?, scope: string?}]
 	 */
 	static parseInputString (str) {
 		if (!str) {
