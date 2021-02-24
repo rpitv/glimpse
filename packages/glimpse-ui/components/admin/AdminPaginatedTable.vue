@@ -209,7 +209,7 @@ export default {
       this.showAdvancedSearchDialog = true
     },
     searchInput () {
-      this.$emit('searchInput', this.trueSearchCtx)
+      this.$emit('searchInput', this.trueSearchCtx, this.advancedSearch)
       this.changePage(1)
     },
     changePage (page) {

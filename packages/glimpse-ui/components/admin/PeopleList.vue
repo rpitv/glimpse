@@ -121,9 +121,9 @@ export default {
     changeItemCount (count) {
       this.$store.dispatch('admin/people/setItemsPerPageCount', { itemsPerPage: count })
     },
-    searchInput (input) {
-      input = input.trim()
-      this.$store.dispatch('admin/people/search', { value: input })
+    searchInput (searchVal, isAdvanced) {
+      searchVal = searchVal.trim()
+      this.$store.dispatch('admin/people/search', { value: searchVal, isAdvanced })
       this.changePage(1)
     },
     editPerson (person) {
