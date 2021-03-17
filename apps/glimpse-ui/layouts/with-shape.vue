@@ -9,11 +9,11 @@
       <div class="bg-shape-wrapper">
         <BackgroundShape class="bg-shape" />
       </div>
-      <VMain>
+      <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
         </VContainer>
-      </VMain>
+      </VContent>
       <TheFooter />
     </div>
   </VApp>
