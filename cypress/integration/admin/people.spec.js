@@ -360,6 +360,33 @@ describe('People List Page Wrapper', () => {
         cy.get('.v-card__title').should('exist')
           .find('h2').should('contain.text', 'Create Person')
       })
+
+      it('Sends the appropriate request when searching', function () {
+        let returnedAdvancedValue = null
+        cy.mockGraphql((args) => {
+          const req = args[1]
+          const body = JSON.parse(req.body)
+          // Implicit test for the search value. If the search doesn't include "Dwight" as the search value, then the
+          // advanced search value check automatically fails.
+          if (body.variables.search !== 'Dwight') {
+            return
+          }
+          returnedAdvancedValue = body.variables.adv
+          if (body.operationName === 'GetPeople') {
+            return JSON.stringify(this.perPage5Page1.response)
+          } else if (body.operationName === 'PeopleCount') {
+            return JSON.stringify(this.peopleCount1000.response)
+          }
+        })
+        cy.visit('/admin/people').login()
+        cy.get('.admin-paginated-table .search input').type('Dwight{enter}').then(() => {
+          expect(returnedAdvancedValue, '"advanced" value check').to.equal(false)
+          returnedAdvancedValue = null
+        })
+        cy.get('.advanced-switch .v-input--selection-controls__input').click().then(() => {
+          expect(returnedAdvancedValue, '"advanced" value check').to.equal(true)
+        })
+      })
     })
     describe('CreatePersonDialog Unit', function () {
       /**
