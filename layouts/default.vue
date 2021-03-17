@@ -6,11 +6,11 @@
     <div class="default-layout-custom-bg" />
     <div>
       <TheHeader />
-      <VMain>
+      <VContent>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
         </VContainer>
-      </VMain>
+      </VContent>
       <TheFooter />
     </div>
   </VApp>
