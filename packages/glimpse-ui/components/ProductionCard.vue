@@ -7,17 +7,21 @@
         :aspect-ratio="16/9"
         gradient="to top, rgba(0,0,0,0.3), rgba(0,0,0,0)"
       >
-        <VCardTitle class="title">
-          {{ name }}
-        </VCardTitle>
+        <div class="card-mask">
+          <VCardTitle class="title">
+            {{ name }}
+          </VCardTitle>
+          <VCardSubtitle class="subtitle">
+            {{ formatDate(start) }}
+          </VCardSubtitle>
+        </div>
       </VImg>
     </VCard>
   </NuxtLink>
 </template>
 
 <script>
-import gql from 'graphql-tag'
-
+import moment from 'moment'
 export default {
   name: 'ProductionCard',
   props: {
@@ -25,45 +29,26 @@ export default {
       type: Number,
       required: true
     },
+    name: {
+      type: String,
+      required: true
+    },
+    thumbnail: {
+      type: String,
+      required: true
+    },
+    start: {
+      type: String,
+      required: true
+    },
     width: {
       type: Number,
       default: 300
     }
   },
-  data () {
-    return {
-      production: {}
-    }
-  },
-  computed: {
-    thumbnail () {
-      if (!this.production || !this.production.thumbnail || !this.production.thumbnail.link) {
-        return 'https://www.grahambrown.com/dw/image/v2/BBBG_PRD/on/demandware.static/-/Sites-product-master/default/dw496dc722/images/large/CT-060-096_1.jpg?sw=1024&sh=1024&sm=fit'
-      }
-      return this.production.thumbnail.link
-    },
-    name () {
-      if (!this.production || !this.production.name) {
-        return ''
-      }
-      return this.production.name
-    }
-  },
-  apollo: {
-    production: {
-      variables () {
-        return {
-          id: this.productionId
-        }
-      },
-      query: gql`query ProductionCardGetProduction($id: Int!) {
-        production: getProduction(id: $id) {
-          name
-          thumbnail {
-              link
-          }
-        }
-      }`
+  methods: {
+    formatDate (str) {
+      return moment(new Date(str)).format('MM-DD-YYYY')
     }
   }
 }
@@ -71,11 +56,28 @@ export default {
 
 <style scoped lang="scss">
   .card {
+    &:hover {
+      transform: scale(1.05);
+    }
+    transition: 0.3s;
     color: white;
     text-decoration: none;
     display: inline-block;
   }
   .title {
+    position: absolute;
+    bottom: 10px;
+  }
+  .subtitle {
+    position: absolute;
+    bottom: -10px;
+    font-size: 18px;
+  }
+  .card-mask {
+    margin: 0;
+    background-image: linear-gradient(to bottom, #00000000, #000000ff);
+    width: 100%;
+    height: 100%;
     position: absolute;
     bottom: 0;
   }
