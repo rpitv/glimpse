@@ -155,10 +155,11 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
          * was called. If lastImageIndex < -1 then this value is defaulted to -1.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<[Image]>} An array of images.
          * @throws PostgreSQL error
          */
-        static async getPaginatedImages(perPage, lastImageIndex, searchCtx) {
+        static async getPaginatedImages(perPage, lastImageIndex, searchCtx, advancedSearch) {
             // Go back to page one if an invalid lastImageIndex is provided.
             if(lastImageIndex == null || lastImageIndex < -1)
                 lastImageIndex = -1;
@@ -167,7 +168,7 @@ function ImageModelFactory(SEEKER, SUPER_ACCESS) {
                 perPage = 20
 
             // Default searchCtx is blank
-            let search = new Search(searchCtx || '')
+            let search = new Search(searchCtx || '', advancedSearch)
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
             }

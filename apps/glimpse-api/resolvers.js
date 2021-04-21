@@ -6,7 +6,7 @@ const resolvers = {
     JSON: JSONResolver,
     Query: {
         users: async (obj, args, ctx) => {
-            return ctx.model.User.getPaginatedUsers(args.pageSize, args.prevUserIndex);
+            return ctx.model.User.getPaginatedUsers(args.pageSize, args.prevUserIndex, args.searchCtx, !!args.advancedSearch);
         },
         members: async (obj, args, ctx) => {
             return ctx.model.Person.getPaginatedMembers(args.pageSize, args.prevPersonIndex);
@@ -15,10 +15,10 @@ const resolvers = {
             return ctx.model.Person.getPaginatedPeople(args.pageSize, args.prevPersonIndex, args.searchCtx, !!args.advancedSearch);
         },
         images: async (obj, args, ctx) => {
-            return ctx.model.Image.getPaginatedImages(args.pageSize, args.prevImageIndex);
+            return ctx.model.Image.getPaginatedImages(args.pageSize, args.prevImageIndex, args.searchCtx, !!args.advancedSearch);
         },
         videos: async (obj, args, ctx) => {
-            const vids = await ctx.model.Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex);
+            const vids = await ctx.model.Video.getPaginatedVideos(args.pageSize, args.prevVideoIndex, args.searchCtx, !!args.advancedSearch);
             for(let i = 0; i < vids.length; i++) {
                 if(vids[i] !== null)
                     vids[i].unpackForClient();
@@ -26,10 +26,10 @@ const resolvers = {
             return vids;
         },
         productions: async (obj, args, ctx) => {
-            return ctx.model.Production.getPaginatedProductions(args.pageSize, args.prevProductionIndex);
+            return ctx.model.Production.getPaginatedProductions(args.pageSize, args.prevProductionIndex, args.searchCtx, !!args.advancedSearch);
         },
         categories: async (obj, args, ctx) => {
-            return ctx.model.Category.getPaginatedCategories(args.pageSize, args.prevCategoryIndex);
+            return ctx.model.Category.getPaginatedCategories(args.pageSize, args.prevCategoryIndex, args.searchCtx, !!args.advancedSearch);
         },
 
         getUser: async (obj, args, ctx) => {
