@@ -18,7 +18,7 @@ const typeDefs = gql`
         """
         Get a list of all User objects in a paginated or non-paginated manner.
         """
-        users(pageSize: Int, prevUserIndex: Int): [User!]!
+        users(pageSize: Int, prevUserIndex: Int, searchCtx: String, advancedSearch: Boolean): [User!]!
         """
         Get a list of all Person objects which have an active role in a paginated or non-paginated manner.
         """
@@ -30,19 +30,19 @@ const typeDefs = gql`
         """
         Get a list of all Image objects in the database in a paginated or non-paginated manner.
         """
-        images(pageSize: Int, prevImageIndex: Int): [Image!]!
+        images(pageSize: Int, prevImageIndex: Int, searchCtx: String, advancedSearch: Boolean): [Image!]!
         """
         Get a list of all Video objects in the database in a paginated or non-paginated manner.
         """
-        videos(pageSize: Int, prevVideoIndex: Int): [Video!]!
+        videos(pageSize: Int, prevVideoIndex: Int, searchCtx: String, advancedSearch: Boolean): [Video!]!
         """
         Get a list of all Production objects in a paginated or non-paginated manner.
         """
-        productions(pageSize: Int, prevProductionIndex: Int): [Production!]!
+        productions(pageSize: Int, prevProductionIndex: Int, searchCtx: String, advancedSearch: Boolean): [Production!]!
         """
         Get a list of all Category objects in a paginated or non-paginated manner.
         """
-        categories(pageSize: Int, prevCategoryIndex: Int): [Category!]!
+        categories(pageSize: Int, prevCategoryIndex: Int, searchCtx: String, advancedSearch: Boolean): [Category!]!
         
         """
         Get some User object based on that object's ID. Returns null if the User does not exist in the database.
