@@ -9,6 +9,13 @@
             </h1>
             <h2>Filters</h2>
             <VTextField @change="searchInput" v-model="searchVal" class="search" label="Search..." />
+            <VSwitch
+              @change="searchInput"
+              v-model="isAdvancedSearch"
+              label="Advanced Search"
+              class="advanced-switch"
+              color="primary"
+            />
           </VCol>
         </VRow>
       </VCol>
@@ -55,6 +62,7 @@ export default {
       title: 'Our Productions - RPI TV',
       description: 'List of all of RPI TV\'s past productions',
       searchVal: '',
+      isAdvancedSearch: false,
       productions: [],
       loadingMore: false,
       prevPage: 0,
@@ -73,12 +81,24 @@ export default {
       ]
     }
   },
+  // async mounted () {
+  //   this.loadingMore = true
+  //   let prevLocation = parseInt(window.localStorage.getItem('productions-scroll-location')) || 0
+  //   if (prevLocation % this.countPerPage !== 0) {
+  //     prevLocation += prevLocation % this.countPerPage
+  //   }
+  //   const result = await this.getProductions(prevLocation, 0)
+  //   this.prevPage = prevLocation / this.countPerPage
+  //   this.productions = this.productions.concat(result.data.productions)
+  //   this.loadingMore = false
+  // },
   methods: {
-    async onIntersect () {
-      this.loadingMore = true
+    async getProductions (count, startIndex, searchVal, isAdvancedSearch) {
       const result = await this.$apollo.query({
-        query: gql`query ProductionsGetProductions($prevProductionIndex: Int!, $pageSize: Int!) {
-        productions: productions(pageSize: $pageSize, prevProductionIndex: $prevProductionIndex) {
+        query: gql`query ProductionsGetProductions($prevProductionIndex: Int!, $pageSize: Int!,
+            $searchVal: String, $isAdvancedSearch: Boolean) {
+        productions: productions(pageSize: $pageSize, prevProductionIndex: $prevProductionIndex,
+            searchCtx: $searchVal, advancedSearch: $isAdvancedSearch) {
           id
           name
           startTime
@@ -88,16 +108,49 @@ export default {
         }
       }`,
         variables: {
-          prevProductionIndex: this.prevPage * this.countPerPage,
-          pageSize: this.countPerPage
-        }
+          prevProductionIndex: startIndex,
+          pageSize: count,
+          searchVal,
+          isAdvancedSearch
+        },
+        errorPolicy: 'all'
       })
+
+      if (!result) {
+        return null
+      } else if (result.errors != null && result.errors.length >= 1) {
+        this.$store.commit('popups/SHOW_ERROR_MESSAGE', 'Search error: ' + result.errors[0].message)
+        return null
+      } else if (!result.data || !result.data.productions) {
+        return null
+      }
+      return result.data.productions
+    },
+    async onIntersect () {
+      if (this.loadingMore) {
+        return
+      }
+      this.loadingMore = true
+      window.localStorage.setItem('productions-scroll-location', ((this.prevPage + 1) * this.countPerPage).toString())
+      const result = await this.getProductions(this.countPerPage, this.prevPage * this.countPerPage,
+        this.searchVal, this.isAdvancedSearch)
       this.prevPage++
-      this.productions = this.productions.concat(result.data.productions)
+      if (result != null) {
+        this.productions = this.productions.concat(result)
+      }
       this.loadingMore = false
     },
-    searchInput (v) {
-      console.log(v)
+    async searchInput () {
+      this.prevPage = 0
+      this.productions = []
+      this.loadingMore = true
+      const result = await this.getProductions(this.countPerPage, this.prevPage * this.countPerPage,
+        this.searchVal, this.isAdvancedSearch)
+      this.prevPage++
+      if (result != null) {
+        this.productions = this.productions.concat(result)
+      }
+      this.loadingMore = false
     }
   }
 }

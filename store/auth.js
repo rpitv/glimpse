@@ -3,8 +3,7 @@ import axios from 'axios'
 
 export const state = () => ({
   rcs_id: '',
-  admin: false,
-  showFailedAuth: false // Show a failed authentication message snackbar
+  admin: false
 })
 
 export const getters = {
@@ -23,14 +22,6 @@ export const mutations = { SET_AUTH: function (state, data) {
   })
   state.rcs_id = data.rcs_id
   state.admin = data.admin
-},
-SHOW_FAILED_AUTH: function (state) {
-  this.$sentry.addBreadcrumb({
-    category: 'store',
-    message: 'Mutation: SHOW_FAILED_AUTH',
-    level: this.$sentry.Severity.Info
-  })
-  state.showFailedAuth = true
 }
 }
 
@@ -53,7 +44,7 @@ export const actions = {
       ctx.commit('SET_AUTH', { rcs_id: response.data.rcs_id, admin: response.data.admin })
     } catch (e) {
       console.error(e)
-      ctx.commit('SHOW_FAILED_AUTH')
+      ctx.commit('popups/SHOW_ERROR_MESSAGE', 'Authentication failed! Try refreshing.')
     }
   },
   nuxtServerInit: async (vuexCtx, requestCtx) => {
