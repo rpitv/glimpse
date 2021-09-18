@@ -26,7 +26,7 @@ const schema = Object.freeze({
         owner: 'int references people(id) not null',
         start_date: 'timestamp not null default NOW()',
         end_date: 'timestamp',
-        appears_after: 'int references roles(id)' // Add constraint to prevent circular structures
+        priority: 'int'
     },
     videos: {
         id: 'serial not null primary key',
@@ -43,8 +43,8 @@ const schema = Object.freeze({
     categories: {
         id: 'serial not null primary key',
         name: 'varchar(64) not null',
-        parent: 'int references categories(id)', // Add constraint to prevent circular structures
-        appears_after: 'int references categories(id)' // Add constraint to prevent circular structures
+        parent: 'int references categories(id)', // TODO Add constraint to prevent circular structures
+        priority: 'int'
     },
     productions: {
         id: 'serial not null primary key',
@@ -72,8 +72,7 @@ const schema = Object.freeze({
         person: 'int references people(id) not null',
         job: 'varchar(200) not null',
         production: 'int references productions(id) not null',
-        appears_after: 'int references credits(id)' // Add constraint to make sure both are on the same production
-                                                    // Add constraint to prevent circular structures
+        priority: 'int'
     }
 });
 
