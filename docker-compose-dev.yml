@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  ui:
+    image: rpitv/glimpse-ui
+    ports:
+      - "3000:80"
+      - "5862:5862"
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: npm run dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

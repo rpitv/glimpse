@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16
 CMD [ "npm", "start", "--", "--hostname", "0.0.0.0" ]
 EXPOSE 80
 
