@@ -14,7 +14,7 @@ function RoleModelFactory(SEEKER, SUPER_ACCESS) {
      * {@link this.startDate} and {@link this.name} must also be non-null. {@link endDate} can be null, in which case
      * it should be assumed that the Person is still an active member of the club.
      *
-     * When displayed, Roles are displayed in a sequential order which can be determined by the column "appears_after"
+     * When displayed, Roles are displayed in a sequential order which can be determined by the column "priority"
      * in the database, which can be read with {@link getPreviousRole}. When displaying all of some Person's Role (or
      * perhaps a subset of them), this Role must be displayed immediately after the Role returned by {@link getPreviousRole}
      * if it exists (or one of that Role's previous Roles, in the case that not all Roles are being displayed). If there

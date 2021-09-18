@@ -119,7 +119,7 @@ const resolvers = {
             return obj.getThumbnail();
         },
         credits: async (obj, args, ctx) => {
-            return ctx.model.Credit.getCreditsForProduction(obj);
+            return ctx.model.Credit.getCreditsForProduction(obj.id);
         }
     },
     Credit: {
