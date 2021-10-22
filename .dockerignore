@@ -11,6 +11,7 @@ test
 .git
 .gitignore
 .idea
+.npmrc
 .vscode
 .graphqlconfig
 .travis.yml

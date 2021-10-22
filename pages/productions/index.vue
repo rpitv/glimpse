@@ -8,20 +8,20 @@
               Productions
             </h1>
             <h2>Filters</h2>
-            <VTextField @change="searchInput" v-model="searchVal" class="search" label="Search..." />
+            <VTextField v-model="searchVal" class="search" label="Search..." @change="searchInput" />
             <VSwitch
-              @change="searchInput"
               v-model="isAdvancedSearch"
               label="Advanced Search"
               class="advanced-switch"
               color="primary"
+              @change="searchInput"
             />
           </VCol>
         </VRow>
       </VCol>
       <VCol cols="12" md="6" lg="7" offset-md="5" offset-lg="4">
         <div class="cards">
-          <div v-for="prod in productions" class="rowitem">
+          <div v-for="prod in productions" :key="prod.id" class="rowitem">
             <ProductionCard
               :production-id="parseInt(prod.id)"
               :name="prod.name"
@@ -50,7 +50,6 @@
     </VRow>
   </div>
 </template>
-
 <script>
 import gql from 'graphql-tag'
 import ProductionCard from '@/components/ProductionCard'

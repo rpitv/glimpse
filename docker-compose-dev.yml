@@ -3,7 +3,7 @@ services:
   ui:
     image: rpitv/glimpse-ui
     ports:
-      - "3000:80"
+      - "3000:3000"
       - "5862:5862"
     restart: unless-stopped
     env_file:
@@ -12,3 +12,9 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    external: true
+    name: glimpse_network
