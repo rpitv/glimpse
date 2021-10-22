@@ -5,7 +5,7 @@ services:
       - db
     image: rpitv/glimpse-api
     ports:
-      - "4000:80"
+      - "4000:4000"
     restart: unless-stopped
     env_file:
       - ../.env
