@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MobileHeader :items="menuItems" v-model="sidebar" class="hidden-sm-and-up" />
+    <MobileHeader v-model="sidebar" :items="menuItems" class="hidden-sm-and-up" />
     <!-- Desktop nav bar -->
     <VAppBar
       :color="scrollDistance > 0 || !$props.transparentAtTop ? '#00000080' : '#00000000'"
@@ -9,7 +9,7 @@
       dark
     >
       <span class="hidden-sm-and-up" aria-label="open navigation drawer">
-        <font-awesome-icon :icon="['fal', 'bars']" @click="sidebar = !sidebar" class="drawer-icon" />
+        <font-awesome-icon :icon="['fal', 'bars']" class="drawer-icon" @click="sidebar = !sidebar" />
       </span>
 
       <VToolbarTitle class="app-nav-header">
@@ -71,162 +71,162 @@ export default {
       scrollDistance: 0, // Number of px scrolled down
       sidebar: false, // Whether the sidebar is open. Should be false by default
       menuItems: {
-        'LEFT': [
+        LEFT: [
           {
-            'title': 'Home',
-            'path': '/',
-            'icon': ['fal', 'house'],
-            'sublist': [],
-            'customClass': '',
-            'conditional': null
+            title: 'Home',
+            path: '/',
+            icon: ['fal', 'house'],
+            sublist: [],
+            customClass: '',
+            conditional: null
           },
           {
-            'title': 'Productions',
-            'path': '/productions',
-            'icon': ['fal', 'camera-movie'],
-            'sublist': [],
-            'customClass': '',
-            'conditional': null
+            title: 'Productions',
+            path: '/productions',
+            icon: ['fal', 'camera-movie'],
+            sublist: [],
+            customClass: '',
+            conditional: null
           },
           {
-            'title': 'Contact Us',
-            'path': '/contact',
-            'icon': ['fal', 'file-signature'],
-            'sublist': [],
-            'customClass': '',
-            'conditional': null
+            title: 'Contact Us',
+            path: '/contact',
+            icon: ['fal', 'file-signature'],
+            sublist: [],
+            customClass: '',
+            conditional: null
           },
           {
-            'title': 'About',
-            'path': '/about',
-            'icon': ['fal', 'info-circle'],
-            'sublist': [],
-            'customClass': '',
-            'conditional': null
+            title: 'About',
+            path: '/about',
+            icon: ['fal', 'info-circle'],
+            sublist: [],
+            customClass: '',
+            conditional: null
           }
         ],
-        'RIGHT': [
+        RIGHT: [
           {
-            'title': 'Join The Club',
-            'path': '/join',
-            'icon': ['fal', 'hands-helping'],
-            'sublist': [],
-            'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters['auth/isAuthenticated']
+            title: 'Join The Club',
+            path: '/join',
+            icon: ['fal', 'hands-helping'],
+            sublist: [],
+            customClass: 'hidden-sm-only',
+            conditional: () => !this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': 'Donate',
-            'path': '/donate',
-            'icon': ['fal', 'donate'],
-            'sublist': [],
-            'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters['auth/isAuthenticated']
+            title: 'Donate',
+            path: '/donate',
+            icon: ['fal', 'donate'],
+            sublist: [],
+            customClass: 'hidden-sm-only',
+            conditional: () => !this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': 'Login',
-            'path': '/login',
-            'icon': ['fal', 'sign-in'],
-            'sublist': [],
-            'customClass': 'hidden-sm-only',
-            'conditional': () => !this.$store.getters['auth/isAuthenticated']
+            title: 'Login',
+            path: '/login',
+            icon: ['fal', 'sign-in'],
+            sublist: [],
+            customClass: 'hidden-sm-only',
+            conditional: () => !this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': this.$store.state.auth.rcs_id + '@rpi.edu',
-            'path': '#',
-            'icon': ['fal', 'user-circle'],
-            'sublist': [
+            title: this.$store.state.auth.rcs_id + '@rpi.edu',
+            path: '#',
+            icon: ['fal', 'user-circle'],
+            sublist: [
               {
-                'title': 'Account Settings',
-                'path': '/account',
-                'icon': ['fal', 'cog'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': null
+                title: 'Account Settings',
+                path: '/account',
+                icon: ['fal', 'cog'],
+                sublist: [],
+                customClass: '',
+                conditional: null
               },
               {
-                'title': 'Admin Panel',
-                'path': '/admin',
-                'icon': ['fal', 'toolbox'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': () => this.$store.state.auth.admin
+                title: 'Admin Panel',
+                path: '/admin',
+                icon: ['fal', 'toolbox'],
+                sublist: [],
+                customClass: '',
+                conditional: () => this.$store.state.auth.admin
               }
             ],
-            'customClass': 'hidden-sm-only',
-            'conditional': () => this.$store.getters['auth/isAuthenticated']
+            customClass: 'hidden-sm-only',
+            conditional: () => this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': 'Logout',
-            'path': '/logout',
-            'icon': ['fal', 'sign-out'],
-            'sublist': [],
-            'customClass': 'hidden-sm-only',
-            'conditional': () => this.$store.getters['auth/isAuthenticated']
+            title: 'Logout',
+            path: '/logout',
+            icon: ['fal', 'sign-out'],
+            sublist: [],
+            customClass: 'hidden-sm-only',
+            conditional: () => this.$store.getters['auth/isAuthenticated']
           },
           {
-            'title': 'More',
-            'path': '#',
-            'icon': null,
-            'sublist': [
+            title: 'More',
+            path: '#',
+            icon: null,
+            sublist: [
               {
-                'title': 'Join The Club',
-                'path': '/join',
-                'icon': ['fal', 'hands-helping'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': () => !this.$store.getters['auth/isAuthenticated']
+                title: 'Join The Club',
+                path: '/join',
+                icon: ['fal', 'hands-helping'],
+                sublist: [],
+                customClass: '',
+                conditional: () => !this.$store.getters['auth/isAuthenticated']
               },
               {
-                'title': 'Donate',
-                'path': '/donate',
-                'icon': ['fal', 'donate'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': () => !this.$store.getters['auth/isAuthenticated']
+                title: 'Donate',
+                path: '/donate',
+                icon: ['fal', 'donate'],
+                sublist: [],
+                customClass: '',
+                conditional: () => !this.$store.getters['auth/isAuthenticated']
               },
               {
-                'title': 'Login',
-                'path': '/login',
-                'icon': ['fal', 'sign-in'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': () => !this.$store.getters['auth/isAuthenticated']
+                title: 'Login',
+                path: '/login',
+                icon: ['fal', 'sign-in'],
+                sublist: [],
+                customClass: '',
+                conditional: () => !this.$store.getters['auth/isAuthenticated']
               },
               {
-                'title': this.$store.state.auth.rcs_id + '@rpi.edu',
-                'path': '#',
-                'icon': ['fal', 'user-circle'],
-                'sublist': [
+                title: this.$store.state.auth.rcs_id + '@rpi.edu',
+                path: '#',
+                icon: ['fal', 'user-circle'],
+                sublist: [
                   {
-                    'title': 'Account Settings',
-                    'path': '/account',
-                    'icon': ['fal', 'cog'],
-                    'sublist': [],
-                    'customClass': '',
-                    'conditional': null
+                    title: 'Account Settings',
+                    path: '/account',
+                    icon: ['fal', 'cog'],
+                    sublist: [],
+                    customClass: '',
+                    conditional: null
                   },
                   {
-                    'title': 'Admin Panel',
-                    'path': '/admin',
-                    'icon': ['fal', 'toolbox'],
-                    'sublist': [],
-                    'customClass': '',
-                    'conditional': () => this.$store.state.auth.admin
+                    title: 'Admin Panel',
+                    path: '/admin',
+                    icon: ['fal', 'toolbox'],
+                    sublist: [],
+                    customClass: '',
+                    conditional: () => this.$store.state.auth.admin
                   }
                 ],
-                'conditional': () => this.$store.getters['auth/isAuthenticated']
+                conditional: () => this.$store.getters['auth/isAuthenticated']
               },
               {
-                'title': 'Logout',
-                'path': '/logout',
-                'icon': ['fal', 'sign-out'],
-                'sublist': [],
-                'customClass': '',
-                'conditional': () => this.$store.getters['auth/isAuthenticated']
+                title: 'Logout',
+                path: '/logout',
+                icon: ['fal', 'sign-out'],
+                sublist: [],
+                customClass: '',
+                conditional: () => this.$store.getters['auth/isAuthenticated']
               }
             ],
-            'customClass': 'hidden-md-and-up hidden-xs-only',
-            'conditional': null
+            customClass: 'hidden-md-and-up hidden-xs-only',
+            conditional: null
           }
         ]
       }

@@ -1,16 +1,16 @@
 <template>
   <VApp class="default-layout-app">
-    <VSnackbar v-model="showFailedAuth" :timeout="5000" :bottom="true" color="error">
-      Authentication failed! Try refreshing.
+    <VSnackbar v-model="errorMessage" :timeout="5000" :bottom="true" color="error">
+      {{ errorMessage }}
     </VSnackbar>
     <div class="default-layout-custom-bg" />
     <div>
       <TheHeader />
-      <VContent>
+      <VMain>
         <VContainer fluid>
           <nuxt class="default-layout-nuxt-content" />
         </VContainer>
-      </VContent>
+      </VMain>
       <TheFooter />
     </div>
   </VApp>
@@ -26,8 +26,16 @@ export default {
     TheFooter
   },
   computed: {
-    showFailedAuth () {
-      return this.$store.state.auth.showFailedAuth
+    errorMessage: {
+      get () {
+        return this.$store.state.popups.errorMessage
+      },
+      set (v) {
+        // Once the error message is done displaying, clear it from the store
+        if (!v) {
+          this.$store.commit('popups/SHOW_ERROR_MESSAGE', '')
+        }
+      }
     }
   },
   mounted () {

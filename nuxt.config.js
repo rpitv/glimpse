@@ -36,16 +36,20 @@ export default {
   },
   serverMiddleware: [
     // Proxy API requests (including GraphQL)
-    { path: '/api',
+    {
+      path: '/api',
       handler: createProxyMiddleware({
         target: process.env.API_URL,
         pathRewrite: {
           '^/api': ''
         }
-      }) },
+      })
+    },
     // Proxy static assets w/o "/api" prefix
-    { path: '/static',
-      handler: createProxyMiddleware({ target: process.env.API_URL }) }
+    {
+      path: '/static',
+      handler: createProxyMiddleware({ target: process.env.API_URL })
+    }
   ],
   /*
   ** Customize the progress-bar color
@@ -70,7 +74,6 @@ export default {
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module',
-    '@nuxt/typescript-build',
     '@nuxtjs/vuetify'
   ],
   /*
@@ -147,6 +150,11 @@ export default {
       categories: ['entertainment', 'news', 'sports'],
       lang: 'en-US',
       theme_color: '#b05454'
+    }
+  },
+  watchers: { // Necessary for hot reload within Docker container
+    webpack: {
+      poll: true
     }
   }
 }
