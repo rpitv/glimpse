@@ -1,17 +1,13 @@
-FROM node:14
+FROM node:16
 CMD [ "npm", "start", "--", "--hostname", "0.0.0.0" ]
-EXPOSE 80
+EXPOSE 3000
 
-ARG NPM_TOKEN
 WORKDIR /usr/src/app
 COPY ./package.json .
 COPY ./package-lock.json .
-COPY ./.npmrc .
-COPY ./.env .
 
-RUN npm install
+RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc npm install --legacy-peer-deps
 
 COPY . .
-RUN rm .npmrc
 
 RUN npm run build
