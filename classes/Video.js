@@ -87,11 +87,12 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
          * Get the total number of videos in the database.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<number>} The total number of videos in the database.
          * @throws PostgreSQL error
          */
-        static async getVideoCount(searchCtx) {
-            const search = new Search(searchCtx || '')
+        static async getVideoCount(searchCtx, advancedSearch) {
+            const search = new Search(searchCtx || '', advancedSearch)
 
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
@@ -141,11 +142,12 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
          * was called. If lastVideoIndex < -1 then this value is defaulted to -1.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<[Video]>} An array of videos.
          * @throws PostgreSQL error
          * @throws {PermissionError} Insufficient permissions
          */
-        static async getPaginatedVideos(perPage, lastVideoIndex, searchCtx) {
+        static async getPaginatedVideos(perPage, lastVideoIndex, searchCtx, advancedSearch) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
             // Go back to page one if an invalid lastVideoIndex is provided.
             if(lastVideoIndex == null || lastVideoIndex < -1)
@@ -155,7 +157,7 @@ function VideoModelFactory(SEEKER, SUPER_ACCESS) {
                 perPage = 20
 
             // Default searchCtx is blank
-            let search = new Search(searchCtx || '')
+            let search = new Search(searchCtx || '', advancedSearch)
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
             }

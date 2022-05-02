@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/rpitv/glimpse-api#readme",
   "dependencies": {
+    "@xmldom/xmldom": "^0.8.1",
     "apollo-server-express": "^2.21.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
@@ -33,8 +34,7 @@
     "graphql-scalars": "^1.7.0",
     "nodemon": "^2.0.7",
     "pg": "^8.5.1",
-    "sharp": "^0.24.1",
-    "xmldom": "^0.3.0"
+    "sharp": "^0.30.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.1",

@@ -5,7 +5,7 @@ services:
       - db
     image: rpitv/glimpse-api
     ports:
-      - "4000:80"
+      - "4000:4000"
       - "5858:5858"
     restart: unless-stopped
     env_file:
@@ -14,10 +14,19 @@ services:
     volumes:
       - ..:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - glimpse_network
   db:
     image: postgres:12.3-alpine
     restart: unless-stopped
+    ports:
+      - "5432:5432"
     volumes:
       - ./db/postgres-data:/var/lib/postgresql/data
     env_file:
       - db/.env
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    name: glimpse_network

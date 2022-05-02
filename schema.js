@@ -18,7 +18,7 @@ const typeDefs = gql`
         """
         Get a list of all User objects in a paginated or non-paginated manner.
         """
-        users(pageSize: Int, prevUserIndex: Int): [User!]!
+        users(pageSize: Int, prevUserIndex: Int, searchCtx: String, advancedSearch: Boolean): [User!]!
         """
         Get a list of all Person objects which have an active role in a paginated or non-paginated manner.
         """
@@ -26,23 +26,23 @@ const typeDefs = gql`
         """
         Get a list of all Person objects regardless of member status in a paginated or non-paginated manner.
         """
-        people(pageSize: Int, prevPersonIndex: Int, searchCtx: String): [Person!]!
+        people(pageSize: Int, prevPersonIndex: Int, searchCtx: String, advancedSearch: Boolean): [Person!]!
         """
         Get a list of all Image objects in the database in a paginated or non-paginated manner.
         """
-        images(pageSize: Int, prevImageIndex: Int): [Image!]!
+        images(pageSize: Int, prevImageIndex: Int, searchCtx: String, advancedSearch: Boolean): [Image!]!
         """
         Get a list of all Video objects in the database in a paginated or non-paginated manner.
         """
-        videos(pageSize: Int, prevVideoIndex: Int): [Video!]!
+        videos(pageSize: Int, prevVideoIndex: Int, searchCtx: String, advancedSearch: Boolean): [Video!]!
         """
         Get a list of all Production objects in a paginated or non-paginated manner.
         """
-        productions(pageSize: Int, prevProductionIndex: Int): [Production!]!
+        productions(pageSize: Int, prevProductionIndex: Int, searchCtx: String, advancedSearch: Boolean): [Production!]!
         """
         Get a list of all Category objects in a paginated or non-paginated manner.
         """
-        categories(pageSize: Int, prevCategoryIndex: Int): [Category!]!
+        categories(pageSize: Int, prevCategoryIndex: Int, searchCtx: String, advancedSearch: Boolean): [Category!]!
         
         """
         Get some User object based on that object's ID. Returns null if the User does not exist in the database.
@@ -81,7 +81,7 @@ const typeDefs = gql`
         """
         The total number of Users in the database. Optionally provide a search context.
         """
-        userCount(searchCtx: String): Int!
+        userCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Persons in the database which have an active Role at the given moment.
         """
@@ -89,23 +89,23 @@ const typeDefs = gql`
         """
         The total number of Persons in the database. Optionally provide a search context.
         """
-        peopleCount(searchCtx: String): Int!
+        peopleCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Images in the database. Optionally provide a search context.
         """
-        imageCount(searchCtx: String): Int!
+        imageCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Videos in the database. Optionally provide a search context.
         """
-        videoCount(searchCtx: String): Int!
+        videoCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Productions in the database. Optionally provide a search context.
         """
-        productionCount(searchCtx: String): Int!
+        productionCount(searchCtx: String, advancedSearch: Boolean): Int!
         """
         The total number of Categories in the database. Optionally provide a search context.
         """
-        categoryCount(searchCtx: String): Int!
+        categoryCount(searchCtx: String, advancedSearch: Boolean): Int!
     }
     
     type Mutation {

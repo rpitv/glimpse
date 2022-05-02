@@ -1,6 +1,6 @@
-FROM node:14
+FROM node:16
 CMD [ "npm", "start" ]
-EXPOSE 80
+EXPOSE 4000
 
 WORKDIR /usr/src/app
 COPY ./package.json .

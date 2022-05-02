@@ -123,11 +123,12 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
          * If lastUserIndex < -1 then this value is defaulted to -1.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<[User]>} An array of users.
          * @throws PostgreSQL error
          * @throws {PermissionError} Insufficient permissions
          */
-        static async getPaginatedUsers(perPage, lastUserIndex, searchCtx) {
+        static async getPaginatedUsers(perPage, lastUserIndex, searchCtx, advancedSearch) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
             // Go back to page one if an invalid lastUserIndex is provided.
             if(lastUserIndex == null || lastUserIndex < -1)
@@ -137,7 +138,7 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
                 perPage = 20
 
             // Default searchCtx is blank
-            let search = new Search(searchCtx || '')
+            let search = new Search(searchCtx || '', advancedSearch)
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
             }
@@ -151,9 +152,8 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
             ])
             const paramArray = search.getParamArray()
 
-
-            const response = await pool.query('SELECT id, email, joined, permission_level FROM users ORDER BY joined ' +
-                searchClause + ` LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
+            const response = await pool.query('SELECT id, email, joined, permission_level FROM users ' +
+                searchClause + ` ORDER BY joined LIMIT $${paramArray.length + 1} OFFSET $${paramArray.length + 2}`,
                 [...paramArray, perPage, lastUserIndex + 1]);
             const users = [];
             for(let i = 0; i < response.rows.length; i++) {
@@ -171,13 +171,14 @@ function UserModelFactory(SEEKER, SUPER_ACCESS) {
          * Requires ADMIN permission
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<number>} The total number of users in the database.
          * @throws {PermissionError} Insufficient permissions
          * @throws PostgreSQL error
          */
-        static async getUserCount(searchCtx) {
+        static async getUserCount(searchCtx, advancedSearch) {
             PermissionTools.assertIsAdmin(SEEKER, SUPER_ACCESS);
-            const search = new Search(searchCtx || '')
+            const search = new Search(searchCtx || '', advancedSearch)
 
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')

@@ -142,10 +142,12 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
          * Get the total number of categories in the database.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<number>} The total number of categories in the database.
          * @throws PostgreSQL error
          */
-        static async getCategoryCount(searchCtx) {const search = new Search(searchCtx || '')
+        static async getCategoryCount(searchCtx, advancedSearch) {
+            const search = new Search(searchCtx || '', advancedSearch)
 
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
@@ -189,10 +191,11 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
          * method was called. If lastCategoryIndex < -1 then this value is defaulted to -1.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<[Production]>} An array of productions.
          * @throws PostgreSQL error
          */
-        static async getPaginatedCategories(perPage, lastCategoryIndex, searchCtx) {
+        static async getPaginatedCategories(perPage, lastCategoryIndex, searchCtx, advancedSearch) {
             // Go back to page one if an invalid lastCategoryIndex is provided.
             if(lastCategoryIndex == null || lastCategoryIndex < -1)
                 lastCategoryIndex = -1;
@@ -201,7 +204,7 @@ function CategoryModelFactory(SEEKER, SUPER_ACCESS) {
                 perPage = 20
 
             // Default searchCtx is blank
-            let search = new Search(searchCtx || '')
+            let search = new Search(searchCtx || '', advancedSearch)
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
             }

@@ -1,4 +1,4 @@
-const DOMParser = require('xmldom').DOMParser;
+const { DOMParser } = require('@xmldom/xmldom');
 const express = require('express');
 const LoginRouter = express.Router();
 const LogoutRouter = express.Router();

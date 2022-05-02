@@ -271,11 +271,12 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
          * Get the total number of productions in the database.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<number>} The total number of productions in the database.
          * @throws PostgreSQL error
          */
-        static async getProductionCount(searchCtx) {
-            const search = new Search(searchCtx || '')
+        static async getProductionCount(searchCtx, advancedSearch) {
+            const search = new Search(searchCtx || '', advancedSearch)
 
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
@@ -322,10 +323,11 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
          * method was called. If lastProductionIndex < -1 then this value is defaulted to -1.
          * @param searchCtx {String} Search context provided by the user. This context can be passed to a parser, which
          * will provide limitations on the search query. searchCtx defaults to an empty string.
+         * @param advancedSearch {boolean} Flag for whether the search in searchCtx is an advanced search or not.
          * @returns {Promise<[Production]>} An array of productions.
          * @throws PostgreSQL error
          */
-        static async getPaginatedProductions(perPage, lastProductionIndex, searchCtx) {
+        static async getPaginatedProductions(perPage, lastProductionIndex, searchCtx, advancedSearch) {
             // Go back to page one if an invalid lastProductionIndex is provided.
             if(lastProductionIndex == null || lastProductionIndex < -1)
                 lastProductionIndex = -1;
@@ -334,7 +336,7 @@ function ProductionModelFactory(SEEKER, SUPER_ACCESS) {
                 perPage = 20
 
             // Default searchCtx is blank
-            let search = new Search(searchCtx || '')
+            let search = new Search(searchCtx || '', advancedSearch)
             if (search.count() > 10) {
                 throw new Error('Please use less than 10 search terms.')
             }
