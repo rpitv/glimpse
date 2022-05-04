@@ -72,6 +72,7 @@ header {
 img {
     position: fixed;
     z-index: 2;
+    pointer-events: none;
 }
 nav {
     position: fixed;
