@@ -18,7 +18,7 @@ import NavigationHeader from "../components/NavigationHeader.vue";
 
 <style scoped lang="scss">
 .content {
-  padding-top: 15vw;
+  padding-top: 5em;
 }
 
 .background {

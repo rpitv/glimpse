@@ -27,23 +27,23 @@ export default defineComponent({
           itemIconColorHoverHorizontal: "#E77F7FFF",
           itemColorActiveInverted: "rgba(148, 42, 42, 1)",
           itemColorActiveHoverInverted: "rgba(148, 42, 42, 1)",
-          itemColorActiveCollapsedInverted: "rgba(148, 42, 42, 1)",
+          itemColorActiveCollapsedInverted: "rgba(148, 42, 42, 1)"
         },
         common: {
           primaryColor: "#E26363FF",
           primaryColorHover: "#E77F7FFF",
           primaryColorPressed: "#CE5A5AFF",
           primaryColorSuppl: "rgba(148, 42, 42, 1)",
-          errorColor: "#E88080FF",
+          errorColor: "#E88080FF"
         },
         Alert: {
           colorSuccess: "rgba(148, 42, 42, 0.25)",
-          iconColorSuccess: "rgba(148, 42, 42, 1)",
+          iconColorSuccess: "rgba(148, 42, 42, 1)"
         },
         Progress: {
-          iconColor: "#70c0e8",
-        },
-      },
+          iconColor: "#70c0e8"
+        }
+      }
     };
   },
   watch: {
@@ -53,12 +53,12 @@ export default defineComponent({
       } catch (e) {
         console.error("Error!");
       }
-    },
+    }
   },
   components: {
     NMessageProvider,
-    NConfigProvider,
-  },
+    NConfigProvider
+  }
 });
 </script>
 

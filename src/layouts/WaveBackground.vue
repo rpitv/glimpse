@@ -51,6 +51,7 @@ import BackgroundShape from "../components/BackgroundShape.vue";
   display: flex;
   justify-content: center;
 }
+
 .logo {
   position: fixed;
   z-index: 2;

@@ -1,8 +1,14 @@
 {
   "extends": "@vue/tsconfig/tsconfig.node.json",
-  "include": ["vite.config.*"],
+  "include": [
+    "vite.config.*"
+  ],
   "compilerOptions": {
     "composite": true,
-    "types": ["node", "vitest", "naive-ui/volar"]
+    "types": [
+      "node",
+      "vitest",
+      "naive-ui/volar"
+    ]
   }
 }

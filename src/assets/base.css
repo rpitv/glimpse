@@ -38,3 +38,8 @@ body {
 html {
     background-color: #0c0f12
 }
+
+.container {
+  margin-left: 10%;
+  margin-right: 10%;
+}
