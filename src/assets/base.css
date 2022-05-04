@@ -1,0 +1,16 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  position: relative;
+  font-weight: normal;
+}
+
+body {
+  margin: 0;
+  color: white;
+}
+
+html {
+    background-color: #1e2225
+}
