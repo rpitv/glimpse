@@ -2,11 +2,9 @@
     <NavigationHeader always-translucent />
     <div class="background" />
     <div class="document">
-        <div class="bg-shape-wrapper">
-            <!--                    <BackgroundShape class="bg-shape" />-->
+        <div class="content">
+          <slot />
         </div>
-
-        <slot class="content" />
     </div>
     <!--                <TheFooter />-->
 </template>
@@ -19,7 +17,7 @@ import NavigationHeader from "../components/NavigationHeader.vue";
 @import url("https://fonts.googleapis.com/css?family=Ubuntu|Oswald:wght@200;300;400&display=swap");
 /* Margin to avoid overlap due to logo overhang */
 .content {
-    margin-top: 10em;
+  padding-top: 15vw;
 }
 .background {
     width: 100vw;
@@ -52,10 +50,5 @@ html {
 *:after {
     box-sizing: border-box;
     margin: 0;
-}
-.bg-shape {
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 </style>

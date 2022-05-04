@@ -97,6 +97,7 @@ nav {
     }
     // Move image to the center top of the screen
     img {
+        position: absolute;
         top: 0;
         margin: 0;
         height: 25vw;
