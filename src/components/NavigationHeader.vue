@@ -1,6 +1,5 @@
 <template>
     <header class="nav-wrapper">
-        <img alt="RPI TV logo" src="@/assets/rpitv_logo.svg" />
         <nav class="glimpse-main-nav">
             <n-menu mode="horizontal" :options="navOptions" />
         </nav>
