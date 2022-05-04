@@ -103,7 +103,6 @@ nav {
     // Position navbar at top of screen & enable color changing on scroll
     nav {
         text-transform: uppercase;
-        font-family: Oswald, serif;
         top: 0;
         height: 4em;
         transition: background-color 0.5s, backdrop-filter 0.5s;

@@ -17,8 +17,6 @@ import NavigationHeader from "../components/NavigationHeader.vue";
 </script>
 
 <style scoped lang="scss">
-@import url("https://fonts.googleapis.com/css?family=Ubuntu|Oswald:wght@200;300;400&display=swap");
-/* Margin to avoid overlap due to logo overhang */
 .content {
   padding-top: 15vw;
 }
@@ -29,36 +27,8 @@ import NavigationHeader from "../components/NavigationHeader.vue";
   position: fixed;
   top: 0;
   z-index: -1;
-  background: linear-gradient(#1e2225, #111315) !important;
+  background: linear-gradient(#21292f, #0c0f12) !important;
 }
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Oswald Light", sans-serif;
-}
-
-html {
-  font-family: "Ubuntu", sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-  margin: 0;
-}
-
 
 .logo-wrapper {
   display: flex;

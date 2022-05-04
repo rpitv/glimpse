@@ -35,14 +35,12 @@ import { NGrid, NGi } from "naive-ui";
     text-align: center;
     padding: 15px;
     h1 {
-        font-family: "Oswald", sans-serif;
         font-size: 40px;
         margin-bottom: 20px;
     }
     p {
         font-size: 20px;
-        font-family: "Roboto", sans-serif;
-        font-weight: 200;
+        font-weight: 300;
         display: inline-block;
         max-width: 600px;
     }

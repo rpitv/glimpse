@@ -35,34 +35,7 @@ import BackgroundShape from "../components/BackgroundShape.vue";
   position: fixed;
   top: 0;
   z-index: -1;
-  background: linear-gradient(#1e2225, #111315) !important;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Oswald Light", sans-serif;
-}
-
-html {
-  font-family: "Ubuntu", sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-  margin: 0;
+  background: linear-gradient(#21292f, #0c0f12) !important;
 }
 
 .bg-shape {
@@ -73,7 +46,6 @@ html {
     top: -4vw;
   }
 }
-
 
 .logo-wrapper {
   display: flex;
