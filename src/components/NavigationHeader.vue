@@ -1,7 +1,7 @@
 <template>
     <header class="nav-wrapper">
         <img alt="RPI TV logo" src="@/assets/rpitv_logo.svg" />
-        <nav>
+        <nav class="glimpse-main-nav">
             <n-menu mode="horizontal" :options="navOptions" />
         </nav>
     </header>
@@ -12,6 +12,7 @@ import type { MenuOption } from "naive-ui";
 import { NMenu } from "naive-ui";
 import { h, ref, onMounted, onUnmounted, computed } from "vue";
 import { RouterLink } from "vue-router";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const props = defineProps({
     alwaysTranslucent: Boolean, // When true, the menu bar won't be transparent at Y scroll = 0
@@ -40,30 +41,24 @@ const navbarBlur = computed(() => {
 
 const navOptions: MenuOption[] = [
     {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: {
-                        name: "home",
-                    },
-                },
-                { default: () => "Home" }
-            ),
-        key: "home",
+      label: () =>
+        h(
+          RouterLink,
+            { to: { name: "home", }, },
+            { default: () => "Home" }
+        ),
+      icon: () => h(FontAwesomeIcon, { icon: ['fal', 'home'] }),
+      key: "home",
     },
     {
-        label: () =>
-            h(
-                RouterLink,
-                {
-                    to: {
-                        name: "about",
-                    },
-                },
-                { default: () => "About" }
+      label: () =>
+        h(
+          RouterLink,
+            { to: { name: "about", }, },
+            { default: () => "About" }
             ),
-        key: "about",
+      icon: () => h(FontAwesomeIcon, { icon: ['fal', 'circle-info'] }),
+      key: "about",
     },
 ];
 </script>
@@ -134,6 +129,7 @@ nav {
     // Move logo to top center of screen
     img {
         height: 18vw;
+        max-width: 300px;
         filter: drop-shadow(0.3em 0.3em 0.3em #00000090);
     }
 }
@@ -142,8 +138,17 @@ nav {
 <style lang="scss">
 // Tablet displays and larger - Make menu button font slightly bigger
 @media (min-width: 500px) {
-    .n-menu-item-content-header {
-        font-size: 1.2em;
-    }
+  .glimpse-main-nav .n-menu-item-content-header {
+      font-size: 1.2em;
+  }
+}
+@media (max-width: 499px) {
+  .glimpse-main-nav .n-menu-item-content {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .glimpse-main-nav .n-menu-item-content__icon {
+    margin-right: 0 !important;
+  }
 }
 </style>
