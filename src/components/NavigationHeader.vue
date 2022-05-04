@@ -129,7 +129,7 @@ nav {
     // Move logo to top center of screen
     img {
         height: 18vw;
-        max-width: 300px;
+        max-width: 250px;
         filter: drop-shadow(0.3em 0.3em 0.3em #00000090);
     }
 }

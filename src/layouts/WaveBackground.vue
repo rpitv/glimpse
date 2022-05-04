@@ -59,5 +59,8 @@ html {
     position: absolute;
     top: 0;
     left: 0;
+  @media (min-width: 800px) {
+    top: -4vw;
+  }
 }
 </style>
