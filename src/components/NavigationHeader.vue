@@ -1,7 +1,8 @@
 <template>
   <header class="nav-wrapper">
     <nav class="glimpse-main-nav">
-      <n-menu mode="horizontal" :options="navOptions" />
+      <n-menu class="left-nav" mode="horizontal" :options="leftNavOptions" />
+      <n-menu class="right-nav" mode="horizontal" :options="rightNavOptions" />
     </nav>
   </header>
 </template>
@@ -13,6 +14,26 @@ import { h, ref, onMounted, onUnmounted, computed } from "vue";
 import { RouterLink } from "vue-router";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+/**
+ * Create a button for the navbar
+ * @param name Text to display on this button.
+ * @param to Name of router page that this button should open, or undefined if none.
+ * @param icon Name of the FontAwesome icon.
+ * @param children Children MenuOptions to show in the dropdown.
+ */
+function createButton(name: string, to: string|undefined, icon: string, children?: MenuOption[]): MenuOption {
+  return {
+    label: () => h(
+      RouterLink,
+      { to: { name: to } },
+      { default: () => name }
+    ),
+    icon: () => h(FontAwesomeIcon, { icon: ["fal", icon] }),
+    key: name,
+    children: children
+  }
+}
+
 const props = defineProps({
   alwaysTranslucent: Boolean // When true, the menu bar won't be transparent at Y scroll = 0
 });
@@ -20,11 +41,9 @@ const props = defineProps({
 // Wrap Y scroll position in a Vue ref
 // Needs to be greater than 0 when always translucent prop is set to true, since it isn't updated
 let scrollPos = ref(props.alwaysTranslucent ? 1 : 0);
-
 function updateScroll(): void {
   scrollPos.value = window.scrollY;
 }
-
 // Listen for scrolling, but only if the color of the navbar needs to change
 if (!props.alwaysTranslucent) {
   onMounted(() => document.addEventListener("scroll", updateScroll));
@@ -40,28 +59,91 @@ const navbarBlur = computed(() => {
   return scrollPos.value <= 0 ? "blur(0)" : "blur(0.3em)";
 });
 
-const navOptions: MenuOption[] = [
-  {
-    label: () =>
-      h(
-        RouterLink,
-        { to: { name: "home" } },
-        { default: () => "Home" }
-      ),
-    icon: () => h(FontAwesomeIcon, { icon: ["fal", "home"] }),
-    key: "home"
-  },
-  {
-    label: () =>
-      h(
-        RouterLink,
-        { to: { name: "about" } },
-        { default: () => "About" }
-      ),
-    icon: () => h(FontAwesomeIcon, { icon: ["fal", "circle-info"] }),
-    key: "about"
+// Arrangement of navbar items is based on screen size. Watch for changes.
+const windowWidth = ref(window.innerWidth);
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth;
+}
+onMounted(() => window.addEventListener("resize", updateWindowWidth))
+onUnmounted(() => window.removeEventListener("resize", updateWindowWidth))
+
+// Compute items on left side of navigation bar
+const leftNavOptions = computed(() => {
+  // Width < 500 -- Phones
+  if(windowWidth.value < 500) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions", "film"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("Contact Us", "contact", "envelope"),
+        createButton("About", "about", "circle-info"),
+        createButton("Login", "login", "arrow-right-to-arc")
+      ])
+    ]
   }
-];
+  // 500 < width < 550 -- Large phones / small tablets
+  if(500 <= windowWidth.value && windowWidth.value < 550) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("Productions", "productions", "film"),
+        createButton("Contact Us", "contact", "envelope"),
+        createButton("About", "about", "circle-info")
+      ])
+    ]
+  }
+  // 550 < width < 715 -- Tablets
+  if(550 <= windowWidth.value && windowWidth.value < 715) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions", "film"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("Contact Us", "contact", "envelope"),
+        createButton("About", "about", "circle-info")
+      ])
+    ]
+  }
+  // 715 < width < 1000 -- Tablets
+  if(715 <= windowWidth.value && windowWidth.value < 1000) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions", "film"),
+      createButton("Contact Us", "contact", "envelope")
+    ]
+  }
+  // 1000 < width -- Large computers
+  return [
+    createButton("Home", "home", "home"),
+    createButton("Productions", "productions", "film"),
+    createButton("Contact Us", "contact", "envelope"),
+    createButton("About", "about", "circle-info")
+  ]
+});
+
+// Compute items on right side of navigation bar
+const rightNavOptions = computed(() => {
+  // 500 < width < 715 -- Small screens. About moved to "more" dropdown
+  if(500 <= windowWidth.value && windowWidth.value < 715) {
+    return [
+      createButton("Login", "login", "arrow-right-to-arc")
+    ]
+  }
+  // 715 < width -- Medium screens.
+  if(715 <= windowWidth.value && windowWidth.value < 1000) {
+    return [
+      createButton("About", "about", "circle-info"),
+      createButton("Login", "login", "arrow-right-to-arc")
+    ]
+  }
+  // 1000 < width -- Large screens. About moved to left side of menu bar
+  if(1000 <= windowWidth.value) {
+    return [
+      createButton("Login", "login", "arrow-right-to-arc")
+    ]
+  }
+  // Phones. Everything in "more" dropdown
+  return []
+});
 </script>
 
 <style scoped lang="scss">
@@ -82,6 +164,13 @@ nav {
   width: 100%;
   display: flex;
   align-items: center;
+}
+
+@media(min-width: 500px) {
+  .right-nav {
+    position: absolute;
+    right: 0;
+  }
 }
 
 // Phone displays
