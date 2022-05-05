@@ -18,17 +18,17 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
  * Create a button for the navbar
  * @param name Text to display on this button.
  * @param to Name of router page that this button should open, or undefined if none.
- * @param icon Name of the FontAwesome icon.
+ * @param icon Name of the FontAwesome icon, or undefined if none.
  * @param children Children MenuOptions to show in the dropdown.
  */
-function createButton(name: string, to: string|undefined, icon: string, children?: MenuOption[]): MenuOption {
+function createButton(name: string, to?: string, icon?: string, children?: MenuOption[]): MenuOption {
   return {
     label: () => h(
       RouterLink,
       { to: { name: to } },
       { default: () => name }
     ),
-    icon: () => h(FontAwesomeIcon, { icon: ["fal", icon] }),
+    icon: icon ? () => h(FontAwesomeIcon, { icon: ["fal", icon] }) : undefined,
     key: name,
     children: children
   }
@@ -92,46 +92,46 @@ const leftNavOptions = computed(() => {
       ])
     ]
   }
-  // 550 < width < 715 -- Tablets
-  if(550 <= windowWidth.value && windowWidth.value < 715) {
+  // 550 < width < 700 -- Tablets
+  if(550 <= windowWidth.value && windowWidth.value < 700) {
     return [
       createButton("Home", "home", "home"),
-      createButton("Productions", "productions", "film"),
+      createButton("Productions", "productions"),
       createButton("More", undefined, "ellipsis", [
         createButton("Contact Us", "contact", "envelope"),
         createButton("About", "about", "circle-info")
       ])
     ]
   }
-  // 715 < width < 1000 -- Tablets
-  if(715 <= windowWidth.value && windowWidth.value < 1000) {
+  // 700 < width < 1000 -- Tablets
+  if(700 <= windowWidth.value && windowWidth.value < 1000) {
     return [
       createButton("Home", "home", "home"),
-      createButton("Productions", "productions", "film"),
-      createButton("Contact Us", "contact", "envelope")
+      createButton("Productions", "productions"),
+      createButton("Contact Us", "contact")
     ]
   }
   // 1000 < width -- Large computers
   return [
     createButton("Home", "home", "home"),
-    createButton("Productions", "productions", "film"),
-    createButton("Contact Us", "contact", "envelope"),
-    createButton("About", "about", "circle-info")
+    createButton("Productions", "productions"),
+    createButton("Contact Us", "contact"),
+    createButton("About", "about")
   ]
 });
 
 // Compute items on right side of navigation bar
 const rightNavOptions = computed(() => {
-  // 500 < width < 715 -- Small screens. About moved to "more" dropdown
-  if(500 <= windowWidth.value && windowWidth.value < 715) {
+  // 500 < width < 700 -- Small screens. About moved to "more" dropdown
+  if(500 <= windowWidth.value && windowWidth.value < 700) {
     return [
       createButton("Login", "login", "arrow-right-to-arc")
     ]
   }
-  // 715 < width -- Medium screens.
-  if(715 <= windowWidth.value && windowWidth.value < 1000) {
+  // 700 < width -- Medium screens.
+  if(700 <= windowWidth.value && windowWidth.value < 1000) {
     return [
-      createButton("About", "about", "circle-info"),
+      createButton("About", "about"),
       createButton("Login", "login", "arrow-right-to-arc")
     ]
   }
