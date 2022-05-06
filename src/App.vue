@@ -97,13 +97,16 @@ export default defineComponent({
   opacity: 0;
 }
 
-.router-enter-active, .router-leave-active {
-  transition: all 0.3s ease;
+@media(prefers-reduced-motion: no-preference) {
+  .router-enter-active, .router-leave-active {
+    transition: all 0.3s ease;
+  }
 }
 
 .router-enter-to, .router-leave-from {
   opacity: 1;
 }
+
 // End router transition
 
 // Router page content must be positioned absolutely in order for the transition
@@ -121,8 +124,11 @@ export default defineComponent({
 
 // Animate all layout changes at 0.3s ease.
 // I.e., whenever the layout changes from "plain" to "wave" or vice versa.
-.layout {
-  transition: all 0.3s ease;
+
+@media(prefers-reduced-motion: no-preference) {
+  .layout {
+    transition: all 0.3s ease;
+  }
 }
 
 // Backgroud gradient
