@@ -1,6 +1,14 @@
 <template>
   <footer>
-    <n-grid :cols="3">
+    <n-grid cols="0:1 500:3" class="cols">
+      <n-gi class="legal col">
+        <h2>Legal</h2>
+        <div class="legal">
+          <p><RouterLink to="terms">Terms of Service</RouterLink></p>
+          <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
+          <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
+        </div>
+      </n-gi>
       <n-gi class="about col">
         <h2>About</h2>
         <p>Copyright &copy; RPI TV {{year}}</p>
@@ -10,14 +18,8 @@
             <FontAwesomeIcon class="github-icon icon" :icon="['fab', 'github']" />
           </a>
         </p>
-      </n-gi>
-      <n-gi class="col">
-        <h2>Legal</h2>
-        <div class="legal">
-          <p><RouterLink to="terms">Terms of Service</RouterLink></p>
-          <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
-          <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
-        </div>
+        <p><RouterLink to="constitution">Constitution</RouterLink></p>
+        <p><RouterLink to="wiki">Wiki</RouterLink></p>
       </n-gi>
       <n-gi class="col last-col social">
         <h2>Social</h2>
@@ -61,10 +63,14 @@ const year = new Date().getFullYear();
 <style scoped lang="scss">
 footer {
   width: 100%;
-  height: 22em;
+  height: 23em;
   padding: 2em;
   background-color: rgb(27, 29, 35);
   color: #a9aeb3;
+  /* Not sure why this is 555px and not 500px. Look at the cols prop on n-grid */
+  @media(max-width: 555px) {
+    height: 46em;
+  }
 }
 
 p {
@@ -83,6 +89,30 @@ p {
 }
 .last-col {
   border-right: none;
+}
+/* Not sure why this is 555px and not 500px. Look at the cols prop on n-grid */
+@media(max-width: 555px) {
+  .col {
+    border-right: none;
+  }
+  .about {
+    order: 1;
+  }
+  .legal {
+    order: 2;
+  }
+  .social {
+    order: 3
+  }
+}
+// Align text right/center/left for first/second/third cols respectively
+@media (min-width: 556px) {
+  .legal {
+    text-align: right;
+  }
+  .about {
+    text-align: center;
+  }
 }
 
 .icon {

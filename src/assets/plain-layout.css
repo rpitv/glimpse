@@ -19,5 +19,12 @@
 
 .router-page.plain-layout {
   top: 4em;
-  min-height: calc(100vh - 4em + 22em);
+  min-height: calc(100vh - 4em + 23em);
+
+}
+/* Not sure why this is 555px and not 500px. Look at the cols prop on n-grid in Footer.vue */
+@media(max-width: 555px) {
+  .router-page.plain-layout {
+    min-height: calc(100vh - 4em + 46em);
+  }
 }

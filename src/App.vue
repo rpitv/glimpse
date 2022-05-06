@@ -10,7 +10,8 @@
 
       <!-- Logo -->
       <div class="main-logo-wrapper">
-        <img :class="layoutCssName + ' layout main-logo'" alt="RPI TV logo" src="@/assets/rpitv_logo.svg" />
+        <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
+             alt="RPI TV logo" src="@/assets/rpitv_logo.svg" />
       </div>
 
       <!-- Page content -->
@@ -38,10 +39,17 @@ import { NMessageProvider, NConfigProvider, darkTheme } from "naive-ui";
 
 export default defineComponent({
   name: "App",
+  mounted() {
+    window.addEventListener("scroll", this.updateScroll);
+  },
+  unmounted() {
+    window.removeEventListener("scroll", this.updateScroll);
+  },
   data: () => {
     return {
       layoutCssName: "wave-layout",
       darkTheme,
+      scrollY: window.scrollY,
       theme: {
         Menu: {
           itemTextColorHoverHorizontal: "#E77F7FFF",
@@ -74,6 +82,11 @@ export default defineComponent({
       } catch (e) {
         console.error("Error!");
       }
+    }
+  },
+  methods: {
+    updateScroll() {
+      this.scrollY = window.scrollY;
     }
   },
   components: {
@@ -123,7 +136,7 @@ export default defineComponent({
   width: 100%;
   // On mobile displays, the navbar is at the bottom of the page
   @media (max-width: 499px) {
-    padding-bottom: 22em;
+    padding-bottom: 5em;
   }
 }
 

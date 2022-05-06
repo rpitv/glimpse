@@ -17,11 +17,22 @@
 /* Computer displays */
 @media (min-width: 800px) {
   .main-logo.wave-layout {
+    max-width: 200px;
+    transform: translateY(-1vh);
+  }
+  .main-logo.wave-layout[data-scroll="0"] {
     max-width: 250px;
+    transform: none;
   }
 }
 
 .router-page.wave-layout {
   top: 18vw;
-  min-height: calc(100vh - 18vw + 22em);
+  min-height: calc(100vh - 18vw + 23em);
+}
+/* Not sure why this is 555px and not 500px. Look at the cols prop on n-grid in Footer.vue */
+@media(max-width: 555px) {
+  .router-page.wave-layout {
+    min-height: calc(100vh - 4em + 46em);
+  }
 }
