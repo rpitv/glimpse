@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent, markRaw } from "vue";
-import WaveBackground from "./layouts/WaveBackground.vue";
+import WaveBackground from "./layouts/WaveLayout.vue";
 import { NMessageProvider, NConfigProvider, darkTheme } from "naive-ui";
 
 export default defineComponent({
@@ -64,7 +64,9 @@ export default defineComponent({
 
 <style lang="scss">
 @import "./assets/base.css";
+</style>
 
+<style scoped lang="scss">
 // On mobile displays, the navbar is at the bottom of the page
 @media (max-width: 499px) {
   .mobile-navbar-padding {
@@ -72,5 +74,3 @@ export default defineComponent({
   }
 }
 </style>
-
-<style scoped lang="scss"></style>

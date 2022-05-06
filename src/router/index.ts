@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import WaveBackground from "../layouts/WaveBackground.vue";
-import PlainBackground from "../layouts/PlainBackground.vue";
+import WaveLayout from "../layouts/WaveLayout.vue";
+import PlainLayout from "../layouts/PlainLayout.vue";
 
 import HomeView from "../views/HomeView.vue";
 import AboutView from "../views/AboutView.vue";
@@ -20,7 +20,7 @@ const router = createRouter({
         default: HomeView
       },
       meta: {
-        layout: WaveBackground
+        layout: WaveLayout
       }
     },
     {
@@ -30,7 +30,7 @@ const router = createRouter({
         default: AboutView
       },
       meta: {
-        layout: PlainBackground
+        layout: PlainLayout
       }
     },
     {
@@ -40,7 +40,7 @@ const router = createRouter({
         default: ProductionsView
       },
       meta: {
-        layout: PlainBackground
+        layout: PlainLayout
       }
     },
     {
@@ -50,7 +50,7 @@ const router = createRouter({
         default: ProductionsView
       },
       meta: {
-        layout: PlainBackground
+        layout: PlainLayout
       }
     },
     {
@@ -60,7 +60,7 @@ const router = createRouter({
         default: ContactView
       },
       meta: {
-        layout: WaveBackground
+        layout: WaveLayout
       }
     },
     {
@@ -70,7 +70,7 @@ const router = createRouter({
         default: LoginView
       },
       meta: {
-        layout: WaveBackground
+        layout: WaveLayout
       }
     },
     {
@@ -80,7 +80,7 @@ const router = createRouter({
         default: DonateView
       },
       meta: {
-        layout: WaveBackground
+        layout: WaveLayout
       },
     },
     {
@@ -90,7 +90,7 @@ const router = createRouter({
         default: JoinView
       },
       meta: {
-        layout: WaveBackground
+        layout: WaveLayout
       }
     }
   ]

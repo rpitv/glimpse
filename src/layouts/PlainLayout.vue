@@ -9,7 +9,6 @@
       <slot />
     </div>
   </div>
-  <!--                <TheFooter />-->
 </template>
 
 <script setup lang="ts">

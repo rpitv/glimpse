@@ -1,7 +1,6 @@
 <template>
 
   <NavigationHeader />
-
   <div class="logo-wrapper">
     <img class="logo" alt="RPI TV logo" src="@/assets/rpitv_logo.svg" />
   </div>
@@ -15,7 +14,6 @@
       <slot />
     </div>
   </div>
-  <!--                <TheFooter />-->
 </template>
 
 <script setup lang="ts">
