@@ -1,5 +1,5 @@
 <template>
-<n-card title="Login" size="large">
+<n-card title="Login" size="large" class="login-card">
   <n-form
     ref="formRef"
     :model="formValue"
@@ -80,5 +80,10 @@ async function login(username: string, password: string) {
 </script>
 
 <style scoped lang="scss">
-
+.login-card {
+  @media(min-width: 800px) {
+    width: 60%;
+    margin-left: 20%;
+  }
+}
 </style>
