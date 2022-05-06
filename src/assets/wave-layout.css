@@ -20,3 +20,8 @@
     max-width: 250px;
   }
 }
+
+.router-page.wave-layout {
+  top: 18vw;
+  min-height: calc(100vh - 18vw + 22em);
+}

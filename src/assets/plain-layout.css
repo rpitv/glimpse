@@ -16,3 +16,8 @@
     transform: translateY(-1vh);
   }
 }
+
+.router-page.plain-layout {
+  top: 4em;
+  min-height: calc(100vh - 4em + 22em);
+}

@@ -10,6 +10,14 @@ import {
   faFilm,
   faEllipsis
 } from "@fortawesome/pro-light-svg-icons";
+import {
+  faGithub,
+  faYoutube,
+  faDiscord,
+  faInstagram,
+  faTwitter,
+  faRedditAlien
+} from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faHome);
@@ -18,6 +26,13 @@ library.add(faArrowRightToArc);
 library.add(faEnvelope);
 library.add(faFilm);
 library.add(faEllipsis);
+
+library.add(faGithub);
+library.add(faYoutube);
+library.add(faDiscord);
+library.add(faInstagram);
+library.add(faTwitter);
+library.add(faRedditAlien);
 
 import App from "./App.vue";
 import router from "./router";

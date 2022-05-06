@@ -17,8 +17,9 @@
       <div :class="layoutCssName + ' layout content'">
         <RouterView v-slot="{ Component, route }">
           <Transition name="router">
-            <div class="router-page" :key="route.name">
+            <div :class="layoutCssName + ' layout router-page'" :key="route.name">
               <component :is="Component" />
+              <Footer />
             </div>
           </Transition>
         </RouterView>
@@ -32,6 +33,7 @@
 import { defineComponent } from "vue";
 import NavigationHeader from "./components/NavigationHeader.vue";
 import BackgroundShape from "./components/BackgroundShape.vue";
+import Footer from "./components/Footer.vue";
 import { NMessageProvider, NConfigProvider, darkTheme } from "naive-ui";
 
 export default defineComponent({
@@ -78,7 +80,8 @@ export default defineComponent({
     NMessageProvider,
     NConfigProvider,
     NavigationHeader,
-    BackgroundShape
+    BackgroundShape,
+    Footer
   }
 });
 </script>
@@ -113,11 +116,14 @@ export default defineComponent({
 // to work. Width 100% since this would otherwise throw off positioning via
 // margins.
 .router-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   position: absolute;
   width: 100%;
   // On mobile displays, the navbar is at the bottom of the page
   @media (max-width: 499px) {
-    padding-bottom: 6em;
+    padding-bottom: 22em;
   }
 }
 

@@ -175,6 +175,7 @@ nav {
     padding: 1em;
     justify-content: center;
     background-color: rgb(27, 29, 35);
+    height: 5em;
   }
   // Move image to the center top of the screen
   img {

@@ -34,7 +34,6 @@ import { NGrid, NGi } from "naive-ui";
 .about-wrapper {
   width: 100%;
   text-align: center;
-  padding: 15px;
 
   h1 {
     font-size: 40px;
