@@ -34,21 +34,14 @@ function createButton(name: string, to?: string, icon?: string, children?: MenuO
   }
 }
 
-const props = defineProps({
-  alwaysTranslucent: Boolean // When true, the menu bar won't be transparent at Y scroll = 0
-});
-
 // Wrap Y scroll position in a Vue ref
-// Needs to be greater than 0 when always translucent prop is set to true, since it isn't updated
-let scrollPos = ref(props.alwaysTranslucent ? 1 : 0);
+let scrollPos = ref(0);
 function updateScroll(): void {
   scrollPos.value = window.scrollY;
 }
-// Listen for scrolling, but only if the color of the navbar needs to change
-if (!props.alwaysTranslucent) {
-  onMounted(() => document.addEventListener("scroll", updateScroll));
-  onUnmounted(() => document.removeEventListener("scroll", updateScroll));
-}
+// Listen for scrolling to update navbar transparency
+onMounted(() => document.addEventListener("scroll", updateScroll));
+onUnmounted(() => document.removeEventListener("scroll", updateScroll));
 
 // Used in v-bind in <style>
 const navbarColor = computed(() => {

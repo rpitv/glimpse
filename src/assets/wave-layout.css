@@ -1,0 +1,22 @@
+.content.wave-layout {
+  padding-top: 15vw;
+}
+
+.background-shape.wave-layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@media (min-width: 800px) {
+  .background-shape.wave-layout {
+    top: -4vw;
+  }
+}
+
+/* Computer displays */
+@media (min-width: 800px) {
+  .main-logo.wave-layout {
+    max-width: 250px;
+  }
+}

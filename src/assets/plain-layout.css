@@ -1,0 +1,18 @@
+.content.plain-layout {
+  padding-top: 5em;
+}
+
+.background-shape.plain-layout {
+  opacity: 0;
+  position: absolute;
+  top: -10vh;
+  left: 0;
+}
+
+/* Computer displays */
+@media (min-width: 800px) {
+  .main-logo.plain-layout {
+    max-width: 200px;
+    transform: translateY(-1vh);
+  }
+}
