@@ -7,6 +7,7 @@ import ContactView from "../views/ContactView.vue";
 import LoginView from "../views/LoginView.vue";
 import DonateView from "../views/DonateView.vue";
 import JoinView from "../views/JoinView.vue";
+import NotFoundView from "../views/NotFoundView.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -84,11 +85,17 @@ const router = createRouter({
     {
       path: "/join",
       name: "join",
-      components: {
-        default: JoinView
-      },
+      components: JoinView,
       meta: {
         layoutCssName: 'wave-layout'
+      }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: '404',
+      component: NotFoundView,
+      meta: {
+        layoutCssName: 'plain-layout'
       }
     }
   ]

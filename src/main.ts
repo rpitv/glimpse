@@ -11,6 +11,9 @@ import {
   faEllipsis
 } from "@fortawesome/pro-light-svg-icons";
 import {
+  faHexagonExclamation
+} from "@fortawesome/pro-duotone-svg-icons";
+import {
   faGithub,
   faYoutube,
   faDiscord,
@@ -26,6 +29,8 @@ library.add(faArrowRightToArc);
 library.add(faEnvelope);
 library.add(faFilm);
 library.add(faEllipsis);
+
+library.add(faHexagonExclamation);
 
 library.add(faGithub);
 library.add(faYoutube);
