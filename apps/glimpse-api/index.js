@@ -12,6 +12,7 @@ const Authentication = require('./util/authentication');
 const { User } = require('./classes/User');
 const { Model } = require('./classes/Model');
 const fs = require('fs-extra');
+const cors = require('cors');
 
 console.log("Initializing...");
 initSchema(true).then(async () => {
@@ -46,6 +47,11 @@ initSchema(true).then(async () => {
     });
 
     const expApp = express();
+
+    if(process.env.NODE_ENV === "development") {
+        expApp.use(cors());
+        console.log("App booted in development, enabling CORS");
+    }
 
     expApp.use(session({
         store: new pgSession({
