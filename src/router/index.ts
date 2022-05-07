@@ -15,9 +15,7 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      components: {
-        default: HomeView
-      },
+      component: HomeView,
       meta: {
         layoutCssName: 'wave-layout'
       }
@@ -25,9 +23,7 @@ const router = createRouter({
     {
       path: "/about",
       name: "about",
-      components: {
-        default: AboutView
-      },
+      component: AboutView,
       meta: {
         layoutCssName: 'plain-layout'
       }
@@ -35,9 +31,7 @@ const router = createRouter({
     {
       path: "/productions",
       name: "productions",
-      components: {
-        default: ProductionsView
-      },
+      component: ProductionsView,
       meta: {
         layoutCssName: 'plain-layout'
       }
@@ -45,9 +39,7 @@ const router = createRouter({
     {
       path: "/productions",
       name: "productions",
-      components: {
-        default: ProductionsView
-      },
+      component: ProductionsView,
       meta: {
         layoutCssName: 'plain-layout'
       }
@@ -55,9 +47,7 @@ const router = createRouter({
     {
       path: "/contact",
       name: "contact",
-      components: {
-        default: ContactView
-      },
+      component: ContactView,
       meta: {
         layoutCssName: 'wave-layout'
       }
@@ -65,9 +55,7 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      components: {
-        default: LoginView
-      },
+      component: LoginView,
       meta: {
         layoutCssName: 'wave-layout'
       }
@@ -75,9 +63,7 @@ const router = createRouter({
     {
       path: "/donate",
       name: "donate",
-      components: {
-        default: DonateView
-      },
+      component: DonateView,
       meta: {
         layoutCssName: 'wave-layout'
       },
@@ -85,7 +71,7 @@ const router = createRouter({
     {
       path: "/join",
       name: "join",
-      components: JoinView,
+      component: JoinView,
       meta: {
         layoutCssName: 'wave-layout'
       }

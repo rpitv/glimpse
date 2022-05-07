@@ -8,7 +8,9 @@ import {
   faArrowRightToArc,
   faEnvelope,
   faFilm,
-  faEllipsis
+  faEllipsis,
+  faBookHeart,
+  faPeopleGroup
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation
@@ -29,6 +31,8 @@ library.add(faArrowRightToArc);
 library.add(faEnvelope);
 library.add(faFilm);
 library.add(faEllipsis);
+library.add(faBookHeart);
+library.add(faPeopleGroup);
 
 library.add(faHexagonExclamation);
 

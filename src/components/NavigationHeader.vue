@@ -68,9 +68,11 @@ const leftNavOptions = computed(() => {
       createButton("Home", "home", "home"),
       createButton("Productions", "productions", "film"),
       createButton("More", undefined, "ellipsis", [
+        createButton("Login", "login", "arrow-right-to-arc"),
         createButton("Contact Us", "contact", "envelope"),
         createButton("About", "about", "circle-info"),
-        createButton("Login", "login", "arrow-right-to-arc")
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
       ])
     ]
   }
@@ -81,7 +83,9 @@ const leftNavOptions = computed(() => {
       createButton("More", undefined, "ellipsis", [
         createButton("Productions", "productions", "film"),
         createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info")
+        createButton("About", "about", "circle-info"),
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
       ])
     ]
   }
@@ -92,44 +96,29 @@ const leftNavOptions = computed(() => {
       createButton("Productions", "productions"),
       createButton("More", undefined, "ellipsis", [
         createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info")
+        createButton("About", "about", "circle-info"),
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
       ])
     ]
   }
-  // 700 < width < 1000 -- Tablets
-  if(700 <= windowWidth.value && windowWidth.value < 1000) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("Contact Us", "contact")
-    ]
-  }
-  // 1000 < width -- Large computers
+  // 700 < width -- Computers
   return [
     createButton("Home", "home", "home"),
     createButton("Productions", "productions"),
     createButton("Contact Us", "contact"),
-    createButton("About", "about")
+    createButton("More", undefined, "ellipsis", [
+      createButton("About", "about", "circle-info"),
+      createButton("Join the Club", "join", "people-group"),
+      createButton("Donate", "donate", "book-heart")
+    ])
   ]
 });
 
 // Compute items on right side of navigation bar
 const rightNavOptions = computed(() => {
-  // 500 < width < 700 -- Small screens. About moved to "more" dropdown
-  if(500 <= windowWidth.value && windowWidth.value < 700) {
-    return [
-      createButton("Login", "login", "arrow-right-to-arc")
-    ]
-  }
-  // 700 < width -- Medium screens.
-  if(700 <= windowWidth.value && windowWidth.value < 1000) {
-    return [
-      createButton("About", "about"),
-      createButton("Login", "login", "arrow-right-to-arc")
-    ]
-  }
-  // 1000 < width -- Large screens. About moved to left side of menu bar
-  if(1000 <= windowWidth.value) {
+  // Tablets and larger. Navbar is used
+  if(500 <= windowWidth.value) {
     return [
       createButton("Login", "login", "arrow-right-to-arc")
     ]
