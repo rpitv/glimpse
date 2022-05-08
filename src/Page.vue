@@ -17,7 +17,9 @@
     <RouterView v-slot="{ Component, route }">
       <Transition name="router">
         <div :class="layoutCssName + ' layout router-page'" :key="route.name">
-          <component :is="Component" />
+          <div>
+            <component :is="Component" />
+          </div>
           <Footer />
         </div>
       </Transition>
@@ -31,10 +33,11 @@ import NavigationHeader from "@/components/NavigationHeader.vue";
 import BackgroundShape from "@/components/BackgroundShape.vue";
 import Footer from "@/components/Footer.vue";
 import { onMounted, onUnmounted, ref, watch } from "vue";
-import { useLoadingBar } from "naive-ui";
+import { useLoadingBar, useMessage } from "naive-ui";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+const message = useMessage();
 
 // Listen for scrolling to update the logo size
 const scrollY = ref(window.scrollY);
@@ -65,7 +68,11 @@ let pendingFetches = 0;
           loadingBar.finish()
         }
       })
-      .catch(() => loadingBar.error());
+      .catch((e: Error) => {
+        loadingBar.error();
+        // Send an error message to the user
+        message.error("Network error: " + e.message);
+      });
 
     return out;
   };

@@ -10,5 +10,15 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url))
     }
+  },
+  build: {
+    sourcemap: true
+  },
+  css: {
+    devSourcemap: true
+  },
+  server: {
+    strictPort: true
   }
+
 });

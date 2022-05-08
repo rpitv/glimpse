@@ -31,14 +31,16 @@ function createButton(name: string, to?: string, icon?: string, children?: MenuO
     icon: icon ? () => h(FontAwesomeIcon, { icon: ["fal", icon] }) : undefined,
     key: name,
     children: children
-  }
+  };
 }
 
 // Wrap Y scroll position in a Vue ref
 let scrollPos = ref(0);
+
 function updateScroll(): void {
   scrollPos.value = window.scrollY;
 }
+
 // Listen for scrolling to update navbar transparency
 onMounted(() => document.addEventListener("scroll", updateScroll));
 onUnmounted(() => document.removeEventListener("scroll", updateScroll));
@@ -54,16 +56,19 @@ const navbarBlur = computed(() => {
 
 // Arrangement of navbar items is based on screen size. Watch for changes.
 const windowWidth = ref(window.innerWidth);
+
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
-onMounted(() => window.addEventListener("resize", updateWindowWidth))
-onUnmounted(() => window.removeEventListener("resize", updateWindowWidth))
+
+onMounted(() => window.addEventListener("resize", updateWindowWidth));
+onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 
 // Compute items on left side of navigation bar
 const leftNavOptions = computed(() => {
   // Width < 500 -- Phones
-  if(windowWidth.value < 500) {
+  // Navigation is along the bottom
+  if (windowWidth.value < 500) {
     return [
       createButton("Home", "home", "home"),
       createButton("Productions", "productions", "film"),
@@ -74,10 +79,11 @@ const leftNavOptions = computed(() => {
         createButton("Join the Club", "join", "people-group"),
         createButton("Donate", "donate", "book-heart")
       ])
-    ]
+    ];
   }
   // 500 < width < 550 -- Large phones / small tablets
-  if(500 <= windowWidth.value && windowWidth.value < 550) {
+  // Nav is at the top, logo on left and login on right, only enough space for 2 buttons
+  if (500 <= windowWidth.value && windowWidth.value < 550) {
     return [
       createButton("Home", "home", "home"),
       createButton("More", undefined, "ellipsis", [
@@ -87,10 +93,11 @@ const leftNavOptions = computed(() => {
         createButton("Join the Club", "join", "people-group"),
         createButton("Donate", "donate", "book-heart")
       ])
-    ]
+    ];
   }
-  // 550 < width < 700 -- Tablets
-  if(550 <= windowWidth.value && windowWidth.value < 700) {
+  // 550 < width < 675 -- Tablets
+  // Nav is at the top, logo on left and login on right, enough space for 3 buttons
+  if (550 <= windowWidth.value && windowWidth.value < 675) {
     return [
       createButton("Home", "home", "home"),
       createButton("Productions", "productions"),
@@ -100,31 +107,87 @@ const leftNavOptions = computed(() => {
         createButton("Join the Club", "join", "people-group"),
         createButton("Donate", "donate", "book-heart")
       ])
-    ]
+    ];
   }
-  // 700 < width -- Computers
+  // 675 < width < 800 -- Tablets
+  // Nav is at the top, logo on left and login on right, enough space for 4 buttons
+  if (675 <= windowWidth.value && windowWidth.value < 800) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions"),
+      createButton("Contact Us", "contact", "envelope"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("About", "about", "circle-info"),
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
+      ])
+    ];
+  }
+  // 800 < width < 1000 -- Small computers
+  // Nav is at the top, logo centered and login on right, enough space for only 3 buttons
+  if (800 <= windowWidth.value && windowWidth.value < 1000) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("Contact Us", "contact", "envelope"),
+        createButton("About", "about", "circle-info"),
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
+      ])
+    ];
+  }
+  // 1000 < width < 1200 -- Computers
+  // Nav is at the top, logo centered and login on right, enough space for 4 buttons
+  if (1000 <= windowWidth.value && windowWidth.value < 1200) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions"),
+      createButton("Contact Us", "contact"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("About", "about", "circle-info"),
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
+      ])
+    ];
+  }
+  // 1200 < width < 1400 -- Computers
+  // Nav is at the top, logo centered and login on right, enough space for 5 buttons
+  if (1200 <= windowWidth.value && windowWidth.value < 1400) {
+    return [
+      createButton("Home", "home", "home"),
+      createButton("Productions", "productions"),
+      createButton("Contact Us", "contact"),
+      createButton("About", "about"),
+      createButton("More", undefined, "ellipsis", [
+        createButton("Join the Club", "join", "people-group"),
+        createButton("Donate", "donate", "book-heart")
+      ])
+    ];
+  }
+
+  // 1600 < width -- Large computers
+  // Nav is at the top, logo centered and login on right, enough space for 6 buttons
   return [
     createButton("Home", "home", "home"),
     createButton("Productions", "productions"),
     createButton("Contact Us", "contact"),
-    createButton("More", undefined, "ellipsis", [
-      createButton("About", "about", "circle-info"),
-      createButton("Join the Club", "join", "people-group"),
-      createButton("Donate", "donate", "book-heart")
-    ])
-  ]
+    createButton("About", "about"),
+    createButton("Join the Club", "join"),
+    createButton("Donate", "donate")
+  ];
 });
 
 // Compute items on right side of navigation bar
 const rightNavOptions = computed(() => {
   // Tablets and larger. Navbar is used
-  if(500 <= windowWidth.value) {
+  if (500 <= windowWidth.value) {
     return [
       createButton("Login", "login", "arrow-right-to-arc")
-    ]
+    ];
   }
   // Phones. Everything in "more" dropdown
-  return []
+  return [];
 });
 </script>
 
