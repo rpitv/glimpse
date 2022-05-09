@@ -1,21 +1,25 @@
-require('dotenv').config();
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { ApolloServer } from "apollo-server-express";
+import * as fs from "fs-extra";
+import cors from "cors";
+
+import { GlimpseRequest } from "./GlimpseRequest";
 const { initSchema } = require('./util/postgres-init');
 const gqlSchema = require('./schema');
 const gqlResolvers = require('./resolvers');
 const { pool } = require('./util/db-pool');
-const express = require('express');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
-const { ApolloServer } = require('apollo-server-express');
 const Authentication = require('./util/authentication');
 const { User } = require('./classes/User');
 const { Model } = require('./classes/Model');
-const fs = require('fs-extra');
-const cors = require('cors');
+
+const pgSession = connectPgSimple(session);
 
 console.log("Initializing...");
-initSchema(true).then(async () => {
+initSchema(true).then(async (): Promise<void> => {
     console.log("Schema updated.");
 
     await fs.mkdirs('./static/uploads');
@@ -25,14 +29,15 @@ initSchema(true).then(async () => {
     const server = new ApolloServer({
         typeDefs: gqlSchema,
         resolvers: gqlResolvers,
-        context: async ({req}) => {
+        csrfPrevention: true,
+        context: async (ctx: { req: GlimpseRequest }) => {
             const response = {
                 pool: pool,
                 user: null,
                 model: publicModel
             };
 
-            const rcs_id = req.session.rcs_id;
+            const rcs_id = ctx.req.session?.rcs_id;
 
             if(rcs_id) {
                 const usr = await User.getUserFromEmail(rcs_id + '@rpi.edu')
@@ -57,9 +62,8 @@ initSchema(true).then(async () => {
         store: new pgSession({
             pool: pool
         }),
-        secret: process.env.COOKIE_SECRET,
+        secret: process.env.COOKIE_SECRET ?? "",
         cookie: {
-            name: 'glimpse.sess',
             maxAge: 604800000, // 7 days
             secure: process.env.NODE_ENV === "production"
         },
@@ -67,9 +71,9 @@ initSchema(true).then(async () => {
         saveUninitialized: false
     }));
 
-    expApp.use(bodyParser.urlencoded({ extended: true }));
-    expApp.use(bodyParser.json());
-    expApp.use(bodyParser.raw());
+    expApp.use(express.urlencoded({ extended: true }));
+    expApp.use(express.json());
+    expApp.use(express.raw());
 
     server.applyMiddleware({ app: expApp });
 
@@ -82,4 +86,4 @@ initSchema(true).then(async () => {
         console.log(`🚀 Server ready at http://localhost:${process.env.PORT || 4000}${server.graphqlPath}`);
     });
 
-}).catch((err) => console.error(err.stack));
+}).catch((err: Error) => console.error(err.stack));
