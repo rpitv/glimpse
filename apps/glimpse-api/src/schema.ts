@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express');
+import { gql } from 'apollo-server-express'
 
 // Bodge fix for GraphQL JS Webstorm Plugin type checking - Upload is inserted by Apollo
 gql`
