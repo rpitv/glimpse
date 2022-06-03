@@ -1,0 +1,344 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AccessLog {
+  userId    Int      @map("user")
+  service   String   @db.VarChar(100)
+  timestamp DateTime @default(now()) @db.Timestamp(6)
+  ip        String?  @db.VarChar(60)
+  id        Int      @id(map: "access_logs_pk") @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], map: "access_logs_users_id_fk")
+
+  @@index([userId, service], map: "access_logs_for_service_index")
+  @@index([ip], map: "access_logs_ip_index")
+  @@index([service], map: "access_logs_service_index")
+  @@map("access_logs")
+}
+
+model AlertLog {
+  id        Int      @id(map: "alert_logs_pk") @default(autoincrement())
+  message   String   @db.VarChar(300)
+  severity  String   @db.VarChar(8)
+  timestamp DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([severity, timestamp], map: "alert_logs_severity_timestamp_index")
+  @@map("alert_logs")
+}
+
+model AuditLog {
+  id               Int      @id(map: "auditlogs_pk") @default(autoincrement())
+  userId           Int?     @map("user")
+  timestamp        DateTime @default(now()) @db.Timestamp(6)
+  modificationType String   @db.VarChar(20) @map("modification_type")
+  modifiedTable    String?  @db.VarChar(50) @map("modified_table")
+  modifiedField    String   @db.VarChar(50) @map("modified_field")
+  previousValue    String?  @map("previous_value")
+  comment          String?  @db.VarChar(200)
+  metadata         Json?    @db.Json
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Restrict, map: "audit_logs_users_id_fk")
+
+  @@index([modifiedTable, modifiedField, modificationType], map: "audit_logs_mtable_mf_mtype_index")
+  @@index([timestamp], map: "audit_logs_timestamp_index")
+  @@map("audit_logs")
+}
+
+model BlogPost {
+  id                Int      @id(map: "blog_pk") @default(autoincrement())
+  postedAt          DateTime @default(now()) @db.Timestamp(6) @map("posted_at")
+  content           String   @default("")
+  authorId          Int      @map("author")
+  authorDisplayName String?  @db.VarChar(100) @map("author_display_name")
+  title             String   @default("") @db.VarChar(150)
+  author            Person   @relation(fields: [authorId], references: [id], map: "blog_people_id_fk")
+
+  @@index([authorId, postedAt], map: "blog_author_posted_at_index")
+  @@index([postedAt], map: "blog_posted_at_index")
+  @@index([title], map: "blog_title_index")
+  @@map("blog_posts")
+}
+
+model Category {
+  id          Int          @id(map: "categories_pk") @default(autoincrement())
+  name        String?      @db.VarChar(50)
+  priority    Int          @default(0)
+  parentId    Int?         @map("parent")
+  parent      Category?    @relation("CategoryToCategory_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "categories_categories_id_fk")
+  children    Category[]   @relation("CategoryToCategory_parentId")
+  productions Production[]
+
+  @@index([priority, name], map: "categories_priority_name_index")
+  @@map("categories")
+}
+
+model ContactSubmission {
+  id             Int                         @id(map: "contact_submissions_pk") @unique(map: "contact_submissions_id_uindex") @default(autoincrement())
+  email          String                      @db.VarChar(300)
+  name           String                      @db.VarChar(100)
+  timestamp      DateTime                    @default(now()) @db.Timestamp(6)
+  resolved       Boolean                     @default(false)
+  additionalData Json?                       @db.Json
+  assignees      ContactSubmissionAssignee[]
+
+  @@index([email, timestamp], map: "contact_submissions_email_timestamp_index")
+  @@index([timestamp], map: "contact_submissions_timestamp_index")
+  @@map("contact_submissions")
+}
+
+model ContactSubmissionAssignee {
+  submissionId Int               @map("submission")
+  userId       Int               @map("user")
+  submission   ContactSubmission @relation(fields: [submissionId], references: [id], map: "contact_submission_assignees_contact_submissions_id_fk")
+  user         User              @relation(fields: [userId], references: [id], map: "contact_submission_assignees_users_id_fk")
+
+  @@id([submissionId, userId], map: "contact_submission_assignees_pk")
+  @@index([userId], map: "contact_submission_assignees_user_index")
+  @@map("contact_submission_assignees")
+}
+
+model Credit {
+  productionId Int        @map("production")
+  personId     Int        @map("person")
+  title        String?    @db.VarChar(100)
+  priority     Int        @default(0)
+  person       Person     @relation(fields: [personId], references: [id], map: "credits_people_id_fk")
+  production   Production @relation(fields: [productionId], references: [id], map: "credits_productions_id_fk")
+
+  @@id([productionId, personId], map: "credits_pk")
+  @@index([personId, productionId], map: "credits_person_production_index")
+  @@index([productionId, priority, title], map: "credits_production_priority_title_index")
+  @@map("credits")
+}
+
+model Group {
+  id          Int               @id(map: "groups_pk") @default(autoincrement())
+  name        String            @db.VarChar(50)
+  parentId    Int?              @map("parent")
+  parent      Group?            @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
+  children    Group[]           @relation("GroupToGroup_parentId")
+  permissions GroupPermission[]
+
+  @@index([name], map: "groups_name_index")
+  @@map("groups")
+}
+
+model GroupPermission {
+  groupId    Int     @map("group")
+  permission String  @db.VarChar(100)
+  resource   String  @default("*") @db.VarChar(300)
+  allow      Boolean
+  group      Group   @relation(fields: [groupId], references: [id], map: "group_permissions_groups_id_fk")
+
+  @@id([groupId, permission, resource], map: "group_permissions_pk")
+  @@index([resource], map: "group_permissions_resource_index")
+  @@map("group_permissions")
+}
+
+model Image {
+  id               Int               @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
+  name             String            @db.VarChar(50)
+  description      String?           @db.VarChar(200)
+  path             String            @db.VarChar(1000)
+  people           PersonImage[]
+  thumbnails       Production[]
+  productionImages ProductionImage[]
+
+  @@map("images")
+}
+
+model Person {
+  id          Int           @id(map: "people_pk") @unique(map: "people_id_uindex") @default(autoincrement())
+  name        String        @db.VarChar(100)
+  pronouns    String?       @db.VarChar(20)
+  graduation  DateTime?     @db.Date
+  description String?
+  blogPosts   BlogPost[]
+  credits     Credit[]
+  images      PersonImage[]
+  roles       Role[]
+  users       User[]
+
+  @@map("people")
+}
+
+model PersonImage {
+  imageId  Int    @map("image")
+  personId Int    @map("person")
+  priority Int    @default(0)
+  image    Image  @relation(fields: [imageId], references: [id], map: "people_images_images_id_fk")
+  person   Person @relation(fields: [personId], references: [id], map: "people_images_people_id_fk")
+
+  @@id([imageId, personId], map: "people_images_pk")
+  @@index([personId], map: "people_images_person_index")
+  @@map("people_images")
+}
+
+model Production {
+  id             Int               @id(map: "productions_pk") @default(autoincrement())
+  name           String            @db.VarChar(100)
+  description    String?
+  startTime      DateTime?         @db.Timestamp(6) @map("start_time")
+  endTime        DateTime?         @db.Timestamp(6) @map("end_time")
+  isLive         Boolean           @default(true) @map("is_live")
+  categoryId     Int?              @map("category")
+  closetLocation String?           @db.VarChar(100) @map("closet_location")
+  eventLocation  String?           @db.VarChar(100) @map("event_location")
+  teamNotes      String?           @map("team_notes")
+  discordServer  String?           @db.Char(18) @map("discord_server")
+  discordChannel String            @db.Char(18) @map("discord_channel")
+  thumbnailId    Int?              @map("thumbnail")
+  closetTime     DateTime?         @db.Timestamp(6) @map("closet_time")
+  category       Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
+  image          Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
+  credits        Credit[]
+  images         ProductionImage[]
+  rsvps          ProductionRSVP[]
+  tags           ProductionTag[]
+  videos         ProductionVideo[]
+
+  @@index([categoryId, startTime, name], map: "productions_category_start_time_name_index")
+  @@index([isLive, startTime], map: "productions_is_live_start_time_index")
+  @@index([name], map: "productions_name_index")
+  @@index([startTime, name], map: "productions_start_time_name_index")
+  @@map("productions")
+}
+
+model ProductionImage {
+  productionId Int        @map("prodcution")
+  imageId      Int        @map("image")
+  priority     Int        @default(0)
+  image        Image      @relation(fields: [imageId], references: [id], map: "production_images_images_id_fk")
+  production   Production @relation(fields: [productionId], references: [id], map: "production_images_productions_id_fk")
+
+  @@id([productionId, imageId], map: "production_images_pk")
+  @@index([productionId, priority], map: "production_images_production_priority_index")
+  @@map("production_images")
+}
+
+model ProductionRSVP {
+  productionId Int        @map("production")
+  userId       Int        @map("user")
+  willAttend   String?    @db.VarChar(5) @map("will_attend")
+  notes        String?
+  didAttend    Boolean    @default(true)
+  production   Production @relation(fields: [productionId], references: [id], map: "production_rsvps_productions_id_fk")
+  user         User       @relation(fields: [userId], references: [id], map: "production_rsvps_users_id_fk")
+
+  @@id([productionId, userId], map: "production_rsvps_pk")
+  @@index([userId, willAttend], map: "production_rsvps_user_will_attend_index")
+  @@map("production_rsvps")
+}
+
+model ProductionTag {
+  productionId Int        @map("production")
+  tag          String     @db.VarChar(50)
+  production   Production @relation(fields: [productionId], references: [id], map: "production_tags_productions_id_fk")
+
+  @@id([productionId, tag], map: "production_tags_pk")
+  @@index([tag], map: "production_tags_tag_index")
+  @@map("production_tags")
+}
+
+model ProductionVideo {
+  productionId Int        @map("production")
+  videoId      Int        @map("video")
+  priority     Int        @default(0)
+  production   Production @relation(fields: [productionId], references: [id], map: "production_videos_productions_id_fk")
+  video        Video      @relation(fields: [videoId], references: [id], map: "production_videos_videos_id_fk")
+
+  @@id([productionId, videoId], map: "production_videos_pk")
+  @@index([productionId, priority], map: "production_videos_production_priority_index")
+  @@map("production_videos")
+}
+
+model Redirect {
+  key      String    @id(map: "redirects_pk") @db.VarChar(100)
+  location String    @db.VarChar(3000)
+  expires  DateTime? @db.Timestamp(6)
+
+  @@index([expires], map: "redirects_expires_index")
+  @@map("redirects")
+}
+
+model Role {
+  id        Int       @id(map: "roles_pk") @default(autoincrement())
+  personId  Int       @map("person")
+  name      String    @db.VarChar(100)
+  startTime DateTime  @default(now()) @db.Timestamp(6) @map("start_time")
+  endTime   DateTime? @db.Timestamp(6) @map("end_time")
+  priority  Int       @default(0)
+  person    Person    @relation(fields: [personId], references: [id], map: "roles_people_id_fk")
+
+  @@index([personId, priority, startTime], map: "roles_person_priority_start_time_index")
+  @@map("roles")
+}
+
+model User {
+  id                         Int                         @id(map: "users_pk") @default(autoincrement())
+  username                   String                      @unique(map: "users_username_uindex") @db.VarChar(8)
+  mail                       String                      @unique(map: "users_mail_uindex") @db.VarChar(300)
+  personId                   Int?                        @map("person")
+  discord                    Int?                        @unique(map: "users_discord_uindex")
+  password                   String?                     @db.VarChar(300)
+  joined                     DateTime                    @default(now()) @db.Timestamp(6)
+  person                     Person?                     @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
+  accessLogs                 AccessLog[]
+  auditLogs                  AuditLog[]
+  assignedContactSubmissions ContactSubmissionAssignee[]
+  productionRsvps            ProductionRSVP[]
+  permissions                UserPermission[]
+  voteResponses              VoteResponse[]
+
+  @@map("users")
+}
+
+model UserPermission {
+  userId     Int     @map("user")
+  permission String  @db.VarChar(100)
+  resource   String  @default("*") @db.VarChar(300)
+  allow      Boolean @default(false)
+  user       User    @relation(fields: [userId], references: [id], map: "user_permissions_users_id_fk")
+
+  @@id([userId, permission], map: "user_permissions_pk")
+  @@index([resource], map: "user_permissions_resource_index")
+  @@map("user_permissions")
+}
+
+model Video {
+  id          Int               @id(map: "videos_pk") @default(autoincrement())
+  name        String            @db.VarChar(100)
+  format      String            @db.VarChar(32)
+  metadata    Json?             @db.Json
+  productions ProductionVideo[]
+
+  @@map("videos")
+}
+
+model Vote {
+  id          Int            @id(map: "votes_pk")
+  question    String         @db.VarChar(200)
+  options     String[]       @db.VarChar(200)
+  expires     DateTime       @default(now()) @db.Timestamp(6)
+  description String?
+  responses   VoteResponse[]
+
+  @@index([expires], map: "votes_expires_index")
+  @@map("votes")
+}
+
+model VoteResponse {
+  voteId    Int      @map("vote")
+  userId    Int      @map("user")
+  timestamp DateTime @default(now()) @db.Timestamp(6)
+  user      User     @relation(fields: [userId], references: [id], map: "vote_responses_users_id_fk")
+  vote      Vote     @relation(fields: [voteId], references: [id], map: "vote_responses_votes_id_fk")
+
+  @@id([voteId, userId], map: "vote_responses_pk")
+  @@index([userId], map: "vote_responses_user_index")
+  @@map("vote_responses")
+}

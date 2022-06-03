@@ -1,34 +1,37 @@
-version: '3.8'
+version: '3.9'
 services:
   api:
     depends_on:
       - db
-    image: rpitv/glimpse-api
+    build: .
     ports:
       - "4000:4000"
       - "5858:5858"
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     environment:
       - NODE_ENV=development
     command: npm run dev.debug
     volumes:
-      - ..:/usr/src/app
+      - .:/usr/src/app
       - /usr/src/app/node_modules
+      - ./cert:/etc/cert
     networks:
       - glimpse_network
+
   db:
-    image: postgres:12.3-alpine
+    image: postgres:14
     restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
-      - ./db/postgres-data:/var/lib/postgresql/data
+      - .db-data:/var/lib/postgresql/data
     env_file:
-      - db/.env
+      - .env
     networks:
       - glimpse_network
+
 networks:
   glimpse_network:
     name: glimpse_network
