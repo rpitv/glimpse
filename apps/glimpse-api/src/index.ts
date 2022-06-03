@@ -1,89 +1,99 @@
 import dotenv from "dotenv";
+
 dotenv.config();
+import "reflect-metadata";
+
 import express from "express";
 import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import { ApolloServer } from "apollo-server-express";
-import * as fs from "fs-extra";
+import https from "https";
+import http from "http";
+import * as ip from "ip";
 import cors from "cors";
+import fs from "fs-extra";
+import { buildSchema } from "type-graphql";
+import { graphqlHTTP } from "express-graphql";
 
-import { GlimpseRequest } from "./GlimpseRequest";
-const { initSchema } = require('./util/postgres-init');
-const gqlSchema = require('./schema');
-const gqlResolvers = require('./resolvers');
-const { pool } = require('./util/db-pool');
-const Authentication = require('./util/authentication');
-const { User } = require('./classes/User');
-const { Model } = require('./classes/Model');
+import { prisma } from "./prisma";
 
-const pgSession = connectPgSimple(session);
+type SetupResult = {
+    port: number;
+    protocol: "http" | "https";
+    expressServer: express.Express;
+};
 
-console.log("Initializing...");
-initSchema(true).then(async (): Promise<void> => {
-    console.log("Schema updated.");
-
-    await fs.mkdirs('./static/uploads');
-
-    // The public model is the accessible model that faces users when they are not logged in.
-    const publicModel = new Model(null, false);
-    const server = new ApolloServer({
-        typeDefs: gqlSchema,
-        resolvers: gqlResolvers,
-        csrfPrevention: true,
-        context: async (ctx: { req: GlimpseRequest }) => {
-            const response = {
-                pool: pool,
-                user: null,
-                model: publicModel
-            };
-
-            const rcs_id = ctx.req.session?.rcs_id;
-
-            if(rcs_id) {
-                const usr = await User.getUserFromEmail(rcs_id + '@rpi.edu')
-                if(usr != null) {
-                    response.user = usr;
-                    response.model = new Model(usr, false);
-                }
-            }
-
-            return response;
-        }
-    });
-
+/**
+ * Create and set up the Express/Apollo server based off the program environment
+ *   variables.
+ */
+async function start(): Promise<SetupResult> {
     const expApp = express();
 
-    if(process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development") {
         expApp.use(cors());
         console.log("App booted in development, enabling CORS");
     }
 
-    expApp.use(session({
-        store: new pgSession({
-            pool: pool
-        }),
-        secret: process.env.COOKIE_SECRET ?? "",
-        cookie: {
-            maxAge: 604800000, // 7 days
-            secure: process.env.NODE_ENV === "production"
-        },
-        resave: false,
-        saveUninitialized: false
-    }));
+    expApp.use(
+        "/graphql",
+        graphqlHTTP({
+            schema: await buildSchema({
+                resolvers: [__dirname + "/resolvers/**/*.ts"],
+                validate: false,
+            }),
+        })
+    );
 
-    expApp.use(express.urlencoded({ extended: true }));
-    expApp.use(express.json());
-    expApp.use(express.raw());
+    const port = parseInt(process.env.PORT ?? "") || 4000;
+    const host = "0.0.0.0";
+    let httpServer: http.Server;
+    let protocol: "https" | "http";
+    if (process.env.HTTPS) {
+        if (!process.env.HTTPS_KEY_PATH || !process.env.HTTPS_CERT_PATH) {
+            throw new Error(
+                "HTTPS is enabled but the key and/or cert path were not set."
+            );
+        }
+        const privKey = fs.readFileSync(process.env.HTTPS_KEY_PATH);
+        const cert = fs.readFileSync(process.env.HTTPS_CERT_PATH);
 
-    server.applyMiddleware({ app: expApp });
+        httpServer = https.createServer(
+            {
+                key: privKey,
+                cert: cert,
+            },
+            expApp
+        );
+        protocol = "https";
+    } else {
+        httpServer = http.createServer(expApp);
+        protocol = "http";
+    }
 
-    expApp.use('/static', express.static('static'));
-    expApp.use('/auth/login', Authentication.LoginRouter);
-    expApp.use('/auth/sync', Authentication.SyncRouter);
-    expApp.use('/auth/logout', Authentication.LogoutRouter);
-
-    expApp.listen({port: process.env.PORT || 4000, host: '0.0.0.0'}, () => {
-        console.log(`🚀 Server ready at http://localhost:${process.env.PORT || 4000}${server.graphqlPath}`);
+    return new Promise((resolve) => {
+        httpServer.listen({ port, host }, () => {
+            resolve({
+                port,
+                protocol,
+                expressServer: expApp,
+            });
+        });
     });
+}
 
-}).catch((err: Error) => console.error(err.stack));
+async function main(): Promise<void> {
+    const setupResults = await start();
+    const localIp = ip.address();
+    console.log(
+        "\n🎥 Glimpse GraphQL API is now running.\n" +
+            `\tLocal: \t ${setupResults.protocol}://localhost:${setupResults.port}/\n` +
+            `\tRemote:\t ${setupResults.protocol}://${localIp}:${setupResults.port}/\n`
+    );
+}
+
+main()
+    .catch((e) => {
+        throw e;
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
