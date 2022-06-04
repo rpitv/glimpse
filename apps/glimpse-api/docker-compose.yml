@@ -3,6 +3,7 @@ services:
   api:
     depends_on:
       - db
+      - redis
     build: .
     ports:
       - "4000:4000"
@@ -32,6 +33,15 @@ services:
     networks:
       - glimpse_network
 
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - .redis-data:/data
+    networks:
+      - glimpse_network
 networks:
   glimpse_network:
     name: glimpse_network

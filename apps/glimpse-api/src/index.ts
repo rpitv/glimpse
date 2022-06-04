@@ -5,15 +5,17 @@ import "reflect-metadata";
 
 import express from "express";
 import session from "express-session";
+import {createClient} from "redis"
+import connectRedis from "connect-redis";
 import https from "https";
 import http from "http";
 import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
-import { buildSchema } from "type-graphql";
-import { graphqlHTTP } from "express-graphql";
+import {buildSchema} from "type-graphql";
+import {graphqlHTTP} from "express-graphql";
 
-import { prisma } from "./prisma";
+import {prisma} from "./prisma";
 
 type SetupResult = {
     port: number;
@@ -21,18 +23,51 @@ type SetupResult = {
     expressServer: express.Express;
 };
 
+const isHttps = !!process.env.HTTPS && process.env.HTTPS !== "false";
+const isProxied = !!process.env.PROXIED && process.env.PROXIED !== "false";
+
 /**
  * Create and set up the Express/Apollo server based off the program environment
  *   variables.
  */
 async function start(): Promise<SetupResult> {
-    const expApp = express();
+    if (!process.env.SESSION_SECRET) {
+        throw new Error("SESSION_SECRET environment variable not set.");
+    }
+    if (!process.env.REDIS_URL) {
+        throw new Error("SESSION_SECRET environment variable not set.");
+    }
 
+    const expApp = express();
+    if (isProxied) {
+        expApp.set('trust proxy', 1) // trust first proxy
+    }
+
+    // Session storage. Stored in Redis to separate from Postgres.
+    const redisSessionStorageClient = createClient({
+        legacyMode: true,
+        url: process.env.REDIS_URL
+    });
+    redisSessionStorageClient.connect().catch(console.error);
+    expApp.use(session({
+        store: new (connectRedis(session))({client: redisSessionStorageClient}),
+        name: 'glimpse-sess',
+        cookie: {
+            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+            secure: isHttps
+        },
+        saveUninitialized: false,
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+    }))
+
+    // Enable CORS in development environments, as frontend and backend may be running on separate ports/hosts
     if (process.env.NODE_ENV === "development") {
         expApp.use(cors());
         console.log("App booted in development, enabling CORS");
     }
 
+    // GraphQL server
     expApp.use(
         "/graphql",
         graphqlHTTP({
@@ -43,22 +78,25 @@ async function start(): Promise<SetupResult> {
         })
     );
 
-    const port = parseInt(process.env.PORT ?? "") || 4000;
+    // Setup HTTP server
+    const port = parseInt(process.env.PORT ?? "4000");
     const host = "0.0.0.0";
     let httpServer: http.Server;
     let protocol: "https" | "http";
-    if (process.env.HTTPS) {
+
+    // Create HTTP/HTTPS server, depending on environment variables
+    if (isHttps) {
         if (!process.env.HTTPS_KEY_PATH || !process.env.HTTPS_CERT_PATH) {
             throw new Error(
-                "HTTPS is enabled but the key and/or cert path were not set."
+                "HTTPS is enabled but the environment variable(s) HTTPS_KEY_PATH and/or HTTPS_CERT_PATH were not set."
             );
         }
-        const privKey = fs.readFileSync(process.env.HTTPS_KEY_PATH);
+        const privateKey = fs.readFileSync(process.env.HTTPS_KEY_PATH);
         const cert = fs.readFileSync(process.env.HTTPS_CERT_PATH);
 
         httpServer = https.createServer(
             {
-                key: privKey,
+                key: privateKey,
                 cert: cert,
             },
             expApp
@@ -69,8 +107,9 @@ async function start(): Promise<SetupResult> {
         protocol = "http";
     }
 
+    // Start listening for incoming connections
     return new Promise((resolve) => {
-        httpServer.listen({ port, host }, () => {
+        httpServer.listen({port, host}, () => {
             resolve({
                 port,
                 protocol,
@@ -85,11 +124,22 @@ async function main(): Promise<void> {
     const localIp = ip.address();
     console.log(
         "\n🎥 Glimpse GraphQL API is now running.\n" +
-            `\tLocal: \t ${setupResults.protocol}://localhost:${setupResults.port}/\n` +
-            `\tRemote:\t ${setupResults.protocol}://${localIp}:${setupResults.port}/\n`
+        `\tLocal: \t ${setupResults.protocol}://localhost:${setupResults.port}/\n` +
+        `\tRemote:\t ${setupResults.protocol}://${localIp}:${setupResults.port}/\n`
     );
+
+    if (process.env.NODE_ENV !== "development" && !isHttps) {
+        console.warn("Server is running without HTTPS outside of development. This is not recommended.");
+    }
 }
 
+if(!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable not set. This is required.");
+}
+if(!process.env.NODE_ENV) {
+    console.warn("NODE_ENV not set. Defaulting to production.")
+    process.env.NODE_ENV = "production";
+}
 main()
     .catch((e) => {
         throw e;
