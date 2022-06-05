@@ -1,9 +1,10 @@
-import {Arg, Query, Resolver} from "type-graphql";
+import {Arg, Authorized, Query, Resolver} from "type-graphql";
 import {AccessLog} from "../models/AccessLog";
 import {prisma} from "../prisma";
 
 @Resolver(AccessLog)
 class AccessLogResolver {
+
     @Query(() => [AccessLog])
     async accessLogs(@Arg("interval", {nullable: true}) interval?: number) {
         let filter;
@@ -18,7 +19,7 @@ class AccessLogResolver {
         }
         return prisma.accessLog.findMany(filter);
     }
-
+    @Authorized("Fn1","Fn2")
     @Query(() => AccessLog, { nullable: true })
     async accessLog(@Arg("id") id: number) {
         return prisma.accessLog.findUnique({
@@ -27,7 +28,7 @@ class AccessLogResolver {
             }
         })
     }
-
+    @Authorized("Fn3")
     @Query(() => [AccessLog])
     async accessLogsFromIp(@Arg("ip") ip: string) {
         return prisma.accessLog.findMany({
@@ -36,7 +37,7 @@ class AccessLogResolver {
             }
         })
     }
-
+    @Authorized()
     @Query(() => [AccessLog])
     async accessLogsFromUser(@Arg("userId") userId: number) {
         return prisma.accessLog.findMany({

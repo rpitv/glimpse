@@ -12,10 +12,11 @@ import http from "http";
 import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
-import {buildSchema} from "type-graphql";
-import {graphqlHTTP} from "express-graphql";
 
 import {prisma} from "./prisma";
+import {getRouter} from "./router";
+import {Ability} from "@casl/ability";
+import {getPermissions} from "./auth";
 
 type SetupResult = {
     port: number;
@@ -50,16 +51,34 @@ async function start(): Promise<SetupResult> {
     });
     redisSessionStorageClient.connect().catch(console.error);
     expApp.use(session({
-        store: new (connectRedis(session))({client: redisSessionStorageClient}),
+        store: new (connectRedis(session))({
+            client: redisSessionStorageClient,
+            prefix: 'glimpse-sess:'
+        }),
         name: 'glimpse-sess',
         cookie: {
             maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
             secure: isHttps
         },
-        saveUninitialized: false,
         secret: process.env.SESSION_SECRET,
+        saveUninitialized: false,
         resave: false,
-    }))
+    }));
+
+    expApp.use(async (req) => {
+        if(req.session.userId) {
+            req.user = await prisma.user.findUnique({
+                where: {
+                    id: req.session.userId
+                }
+            })
+        }
+
+        if(!req.session.permissionJSON) {
+            req.session.permissionJSON = await getPermissions(req.user);
+        }
+        req.permissions = undefined; // new Ability(req.session.permissionJSON)
+    })
 
     // Enable CORS in development environments, as frontend and backend may be running on separate ports/hosts
     if (process.env.NODE_ENV === "development") {
@@ -67,16 +86,10 @@ async function start(): Promise<SetupResult> {
         console.log("App booted in development, enabling CORS");
     }
 
-    // GraphQL server
-    expApp.use(
-        "/graphql",
-        graphqlHTTP({
-            schema: await buildSchema({
-                resolvers: [__dirname + "/resolvers/**/*.ts"],
-                validate: false,
-            }),
-        })
-    );
+    // Setup API endpoints (graphql, login, logout, etc).
+    expApp.use('/api', await getRouter());
+    // Serve static content
+    expApp.use('/', express.static('public'));
 
     // Setup HTTP server
     const port = parseInt(process.env.PORT ?? "4000");
