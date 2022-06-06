@@ -150,7 +150,7 @@ model Image {
   description      String?           @db.VarChar(200)
   path             String            @db.VarChar(1000)
   people           PersonImage[]
-  imageFor ProductionImage[]
+  imageFor         ProductionImage[]
   thumbnailFor     Production[]
 
   @@map("images")
@@ -290,6 +290,7 @@ model User {
   mail                       String                      @unique(map: "users_mail_uindex") @db.VarChar(300)
   personId                   Int?                        @map("person")
   discord                    Int?                        @unique(map: "users_discord_uindex")
+  /// @TypeGraphQL.omit(output: true)
   password                   String?                     @db.VarChar(300)
   joined                     DateTime                    @default(now()) @db.Timestamp(6)
   person                     Person?                     @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
