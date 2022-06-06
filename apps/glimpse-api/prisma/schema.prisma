@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -32,12 +36,12 @@ model AlertLog {
 }
 
 model AuditLog {
-  id               Int      @id(map: "auditlogs_pk") @default(autoincrement())
+  id               Int      @id(map: "audit_logs_pk") @default(autoincrement())
   userId           Int?     @map("user")
   timestamp        DateTime @default(now()) @db.Timestamp(6)
-  modificationType String   @db.VarChar(20) @map("modification_type")
-  modifiedTable    String?  @db.VarChar(50) @map("modified_table")
-  modifiedField    String   @db.VarChar(50) @map("modified_field")
+  modificationType String   @map("modification_type") @db.VarChar(20)
+  modifiedTable    String?  @map("modified_table") @db.VarChar(50)
+  modifiedField    String   @map("modified_field") @db.VarChar(50)
   previousValue    String?  @map("previous_value")
   comment          String?  @db.VarChar(200)
   metadata         Json?    @db.Json
@@ -50,10 +54,10 @@ model AuditLog {
 
 model BlogPost {
   id                Int      @id(map: "blog_pk") @default(autoincrement())
-  postedAt          DateTime @default(now()) @db.Timestamp(6) @map("posted_at")
+  postedAt          DateTime @default(now()) @map("posted_at") @db.Timestamp(6)
   content           String   @default("")
   authorId          Int      @map("author")
-  authorDisplayName String?  @db.VarChar(100) @map("author_display_name")
+  authorDisplayName String?  @map("author_display_name") @db.VarChar(100)
   title             String   @default("") @db.VarChar(150)
   author            Person   @relation(fields: [authorId], references: [id], map: "blog_people_id_fk")
 
@@ -82,7 +86,7 @@ model ContactSubmission {
   name           String                      @db.VarChar(100)
   timestamp      DateTime                    @default(now()) @db.Timestamp(6)
   resolved       Boolean                     @default(false)
-  additionalData Json?                       @db.Json
+  additionalData Json?                       @map("additional_data") @db.Json
   assignees      ContactSubmissionAssignee[]
 
   @@index([email, timestamp], map: "contact_submissions_email_timestamp_index")
@@ -93,6 +97,7 @@ model ContactSubmission {
 model ContactSubmissionAssignee {
   submissionId Int               @map("submission")
   userId       Int               @map("user")
+  timestamp    DateTime          @default(now()) @db.Timestamp(6)
   submission   ContactSubmission @relation(fields: [submissionId], references: [id], map: "contact_submission_assignees_contact_submissions_id_fk")
   user         User              @relation(fields: [userId], references: [id], map: "contact_submission_assignees_users_id_fk")
 
@@ -120,8 +125,8 @@ model Group {
   name        String            @db.VarChar(50)
   parentId    Int?              @map("parent")
   parent      Group?            @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
-  children    Group[]           @relation("GroupToGroup_parentId")
   permissions GroupPermission[]
+  children    Group[]           @relation("GroupToGroup_parentId")
 
   @@index([name], map: "groups_name_index")
   @@map("groups")
@@ -145,8 +150,8 @@ model Image {
   description      String?           @db.VarChar(200)
   path             String            @db.VarChar(1000)
   people           PersonImage[]
-  thumbnails       Production[]
-  productionImages ProductionImage[]
+  imageFor ProductionImage[]
+  thumbnailFor     Production[]
 
   @@map("images")
 }
@@ -156,6 +161,8 @@ model Person {
   name        String        @db.VarChar(100)
   pronouns    String?       @db.VarChar(20)
   graduation  DateTime?     @db.Date
+  start       DateTime      @db.Date
+  end         DateTime?     @db.Date
   description String?
   blogPosts   BlogPost[]
   credits     Credit[]
@@ -182,21 +189,21 @@ model Production {
   id             Int               @id(map: "productions_pk") @default(autoincrement())
   name           String            @db.VarChar(100)
   description    String?
-  startTime      DateTime?         @db.Timestamp(6) @map("start_time")
-  endTime        DateTime?         @db.Timestamp(6) @map("end_time")
+  startTime      DateTime?         @map("start_time") @db.Timestamp(6)
+  endTime        DateTime?         @map("end_time") @db.Timestamp(6)
   isLive         Boolean           @default(true) @map("is_live")
   categoryId     Int?              @map("category")
-  closetLocation String?           @db.VarChar(100) @map("closet_location")
-  eventLocation  String?           @db.VarChar(100) @map("event_location")
+  closetLocation String?           @map("closet_location") @db.VarChar(100)
+  eventLocation  String?           @map("event_location") @db.VarChar(100)
   teamNotes      String?           @map("team_notes")
-  discordServer  String?           @db.Char(18) @map("discord_server")
-  discordChannel String            @db.Char(18) @map("discord_channel")
+  discordServer  String?           @map("discord_server") @db.Char(18)
+  discordChannel String            @map("discord_channel") @db.Char(18)
   thumbnailId    Int?              @map("thumbnail")
-  closetTime     DateTime?         @db.Timestamp(6) @map("closet_time")
+  closetTime     DateTime?         @map("closet_time") @db.Timestamp(6)
   category       Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
   image          Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
   credits        Credit[]
-  images         ProductionImage[]
+  images         ProductionImage[] @relation("production_imagesToproductions")
   rsvps          ProductionRSVP[]
   tags           ProductionTag[]
   videos         ProductionVideo[]
@@ -209,11 +216,11 @@ model Production {
 }
 
 model ProductionImage {
-  productionId Int        @map("prodcution")
+  productionId Int        @map("production")
   imageId      Int        @map("image")
   priority     Int        @default(0)
   image        Image      @relation(fields: [imageId], references: [id], map: "production_images_images_id_fk")
-  production   Production @relation(fields: [productionId], references: [id], map: "production_images_productions_id_fk")
+  production   Production @relation("production_imagesToproductions", fields: [productionId], references: [id], map: "production_images_productions_id_fk")
 
   @@id([productionId, imageId], map: "production_images_pk")
   @@index([productionId, priority], map: "production_images_production_priority_index")
@@ -223,9 +230,8 @@ model ProductionImage {
 model ProductionRSVP {
   productionId Int        @map("production")
   userId       Int        @map("user")
-  willAttend   String?    @db.VarChar(5) @map("will_attend")
+  willAttend   String?    @map("will_attend") @db.VarChar(5)
   notes        String?
-  didAttend    Boolean    @default(true)
   production   Production @relation(fields: [productionId], references: [id], map: "production_rsvps_productions_id_fk")
   user         User       @relation(fields: [userId], references: [id], map: "production_rsvps_users_id_fk")
 
@@ -269,8 +275,8 @@ model Role {
   id        Int       @id(map: "roles_pk") @default(autoincrement())
   personId  Int       @map("person")
   name      String    @db.VarChar(100)
-  startTime DateTime  @default(now()) @db.Timestamp(6) @map("start_time")
-  endTime   DateTime? @db.Timestamp(6) @map("end_time")
+  startTime DateTime  @default(now()) @map("start_time") @db.Timestamp(6)
+  endTime   DateTime? @map("end_time") @db.Timestamp(6)
   priority  Int       @default(0)
   person    Person    @relation(fields: [personId], references: [id], map: "roles_people_id_fk")
 
