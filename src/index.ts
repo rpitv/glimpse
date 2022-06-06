@@ -90,6 +90,7 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
             validate: false,
             authChecker: auth
         }),
+        context: ((ctx) => ({ prisma, ...ctx })),
         csrfPrevention: true,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     });
