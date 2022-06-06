@@ -7,6 +7,8 @@
 This is the backend API for Glimpse, the RPI TV website.
 ## Getting Started
 
+https://dev.to/prisma/prototyping-a-crud-api-with-typegraphql-and-prisma-for-your-database-424c
+
 ### Method 1: Docker (Recommended)
 Using Docker and Docker Compose is the recommended method for both local development and deploying to production. Using
 Docker Compose, no database setup is necessary.
