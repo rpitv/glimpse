@@ -15,7 +15,7 @@ import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
 import {buildSchema} from "type-graphql";
-import { resolvers } from "@generated/type-graphql";
+import { getResolvers } from "./resolvers";
 
 import {prisma} from "./prisma";
 import {injectRequestProperties} from "./middleware/injectRequestProperties";
@@ -86,7 +86,7 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
     // --- Create Apollo server ---
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers,
+            resolvers: getResolvers(),
             validate: false,
             authChecker: auth
         }),
