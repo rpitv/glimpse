@@ -1,7 +1,6 @@
 import {prisma} from "../prisma";
 import type {NextFunction, Request, Response} from "express";
 import {Ability, RawRule} from "@casl/ability";
-import { User } from "@generated/type-graphql";
 import {PrismaClient} from "@prisma/client";
 
 // Declare extensions to modules this app uses. Couldn't get any other way
@@ -16,7 +15,7 @@ declare module 'express-session' {
 declare module 'express-serve-static-core' {
     interface Request {
         permissions?: Ability;
-        user?: User;
+        // user?: User;
         prisma: PrismaClient;
     }
 }
@@ -37,7 +36,7 @@ export async function injectRequestProperties(req: Request, res: Response, next:
             }
         })
         if(userResponse) {
-            req.user = userResponse;
+            // req.user = userResponse;
         }
     }
 

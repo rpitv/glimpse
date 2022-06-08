@@ -2,10 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator typegraphql {
-  provider = "typegraphql-prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -290,7 +286,6 @@ model User {
   mail                       String                      @unique(map: "users_mail_uindex") @db.VarChar(300)
   personId                   Int?                        @map("person")
   discord                    Int?                        @unique(map: "users_discord_uindex")
-  /// @TypeGraphQL.omit(output: true)
   password                   String?                     @db.VarChar(300)
   joined                     DateTime                    @default(now()) @db.Timestamp(6)
   person                     Person?                     @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
@@ -321,7 +316,7 @@ model Video {
   name        String            @db.VarChar(100)
   format      String            @db.VarChar(32)
   metadata    Json?             @db.Json
-  productions ProductionVideo[]
+  videoFor ProductionVideo[]
 
   @@map("videos")
 }

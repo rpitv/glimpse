@@ -1,7 +1,5 @@
 import dotenv from "dotenv";
-
 dotenv.config();
-import "reflect-metadata";
 
 import express, {Express} from "express";
 import { ApolloServer } from 'apollo-server-express';
@@ -14,26 +12,12 @@ import http from "http";
 import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
-import {buildSchema} from "type-graphql";
-import { getResolvers } from "./resolvers";
+import path from "path";
 
 import {prisma} from "./prisma";
 import {injectRequestProperties} from "./middleware/injectRequestProperties";
-import {auth} from "./auth";
-
-/**
- * Type returned by startHttpServer()
- */
-type CreateHttpServerResult = {
-    expressServer: express.Express;
-    httpServer: http.Server;
-    apolloServer: ApolloServer;
-};
-
-/**
- * Types of values which can be set in the "trust proxy" express key/value.
- */
-type TrustProxyOption = boolean | string | number | ((ip: string) => boolean);
+import {resolvers} from './resolvers';
+import {CreateHttpServerResult, ResolverContext, TrustProxyOption} from "./@types/custom";
 
 /**
  * Check whether this server should run in HTTPS mode or not.
@@ -41,6 +25,11 @@ type TrustProxyOption = boolean | string | number | ((ip: string) => boolean);
  */
 function isHttps(): boolean {
     return !!process.env.HTTPS && process.env.HTTPS !== "false";
+}
+
+async function loadSchema(): Promise<string> {
+    const file = await fs.readFile(path.join(__dirname, "schema.graphql"))
+    return file.toString();
 }
 
 /**
@@ -85,12 +74,9 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
 
     // --- Create Apollo server ---
     const apolloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers: getResolvers(),
-            validate: false,
-            authChecker: auth
-        }),
-        context: ((ctx) => ({ prisma, ...ctx })),
+        typeDefs: await loadSchema(),
+        resolvers,
+        context: ((ctx): ResolverContext => ({ prisma, ...ctx })),
         csrfPrevention: true,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     });
