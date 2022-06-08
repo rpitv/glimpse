@@ -18,6 +18,7 @@ pids
 *.pid.lock
 /.db-data
 /.redis-data
+/.meili-data
 
 # Coverage directory used by tools like istanbul
 coverage
