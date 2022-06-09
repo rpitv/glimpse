@@ -103,6 +103,7 @@ export type Group = {
   name?: Maybe<Scalars['String']>;
   parent?: Maybe<Group>;
   permissions?: Maybe<Array<GroupPermission>>;
+  priority?: Maybe<Scalars['Int']>;
   users?: Maybe<Array<UserGroup>>;
 };
 
@@ -991,6 +992,7 @@ export type GroupResolvers<ContextType = any, ParentType extends ResolversParent
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   parent?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['GroupPermission']>>, ParentType, ContextType>;
+  priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   users?: Resolver<Maybe<Array<ResolversTypes['UserGroup']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

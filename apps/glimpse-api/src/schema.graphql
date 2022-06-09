@@ -318,6 +318,7 @@ type Group {
     id: ID!
     name: String
     parent: Group
+    priority: Int
     permissions: [GroupPermission!]
     children: [Group!]
     users: [UserGroup!]
