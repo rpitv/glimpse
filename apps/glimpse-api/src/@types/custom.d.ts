@@ -2,8 +2,9 @@ import {PrismaClient} from "@prisma/client";
 import express from "express";
 import http from "http";
 import {ApolloServer} from "apollo-server-express";
-import {Ability, RawRuleOf} from "@casl/ability";
+import {RawRuleOf} from "@casl/ability";
 import {User} from '.prisma/client'
+import {PrismaAbility} from "@casl/prisma";
 
 /**
  * Types of acceptable actions for CASL permissions
@@ -16,7 +17,7 @@ type AbilitySubjects = User | typeof User | 'User' | 'all';
 /**
  * Tuple of CASL ability actions & subjects
  */
-type GlimpseAbility = [AbilityActions, AbilitySubjects];
+type GlimpseAbility = PrismaAbility<[AbilityActions, AbilitySubjects]>;
 
 /**
  * Type that the context passed to Apollo resolvers should follow
@@ -25,7 +26,7 @@ type ResolverContext = {
     prisma: PrismaClient;
     req: Express.Request;
     res: Express.Response;
-    permissions: Ability<GlimpseAbility>;
+    permissions: GlimpseAbility;
     user?: User;
 }
 
@@ -45,7 +46,7 @@ type TrustProxyOption = boolean | string | number | ((ip: string) => boolean);
 
 declare module 'express-session' {
     interface SessionData {
-        permissionJSON?: RawRuleOf<Ability<GlimpseAbility>>[];
+        permissionJSON?: RawRuleOf<GlimpseAbility>[];
         userId?: number;
     }
 }
