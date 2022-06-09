@@ -13,12 +13,17 @@ import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
+import {Ability} from "@casl/ability";
+import {makeExecutableSchema} from "@graphql-tools/schema";
+import {applyMiddleware} from "graphql-middleware";
 
 import {prisma} from "./prisma";
 import {resolvers} from './resolvers';
-import {CreateHttpServerResult, GlimpseAbility, ResolverContext, TrustProxyOption} from "custom";
-import {Ability, RawRuleOf} from "@casl/ability";
-import {User} from ".prisma/client";
+import {
+    ResolverContext,
+    TrustProxyOption
+} from "custom";
+import {getAuthShield, getPermissions} from "./permissions";
 
 /**
  * Check whether this server should run in HTTPS mode or not.
@@ -29,21 +34,12 @@ function isHttps(): boolean {
 }
 
 /**
- * Load the GraphQL schema from the filesystem.
- * @returns The GraphQL schema as a string
- */
-async function loadSchema(): Promise<string> {
-    const file = await fs.readFile(path.join(__dirname, "schema.graphql"))
-    return file.toString();
-}
-
-/**
  * Setup all the necessary middleware and listeners on an Express server.
  *   Note, this currently sets up the session, but it doesn't touch Apollo context.
  *   Context items should generally be added to Apollo instead of the Express request.
  * @param expressServer Express server to add middleware to.
  */
-async function setupMiddleware(expressServer: Express): Promise<void> {
+async function setupExpressMiddleware(expressServer: Express): Promise<void> {
     // Enable CORS in development environments, as frontend and backend may be running on separate ports/hosts
     if (process.env.NODE_ENV === "development") {
         expressServer.use(cors());
@@ -76,31 +72,11 @@ async function setupMiddleware(expressServer: Express): Promise<void> {
 }
 
 /**
- * Get the permissions for a specified user from the database. Also retrieves the permissions
- *   for the group(s) that they are in and combines them into one permission set. If the user
- *   does not have any denying permissions, then this is straightforward. If the user has any
- *   denying permissions, then they are applied in the order of the priority of the groups,
- *   with the higher priority groups' permissions ranking higher than lower priority groups.
- *   The user's direct permissions are applied last.
- * @param user User to get the permissions for, or undefined if there is no user that is
- *   currently logged in. If that is the case, then default permissions are retrieved from
- *   the reserved group "Guest". If the "Guest" group does not exist, then it's assumed
- *   the user has no permissions, and must log in to do anything.
- * @returns An array of CASL rules which can be passed directly to the Ability constructor.
- */
-async function getPermissions(user?: User): Promise<RawRuleOf<Ability<GlimpseAbility>>[]> {
-    return [{
-        action: 'manage',
-        subject: 'all'
-    }];
-}
-
-/**
  * Set up the context for the incoming request to the Apollo server.
  * @param req Express Request
  * @param res Express Response
  */
-async function setupContext({req, res}: {req: Express.Request, res: Express.Response}): Promise<ResolverContext> {
+async function setupApolloContext({req, res}: {req: Express.Request, res: Express.Response}): Promise<ResolverContext> {
     let user;
     if(req.session.userId) {
         user = await prisma.user.findUnique({ where: { id: req.session.userId }})
@@ -119,15 +95,22 @@ async function setupContext({req, res}: {req: Express.Request, res: Express.Resp
 }
 
 /**
- * Create the HTTP/HTTPS server and Express app instances. This takes care of determining what type of server to use
- *   and creates the correct instances, but it doesn't start the server. The server should not be started until
- *   all middleware has been added to the Express app.
+ * Load the GraphQL schema from the filesystem.
+ * @returns The GraphQL schema as a string
+ */
+async function loadGraphQLSchema(): Promise<string> {
+    const file = await fs.readFile(path.join(__dirname, "schema.graphql"))
+    return file.toString();
+}
+
+/**
+ * Create an Express server/app instance with middleware. Express can be used for custom HTTP endpoints outside of
+ *   Apollo, as well as static file serving.
  * @param customTrustProxyValue Value to be set for the 'trust proxy' key in Express' key/value store. If you wish
  *   to not trust proxies, then this can be omitted.
  * @see http://expressjs.com/en/guide/behind-proxies.html
  */
-async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promise<CreateHttpServerResult> {
-    // --- Create Express server ---
+async function createExpressServer(customTrustProxyValue?: TrustProxyOption): Promise<Express> {
     const expressServer = express();
     // When behind an HTTP proxy server, the PROXIED environment variable can be passed to enable express to trust it.
     //   http://expressjs.com/en/guide/behind-proxies.html
@@ -135,10 +118,16 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
         expressServer.set('trust proxy', customTrustProxyValue);
     }
 
-    await setupMiddleware(expressServer);
+    await setupExpressMiddleware(expressServer);
+    return expressServer;
+}
 
-    // --- Create HTTP server ---
-    let httpServer: http.Server;
+/**
+ * Create the HTTP/HTTPS server. This takes care of determining what type of server to use and creates the correct
+ *   instances, but it doesn't start the server. The server should not be started until all middleware has been added
+ *   to the Express app.
+ */
+async function createHttpServer(expressServer: Express): Promise<http.Server> {
     if (isHttps()) {
         // If user set the HTTPS env variable to true, but didn't set the KEY and/or CERT paths, server can't start.
         if (!process.env.HTTPS_KEY_PATH || !process.env.HTTPS_CERT_PATH) {
@@ -149,7 +138,7 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
         const privateKey = fs.readFileSync(process.env.HTTPS_KEY_PATH);
         const cert = fs.readFileSync(process.env.HTTPS_CERT_PATH);
 
-        httpServer = https.createServer(
+        return https.createServer(
             {
                 key: privateKey,
                 cert: cert,
@@ -157,26 +146,38 @@ async function createHttpServer(customTrustProxyValue?: TrustProxyOption): Promi
             expressServer
         );
     } else {
-        httpServer = http.createServer(expressServer);
+        return http.createServer(expressServer);
     }
+}
 
-    // --- Create Apollo server ---
+/**
+ * Create an Apollo server on top of the passed HTTP server, and take in an Express server as middleware.
+ *   Unlike {@link createHttpServer}, this DOES start the server. This is because some middleware needs to be
+ *   applied after the server has already started. Regardless, the Apollo server won't be able to take in any
+ *   data from clients until the HTTP server has started as well.
+ * @param httpServer HTTP server to build the Apollo server on top of.
+ * @param expressServer Express server to use as middleware for the Apollo server.
+ */
+async function createApolloServer(httpServer: http.Server, expressServer: Express): Promise<ApolloServer> {
+    // Create schema from resolver functions & graphql.schema file
+    let schema = makeExecutableSchema({
+        typeDefs: await loadGraphQLSchema(),
+        resolvers
+    });
+    schema = applyMiddleware(schema, getAuthShield());
+
+    // Create server based on schema
     const apolloServer = new ApolloServer({
-        typeDefs: await loadSchema(),
-        resolvers,
-        context: setupContext,
+        schema,
+        context: setupApolloContext,
         csrfPrevention: true,
         plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     });
+
     // "Start" Apollo server, and integrate with Express. Can't actually accept HTTP requests until HTTP server starts.
     await apolloServer.start();
     apolloServer.applyMiddleware({ app: expressServer });
-
-    return {
-        expressServer,
-        httpServer,
-        apolloServer
-    }
+    return apolloServer;
 }
 
 /**
@@ -199,8 +200,13 @@ async function main(): Promise<void> {
     }
 
     // If PROXIED environment variable is set and isn't equal to "false", then trust one layer of proxy.
-    let trustProxyOption = (!!process.env.PROXIED && process.env.PROXIED !== "false") ? 1 : undefined;
-    const {httpServer} = await createHttpServer(trustProxyOption);
+    const trustProxyOption = (!!process.env.PROXIED && process.env.PROXIED !== "false") ? 1 : undefined;
+
+    // Create the three servers this app uses. Note, express and apollo aren't actual servers with their own port.
+    //   They are layers on top of the HTTP server.
+    const expressServer = await createExpressServer(trustProxyOption);
+    const httpServer = await createHttpServer(expressServer);
+    await createApolloServer(httpServer, expressServer);
 
     const port = parseInt(process.env.PORT ?? "4000");
     const host = "0.0.0.0";

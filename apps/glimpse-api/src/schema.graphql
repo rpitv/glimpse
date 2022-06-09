@@ -2,237 +2,33 @@ scalar DateTime
 scalar JSON
 scalar Upload
 
-enum VideoType {
-    EMBED,
-    RTMP
+enum ORDER {
+    ASC,
+    DESC
+}
+
+"""
+Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
+used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+"""
+input Pagination {
+    skip: Int
+    take: Int!
+    cursor: ID
 }
 
 type Query {
     """
-    Get a list of all User objects in a paginated or non-paginated manner.
+    Get a list of users which the user currently has access to read. Has ordering and pagination
     """
-    users(pageSize: Int, prevUserIndex: Int, searchCtx: String, advancedSearch: Boolean): [User!]!
-    """
-    Get a list of all Person objects which have an active role in a paginated or non-paginated manner.
-    """
-    members(pageSize: Int, prevPersonIndex: Int): [Person!]!
-    """
-    Get a list of all Person objects regardless of member status in a paginated or non-paginated manner.
-    """
-    people(pageSize: Int, prevPersonIndex: Int, searchCtx: String, advancedSearch: Boolean): [Person!]!
-    """
-    Get a list of all Image objects in the database in a paginated or non-paginated manner.
-    """
-    images(pageSize: Int, prevImageIndex: Int, searchCtx: String, advancedSearch: Boolean): [Image!]!
-    """
-    Get a list of all Video objects in the database in a paginated or non-paginated manner.
-    """
-    videos(pageSize: Int, prevVideoIndex: Int, searchCtx: String, advancedSearch: Boolean): [Video!]!
-    """
-    Get a list of all Production objects in a paginated or non-paginated manner.
-    """
-    productions(pageSize: Int, prevProductionIndex: Int, searchCtx: String, advancedSearch: Boolean): [Production!]!
-    """
-    Get a list of all Category objects in a paginated or non-paginated manner.
-    """
-    categories(pageSize: Int, prevCategoryIndex: Int, searchCtx: String, advancedSearch: Boolean): [Category!]!
-
-    """
-    Get some User object based on that object's ID. Returns null if the User does not exist in the database.
-    """
-    getUser(id: ID!): User
-    """
-    Get some Person object based on that object's ID. Returns null if the Person does not exist in the database.
-    """
-    getPerson(id: ID!): Person
-    """
-    Get some Role object based on that object's ID. Returns null if the Role does not exist in the database.
-    """
-    getRole(id: ID!): Role
-    """
-    Get some Image object based on that object's ID. Returns null if the Image does not exist in the database.
-    """
-    getImage(id: ID!): Image
-    """
-    Get some Video object based on that object's ID. Returns null if the Video does not exist in the database.
-    """
-    getVideo(id: ID!): Video
-    """
-    Get some Production object based on that object's ID. Returns null if the Production does not exist in
-    the database.
-    """
-    getProduction(id: ID!): Production
-    """
-    Get some Credit object based on that object's ID. Returns null if the Credit does not exist in the database.
-    """
-    getCredit(id: ID!): Credit
-    """
-    Get some Category object based on that object's ID. Returns null if the Category does not exist in the database.
-    """
-    getCategory(id: ID!): Category
-
-    """
-    The total number of Users in the database. Optionally provide a search context.
-    """
-    userCount(searchCtx: String, advancedSearch: Boolean): Int!
-    """
-    The total number of Persons in the database which have an active Role at the given moment.
-    """
-    memberCount: Int!
-    """
-    The total number of Persons in the database. Optionally provide a search context.
-    """
-    peopleCount(searchCtx: String, advancedSearch: Boolean): Int!
-    """
-    The total number of Images in the database. Optionally provide a search context.
-    """
-    imageCount(searchCtx: String, advancedSearch: Boolean): Int!
-    """
-    The total number of Videos in the database. Optionally provide a search context.
-    """
-    videoCount(searchCtx: String, advancedSearch: Boolean): Int!
-    """
-    The total number of Productions in the database. Optionally provide a search context.
-    """
-    productionCount(searchCtx: String, advancedSearch: Boolean): Int!
-    """
-    The total number of Categories in the database. Optionally provide a search context.
-    """
-    categoryCount(searchCtx: String, advancedSearch: Boolean): Int!
+    users(orderBy: UserOrderBy, pagination: Pagination): [User!]!
 }
 
-type Mutation {
-    """
-    Create a new person in the database. Returns the newly created Person.
-    """
-    createPerson(firstName: String, lastName: String, preferredName: String, classYear: Int): Person
-    """
-    Update a person in the database with new information. Returns the updated person.
-    """
-    updatePerson(id: ID!, firstName: String, lastName: String, preferredName: String, classYear: Int): Person
-    """
-    Delete a person from the database. Will also delete all of their roles.
-    Returns true on success, false otherwise.
-    """
-    deletePerson(id: ID!): Boolean
-    """
-    Add a role to a person in the database. Returns the newly created Role.
-    """
-    createRole(owner: Int!, name: String! startDate: DateTime, endDate: DateTime, appearsAfter: Int): Role
-    """
-    Update an existing Role in the database with new information. Returns the new Role.
-    """
-    updateRole(id: ID!, owner: Int, name: String, startDate: DateTime, endDate: DateTime, appearsAfter: Int): Role
-    """
-    Delete a role from the database.
-    Returns true on success, false otherwise.
-    """
-    deleteRole(id: ID!): Boolean
-    """
-    Upload an image to the database.
-    """
-    uploadImage(name: String!, file: Upload!): Image
-    """
-    Create a new image which is hosted at an off-site URL.
-    """
-    createOffsiteImage(name: String!, link: String!): Image
-    """
-    Delete an image from the database. Also deletes any image-links to productions using this Image.
-    Returns true on success, false otherwise.
-    """
-    deleteImage(id: ID!): Boolean
-    """
-    Update an image in the database.
-    """
-    updateImage(id: ID!, name: String): Image
-    """
-    Create a new embed-based video in the database. Requires a url that begins with "http://" or "https://".
-    """
-    createEmbedVideo(name: String!, url: String!): Video
-    """
-    Create a new RTMP-based video in the database. Requires a url that begins with "rtmp://". RTMP requires
-    Flash Player, and as such, this type of video should soon be deprecated.
-    """
-    createRTMPVideo(name: String!, rtmpUrl: String!): Video
-    """
-    Update an embed-based video in the database.
-    If the video with the provided ID is not an embed video, an error will be thrown.
-    """
-    updateEmbedVideo(id: ID!, name: String, url: String): Video
-    """
-    Update an RTMP-based video in the database.
-    If the video with the provided ID is not an RTMP video, an error will be thrown.
-    """
-    updateRTMPVideo(id: ID!, name: String, rtmpUrl: String): Video
-    """
-    Delete a video from the database. Also deletes any video-links to productions using this Video.
-    Returns true on success, false otherwise.
-    """
-    deleteVideo(id: ID!): Boolean
+#type Mutation {
+#
+#}
 
-    """
-    Create a new Production in the database.
-    """
-    createProduction(name: String!, description: String, thumbnail: Int, category: Int,
-        startTime: DateTime, visible: Boolean): Production
-    """
-    Update a production in the database.
-    """
-    updateProduction(id: ID!, name: String, description: String, thumbnail: Int, category: Int,
-        startTime: DateTime, visible: Boolean): Production
-    """
-    Delete a production from the database. Also deletes any Credits, video-links, and image-links from the database.
-    Returns true on success, false otherwise.
-    """
-    deleteProduction(id: ID!): Boolean
-    """
-    Link a Video to a Production.
-    """
-    addVideoToProduction(production: Int!, video: Int!): Boolean
-    """
-    Unlink a Video from a Production.
-    """
-    removeVideoFromProduction(production: Int!, video: Int!): Boolean
-    """
-    Link an Image to a Production.
-    """
-    addImageToProduction(production: Int!, image: Int!): Boolean
-    """
-    Unlink an Image from a Production.
-    """
-    removeImageFromProduction(production: Int!, image: Int!): Boolean
-    """
-    Create a Credit in a Production for a Person.
-    """
-    addCredit(production: Int!, person: Int!, job: String, appearsAfter: Int): Credit
-    """
-    Update a Credit.
-    """
-    updateCredit(id: ID!, person: Int, job: String, appearsAfter: Int): Credit
-    """
-    Delete a Credit from a Production. Will update any Credits which appear after this Credit to appear after the
-    Credit that this Credit appears after.
-    Returns true on success, false otherwise.
-    """
-    deleteCredit(id: ID!): Boolean
-
-    """
-    Create a new Category.
-    """
-    createCategory(name: String!, parent: Int, appearsAfter: Int): Category
-    """
-    Update a Category.
-    """
-    updateCategory(id: ID!, name: String, parent: Int, appearsAfter: Int): Category
-    """
-    Delete a Category. Will update any child Categories to have the parent of this Category's parent. Will
-    also update any Categories that appear after this Category to appear after the Category that this Category
-    appears after.
-    Returns true on success, false otherwise.
-    """
-    deleteCategory(id: ID!): Boolean
-
-}
+# Basic types #
 
 type AccessLog {
     id: ID!
@@ -452,6 +248,22 @@ type User {
     assignedContactSubmissions: [ContactSubmissionAssignee!]
     productionRsvps: [ProductionRSVP!]
     voteResponses: [VoteResponse!]
+}
+
+input UserWriteInput {
+    username: String
+    mail: String
+    person: ID
+    discord: String
+    password: String
+}
+
+input UserOrderBy {
+    id: ORDER
+    username: ORDER
+    mail: ORDER
+    #    person: PersonOrderBy
+    joined: ORDER
 }
 
 type Video {
