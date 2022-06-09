@@ -94,10 +94,11 @@ model ContactSubmissionAssignee {
   submissionId Int               @map("submission")
   userId       Int               @map("user")
   timestamp    DateTime          @default(now()) @db.Timestamp(6)
+  id           Int               @id(map: "contact_submission_assignees_pk") @default(autoincrement())
   submission   ContactSubmission @relation(fields: [submissionId], references: [id], map: "contact_submission_assignees_contact_submissions_id_fk")
   user         User              @relation(fields: [userId], references: [id], map: "contact_submission_assignees_users_id_fk")
 
-  @@id([submissionId, userId], map: "contact_submission_assignees_pk")
+  @@unique([userId, submissionId], map: "contact_submission_assignees_pk_2")
   @@index([userId], map: "contact_submission_assignees_user_index")
   @@map("contact_submission_assignees")
 }
@@ -107,47 +108,52 @@ model Credit {
   personId     Int        @map("person")
   title        String?    @db.VarChar(100)
   priority     Int        @default(0)
+  id           Int        @id(map: "credits_pk") @default(autoincrement())
   person       Person     @relation(fields: [personId], references: [id], map: "credits_people_id_fk")
   production   Production @relation(fields: [productionId], references: [id], map: "credits_productions_id_fk")
 
-  @@id([productionId, personId], map: "credits_pk")
+  @@unique([productionId, personId], map: "credits_pk_2")
   @@index([personId, productionId], map: "credits_person_production_index")
   @@index([productionId, priority, title], map: "credits_production_priority_title_index")
   @@map("credits")
 }
 
 model Group {
-  id          Int               @id(map: "groups_pk") @default(autoincrement())
-  name        String            @db.VarChar(50)
-  parentId    Int?              @map("parent")
-  parent      Group?            @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
-  permissions GroupPermission[]
-  children    Group[]           @relation("GroupToGroup_parentId")
+  id                Int              @id(map: "groups_pk") @default(autoincrement())
+  name              String           @db.VarChar(50)
+  parentId          Int?             @map("parent")
+  parent            Group?           @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
+  group_permissions GroupPermission? @relation("group_permissionsTogroups")
+  children          Group[]          @relation("GroupToGroup_parentId")
+  user_groups       UserGroup[]      @relation("groupsTouser_groups")
 
   @@index([name], map: "groups_name_index")
   @@map("groups")
 }
 
 model GroupPermission {
-  groupId    Int     @map("group")
-  permission String  @db.VarChar(100)
-  resource   String  @default("*") @db.VarChar(300)
-  allow      Boolean
-  group      Group   @relation(fields: [groupId], references: [id], map: "group_permissions_groups_id_fk")
+  id         Int      @id(map: "group_permissions_pk") @default(autoincrement())
+  groupId    Int      @map("group")
+  action     String   @db.VarChar(100)
+  subject    String[] @db.VarChar(300)
+  fields     String[] @db.VarChar(100)
+  conditions Json?    @db.Json
+  inverted   Boolean  @default(false)
+  reason     String?  @db.VarChar(300)
+  groups     Group    @relation("group_permissionsTogroups", fields: [id], references: [id], map: "group_permissions_groups_id_fk")
 
-  @@id([groupId, permission, resource], map: "group_permissions_pk")
-  @@index([resource], map: "group_permissions_resource_index")
+  @@index([groupId, subject, action], map: "group_permissions_group_subject_action_index")
   @@map("group_permissions")
 }
 
 model Image {
-  id               Int               @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
-  name             String            @db.VarChar(50)
-  description      String?           @db.VarChar(200)
-  path             String            @db.VarChar(1000)
-  people           PersonImage[]
-  imageFor         ProductionImage[]
-  thumbnailFor     Production[]
+  id           Int               @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
+  name         String            @db.VarChar(50)
+  description  String?           @db.VarChar(200)
+  path         String            @db.VarChar(1000)
+  people       PersonImage[]
+  imageFor     ProductionImage[]
+  thumbnailFor Production[]
 
   @@map("images")
 }
@@ -173,10 +179,11 @@ model PersonImage {
   imageId  Int    @map("image")
   personId Int    @map("person")
   priority Int    @default(0)
+  id       Int    @id(map: "people_images_pk") @default(autoincrement())
   image    Image  @relation(fields: [imageId], references: [id], map: "people_images_images_id_fk")
   person   Person @relation(fields: [personId], references: [id], map: "people_images_people_id_fk")
 
-  @@id([imageId, personId], map: "people_images_pk")
+  @@unique([imageId, personId], map: "people_images_pk_2")
   @@index([personId], map: "people_images_person_index")
   @@map("people_images")
 }
@@ -215,10 +222,11 @@ model ProductionImage {
   productionId Int        @map("production")
   imageId      Int        @map("image")
   priority     Int        @default(0)
+  id           Int        @id(map: "production_images_pk") @default(autoincrement())
   image        Image      @relation(fields: [imageId], references: [id], map: "production_images_images_id_fk")
   production   Production @relation("production_imagesToproductions", fields: [productionId], references: [id], map: "production_images_productions_id_fk")
 
-  @@id([productionId, imageId], map: "production_images_pk")
+  @@unique([productionId, imageId], map: "production_images_pk_2")
   @@index([productionId, priority], map: "production_images_production_priority_index")
   @@map("production_images")
 }
@@ -228,10 +236,11 @@ model ProductionRSVP {
   userId       Int        @map("user")
   willAttend   String?    @map("will_attend") @db.VarChar(5)
   notes        String?
+  id           Int        @id(map: "production_rsvps_pk") @default(autoincrement())
   production   Production @relation(fields: [productionId], references: [id], map: "production_rsvps_productions_id_fk")
   user         User       @relation(fields: [userId], references: [id], map: "production_rsvps_users_id_fk")
 
-  @@id([productionId, userId], map: "production_rsvps_pk")
+  @@unique([productionId, userId], map: "production_rsvps_pk_2")
   @@index([userId, willAttend], map: "production_rsvps_user_will_attend_index")
   @@map("production_rsvps")
 }
@@ -239,9 +248,10 @@ model ProductionRSVP {
 model ProductionTag {
   productionId Int        @map("production")
   tag          String     @db.VarChar(50)
+  id           Int        @id(map: "production_tags_pk") @default(autoincrement())
   production   Production @relation(fields: [productionId], references: [id], map: "production_tags_productions_id_fk")
 
-  @@id([productionId, tag], map: "production_tags_pk")
+  @@unique([productionId, tag], map: "production_tags_pk_2")
   @@index([tag], map: "production_tags_tag_index")
   @@map("production_tags")
 }
@@ -250,18 +260,20 @@ model ProductionVideo {
   productionId Int        @map("production")
   videoId      Int        @map("video")
   priority     Int        @default(0)
+  id           Int        @id(map: "production_videos_pk") @default(autoincrement())
   production   Production @relation(fields: [productionId], references: [id], map: "production_videos_productions_id_fk")
   video        Video      @relation(fields: [videoId], references: [id], map: "production_videos_videos_id_fk")
 
-  @@id([productionId, videoId], map: "production_videos_pk")
+  @@unique([productionId, videoId], map: "production_videos_pk_2")
   @@index([productionId, priority], map: "production_videos_production_priority_index")
   @@map("production_videos")
 }
 
 model Redirect {
-  key      String    @id(map: "redirects_pk") @db.VarChar(100)
+  key      String    @unique(map: "redirects_pk_2") @db.VarChar(100)
   location String    @db.VarChar(3000)
   expires  DateTime? @db.Timestamp(6)
+  id       Int       @id(map: "redirects_pk") @default(autoincrement())
 
   @@index([expires], map: "redirects_expires_index")
   @@map("redirects")
@@ -293,29 +305,44 @@ model User {
   auditLogs                  AuditLog[]
   assignedContactSubmissions ContactSubmissionAssignee[]
   productionRsvps            ProductionRSVP[]
-  permissions                UserPermission[]
+  user_groups                UserGroup[]                 @relation("user_groupsTousers")
+  permissions                UserPermission[]            @relation("user_permissionsTousers")
   voteResponses              VoteResponse[]
 
   @@map("users")
 }
 
-model UserPermission {
-  userId     Int     @map("user")
-  permission String  @db.VarChar(100)
-  resource   String  @default("*") @db.VarChar(300)
-  allow      Boolean @default(false)
-  user       User    @relation(fields: [userId], references: [id], map: "user_permissions_users_id_fk")
+model UserGroup {
+  id     Int   @id(map: "user_groups_pk") @default(autoincrement())
+  user   Int
+  group  Int
+  groups Group @relation("groupsTouser_groups", fields: [group], references: [id], map: "user_groups_groups_id_fk")
+  users  User  @relation("user_groupsTousers", fields: [user], references: [id], map: "user_groups_users_id_fk")
 
-  @@id([userId, permission], map: "user_permissions_pk")
-  @@index([resource], map: "user_permissions_resource_index")
+  @@unique([user, group], map: "user_groups_pk_2")
+  @@map("user_groups")
+}
+
+model UserPermission {
+  id         Int      @id(map: "user_permissions_pk") @default(autoincrement())
+  userId     Int      @map("user")
+  action     String   @db.VarChar(100)
+  subject    String[] @db.VarChar(300)
+  fields     String[] @db.VarChar(100)
+  conditions Json?    @db.Json
+  inverted   Boolean  @default(false)
+  reason     String?  @db.VarChar(300)
+  user       User     @relation("user_permissionsTousers", fields: [userId], references: [id], map: "user_permissions_users_id_fk")
+
+  @@index([userId, subject, action], map: "user_permissions_user_subject_action_index")
   @@map("user_permissions")
 }
 
 model Video {
-  id          Int               @id(map: "videos_pk") @default(autoincrement())
-  name        String            @db.VarChar(100)
-  format      String            @db.VarChar(32)
-  metadata    Json?             @db.Json
+  id       Int               @id(map: "videos_pk") @default(autoincrement())
+  name     String            @db.VarChar(100)
+  format   String            @db.VarChar(32)
+  metadata Json?             @db.Json
   videoFor ProductionVideo[]
 
   @@map("videos")
@@ -337,10 +364,11 @@ model VoteResponse {
   voteId    Int      @map("vote")
   userId    Int      @map("user")
   timestamp DateTime @default(now()) @db.Timestamp(6)
+  id        Int      @id(map: "vote_responses_pk") @default(autoincrement())
   user      User     @relation(fields: [userId], references: [id], map: "vote_responses_users_id_fk")
   vote      Vote     @relation(fields: [voteId], references: [id], map: "vote_responses_votes_id_fk")
 
-  @@id([voteId, userId], map: "vote_responses_pk")
+  @@unique([voteId, userId], map: "vote_responses_pk_2")
   @@index([userId], map: "vote_responses_user_index")
   @@map("vote_responses")
 }

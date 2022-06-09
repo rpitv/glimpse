@@ -7,5 +7,29 @@ generates:
       - "@graphql-codegen/typescript-resolvers"
     config:
       mappers:
+        AccessLog: .prisma/client#AccessLog as AccessLogModel
+        AlertLog: .prisma/client#AlertLog as AlertLogModel
+        AuditLog: .prisma/client#AuditLog as AuditLogModel
+        BlogPost: .prisma/client#BlogPost as BlogPostModel
+        Category: .prisma/client#Category as CategoryModel
+        ContactSubmissionAssignee: .prisma/client#ContactSubmissionAssignee as ContactSubmissionAssigneeModel
+        ContactSubmission: .prisma/client#ContactSubmission as ContactSubmissionModel
+        Credit: .prisma/client#Credit as CreditModel
+        GroupPermission: .prisma/client#GroupPermission as GroupPermissionModel
+        Group: .prisma/client#Group as GroupModel
+        Image: .prisma/client#Image as ImageModel
+        Person: .prisma/client#Person as PersonModel
+        PersonImage: .prisma/client#PersonImage as PersonImageModel
+        ProductionImage: .prisma/client#ProductionImage as ProductionImageModel
+        ProductionRSVP: .prisma/client#ProductionRSVP as ProductionRSVPModel
+        ProductionTag: .prisma/client#ProductionTag as ProductionTagModel
+        Production: .prisma/client#Production as ProductionModel
+        Redirect: .prisma/client#Redirect as RedirectModel
+        Role: .prisma/client#Role as RoleModel
+        UserPermission: .prisma/client#UserPermission as UserPermissionModel
+        UserGroup: .prisma/client#UserGroup as UserGroupModel
         User: .prisma/client#User as UserModel
+        Video: .prisma/client#Video as VideoModel
+        VoteResponse: .prisma/client#VoteResponse as VoteResponseModel
+        Vote: .prisma/client#Vote as VoteModel
       inputMaybeValue: undefined | T
