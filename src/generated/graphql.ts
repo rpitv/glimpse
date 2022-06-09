@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { User as UserModel } from '.prisma/client';
+import { AccessLog as AccessLogModel, AlertLog as AlertLogModel, AuditLog as AuditLogModel, BlogPost as BlogPostModel, Category as CategoryModel, ContactSubmissionAssignee as ContactSubmissionAssigneeModel, ContactSubmission as ContactSubmissionModel, Credit as CreditModel, GroupPermission as GroupPermissionModel, Group as GroupModel, Image as ImageModel, Person as PersonModel, PersonImage as PersonImageModel, ProductionImage as ProductionImageModel, ProductionRSVP as ProductionRSVPModel, ProductionTag as ProductionTagModel, Production as ProductionModel, Redirect as RedirectModel, Role as RoleModel, UserPermission as UserPermissionModel, UserGroup as UserGroupModel, User as UserModel, Video as VideoModel, VoteResponse as VoteResponseModel, Vote as VoteModel } from '.prisma/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -81,6 +81,7 @@ export type ContactSubmission = {
 
 export type ContactSubmissionAssignee = {
   __typename?: 'ContactSubmissionAssignee';
+  id: Scalars['ID'];
   submission?: Maybe<ContactSubmission>;
   timestamp?: Maybe<Scalars['DateTime']>;
   user?: Maybe<User>;
@@ -88,6 +89,7 @@ export type ContactSubmissionAssignee = {
 
 export type Credit = {
   __typename?: 'Credit';
+  id: Scalars['ID'];
   person?: Maybe<Person>;
   priority?: Maybe<Scalars['Int']>;
   production?: Maybe<Production>;
@@ -100,7 +102,20 @@ export type Group = {
   id: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   parent?: Maybe<Group>;
-  permissions?: Maybe<Array<Permission>>;
+  permissions?: Maybe<Array<GroupPermission>>;
+  users?: Maybe<Array<UserGroup>>;
+};
+
+export type GroupPermission = {
+  __typename?: 'GroupPermission';
+  action?: Maybe<Scalars['String']>;
+  conditions?: Maybe<Scalars['JSON']>;
+  fields?: Maybe<Array<Scalars['String']>>;
+  group?: Maybe<Group>;
+  id: Scalars['ID'];
+  inverted?: Maybe<Scalars['Boolean']>;
+  reason?: Maybe<Scalars['String']>;
+  subject?: Maybe<Array<Scalars['String']>>;
 };
 
 export type Image = {
@@ -398,14 +413,6 @@ export type MutationUploadImageArgs = {
   name: Scalars['String'];
 };
 
-export type Permission = {
-  __typename?: 'Permission';
-  action?: Maybe<Scalars['String']>;
-  conditions?: Maybe<Scalars['JSON']>;
-  fields?: Maybe<Array<Maybe<Scalars['String']>>>;
-  subjects?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
 export type Person = {
   __typename?: 'Person';
   blogPosts?: Maybe<Array<BlogPost>>;
@@ -424,6 +431,7 @@ export type Person = {
 
 export type PersonImage = {
   __typename?: 'PersonImage';
+  id: Scalars['ID'];
   image?: Maybe<Image>;
   person?: Maybe<Person>;
   priority?: Maybe<Scalars['Int']>;
@@ -453,6 +461,7 @@ export type Production = {
 
 export type ProductionImage = {
   __typename?: 'ProductionImage';
+  id: Scalars['ID'];
   image?: Maybe<Image>;
   priority?: Maybe<Scalars['Int']>;
   production?: Maybe<Production>;
@@ -460,6 +469,7 @@ export type ProductionImage = {
 
 export type ProductionRsvp = {
   __typename?: 'ProductionRSVP';
+  id: Scalars['ID'];
   notes?: Maybe<Scalars['String']>;
   production?: Maybe<Production>;
   user?: Maybe<User>;
@@ -468,12 +478,14 @@ export type ProductionRsvp = {
 
 export type ProductionTag = {
   __typename?: 'ProductionTag';
+  id: Scalars['ID'];
   production?: Maybe<Production>;
   tag?: Maybe<Scalars['String']>;
 };
 
 export type ProductionVideo = {
   __typename?: 'ProductionVideo';
+  id: Scalars['ID'];
   priority?: Maybe<Scalars['Int']>;
   production?: Maybe<Production>;
   video?: Maybe<Video>;
@@ -663,6 +675,7 @@ export type QueryVideosArgs = {
 export type Redirect = {
   __typename?: 'Redirect';
   expires?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
   key?: Maybe<Scalars['String']>;
   location?: Maybe<Scalars['String']>;
 };
@@ -683,14 +696,34 @@ export type User = {
   assignedContactSubmissions?: Maybe<Array<ContactSubmissionAssignee>>;
   auditLogs?: Maybe<Array<AuditLog>>;
   discord?: Maybe<Scalars['String']>;
+  groups?: Maybe<Array<UserGroup>>;
   id: Scalars['ID'];
   joined?: Maybe<Scalars['DateTime']>;
   mail?: Maybe<Scalars['String']>;
-  permissions?: Maybe<Array<Permission>>;
+  permissions?: Maybe<Array<UserPermission>>;
   person?: Maybe<Person>;
   productionRsvps?: Maybe<Array<ProductionRsvp>>;
   username?: Maybe<Scalars['String']>;
   voteResponses?: Maybe<Array<VoteResponse>>;
+};
+
+export type UserGroup = {
+  __typename?: 'UserGroup';
+  group?: Maybe<Group>;
+  id: Scalars['ID'];
+  user?: Maybe<User>;
+};
+
+export type UserPermission = {
+  __typename?: 'UserPermission';
+  action?: Maybe<Scalars['String']>;
+  conditions?: Maybe<Scalars['JSON']>;
+  fields?: Maybe<Array<Scalars['String']>>;
+  id: Scalars['ID'];
+  inverted?: Maybe<Scalars['Boolean']>;
+  reason?: Maybe<Scalars['String']>;
+  subject?: Maybe<Array<Scalars['String']>>;
+  user?: Maybe<User>;
 };
 
 export type Video = {
@@ -719,6 +752,7 @@ export type Vote = {
 
 export type VoteResponse = {
   __typename?: 'VoteResponse';
+  id: Scalars['ID'];
   timestamp?: Maybe<Scalars['DateTime']>;
   user?: Maybe<User>;
   vote?: Maybe<Vote>;
@@ -793,77 +827,81 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AccessLog: ResolverTypeWrapper<Omit<AccessLog, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
-  AlertLog: ResolverTypeWrapper<AlertLog>;
-  AuditLog: ResolverTypeWrapper<Omit<AuditLog, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
-  BlogPost: ResolverTypeWrapper<Omit<BlogPost, 'author'> & { author?: Maybe<ResolversTypes['Person']> }>;
+  AccessLog: ResolverTypeWrapper<AccessLogModel>;
+  AlertLog: ResolverTypeWrapper<AlertLogModel>;
+  AuditLog: ResolverTypeWrapper<AuditLogModel>;
+  BlogPost: ResolverTypeWrapper<BlogPostModel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  Category: ResolverTypeWrapper<Omit<Category, 'parent' | 'productions'> & { parent?: Maybe<ResolversTypes['Category']>, productions?: Maybe<Array<ResolversTypes['Production']>> }>;
-  ContactSubmission: ResolverTypeWrapper<Omit<ContactSubmission, 'assignees'> & { assignees?: Maybe<Array<ResolversTypes['ContactSubmissionAssignee']>> }>;
-  ContactSubmissionAssignee: ResolverTypeWrapper<Omit<ContactSubmissionAssignee, 'submission' | 'user'> & { submission?: Maybe<ResolversTypes['ContactSubmission']>, user?: Maybe<ResolversTypes['User']> }>;
-  Credit: ResolverTypeWrapper<Omit<Credit, 'person' | 'production'> & { person?: Maybe<ResolversTypes['Person']>, production?: Maybe<ResolversTypes['Production']> }>;
+  Category: ResolverTypeWrapper<CategoryModel>;
+  ContactSubmission: ResolverTypeWrapper<ContactSubmissionModel>;
+  ContactSubmissionAssignee: ResolverTypeWrapper<ContactSubmissionAssigneeModel>;
+  Credit: ResolverTypeWrapper<CreditModel>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
-  Group: ResolverTypeWrapper<Group>;
+  Group: ResolverTypeWrapper<GroupModel>;
+  GroupPermission: ResolverTypeWrapper<GroupPermissionModel>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
-  Image: ResolverTypeWrapper<Omit<Image, 'imageFor' | 'people' | 'thumbnailFor'> & { imageFor?: Maybe<Array<ResolversTypes['ProductionImage']>>, people?: Maybe<Array<ResolversTypes['PersonImage']>>, thumbnailFor?: Maybe<Array<ResolversTypes['Production']>> }>;
+  Image: ResolverTypeWrapper<ImageModel>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Mutation: ResolverTypeWrapper<{}>;
-  Permission: ResolverTypeWrapper<Permission>;
-  Person: ResolverTypeWrapper<Omit<Person, 'blogPosts' | 'credits' | 'images' | 'roles' | 'users'> & { blogPosts?: Maybe<Array<ResolversTypes['BlogPost']>>, credits?: Maybe<Array<ResolversTypes['Credit']>>, images?: Maybe<Array<ResolversTypes['PersonImage']>>, roles?: Maybe<Array<ResolversTypes['Role']>>, users?: Maybe<Array<ResolversTypes['User']>> }>;
-  PersonImage: ResolverTypeWrapper<Omit<PersonImage, 'image' | 'person'> & { image?: Maybe<ResolversTypes['Image']>, person?: Maybe<ResolversTypes['Person']> }>;
-  Production: ResolverTypeWrapper<Omit<Production, 'category' | 'images' | 'rsvps' | 'tags' | 'thumbnail' | 'videos'> & { category?: Maybe<ResolversTypes['Category']>, images?: Maybe<Array<ResolversTypes['ProductionImage']>>, rsvps?: Maybe<Array<ResolversTypes['ProductionRSVP']>>, tags?: Maybe<Array<ResolversTypes['ProductionTag']>>, thumbnail?: Maybe<ResolversTypes['Image']>, videos?: Maybe<Array<ResolversTypes['ProductionVideo']>> }>;
-  ProductionImage: ResolverTypeWrapper<Omit<ProductionImage, 'image' | 'production'> & { image?: Maybe<ResolversTypes['Image']>, production?: Maybe<ResolversTypes['Production']> }>;
-  ProductionRSVP: ResolverTypeWrapper<Omit<ProductionRsvp, 'production' | 'user'> & { production?: Maybe<ResolversTypes['Production']>, user?: Maybe<ResolversTypes['User']> }>;
-  ProductionTag: ResolverTypeWrapper<Omit<ProductionTag, 'production'> & { production?: Maybe<ResolversTypes['Production']> }>;
+  Person: ResolverTypeWrapper<PersonModel>;
+  PersonImage: ResolverTypeWrapper<PersonImageModel>;
+  Production: ResolverTypeWrapper<ProductionModel>;
+  ProductionImage: ResolverTypeWrapper<ProductionImageModel>;
+  ProductionRSVP: ResolverTypeWrapper<ProductionRSVPModel>;
+  ProductionTag: ResolverTypeWrapper<ProductionTagModel>;
   ProductionVideo: ResolverTypeWrapper<Omit<ProductionVideo, 'production' | 'video'> & { production?: Maybe<ResolversTypes['Production']>, video?: Maybe<ResolversTypes['Video']> }>;
   Query: ResolverTypeWrapper<{}>;
-  Redirect: ResolverTypeWrapper<Redirect>;
-  Role: ResolverTypeWrapper<Omit<Role, 'person'> & { person?: Maybe<ResolversTypes['Person']> }>;
+  Redirect: ResolverTypeWrapper<RedirectModel>;
+  Role: ResolverTypeWrapper<RoleModel>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<UserModel>;
-  Video: ResolverTypeWrapper<Omit<Video, 'videoFor'> & { videoFor?: Maybe<Array<ResolversTypes['ProductionVideo']>> }>;
+  UserGroup: ResolverTypeWrapper<UserGroupModel>;
+  UserPermission: ResolverTypeWrapper<UserPermissionModel>;
+  Video: ResolverTypeWrapper<VideoModel>;
   VideoType: VideoType;
-  Vote: ResolverTypeWrapper<Omit<Vote, 'responses'> & { responses?: Maybe<Array<ResolversTypes['VoteResponse']>> }>;
-  VoteResponse: ResolverTypeWrapper<Omit<VoteResponse, 'user' | 'vote'> & { user?: Maybe<ResolversTypes['User']>, vote?: Maybe<ResolversTypes['Vote']> }>;
+  Vote: ResolverTypeWrapper<VoteModel>;
+  VoteResponse: ResolverTypeWrapper<VoteResponseModel>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AccessLog: Omit<AccessLog, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
-  AlertLog: AlertLog;
-  AuditLog: Omit<AuditLog, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
-  BlogPost: Omit<BlogPost, 'author'> & { author?: Maybe<ResolversParentTypes['Person']> };
+  AccessLog: AccessLogModel;
+  AlertLog: AlertLogModel;
+  AuditLog: AuditLogModel;
+  BlogPost: BlogPostModel;
   Boolean: Scalars['Boolean'];
-  Category: Omit<Category, 'parent' | 'productions'> & { parent?: Maybe<ResolversParentTypes['Category']>, productions?: Maybe<Array<ResolversParentTypes['Production']>> };
-  ContactSubmission: Omit<ContactSubmission, 'assignees'> & { assignees?: Maybe<Array<ResolversParentTypes['ContactSubmissionAssignee']>> };
-  ContactSubmissionAssignee: Omit<ContactSubmissionAssignee, 'submission' | 'user'> & { submission?: Maybe<ResolversParentTypes['ContactSubmission']>, user?: Maybe<ResolversParentTypes['User']> };
-  Credit: Omit<Credit, 'person' | 'production'> & { person?: Maybe<ResolversParentTypes['Person']>, production?: Maybe<ResolversParentTypes['Production']> };
+  Category: CategoryModel;
+  ContactSubmission: ContactSubmissionModel;
+  ContactSubmissionAssignee: ContactSubmissionAssigneeModel;
+  Credit: CreditModel;
   DateTime: Scalars['DateTime'];
-  Group: Group;
+  Group: GroupModel;
+  GroupPermission: GroupPermissionModel;
   ID: Scalars['ID'];
-  Image: Omit<Image, 'imageFor' | 'people' | 'thumbnailFor'> & { imageFor?: Maybe<Array<ResolversParentTypes['ProductionImage']>>, people?: Maybe<Array<ResolversParentTypes['PersonImage']>>, thumbnailFor?: Maybe<Array<ResolversParentTypes['Production']>> };
+  Image: ImageModel;
   Int: Scalars['Int'];
   JSON: Scalars['JSON'];
   Mutation: {};
-  Permission: Permission;
-  Person: Omit<Person, 'blogPosts' | 'credits' | 'images' | 'roles' | 'users'> & { blogPosts?: Maybe<Array<ResolversParentTypes['BlogPost']>>, credits?: Maybe<Array<ResolversParentTypes['Credit']>>, images?: Maybe<Array<ResolversParentTypes['PersonImage']>>, roles?: Maybe<Array<ResolversParentTypes['Role']>>, users?: Maybe<Array<ResolversParentTypes['User']>> };
-  PersonImage: Omit<PersonImage, 'image' | 'person'> & { image?: Maybe<ResolversParentTypes['Image']>, person?: Maybe<ResolversParentTypes['Person']> };
-  Production: Omit<Production, 'category' | 'images' | 'rsvps' | 'tags' | 'thumbnail' | 'videos'> & { category?: Maybe<ResolversParentTypes['Category']>, images?: Maybe<Array<ResolversParentTypes['ProductionImage']>>, rsvps?: Maybe<Array<ResolversParentTypes['ProductionRSVP']>>, tags?: Maybe<Array<ResolversParentTypes['ProductionTag']>>, thumbnail?: Maybe<ResolversParentTypes['Image']>, videos?: Maybe<Array<ResolversParentTypes['ProductionVideo']>> };
-  ProductionImage: Omit<ProductionImage, 'image' | 'production'> & { image?: Maybe<ResolversParentTypes['Image']>, production?: Maybe<ResolversParentTypes['Production']> };
-  ProductionRSVP: Omit<ProductionRsvp, 'production' | 'user'> & { production?: Maybe<ResolversParentTypes['Production']>, user?: Maybe<ResolversParentTypes['User']> };
-  ProductionTag: Omit<ProductionTag, 'production'> & { production?: Maybe<ResolversParentTypes['Production']> };
+  Person: PersonModel;
+  PersonImage: PersonImageModel;
+  Production: ProductionModel;
+  ProductionImage: ProductionImageModel;
+  ProductionRSVP: ProductionRSVPModel;
+  ProductionTag: ProductionTagModel;
   ProductionVideo: Omit<ProductionVideo, 'production' | 'video'> & { production?: Maybe<ResolversParentTypes['Production']>, video?: Maybe<ResolversParentTypes['Video']> };
   Query: {};
-  Redirect: Redirect;
-  Role: Omit<Role, 'person'> & { person?: Maybe<ResolversParentTypes['Person']> };
+  Redirect: RedirectModel;
+  Role: RoleModel;
   String: Scalars['String'];
   Upload: Scalars['Upload'];
   User: UserModel;
-  Video: Omit<Video, 'videoFor'> & { videoFor?: Maybe<Array<ResolversParentTypes['ProductionVideo']>> };
-  Vote: Omit<Vote, 'responses'> & { responses?: Maybe<Array<ResolversParentTypes['VoteResponse']>> };
-  VoteResponse: Omit<VoteResponse, 'user' | 'vote'> & { user?: Maybe<ResolversParentTypes['User']>, vote?: Maybe<ResolversParentTypes['Vote']> };
+  UserGroup: UserGroupModel;
+  UserPermission: UserPermissionModel;
+  Video: VideoModel;
+  Vote: VoteModel;
+  VoteResponse: VoteResponseModel;
 };
 
 export type AccessLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['AccessLog'] = ResolversParentTypes['AccessLog']> = {
@@ -927,6 +965,7 @@ export type ContactSubmissionResolvers<ContextType = any, ParentType extends Res
 };
 
 export type ContactSubmissionAssigneeResolvers<ContextType = any, ParentType extends ResolversParentTypes['ContactSubmissionAssignee'] = ResolversParentTypes['ContactSubmissionAssignee']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   submission?: Resolver<Maybe<ResolversTypes['ContactSubmission']>, ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -934,6 +973,7 @@ export type ContactSubmissionAssigneeResolvers<ContextType = any, ParentType ext
 };
 
 export type CreditResolvers<ContextType = any, ParentType extends ResolversParentTypes['Credit'] = ResolversParentTypes['Credit']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   person?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType>;
   priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType>;
@@ -950,7 +990,20 @@ export type GroupResolvers<ContextType = any, ParentType extends ResolversParent
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   parent?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType>;
-  permissions?: Resolver<Maybe<Array<ResolversTypes['Permission']>>, ParentType, ContextType>;
+  permissions?: Resolver<Maybe<Array<ResolversTypes['GroupPermission']>>, ParentType, ContextType>;
+  users?: Resolver<Maybe<Array<ResolversTypes['UserGroup']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GroupPermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['GroupPermission'] = ResolversParentTypes['GroupPermission']> = {
+  action?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  conditions?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  fields?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  group?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inverted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  reason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subject?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1000,14 +1053,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   uploadImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'name'>>;
 };
 
-export type PermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Permission'] = ResolversParentTypes['Permission']> = {
-  action?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  conditions?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
-  fields?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
-  subjects?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type PersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['Person'] = ResolversParentTypes['Person']> = {
   blogPosts?: Resolver<Maybe<Array<ResolversTypes['BlogPost']>>, ParentType, ContextType>;
   credits?: Resolver<Maybe<Array<ResolversTypes['Credit']>>, ParentType, ContextType>;
@@ -1025,6 +1070,7 @@ export type PersonResolvers<ContextType = any, ParentType extends ResolversParen
 };
 
 export type PersonImageResolvers<ContextType = any, ParentType extends ResolversParentTypes['PersonImage'] = ResolversParentTypes['PersonImage']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType>;
   person?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType>;
   priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -1054,6 +1100,7 @@ export type ProductionResolvers<ContextType = any, ParentType extends ResolversP
 };
 
 export type ProductionImageResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProductionImage'] = ResolversParentTypes['ProductionImage']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType>;
   priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType>;
@@ -1061,6 +1108,7 @@ export type ProductionImageResolvers<ContextType = any, ParentType extends Resol
 };
 
 export type ProductionRsvpResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProductionRSVP'] = ResolversParentTypes['ProductionRSVP']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -1069,12 +1117,14 @@ export type ProductionRsvpResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type ProductionTagResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProductionTag'] = ResolversParentTypes['ProductionTag']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType>;
   tag?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ProductionVideoResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProductionVideo'] = ResolversParentTypes['ProductionVideo']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType>;
   video?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType>;
@@ -1108,6 +1158,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
   expires?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   key?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1132,14 +1183,34 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   assignedContactSubmissions?: Resolver<Maybe<Array<ResolversTypes['ContactSubmissionAssignee']>>, ParentType, ContextType>;
   auditLogs?: Resolver<Maybe<Array<ResolversTypes['AuditLog']>>, ParentType, ContextType>;
   discord?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  groups?: Resolver<Maybe<Array<ResolversTypes['UserGroup']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   joined?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   mail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  permissions?: Resolver<Maybe<Array<ResolversTypes['Permission']>>, ParentType, ContextType>;
+  permissions?: Resolver<Maybe<Array<ResolversTypes['UserPermission']>>, ParentType, ContextType>;
   person?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType>;
   productionRsvps?: Resolver<Maybe<Array<ResolversTypes['ProductionRSVP']>>, ParentType, ContextType>;
   username?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   voteResponses?: Resolver<Maybe<Array<ResolversTypes['VoteResponse']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserGroupResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserGroup'] = ResolversParentTypes['UserGroup']> = {
+  group?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserPermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserPermission'] = ResolversParentTypes['UserPermission']> = {
+  action?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  conditions?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  fields?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inverted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  reason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subject?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1163,6 +1234,7 @@ export type VoteResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type VoteResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['VoteResponse'] = ResolversParentTypes['VoteResponse']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   vote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType>;
@@ -1180,10 +1252,10 @@ export type Resolvers<ContextType = any> = {
   Credit?: CreditResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Group?: GroupResolvers<ContextType>;
+  GroupPermission?: GroupPermissionResolvers<ContextType>;
   Image?: ImageResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
-  Permission?: PermissionResolvers<ContextType>;
   Person?: PersonResolvers<ContextType>;
   PersonImage?: PersonImageResolvers<ContextType>;
   Production?: ProductionResolvers<ContextType>;
@@ -1196,6 +1268,8 @@ export type Resolvers<ContextType = any> = {
   Role?: RoleResolvers<ContextType>;
   Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
+  UserGroup?: UserGroupResolvers<ContextType>;
+  UserPermission?: UserPermissionResolvers<ContextType>;
   Video?: VideoResolvers<ContextType>;
   Vote?: VoteResolvers<ContextType>;
   VoteResponse?: VoteResponseResolvers<ContextType>;

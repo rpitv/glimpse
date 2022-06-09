@@ -279,6 +279,7 @@ type Category {
 }
 
 type ContactSubmissionAssignee {
+    id: ID!
     submission: ContactSubmission
     user: User
     timestamp: DateTime
@@ -295,25 +296,31 @@ type ContactSubmission {
 }
 
 type Credit {
+    id: ID!
     production: Production
     person: Person
     title: String
     priority: Int
 }
 
-type Permission {
+type GroupPermission {
+    id: ID!
+    group: Group
     action: String
-    subjects: [String]
-    fields: [String]
+    subject: [String!]
+    fields: [String!]
     conditions: JSON
+    inverted: Boolean
+    reason: String
 }
 
 type Group {
     id: ID!
     name: String
     parent: Group
-    permissions: [Permission!]
+    permissions: [GroupPermission!]
     children: [Group!]
+    users: [UserGroup!]
 }
 
 type Image {
@@ -342,18 +349,21 @@ type Person {
 }
 
 type PersonImage {
+    id: ID!
     image: Image
     person: Person
     priority: Int
 }
 
 type ProductionImage {
+    id: ID!
     production: Production
     image: Image
     priority: Int
 }
 
 type ProductionRSVP {
+    id: ID!
     production: Production
     user: User
     willAttend: Boolean
@@ -361,11 +371,13 @@ type ProductionRSVP {
 }
 
 type ProductionTag {
+    id: ID!
     production: Production
     tag: String
 }
 
 type ProductionVideo {
+    id: ID!
     production: Production
     video: Video
     priority: Int
@@ -393,6 +405,7 @@ type Production {
 }
 
 type Redirect {
+    id: ID!
     key: String
     location: String
     expires: DateTime
@@ -407,6 +420,23 @@ type Role {
     priority: Int
 }
 
+type UserGroup {
+    id: ID!
+    user: User
+    group: Group
+}
+
+type UserPermission {
+    id: ID!
+    user: User
+    action: String
+    subject: [String!]
+    fields: [String!]
+    conditions: JSON
+    inverted: Boolean
+    reason: String
+}
+
 type User {
     id: ID!
     username: String
@@ -414,7 +444,8 @@ type User {
     person: Person
     discord: String
     joined: DateTime
-    permissions: [Permission!]
+    permissions: [UserPermission!]
+    groups: [UserGroup!]
     accessLogs: [AccessLog!]
     auditLogs: [AuditLog!]
     assignedContactSubmissions: [ContactSubmissionAssignee!]
@@ -431,6 +462,7 @@ type Video {
 }
 
 type VoteResponse {
+    id: ID!
     vote: Vote
     user: User
     timestamp: DateTime
