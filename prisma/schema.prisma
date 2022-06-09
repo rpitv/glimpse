@@ -122,12 +122,14 @@ model Group {
   id                Int              @id(map: "groups_pk") @default(autoincrement())
   name              String           @db.VarChar(50)
   parentId          Int?             @map("parent")
+  priority          Int              @default(0)
   parent            Group?           @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
   group_permissions GroupPermission? @relation("group_permissionsTogroups")
   children          Group[]          @relation("GroupToGroup_parentId")
   user_groups       UserGroup[]      @relation("groupsTouser_groups")
 
   @@index([name], map: "groups_name_index")
+  @@index([priority, name, id], map: "groups_priority_name_id_index")
   @@map("groups")
 }
 
