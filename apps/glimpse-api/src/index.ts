@@ -13,7 +13,6 @@ import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
-import {Ability} from "@casl/ability";
 import {makeExecutableSchema} from "@graphql-tools/schema";
 import {applyMiddleware} from "graphql-middleware";
 
@@ -24,6 +23,7 @@ import {
     TrustProxyOption
 } from "custom";
 import {getAuthShield, getPermissions} from "./permissions";
+import {PrismaAbility} from "@casl/prisma";
 
 /**
  * Check whether this server should run in HTTPS mode or not.
@@ -89,7 +89,7 @@ async function setupApolloContext({req, res}: {req: Express.Request, res: Expres
         prisma,
         req,
         res,
-        permissions: new Ability(req.session.permissionJSON),
+        permissions: new PrismaAbility(req.session.permissionJSON),
         user
     }
 }

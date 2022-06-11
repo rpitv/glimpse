@@ -2,11 +2,12 @@ import {Resolvers} from "./generated/graphql";
 import {User} from ".prisma/client";
 import {ResolverContext} from "custom";
 import {subject} from "@casl/ability";
+import {constructPagination} from "./permissions";
 
 export const resolvers: Resolvers = {
     Query: {
         users: async (parent, args, ctx: ResolverContext): Promise<User[]> => {
-            return (await ctx.prisma.user.findMany({})).filter((user) => {
+            return (await ctx.prisma.user.findMany(constructPagination(parent, args))).filter((user) => {
                 return ctx.permissions.can('read', subject('User', user))
             })
         }

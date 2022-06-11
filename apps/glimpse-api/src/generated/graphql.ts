@@ -6,7 +6,6 @@ export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K]
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -130,288 +129,19 @@ export type Image = {
   thumbnailFor?: Maybe<Array<Production>>;
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  /** Create a Credit in a Production for a Person. */
-  addCredit?: Maybe<Credit>;
-  /** Link an Image to a Production. */
-  addImageToProduction?: Maybe<Scalars['Boolean']>;
-  /** Link a Video to a Production. */
-  addVideoToProduction?: Maybe<Scalars['Boolean']>;
-  /** Create a new Category. */
-  createCategory?: Maybe<Category>;
-  /** Create a new embed-based video in the database. Requires a url that begins with "http://" or "https://". */
-  createEmbedVideo?: Maybe<Video>;
-  /** Create a new image which is hosted at an off-site URL. */
-  createOffsiteImage?: Maybe<Image>;
-  /** Create a new person in the database. Returns the newly created Person. */
-  createPerson?: Maybe<Person>;
-  /** Create a new Production in the database. */
-  createProduction?: Maybe<Production>;
-  /**
-   * Create a new RTMP-based video in the database. Requires a url that begins with "rtmp://". RTMP requires
-   * Flash Player, and as such, this type of video should soon be deprecated.
-   */
-  createRTMPVideo?: Maybe<Video>;
-  /** Add a role to a person in the database. Returns the newly created Role. */
-  createRole?: Maybe<Role>;
-  /**
-   * Delete a Category. Will update any child Categories to have the parent of this Category's parent. Will
-   * also update any Categories that appear after this Category to appear after the Category that this Category
-   * appears after.
-   * Returns true on success, false otherwise.
-   */
-  deleteCategory?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete a Credit from a Production. Will update any Credits which appear after this Credit to appear after the
-   * Credit that this Credit appears after.
-   * Returns true on success, false otherwise.
-   */
-  deleteCredit?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete an image from the database. Also deletes any image-links to productions using this Image.
-   * Returns true on success, false otherwise.
-   */
-  deleteImage?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete a person from the database. Will also delete all of their roles.
-   * Returns true on success, false otherwise.
-   */
-  deletePerson?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete a production from the database. Also deletes any Credits, video-links, and image-links from the database.
-   * Returns true on success, false otherwise.
-   */
-  deleteProduction?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete a role from the database.
-   * Returns true on success, false otherwise.
-   */
-  deleteRole?: Maybe<Scalars['Boolean']>;
-  /**
-   * Delete a video from the database. Also deletes any video-links to productions using this Video.
-   * Returns true on success, false otherwise.
-   */
-  deleteVideo?: Maybe<Scalars['Boolean']>;
-  /** Unlink an Image from a Production. */
-  removeImageFromProduction?: Maybe<Scalars['Boolean']>;
-  /** Unlink a Video from a Production. */
-  removeVideoFromProduction?: Maybe<Scalars['Boolean']>;
-  /** Update a Category. */
-  updateCategory?: Maybe<Category>;
-  /** Update a Credit. */
-  updateCredit?: Maybe<Credit>;
-  /**
-   * Update an embed-based video in the database.
-   * If the video with the provided ID is not an embed video, an error will be thrown.
-   */
-  updateEmbedVideo?: Maybe<Video>;
-  /** Update an image in the database. */
-  updateImage?: Maybe<Image>;
-  /** Update a person in the database with new information. Returns the updated person. */
-  updatePerson?: Maybe<Person>;
-  /** Update a production in the database. */
-  updateProduction?: Maybe<Production>;
-  /**
-   * Update an RTMP-based video in the database.
-   * If the video with the provided ID is not an RTMP video, an error will be thrown.
-   */
-  updateRTMPVideo?: Maybe<Video>;
-  /** Update an existing Role in the database with new information. Returns the new Role. */
-  updateRole?: Maybe<Role>;
-  /** Upload an image to the database. */
-  uploadImage?: Maybe<Image>;
-};
+export enum Order {
+  Asc = 'ASC',
+  Desc = 'DESC'
+}
 
-
-export type MutationAddCreditArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  job?: InputMaybe<Scalars['String']>;
-  person: Scalars['Int'];
-  production: Scalars['Int'];
-};
-
-
-export type MutationAddImageToProductionArgs = {
-  image: Scalars['Int'];
-  production: Scalars['Int'];
-};
-
-
-export type MutationAddVideoToProductionArgs = {
-  production: Scalars['Int'];
-  video: Scalars['Int'];
-};
-
-
-export type MutationCreateCategoryArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  name: Scalars['String'];
-  parent?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type MutationCreateEmbedVideoArgs = {
-  name: Scalars['String'];
-  url: Scalars['String'];
-};
-
-
-export type MutationCreateOffsiteImageArgs = {
-  link: Scalars['String'];
-  name: Scalars['String'];
-};
-
-
-export type MutationCreatePersonArgs = {
-  classYear?: InputMaybe<Scalars['Int']>;
-  firstName?: InputMaybe<Scalars['String']>;
-  lastName?: InputMaybe<Scalars['String']>;
-  preferredName?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationCreateProductionArgs = {
-  category?: InputMaybe<Scalars['Int']>;
-  description?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  startTime?: InputMaybe<Scalars['DateTime']>;
-  thumbnail?: InputMaybe<Scalars['Int']>;
-  visible?: InputMaybe<Scalars['Boolean']>;
-};
-
-
-export type MutationCreateRtmpVideoArgs = {
-  name: Scalars['String'];
-  rtmpUrl: Scalars['String'];
-};
-
-
-export type MutationCreateRoleArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  endDate?: InputMaybe<Scalars['DateTime']>;
-  name: Scalars['String'];
-  owner: Scalars['Int'];
-  startDate?: InputMaybe<Scalars['DateTime']>;
-};
-
-
-export type MutationDeleteCategoryArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteCreditArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteImageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeletePersonArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteProductionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteRoleArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteVideoArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationRemoveImageFromProductionArgs = {
-  image: Scalars['Int'];
-  production: Scalars['Int'];
-};
-
-
-export type MutationRemoveVideoFromProductionArgs = {
-  production: Scalars['Int'];
-  video: Scalars['Int'];
-};
-
-
-export type MutationUpdateCategoryArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type MutationUpdateCreditArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  id: Scalars['ID'];
-  job?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type MutationUpdateEmbedVideoArgs = {
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  url?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationUpdateImageArgs = {
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationUpdatePersonArgs = {
-  classYear?: InputMaybe<Scalars['Int']>;
-  firstName?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  lastName?: InputMaybe<Scalars['String']>;
-  preferredName?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationUpdateProductionArgs = {
-  category?: InputMaybe<Scalars['Int']>;
-  description?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  startTime?: InputMaybe<Scalars['DateTime']>;
-  thumbnail?: InputMaybe<Scalars['Int']>;
-  visible?: InputMaybe<Scalars['Boolean']>;
-};
-
-
-export type MutationUpdateRtmpVideoArgs = {
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  rtmpUrl?: InputMaybe<Scalars['String']>;
-};
-
-
-export type MutationUpdateRoleArgs = {
-  appearsAfter?: InputMaybe<Scalars['Int']>;
-  endDate?: InputMaybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  name?: InputMaybe<Scalars['String']>;
-  owner?: InputMaybe<Scalars['Int']>;
-  startDate?: InputMaybe<Scalars['DateTime']>;
-};
-
-
-export type MutationUploadImageArgs = {
-  file: Scalars['Upload'];
-  name: Scalars['String'];
+/**
+ * Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
+ * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
+ */
+export type Pagination = {
+  cursor?: InputMaybe<Scalars['ID']>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take: Scalars['Int'];
 };
 
 export type Person = {
@@ -494,183 +224,14 @@ export type ProductionVideo = {
 
 export type Query = {
   __typename?: 'Query';
-  /** Get a list of all Category objects in a paginated or non-paginated manner. */
-  categories: Array<Category>;
-  /** The total number of Categories in the database. Optionally provide a search context. */
-  categoryCount: Scalars['Int'];
-  /** Get some Category object based on that object's ID. Returns null if the Category does not exist in the database. */
-  getCategory?: Maybe<Category>;
-  /** Get some Credit object based on that object's ID. Returns null if the Credit does not exist in the database. */
-  getCredit?: Maybe<Credit>;
-  /** Get some Image object based on that object's ID. Returns null if the Image does not exist in the database. */
-  getImage?: Maybe<Image>;
-  /** Get some Person object based on that object's ID. Returns null if the Person does not exist in the database. */
-  getPerson?: Maybe<Person>;
-  /**
-   * Get some Production object based on that object's ID. Returns null if the Production does not exist in
-   * the database.
-   */
-  getProduction?: Maybe<Production>;
-  /** Get some Role object based on that object's ID. Returns null if the Role does not exist in the database. */
-  getRole?: Maybe<Role>;
-  /** Get some User object based on that object's ID. Returns null if the User does not exist in the database. */
-  getUser?: Maybe<User>;
-  /** Get some Video object based on that object's ID. Returns null if the Video does not exist in the database. */
-  getVideo?: Maybe<Video>;
-  /** The total number of Images in the database. Optionally provide a search context. */
-  imageCount: Scalars['Int'];
-  /** Get a list of all Image objects in the database in a paginated or non-paginated manner. */
-  images: Array<Image>;
-  /** The total number of Persons in the database which have an active Role at the given moment. */
-  memberCount: Scalars['Int'];
-  /** Get a list of all Person objects which have an active role in a paginated or non-paginated manner. */
-  members: Array<Person>;
-  /** Get a list of all Person objects regardless of member status in a paginated or non-paginated manner. */
-  people: Array<Person>;
-  /** The total number of Persons in the database. Optionally provide a search context. */
-  peopleCount: Scalars['Int'];
-  /** The total number of Productions in the database. Optionally provide a search context. */
-  productionCount: Scalars['Int'];
-  /** Get a list of all Production objects in a paginated or non-paginated manner. */
-  productions: Array<Production>;
-  /** The total number of Users in the database. Optionally provide a search context. */
-  userCount: Scalars['Int'];
-  /** Get a list of all User objects in a paginated or non-paginated manner. */
+  /** Get a list of users which the user currently has access to read. Has ordering and pagination */
   users: Array<User>;
-  /** The total number of Videos in the database. Optionally provide a search context. */
-  videoCount: Scalars['Int'];
-  /** Get a list of all Video objects in the database in a paginated or non-paginated manner. */
-  videos: Array<Video>;
-};
-
-
-export type QueryCategoriesArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevCategoryIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryCategoryCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryGetCategoryArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetCreditArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetImageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetPersonArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetProductionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetRoleArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGetVideoArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryImageCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryImagesArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevImageIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryMembersArgs = {
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevPersonIndex?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type QueryPeopleArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevPersonIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryPeopleCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryProductionCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryProductionsArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevProductionIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryUserCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
 };
 
 
 export type QueryUsersArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevUserIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryVideoCountArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QueryVideosArgs = {
-  advancedSearch?: InputMaybe<Scalars['Boolean']>;
-  pageSize?: InputMaybe<Scalars['Int']>;
-  prevVideoIndex?: InputMaybe<Scalars['Int']>;
-  searchCtx?: InputMaybe<Scalars['String']>;
+  orderBy?: InputMaybe<UserOrderBy>;
+  pagination?: InputMaybe<Pagination>;
 };
 
 export type Redirect = {
@@ -715,6 +276,13 @@ export type UserGroup = {
   user?: Maybe<User>;
 };
 
+export type UserOrderBy = {
+  id?: InputMaybe<Order>;
+  joined?: InputMaybe<Order>;
+  mail?: InputMaybe<Order>;
+  username?: InputMaybe<Order>;
+};
+
 export type UserPermission = {
   __typename?: 'UserPermission';
   action?: Maybe<Scalars['String']>;
@@ -727,6 +295,14 @@ export type UserPermission = {
   user?: Maybe<User>;
 };
 
+export type UserWriteInput = {
+  discord?: InputMaybe<Scalars['String']>;
+  mail?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+  person?: InputMaybe<Scalars['ID']>;
+  username?: InputMaybe<Scalars['String']>;
+};
+
 export type Video = {
   __typename?: 'Video';
   format?: Maybe<Scalars['String']>;
@@ -735,11 +311,6 @@ export type Video = {
   name?: Maybe<Scalars['String']>;
   videoFor?: Maybe<Array<ProductionVideo>>;
 };
-
-export enum VideoType {
-  Embed = 'EMBED',
-  Rtmp = 'RTMP'
-}
 
 export type Vote = {
   __typename?: 'Vote';
@@ -844,7 +415,8 @@ export type ResolversTypes = {
   Image: ResolverTypeWrapper<ImageModel>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
-  Mutation: ResolverTypeWrapper<{}>;
+  ORDER: Order;
+  Pagination: Pagination;
   Person: ResolverTypeWrapper<PersonModel>;
   PersonImage: ResolverTypeWrapper<PersonImageModel>;
   Production: ResolverTypeWrapper<ProductionModel>;
@@ -859,9 +431,10 @@ export type ResolversTypes = {
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<UserModel>;
   UserGroup: ResolverTypeWrapper<UserGroupModel>;
+  UserOrderBy: UserOrderBy;
   UserPermission: ResolverTypeWrapper<UserPermissionModel>;
+  UserWriteInput: UserWriteInput;
   Video: ResolverTypeWrapper<VideoModel>;
-  VideoType: VideoType;
   Vote: ResolverTypeWrapper<VoteModel>;
   VoteResponse: ResolverTypeWrapper<VoteResponseModel>;
 };
@@ -884,7 +457,7 @@ export type ResolversParentTypes = {
   Image: ImageModel;
   Int: Scalars['Int'];
   JSON: Scalars['JSON'];
-  Mutation: {};
+  Pagination: Pagination;
   Person: PersonModel;
   PersonImage: PersonImageModel;
   Production: ProductionModel;
@@ -899,7 +472,9 @@ export type ResolversParentTypes = {
   Upload: Scalars['Upload'];
   User: UserModel;
   UserGroup: UserGroupModel;
+  UserOrderBy: UserOrderBy;
   UserPermission: UserPermissionModel;
+  UserWriteInput: UserWriteInput;
   Video: VideoModel;
   Vote: VoteModel;
   VoteResponse: VoteResponseModel;
@@ -1024,37 +599,6 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addCredit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<MutationAddCreditArgs, 'person' | 'production'>>;
-  addImageToProduction?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationAddImageToProductionArgs, 'image' | 'production'>>;
-  addVideoToProduction?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationAddVideoToProductionArgs, 'production' | 'video'>>;
-  createCategory?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'name'>>;
-  createEmbedVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationCreateEmbedVideoArgs, 'name' | 'url'>>;
-  createOffsiteImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<MutationCreateOffsiteImageArgs, 'link' | 'name'>>;
-  createPerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, Partial<MutationCreatePersonArgs>>;
-  createProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<MutationCreateProductionArgs, 'name'>>;
-  createRTMPVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationCreateRtmpVideoArgs, 'name' | 'rtmpUrl'>>;
-  createRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationCreateRoleArgs, 'name' | 'owner'>>;
-  deleteCategory?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
-  deleteCredit?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteCreditArgs, 'id'>>;
-  deleteImage?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteImageArgs, 'id'>>;
-  deletePerson?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeletePersonArgs, 'id'>>;
-  deleteProduction?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteProductionArgs, 'id'>>;
-  deleteRole?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteRoleArgs, 'id'>>;
-  deleteVideo?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteVideoArgs, 'id'>>;
-  removeImageFromProduction?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationRemoveImageFromProductionArgs, 'image' | 'production'>>;
-  removeVideoFromProduction?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationRemoveVideoFromProductionArgs, 'production' | 'video'>>;
-  updateCategory?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id'>>;
-  updateCredit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<MutationUpdateCreditArgs, 'id'>>;
-  updateEmbedVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationUpdateEmbedVideoArgs, 'id'>>;
-  updateImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<MutationUpdateImageArgs, 'id'>>;
-  updatePerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<MutationUpdatePersonArgs, 'id'>>;
-  updateProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<MutationUpdateProductionArgs, 'id'>>;
-  updateRTMPVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationUpdateRtmpVideoArgs, 'id'>>;
-  updateRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationUpdateRoleArgs, 'id'>>;
-  uploadImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'name'>>;
-};
-
 export type PersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['Person'] = ResolversParentTypes['Person']> = {
   blogPosts?: Resolver<Maybe<Array<ResolversTypes['BlogPost']>>, ParentType, ContextType>;
   credits?: Resolver<Maybe<Array<ResolversTypes['Credit']>>, ParentType, ContextType>;
@@ -1134,28 +678,7 @@ export type ProductionVideoResolvers<ContextType = any, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
-  categoryCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryCategoryCountArgs>>;
-  getCategory?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<QueryGetCategoryArgs, 'id'>>;
-  getCredit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<QueryGetCreditArgs, 'id'>>;
-  getImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<QueryGetImageArgs, 'id'>>;
-  getPerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<QueryGetPersonArgs, 'id'>>;
-  getProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<QueryGetProductionArgs, 'id'>>;
-  getRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryGetRoleArgs, 'id'>>;
-  getUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
-  getVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<QueryGetVideoArgs, 'id'>>;
-  imageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryImageCountArgs>>;
-  images?: Resolver<Array<ResolversTypes['Image']>, ParentType, ContextType, Partial<QueryImagesArgs>>;
-  memberCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  members?: Resolver<Array<ResolversTypes['Person']>, ParentType, ContextType, Partial<QueryMembersArgs>>;
-  people?: Resolver<Array<ResolversTypes['Person']>, ParentType, ContextType, Partial<QueryPeopleArgs>>;
-  peopleCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryPeopleCountArgs>>;
-  productionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryProductionCountArgs>>;
-  productions?: Resolver<Array<ResolversTypes['Production']>, ParentType, ContextType, Partial<QueryProductionsArgs>>;
-  userCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryUserCountArgs>>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
-  videoCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryVideoCountArgs>>;
-  videos?: Resolver<Array<ResolversTypes['Video']>, ParentType, ContextType, Partial<QueryVideosArgs>>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
@@ -1257,7 +780,6 @@ export type Resolvers<ContextType = any> = {
   GroupPermission?: GroupPermissionResolvers<ContextType>;
   Image?: ImageResolvers<ContextType>;
   JSON?: GraphQLScalarType;
-  Mutation?: MutationResolvers<ContextType>;
   Person?: PersonResolvers<ContextType>;
   PersonImage?: PersonImageResolvers<ContextType>;
   Production?: ProductionResolvers<ContextType>;
