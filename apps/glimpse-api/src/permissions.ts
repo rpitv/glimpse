@@ -22,16 +22,11 @@ export async function getPermissions(user?: User): Promise<RawRuleOf<GlimpseAbil
     return [{
         action: 'read',
         subject: 'User',
-        fields: ['id','username'],
+        fields: ['id','mail','username'],
         conditions: {
-            id: 1
-        }
-    },{
-        action: 'read',
-        subject: 'User',
-        fields: ['id','mail'],
-        conditions: {
-            id: 2
+            NOT: {
+                id: 2
+            }
         }
     }];
 }
@@ -91,4 +86,23 @@ export function pick(source: {[key: string]: any}, keys: string[]) {
         }
         return result;
     }, {});
+}
+
+type Pagination<T = { id: number }> = {skip?: number, take?: number, cursor?: T}
+
+export function constructPagination(parent: unknown, args: {[key: string]: any}): Pagination {
+    let returnObj: Pagination = {};
+    if(args.pagination) {
+        if(args.pagination.skip) {
+            returnObj.skip = args.pagination.skip;
+        }
+        if(args.pagination.take) {
+            returnObj.take = args.pagination.take;
+        }
+        if(args.pagination.cursor) {
+            returnObj.cursor = { id: args.pagination.cursor };
+        }
+    }
+
+    return returnObj;
 }
