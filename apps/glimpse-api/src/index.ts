@@ -16,7 +16,7 @@ import {createServer, YogaNodeServerInstance} from "@graphql-yoga/node";
 
 import {prisma} from "./prisma";
 import {resolvers} from './resolvers';
-import {GlimpseAbility, GraphQLContext, TrustProxyOption} from "custom";
+import {AbilityActions, GlimpseAbility, GraphQLContext, TrustProxyOption} from "custom";
 import {getPermissions} from "./permissions";
 import {PrismaAbility} from "@casl/prisma";
 import {ResolveUserFn, useGenericAuth, ValidateUserFn} from "@envelop/generic-auth";
@@ -167,21 +167,35 @@ async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Expre
             throw new Error('Missing argument to auth directive');
         }
 
-        let subject = undefined;
+        let action: AbilityActions|undefined = undefined;
+        let subject: string|undefined = undefined;
         // --- OUTPUT ---
-        const subjectNode = <any>fieldAuthDirectiveNode.arguments[0].value; // One of many types
-        if(subjectNode.value) {
-            subject = subjectNode.value;
-        } else {
-            throw new Error("Expected a subject node value but didn't find one");
+        for(const argument of fieldAuthDirectiveNode.arguments) {
+            if(argument.name.value === "subject") {
+                if(argument.value) {
+                    subject = (<any>argument.value).value;
+                }
+            } else if (argument.name.value === "action") {
+                if(argument.value) {
+                    action = (<any>argument.value).value;
+                }
+            }
+        }
+        if(!action) {
+            throw new Error("Expected an action argument to directive but didn't find one.");
+        }
+        if(!subject) {
+            throw new Error("Expected a subject argument to directive but didn't find one.")
         }
 
-        user.can("read", subject);
+        if(!user.can(action, subject)) {
+            throw new Error('Insufficient permissions...');
+        }
         if(fieldNode.selectionSet) {
             for (let i = 0; i < fieldNode.selectionSet.selections.length; i++) {
                 const selection = <any>fieldNode.selectionSet.selections[i]; // One of many types
                 if (selection && selection.name && selection.name.value) {
-                    if(!user.can("read", subject, selection.name.value)) {
+                    if(!user.can(action, subject, selection.name.value)) {
                         throw new Error('Insufficient permissions...');
                     }
                 }

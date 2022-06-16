@@ -2,7 +2,7 @@ scalar DateTime
 scalar JSON
 scalar Upload
 
-directive @auth(subject: String) on FIELD_DEFINITION
+directive @auth(action: String, subject: String) on FIELD_DEFINITION
 
 """
 Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
@@ -18,7 +18,7 @@ type Query {
     """
     Get a list of users which the user currently has access to read.
     """
-    users(pagination: Pagination): [User!]! @auth(subject: "User")
+    users(pagination: Pagination): [User!]! @auth(action: "read", subject: "User")
 }
 
 #type Mutation {
@@ -28,223 +28,223 @@ type Query {
 # Basic types #
 
 type AccessLog {
-    id: ID!
-    user: User
-    service: String
-    timestamp: DateTime
-    ip: String
+    id: ID! @auth(action: "read", subject: "AccessLog")
+    user: User @auth(action: "read", subject: "AccessLog")
+    service: String @auth(action: "read", subject: "AccessLog")
+    timestamp: DateTime @auth(action: "read", subject: "AccessLog")
+    ip: String @auth(action: "read", subject: "AccessLog")
 }
 
 type AlertLog {
-    id: ID!
-    message: String
-    severity: String
-    timestamp: DateTime
+    id: ID! @auth(action: "read", subject: "AlertLog")
+    message: String @auth(action: "read", subject: "AlertLog")
+    severity: String @auth(action: "read", subject: "AlertLog")
+    timestamp: DateTime @auth(action: "read", subject: "AlertLog")
 }
 
 type AuditLog {
-    id: ID!
-    user: User
-    timestamp: DateTime
-    modificationType: String
-    modifiedTable: String
-    modifiedField: String
-    previousValue: String
-    comment: String
-    metadata: JSON
+    id: ID! @auth(action: "read", subject: "AuditLog")
+    user: User @auth(action: "read", subject: "AuditLog")
+    timestamp: DateTime @auth(action: "read", subject: "AuditLog")
+    modificationType: String @auth(action: "read", subject: "AuditLog")
+    modifiedTable: String @auth(action: "read", subject: "AuditLog")
+    modifiedField: String @auth(action: "read", subject: "AuditLog")
+    previousValue: String @auth(action: "read", subject: "AuditLog")
+    comment: String @auth(action: "read", subject: "AuditLog")
+    metadata: JSON @auth(action: "read", subject: "AuditLog")
 }
 
 type BlogPost {
-    id: ID!
-    postedAt: DateTime
-    content: String
-    author: Person
-    authorDisplayName: String
-    title: String
+    id: ID! @auth(action: "read", subject: "BlogPost")
+    postedAt: DateTime @auth(action: "read", subject: "BlogPost")
+    content: String @auth(action: "read", subject: "BlogPost")
+    author: Person @auth(action: "read", subject: "BlogPost")
+    authorDisplayName: String @auth(action: "read", subject: "BlogPost")
+    title: String @auth(action: "read", subject: "BlogPost")
 }
 
 type Category {
-    id: ID!
-    name: String
-    priority: Int
-    parent: Category
-    productions: [Production!]
+    id: ID! @auth(action: "read", subject: "Category")
+    name: String @auth(action: "read", subject: "Category")
+    priority: Int @auth(action: "read", subject: "Category")
+    parent: Category @auth(action: "read", subject: "Category")
+    productions: [Production!] @auth(action: "read", subject: "Category")
 }
 
 type ContactSubmissionAssignee {
-    id: ID!
-    submission: ContactSubmission
-    user: User
-    timestamp: DateTime
+    id: ID! @auth(action: "read", subject: "ContactSubmissionAssignee")
+    submission: ContactSubmission @auth(action: "read", subject: "ContactSubmissionAssignee")
+    user: User @auth(action: "read", subject: "ContactSubmissionAssignee")
+    timestamp: DateTime @auth(action: "read", subject: "ContactSubmissionAssignee")
 }
 
 type ContactSubmission {
-    id: ID!
-    email: String
-    name: String
-    timestamp: DateTime
-    resolved: Boolean
-    additionalData: JSON
-    assignees: [ContactSubmissionAssignee!]
+    id: ID! @auth(action: "read", subject: "ContactSubmission")
+    email: String @auth(action: "read", subject: "ContactSubmission")
+    name: String @auth(action: "read", subject: "ContactSubmission")
+    timestamp: DateTime @auth(action: "read", subject: "ContactSubmission")
+    resolved: Boolean @auth(action: "read", subject: "ContactSubmission")
+    additionalData: JSON @auth(action: "read", subject: "ContactSubmission")
+    assignees: [ContactSubmissionAssignee!] @auth(action: "read", subject: "ContactSubmission")
 }
 
 type Credit {
-    id: ID!
-    production: Production
-    person: Person
-    title: String
-    priority: Int
+    id: ID! @auth(action: "read", subject: "Credit")
+    production: Production @auth(action: "read", subject: "Credit")
+    person: Person @auth(action: "read", subject: "Credit")
+    title: String @auth(action: "read", subject: "Credit")
+    priority: Int @auth(action: "read", subject: "Credit")
 }
 
 type GroupPermission {
-    id: ID!
-    group: Group
-    action: String
-    subject: [String!]
-    fields: [String!]
-    conditions: JSON
-    inverted: Boolean
-    reason: String
+    id: ID! @auth(action: "read", subject: "GroupPermission")
+    group: Group @auth(action: "read", subject: "GroupPermission")
+    action: String @auth(action: "read", subject: "GroupPermission")
+    subject: [String!] @auth(action: "read", subject: "GroupPermission")
+    fields: [String!] @auth(action: "read", subject: "GroupPermission")
+    conditions: JSON @auth(action: "read", subject: "GroupPermission")
+    inverted: Boolean @auth(action: "read", subject: "GroupPermission")
+    reason: String @auth(action: "read", subject: "GroupPermission")
 }
 
 type Group {
-    id: ID!
-    name: String
-    parent: Group
-    priority: Int
-    permissions: [GroupPermission!]
-    children: [Group!]
-    users: [UserGroup!]
+    id: ID! @auth(action: "read", subject: "Group")
+    name: String @auth(action: "read", subject: "Group")
+    parent: Group @auth(action: "read", subject: "Group")
+    priority: Int @auth(action: "read", subject: "Group")
+    permissions: [GroupPermission!] @auth(action: "read", subject: "Group")
+    children: [Group!] @auth(action: "read", subject: "Group")
+    users: [UserGroup!] @auth(action: "read", subject: "Group")
 }
 
 type Image {
-    id: ID!
-    name: String
-    description: String
-    path: String
-    people: [PersonImage!]
-    imageFor: [ProductionImage!]
-    thumbnailFor: [Production!]
+    id: ID! @auth(action: "read", subject: "Image")
+    name: String @auth(action: "read", subject: "Image")
+    description: String @auth(action: "read", subject: "Image")
+    path: String @auth(action: "read", subject: "Image")
+    people: [PersonImage!] @auth(action: "read", subject: "Image")
+    imageFor: [ProductionImage!] @auth(action: "read", subject: "Image")
+    thumbnailFor: [Production!] @auth(action: "read", subject: "Image")
 }
 
 type Person {
-    id: ID!
-    name: String
-    pronouns: String
-    graduation: DateTime
-    start: DateTime
-    end: DateTime
-    description: String
-    images: [PersonImage!]
-    blogPosts: [BlogPost!]
-    credits: [Credit!]
-    roles: [Role!]
-    users: [User!]
+    id: ID! @auth(action: "read", subject: "Person")
+    name: String @auth(action: "read", subject: "Person")
+    pronouns: String @auth(action: "read", subject: "Person")
+    graduation: DateTime @auth(action: "read", subject: "Person")
+    start: DateTime @auth(action: "read", subject: "Person")
+    end: DateTime @auth(action: "read", subject: "Person")
+    description: String @auth(action: "read", subject: "Person")
+    images: [PersonImage!] @auth(action: "read", subject: "Person")
+    blogPosts: [BlogPost!] @auth(action: "read", subject: "Person")
+    credits: [Credit!] @auth(action: "read", subject: "Person")
+    roles: [Role!] @auth(action: "read", subject: "Person")
+    users: [User!] @auth(action: "read", subject: "Person")
 }
 
 type PersonImage {
-    id: ID!
-    image: Image
-    person: Person
-    priority: Int
+    id: ID! @auth(action: "read", subject: "PersonImage")
+    image: Image @auth(action: "read", subject: "PersonImage")
+    person: Person @auth(action: "read", subject: "PersonImage")
+    priority: Int @auth(action: "read", subject: "PersonImage")
 }
 
 type ProductionImage {
-    id: ID!
-    production: Production
-    image: Image
-    priority: Int
+    id: ID! @auth(action: "read", subject: "ProductionImage")
+    production: Production @auth(action: "read", subject: "ProductionImage")
+    image: Image @auth(action: "read", subject: "ProductionImage")
+    priority: Int @auth(action: "read", subject: "ProductionImage")
 }
 
 type ProductionRSVP {
-    id: ID!
-    production: Production
-    user: User
-    willAttend: Boolean
-    notes: String
+    id: ID! @auth(action: "read", subject: "ProductionRSVP")
+    production: Production @auth(action: "read", subject: "ProductionRSVP")
+    user: User @auth(action: "read", subject: "ProductionRSVP")
+    willAttend: Boolean @auth(action: "read", subject: "ProductionRSVP")
+    notes: String @auth(action: "read", subject: "ProductionRSVP")
 }
 
 type ProductionTag {
-    id: ID!
-    production: Production
-    tag: String
+    id: ID! @auth(action: "read", subject: "ProductionTag")
+    production: Production @auth(action: "read", subject: "ProductionTag")
+    tag: String @auth(action: "read", subject: "ProductionTag")
 }
 
 type ProductionVideo {
-    id: ID!
-    production: Production
-    video: Video
-    priority: Int
+    id: ID! @auth(action: "read", subject: "ProductionVideo")
+    production: Production @auth(action: "read", subject: "ProductionVideo")
+    video: Video @auth(action: "read", subject: "ProductionVideo")
+    priority: Int @auth(action: "read", subject: "ProductionVideo")
 }
 
 type Production {
-    id: ID!
-    name: String
-    description: String
-    startTime: DateTime
-    endTime: DateTime
-    isLive: Boolean
-    category: Category
-    closetLocation: String
-    eventLocation: String
-    teamNotes: String
-    discordServer: String
-    discordChannel: String
-    thumbnail: Image
-    closetTime: DateTime
-    images: [ProductionImage!]
-    rsvps: [ProductionRSVP!]
-    tags: [ProductionTag!]
-    videos: [ProductionVideo!]
+    id: ID! @auth(action: "read", subject: "Production")
+    name: String @auth(action: "read", subject: "Production")
+    description: String @auth(action: "read", subject: "Production")
+    startTime: DateTime @auth(action: "read", subject: "Production")
+    endTime: DateTime @auth(action: "read", subject: "Production")
+    isLive: Boolean @auth(action: "read", subject: "Production")
+    category: Category @auth(action: "read", subject: "Production")
+    closetLocation: String @auth(action: "read", subject: "Production")
+    eventLocation: String @auth(action: "read", subject: "Production")
+    teamNotes: String @auth(action: "read", subject: "Production")
+    discordServer: String @auth(action: "read", subject: "Production")
+    discordChannel: String @auth(action: "read", subject: "Production")
+    thumbnail: Image @auth(action: "read", subject: "Production")
+    closetTime: DateTime @auth(action: "read", subject: "Production")
+    images: [ProductionImage!] @auth(action: "read", subject: "Production")
+    rsvps: [ProductionRSVP!] @auth(action: "read", subject: "Production")
+    tags: [ProductionTag!] @auth(action: "read", subject: "Production")
+    videos: [ProductionVideo!] @auth(action: "read", subject: "Production")
 }
 
 type Redirect {
-    id: ID!
-    key: String
-    location: String
-    expires: DateTime
+    id: ID! @auth(action: "read", subject: "Redirect")
+    key: String @auth(action: "read", subject: "Redirect")
+    location: String @auth(action: "read", subject: "Redirect")
+    expires: DateTime @auth(action: "read", subject: "Redirect")
 }
 
 type Role {
-    id: ID!
-    person: Person
-    name: String
-    startTime: DateTime
-    endTime: DateTime
-    priority: Int
+    id: ID! @auth(action: "read", subject: "Role")
+    person: Person @auth(action: "read", subject: "Role")
+    name: String @auth(action: "read", subject: "Role")
+    startTime: DateTime @auth(action: "read", subject: "Role")
+    endTime: DateTime @auth(action: "read", subject: "Role")
+    priority: Int @auth(action: "read", subject: "Role")
 }
 
 type UserGroup {
-    id: ID!
-    user: User
-    group: Group
+    id: ID! @auth(action: "read", subject: "UserGroup")
+    user: User @auth(action: "read", subject: "UserGroup")
+    group: Group @auth(action: "read", subject: "UserGroup")
 }
 
 type UserPermission {
-    id: ID!
-    user: User
-    action: String
-    subject: [String!]
-    fields: [String!]
-    conditions: JSON
-    inverted: Boolean
-    reason: String
+    id: ID! @auth(action: "read", subject: "UserPermission")
+    user: User @auth(action: "read", subject: "UserPermission")
+    action: String @auth(action: "read", subject: "UserPermission")
+    subject: [String!] @auth(action: "read", subject: "UserPermission")
+    fields: [String!] @auth(action: "read", subject: "UserPermission")
+    conditions: JSON @auth(action: "read", subject: "UserPermission")
+    inverted: Boolean @auth(action: "read", subject: "UserPermission")
+    reason: String @auth(action: "read", subject: "UserPermission")
 }
 
 type User {
-    id: ID! @auth(subject: "User")
-    username: String @auth(subject: "User")
-    mail: String @auth(subject: "User")
-    person: Person @auth(subject: "User")
-    discord: String
-    joined: DateTime
-    permissions: [UserPermission!]
-    groups: [UserGroup!]
-    accessLogs: [AccessLog!]
-    auditLogs: [AuditLog!]
-    assignedContactSubmissions: [ContactSubmissionAssignee!]
-    productionRsvps: [ProductionRSVP!]
-    voteResponses: [VoteResponse!]
+    id: ID! @auth(action: "read", subject: "User")
+    username: String @auth(action: "read", subject: "User")
+    mail: String @auth(action: "read", subject: "User")
+    person: Person @auth(action: "read", subject: "User")
+    discord: String @auth(action: "read", subject: "User")
+    joined: DateTime @auth(action: "read", subject: "User")
+    permissions: [UserPermission!] @auth(action: "read", subject: "User")
+    groups: [UserGroup!] @auth(action: "read", subject: "User")
+    accessLogs: [AccessLog!] @auth(action: "read", subject: "User")
+    auditLogs: [AuditLog!] @auth(action: "read", subject: "User")
+    assignedContactSubmissions: [ContactSubmissionAssignee!] @auth(action: "read", subject: "User")
+    productionRsvps: [ProductionRSVP!] @auth(action: "read", subject: "User")
+    voteResponses: [VoteResponse!] @auth(action: "read", subject: "User")
 }
 
 input UserWriteInput {
@@ -256,25 +256,25 @@ input UserWriteInput {
 }
 
 type Video {
-    id: ID!
-    name: String
-    format: String
-    metadata: JSON
-    videoFor: [ProductionVideo!]
+    id: ID! @auth(action: "read", subject: "Video")
+    name: String @auth(action: "read", subject: "Video")
+    format: String @auth(action: "read", subject: "Video")
+    metadata: JSON @auth(action: "read", subject: "Video")
+    videoFor: [ProductionVideo!] @auth(action: "read", subject: "Video")
 }
 
 type VoteResponse {
-    id: ID!
-    vote: Vote
-    user: User
-    timestamp: DateTime
+    id: ID! @auth(action: "read", subject: "VoteResponse")
+    vote: Vote @auth(action: "read", subject: "VoteResponse")
+    user: User @auth(action: "read", subject: "VoteResponse")
+    timestamp: DateTime @auth(action: "read", subject: "VoteResponse")
 }
 
 type Vote {
-    id: ID!
-    question: String
-    options: [String!]
-    expires: DateTime
-    description: String
-    responses: [VoteResponse!]
+    id: ID! @auth(action: "read", subject: "Vote")
+    question: String @auth(action: "read", subject: "Vote")
+    options: [String!] @auth(action: "read", subject: "Vote")
+    expires: DateTime @auth(action: "read", subject: "Vote")
+    description: String @auth(action: "read", subject: "Vote")
+    responses: [VoteResponse!] @auth(action: "read", subject: "Vote")
 }
