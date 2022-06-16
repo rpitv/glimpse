@@ -2,10 +2,7 @@ scalar DateTime
 scalar JSON
 scalar Upload
 
-enum ORDER {
-    ASC,
-    DESC
-}
+directive @auth(subject: String) on FIELD_DEFINITION
 
 """
 Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
@@ -19,9 +16,9 @@ input Pagination {
 
 type Query {
     """
-    Get a list of users which the user currently has access to read. Has ordering and pagination
+    Get a list of users which the user currently has access to read.
     """
-    users(orderBy: UserOrderBy, pagination: Pagination): [User!]!
+    users(pagination: Pagination): [User!]! @auth(subject: "User")
 }
 
 #type Mutation {
@@ -235,10 +232,10 @@ type UserPermission {
 }
 
 type User {
-    id: ID!
-    username: String
-    mail: String
-    person: Person
+    id: ID! @auth(subject: "User")
+    username: String @auth(subject: "User")
+    mail: String @auth(subject: "User")
+    person: Person @auth(subject: "User")
     discord: String
     joined: DateTime
     permissions: [UserPermission!]
@@ -256,14 +253,6 @@ input UserWriteInput {
     person: ID
     discord: String
     password: String
-}
-
-input UserOrderBy {
-    id: ORDER
-    username: ORDER
-    mail: ORDER
-    #    person: PersonOrderBy
-    joined: ORDER
 }
 
 type Video {
