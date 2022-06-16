@@ -3,12 +3,13 @@ schema: src/schema.graphql
 generates:
   src/generated/graphql.ts:
     plugins:
-      - "@graphql-codegen/typescript"
-      - "@graphql-codegen/typescript-resolvers"
+      - typescript
+      - typescript-resolvers
     config:
       mappers:
         AccessLog: .prisma/client#AccessLog as AccessLogModel
         AlertLog: .prisma/client#AlertLog as AlertLogModel
+        Asset: .prisma/client#Asset as AssetModel
         AuditLog: .prisma/client#AuditLog as AuditLogModel
         BlogPost: .prisma/client#BlogPost as BlogPostModel
         Category: .prisma/client#Category as CategoryModel

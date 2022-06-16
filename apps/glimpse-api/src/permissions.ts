@@ -19,12 +19,15 @@ export async function getPermissions(user?: User): Promise<RawRuleOf<GlimpseAbil
     return [{
         action: 'read',
         subject: 'User',
-        fields: ['id', 'username'],
         conditions: {
             NOT: {
                 id: 3
             }
         }
+    },{
+        action: 'read',
+        subject: 'Person',
+        fields: ['id']
     }];
 }
 
