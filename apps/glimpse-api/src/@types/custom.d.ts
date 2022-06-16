@@ -1,7 +1,4 @@
 import {PrismaClient} from "@prisma/client";
-import express from "express";
-import http from "http";
-import {ApolloServer} from "apollo-server-express";
 import {RawRuleOf} from "@casl/ability";
 import {User} from '.prisma/client'
 import {PrismaAbility} from "@casl/prisma";
@@ -20,24 +17,13 @@ type AbilitySubjects = User | typeof User | 'User' | 'all';
 type GlimpseAbility = PrismaAbility<[AbilityActions, AbilitySubjects]>;
 
 /**
- * Type that the context passed to Apollo resolvers should follow
+ * Context passed to GraphQL incoming requests.
  */
-type ResolverContext = {
+type GraphQLContext = {
     prisma: PrismaClient;
-    req: Express.Request;
-    res: Express.Response;
     permissions: GlimpseAbility;
     user?: User;
 }
-
-/**
- * Type returned by startHttpServer()
- */
-type CreateHttpServerResult = {
-    expressServer: express.Express;
-    httpServer: http.Server;
-    apolloServer: ApolloServer;
-};
 
 /**
  * Types of values which can be set in the "trust proxy" express key/value.

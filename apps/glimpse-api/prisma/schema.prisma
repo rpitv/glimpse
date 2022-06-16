@@ -31,6 +31,32 @@ model AlertLog {
   @@map("alert_logs")
 }
 
+model Asset {
+  id                 Int       @id(map: "assets_pk") @default(autoincrement())
+  tag                Int?
+  name               String    @db.VarChar(150)
+  lastKnownLocation  String?   @map("last_known_location") @db.VarChar(100)
+  lastKnownHandlerId Int?      @map("last_known_handler")
+  isLost             Boolean   @default(false) @map("is_lost")
+  notes              String?   @db.VarChar(500)
+  purchasePrice      Int?      @map("purchase_price")
+  purchaseLocation   String?   @map("purchase_location") @db.VarChar(1000)
+  purchaseDate       DateTime? @map("purchase_date") @db.Date
+  modelNumber        String?   @map("model_number") @db.VarChar(100)
+  serialNumber       String?   @map("serial_number") @db.VarChar(100)
+  parentId           Int?      @map("parent")
+  lastKnownHandler   User?     @relation("assetsTousers", fields: [lastKnownHandlerId], references: [id], onDelete: Restrict, map: "assets_users_id_fk")
+  parent             Asset?    @relation("assetsToassets_parent", fields: [parentId], references: [id], onDelete: Restrict, map: "assets_assets_id_fk")
+  children           Asset[]   @relation("assetsToassets_parent")
+
+  @@index([isLost, tag], map: "assets_is_lost_tag_index")
+  @@index([lastKnownHandlerId, tag], map: "assets_last_known_handler_tag_index")
+  @@index([lastKnownLocation, tag], map: "assets_last_known_location_tag_index")
+  @@index([name, tag], map: "assets_name_tag_index")
+  @@index([tag], map: "assets_tag_index")
+  @@map("assets")
+}
+
 model AuditLog {
   id               Int      @id(map: "audit_logs_pk") @default(autoincrement())
   userId           Int?     @map("user")
@@ -304,6 +330,7 @@ model User {
   joined                     DateTime                    @default(now()) @db.Timestamp(6)
   person                     Person?                     @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
   accessLogs                 AccessLog[]
+  checkedOutAssets           Asset[]                     @relation("assetsTousers")
   auditLogs                  AuditLog[]
   assignedContactSubmissions ContactSubmissionAssignee[]
   productionRsvps            ProductionRSVP[]

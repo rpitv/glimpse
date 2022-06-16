@@ -1,9 +1,6 @@
-import {RawRuleOf, subject} from "@casl/ability";
-import {AbilityActions, AbilitySubjects, GlimpseAbility, ResolverContext} from "custom";
-import {Rule} from "graphql-shield/dist/rules";
-import {rule, shield} from "graphql-shield";
+import {RawRuleOf} from "@casl/ability";
+import {GlimpseAbility} from "custom";
 import {User} from ".prisma/client";
-import {IMiddlewareGenerator} from "graphql-middleware";
 
 /**
  * Get the permissions for a specified user from the database. Also retrieves the permissions
@@ -22,52 +19,13 @@ export async function getPermissions(user?: User): Promise<RawRuleOf<GlimpseAbil
     return [{
         action: 'read',
         subject: 'User',
-        fields: ['id','mail','username'],
+        fields: ['id', 'username'],
         conditions: {
             NOT: {
-                id: 2
+                id: 3
             }
         }
     }];
-}
-
-/**
- * Create a graphql-shield Rule object for a given action/subject, and optional field. These
- *   are fed into CASL and checked against the current user's permissions.
- * @param action CASL permission action to be checked
- * @param subjectObj CASL permission subject to be checked
- * @param field CASL permission field to be checked, or null to check against the whole object.
- * @returns Rule which can be passed to graphql-shield. The rule passes if the current user is
- *   able to read AT LEAST ONE object that matches the specified action/subject/field set.
- *   Permissions need to be checked again against the actual object before returning it to the user.
- */
-export function enforce(action: AbilityActions, subjectObj: AbilitySubjects, field?: string): Rule {
-    return rule()((parent: unknown, args: unknown, ctx: ResolverContext): boolean => {
-        if(parent !== undefined) {
-            return ctx.permissions.can(action, subject(subjectObj, <any>parent), field);
-        }
-        return ctx.permissions.can(action, subjectObj, field);
-    });
-}
-
-/**
- * Get middleware from graphql-shield to protect resources within the GraphQL schema. This function needs to be
- *   modified whenever subjects are added to the schema. Otherwise, default behavior is to always deny.
- */
-export function getAuthShield(): IMiddlewareGenerator<any, any, any> {
-    return shield({
-        Query: {
-            users: enforce('read', 'User')
-        },
-        User: {
-            id: enforce('read', 'User', 'id'),
-            username: enforce('read', 'User', 'username'),
-            mail: enforce('read', 'User', 'mail')
-        }
-    }, { // Shield options
-        fallbackRule: rule()(() => false), // Deny anything which doesn't have permission
-        fallbackError: () => (new Error("Insufficient permissions!"))
-    })
 }
 
 /**
@@ -79,8 +37,8 @@ export function getAuthShield(): IMiddlewareGenerator<any, any, any> {
  * @returns An object equal to source, but only with the keys which are in the keys array.
  *   If a key is in the keys array but isn't in the source, it's ignored.
  */
-export function pick(source: {[key: string]: any}, keys: string[]) {
-    return keys.reduce((result: {[key: string]: any}, key: string) => {
+export function pick(source: { [key: string]: any }, keys: string[]) {
+    return keys.reduce((result: { [key: string]: any }, key: string) => {
         if (source && source.hasOwnProperty(key)) {
             result[key] = source[key];
         }
@@ -88,21 +46,24 @@ export function pick(source: {[key: string]: any}, keys: string[]) {
     }, {});
 }
 
-type Pagination<T = { id: number }> = {skip?: number, take?: number, cursor?: T}
+type Pagination<T = { id: number }> = { skip?: number, take?: number, cursor?: T }
 
-export function constructPagination(parent: unknown, args: {[key: string]: any}): Pagination {
-    let returnObj: Pagination = {};
+export function constructPagination(args: { [key: string]: any }): Pagination {
+    let pagination: Pagination = {};
     if(args.pagination) {
-        if(args.pagination.skip) {
-            returnObj.skip = args.pagination.skip;
-        }
-        if(args.pagination.take) {
-            returnObj.take = args.pagination.take;
-        }
-        if(args.pagination.cursor) {
-            returnObj.cursor = { id: args.pagination.cursor };
+        if (args.pagination) {
+            if (args.pagination.skip) {
+                pagination.skip = args.pagination.skip;
+            }
+            if (args.pagination.take) {
+                pagination.take = args.pagination.take;
+            }
+            if (args.pagination.cursor) {
+                pagination.cursor = {id: parseInt(args.pagination.cursor)};
+            }
         }
     }
 
-    return returnObj;
+    return pagination;
+
 }

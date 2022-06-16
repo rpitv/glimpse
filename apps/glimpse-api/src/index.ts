@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, {Express} from "express";
-import { ApolloServer } from 'apollo-server-express';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import session from "express-session";
 import {createClient} from "redis"
 import connectRedis from "connect-redis";
@@ -14,16 +12,16 @@ import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
 import {makeExecutableSchema} from "@graphql-tools/schema";
-import {applyMiddleware} from "graphql-middleware";
+import {createServer, YogaNodeServerInstance} from "@graphql-yoga/node";
 
 import {prisma} from "./prisma";
 import {resolvers} from './resolvers';
-import {
-    ResolverContext,
-    TrustProxyOption
-} from "custom";
-import {getAuthShield, getPermissions} from "./permissions";
+import {GlimpseAbility, GraphQLContext, TrustProxyOption} from "custom";
+import {getPermissions} from "./permissions";
 import {PrismaAbility} from "@casl/prisma";
+import {ResolveUserFn, useGenericAuth, ValidateUserFn} from "@envelop/generic-auth";
+
+dotenv.config();
 
 /**
  * Check whether this server should run in HTTPS mode or not.
@@ -35,8 +33,8 @@ function isHttps(): boolean {
 
 /**
  * Setup all the necessary middleware and listeners on an Express server.
- *   Note, this currently sets up the session, but it doesn't touch Apollo context.
- *   Context items should generally be added to Apollo instead of the Express request.
+ *   Note, this currently sets up the session, but it doesn't touch GraphQL context.
+ *   Context items should generally be added to GraphQL server instead of the Express request.
  * @param expressServer Express server to add middleware to.
  */
 async function setupExpressMiddleware(expressServer: Express): Promise<void> {
@@ -67,16 +65,18 @@ async function setupExpressMiddleware(expressServer: Express): Promise<void> {
         resave: false,
     }));
 
+    // Serve GraphQL server
+    expressServer.use('/graphql', await createGraphQLServer());
     // Serve static content
     expressServer.use('/', express.static('public'));
 }
 
 /**
- * Set up the context for the incoming request to the Apollo server.
+ * Set up the context for the incoming request to the GraphQL server.
  * @param req Express Request
  * @param res Express Response
  */
-async function setupApolloContext({req, res}: {req: Express.Request, res: Express.Response}): Promise<ResolverContext> {
+async function setupGraphQLContext({req, res}: {req: Express.Request, res: Express.Response}): Promise<GraphQLContext> {
     let user;
     if(req.session.userId) {
         user = await prisma.user.findUnique({ where: { id: req.session.userId }})
@@ -87,8 +87,6 @@ async function setupApolloContext({req, res}: {req: Express.Request, res: Expres
     }
     return {
         prisma,
-        req,
-        res,
         permissions: new PrismaAbility(req.session.permissionJSON),
         user
     }
@@ -105,7 +103,7 @@ async function loadGraphQLSchema(): Promise<string> {
 
 /**
  * Create an Express server/app instance with middleware. Express can be used for custom HTTP endpoints outside of
- *   Apollo, as well as static file serving.
+ *   GraphQL, as well as static file serving.
  * @param customTrustProxyValue Value to be set for the 'trust proxy' key in Express' key/value store. If you wish
  *   to not trust proxies, then this can be omitted.
  * @see http://expressjs.com/en/guide/behind-proxies.html
@@ -151,33 +149,68 @@ async function createHttpServer(expressServer: Express): Promise<http.Server> {
 }
 
 /**
- * Create an Apollo server on top of the passed HTTP server, and take in an Express server as middleware.
- *   Unlike {@link createHttpServer}, this DOES start the server. This is because some middleware needs to be
- *   applied after the server has already started. Regardless, the Apollo server won't be able to take in any
- *   data from clients until the HTTP server has started as well.
- * @param httpServer HTTP server to build the Apollo server on top of.
- * @param expressServer Express server to use as middleware for the Apollo server.
+ * Create a GraphQL server, which can either be ran independently or put on top of an Express server as middleware.
  */
-async function createApolloServer(httpServer: http.Server, expressServer: Express): Promise<ApolloServer> {
+async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Express.Request, res: Express.Response}, GraphQLContext, { }>> {
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
         resolvers
     });
-    schema = applyMiddleware(schema, getAuthShield());
+
+    const resolveUserFn: ResolveUserFn<GlimpseAbility, GraphQLContext> = async (ctx: GraphQLContext): Promise<GlimpseAbility> => {
+        return ctx.permissions;
+    }
+
+    const validateUser: ValidateUserFn<GlimpseAbility> = ({fieldAuthDirectiveNode, fieldNode, user}): void => {
+        if(!fieldAuthDirectiveNode?.arguments?.length) {
+            throw new Error('Missing argument to auth directive');
+        }
+
+        let subject = undefined;
+        // --- OUTPUT ---
+        const subjectNode = <any>fieldAuthDirectiveNode.arguments[0].value; // One of many types
+        if(subjectNode.value) {
+            subject = subjectNode.value;
+        } else {
+            throw new Error("Expected a subject node value but didn't find one");
+        }
+
+        user.can("read", subject);
+        if(fieldNode.selectionSet) {
+            for (let i = 0; i < fieldNode.selectionSet.selections.length; i++) {
+                const selection = <any>fieldNode.selectionSet.selections[i]; // One of many types
+                if (selection && selection.name && selection.name.value) {
+                    if(!user.can("read", subject, selection.name.value)) {
+                        throw new Error('Insufficient permissions...');
+                    }
+                }
+            }
+        }
+        // --- INPUT ---
+        if(fieldNode.arguments?.length) {
+            for (let i = 0; i < (fieldNode.arguments?.length ?? 0); i++) {
+                if(fieldNode.arguments[i].name.value === "pagination") {
+                    if(!user.can('read', subject, 'id')) {
+                        throw new Error('Insufficient permissions...');
+                    }
+                }
+            }
+        }
+    }
 
     // Create server based on schema
-    const apolloServer = new ApolloServer({
+    return createServer({
         schema,
-        context: setupApolloContext,
-        csrfPrevention: true,
-        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+        context: setupGraphQLContext,
+        plugins: [
+            useGenericAuth({
+                mode: "protect-granular",
+                resolveUserFn,
+                validateUser
+            })
+        ]
     });
-
-    // "Start" Apollo server, and integrate with Express. Can't actually accept HTTP requests until HTTP server starts.
-    await apolloServer.start();
-    apolloServer.applyMiddleware({ app: expressServer });
-    return apolloServer;
 }
 
 /**
@@ -202,11 +235,10 @@ async function main(): Promise<void> {
     // If PROXIED environment variable is set and isn't equal to "false", then trust one layer of proxy.
     const trustProxyOption = (!!process.env.PROXIED && process.env.PROXIED !== "false") ? 1 : undefined;
 
-    // Create the three servers this app uses. Note, express and apollo aren't actual servers with their own port.
-    //   They are layers on top of the HTTP server.
+    // Create the three servers this app uses. Note, express isn't an actual server with it's own port. It is just
+    //   middleware on top of the HTTP server.
     const expressServer = await createExpressServer(trustProxyOption);
     const httpServer = await createHttpServer(expressServer);
-    await createApolloServer(httpServer, expressServer);
 
     const port = parseInt(process.env.PORT ?? "4000");
     const host = "0.0.0.0";

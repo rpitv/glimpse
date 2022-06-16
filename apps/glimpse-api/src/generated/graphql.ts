@@ -129,11 +129,6 @@ export type Image = {
   thumbnailFor?: Maybe<Array<Production>>;
 };
 
-export enum Order {
-  Asc = 'ASC',
-  Desc = 'DESC'
-}
-
 /**
  * Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
  * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
@@ -224,13 +219,12 @@ export type ProductionVideo = {
 
 export type Query = {
   __typename?: 'Query';
-  /** Get a list of users which the user currently has access to read. Has ordering and pagination */
+  /** Get a list of users which the user currently has access to read. */
   users: Array<User>;
 };
 
 
 export type QueryUsersArgs = {
-  orderBy?: InputMaybe<UserOrderBy>;
   pagination?: InputMaybe<Pagination>;
 };
 
@@ -274,13 +268,6 @@ export type UserGroup = {
   group?: Maybe<Group>;
   id: Scalars['ID'];
   user?: Maybe<User>;
-};
-
-export type UserOrderBy = {
-  id?: InputMaybe<Order>;
-  joined?: InputMaybe<Order>;
-  mail?: InputMaybe<Order>;
-  username?: InputMaybe<Order>;
 };
 
 export type UserPermission = {
@@ -415,7 +402,6 @@ export type ResolversTypes = {
   Image: ResolverTypeWrapper<ImageModel>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
-  ORDER: Order;
   Pagination: Pagination;
   Person: ResolverTypeWrapper<PersonModel>;
   PersonImage: ResolverTypeWrapper<PersonImageModel>;
@@ -431,7 +417,6 @@ export type ResolversTypes = {
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<UserModel>;
   UserGroup: ResolverTypeWrapper<UserGroupModel>;
-  UserOrderBy: UserOrderBy;
   UserPermission: ResolverTypeWrapper<UserPermissionModel>;
   UserWriteInput: UserWriteInput;
   Video: ResolverTypeWrapper<VideoModel>;
@@ -472,13 +457,18 @@ export type ResolversParentTypes = {
   Upload: Scalars['Upload'];
   User: UserModel;
   UserGroup: UserGroupModel;
-  UserOrderBy: UserOrderBy;
   UserPermission: UserPermissionModel;
   UserWriteInput: UserWriteInput;
   Video: VideoModel;
   Vote: VoteModel;
   VoteResponse: VoteResponseModel;
 };
+
+export type AuthDirectiveArgs = {
+  subject?: Maybe<Scalars['String']>;
+};
+
+export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AccessLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['AccessLog'] = ResolversParentTypes['AccessLog']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -799,3 +789,6 @@ export type Resolvers<ContextType = any> = {
   VoteResponse?: VoteResponseResolvers<ContextType>;
 };
 
+export type DirectiveResolvers<ContextType = any> = {
+  auth?: AuthDirectiveResolver<any, any, ContextType>;
+};
