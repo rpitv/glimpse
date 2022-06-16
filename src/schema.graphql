@@ -19,6 +19,10 @@ type Query {
     Get a list of users which the user currently has access to read.
     """
     users(pagination: Pagination): [User!]! @auth(action: "read", subject: "User")
+    """
+    Get a single user given their ID, or null if that user does not exist.
+    """
+    user(id: ID!): User @auth(action: "read", subject: "User")
 }
 
 #type Mutation {
@@ -40,6 +44,23 @@ type AlertLog {
     message: String @auth(action: "read", subject: "AlertLog")
     severity: String @auth(action: "read", subject: "AlertLog")
     timestamp: DateTime @auth(action: "read", subject: "AlertLog")
+}
+
+type Asset {
+    id: ID! @auth(action: "read", subject: "Asset")
+    tag: Int @auth(action: "read", subject: "Asset")
+    name: String! @auth(action: "read", subject: "Asset")
+    lastKnownLocation: String @auth(action: "read", subject: "Asset")
+    lastKnownHandler: User @auth(action: "read", subject: "Asset")
+    isLost: Boolean @auth(action: "read", subject: "Asset")
+    notes: String @auth(action: "read", subject: "Asset")
+    purchasePrice: Int @auth(action: "read", subject: "Asset")
+    purchaseLocation: String @auth(action: "read", subject: "Asset")
+    purchaseDate: DateTime @auth(action: "read", subject: "Asset")
+    modelNumber: String @auth(action: "read", subject: "Asset")
+    serialNumber: String @auth(action: "read", subject: "Asset")
+    parent: Asset @auth(action: "read", subject: "Asset")
+    children: [Asset!] @auth(action: "read", subject: "Asset")
 }
 
 type AuditLog {
@@ -245,6 +266,7 @@ type User {
     assignedContactSubmissions: [ContactSubmissionAssignee!] @auth(action: "read", subject: "User")
     productionRsvps: [ProductionRSVP!] @auth(action: "read", subject: "User")
     voteResponses: [VoteResponse!] @auth(action: "read", subject: "User")
+    checkedOutAssets: [Asset!] @auth(action: "read", subject: "User")
 }
 
 input UserWriteInput {
