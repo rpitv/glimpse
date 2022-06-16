@@ -1,11 +1,12 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { AccessLog as AccessLogModel, AlertLog as AlertLogModel, AuditLog as AuditLogModel, BlogPost as BlogPostModel, Category as CategoryModel, ContactSubmissionAssignee as ContactSubmissionAssigneeModel, ContactSubmission as ContactSubmissionModel, Credit as CreditModel, GroupPermission as GroupPermissionModel, Group as GroupModel, Image as ImageModel, Person as PersonModel, PersonImage as PersonImageModel, ProductionImage as ProductionImageModel, ProductionRSVP as ProductionRSVPModel, ProductionTag as ProductionTagModel, Production as ProductionModel, Redirect as RedirectModel, Role as RoleModel, UserPermission as UserPermissionModel, UserGroup as UserGroupModel, User as UserModel, Video as VideoModel, VoteResponse as VoteResponseModel, Vote as VoteModel } from '.prisma/client';
+import { AccessLog as AccessLogModel, AlertLog as AlertLogModel, Asset as AssetModel, AuditLog as AuditLogModel, BlogPost as BlogPostModel, Category as CategoryModel, ContactSubmissionAssignee as ContactSubmissionAssigneeModel, ContactSubmission as ContactSubmissionModel, Credit as CreditModel, GroupPermission as GroupPermissionModel, Group as GroupModel, Image as ImageModel, Person as PersonModel, PersonImage as PersonImageModel, ProductionImage as ProductionImageModel, ProductionRSVP as ProductionRSVPModel, ProductionTag as ProductionTagModel, Production as ProductionModel, Redirect as RedirectModel, Role as RoleModel, UserPermission as UserPermissionModel, UserGroup as UserGroupModel, User as UserModel, Video as VideoModel, VoteResponse as VoteResponseModel, Vote as VoteModel } from '.prisma/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -33,6 +34,24 @@ export type AlertLog = {
   message?: Maybe<Scalars['String']>;
   severity?: Maybe<Scalars['String']>;
   timestamp?: Maybe<Scalars['DateTime']>;
+};
+
+export type Asset = {
+  __typename?: 'Asset';
+  children?: Maybe<Array<Asset>>;
+  id: Scalars['ID'];
+  isLost?: Maybe<Scalars['Boolean']>;
+  lastKnownHandler?: Maybe<User>;
+  lastKnownLocation?: Maybe<Scalars['String']>;
+  modelNumber?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  notes?: Maybe<Scalars['String']>;
+  parent?: Maybe<Asset>;
+  purchaseDate?: Maybe<Scalars['DateTime']>;
+  purchaseLocation?: Maybe<Scalars['String']>;
+  purchasePrice?: Maybe<Scalars['Int']>;
+  serialNumber?: Maybe<Scalars['String']>;
+  tag?: Maybe<Scalars['Int']>;
 };
 
 export type AuditLog = {
@@ -219,8 +238,15 @@ export type ProductionVideo = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Get a single user given their ID, or null if that user does not exist. */
+  user?: Maybe<User>;
   /** Get a list of users which the user currently has access to read. */
   users: Array<User>;
+};
+
+
+export type QueryUserArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -251,6 +277,7 @@ export type User = {
   accessLogs?: Maybe<Array<AccessLog>>;
   assignedContactSubmissions?: Maybe<Array<ContactSubmissionAssignee>>;
   auditLogs?: Maybe<Array<AuditLog>>;
+  checkedOutAssets?: Maybe<Array<Asset>>;
   discord?: Maybe<Scalars['String']>;
   groups?: Maybe<Array<UserGroup>>;
   id: Scalars['ID'];
@@ -388,6 +415,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AccessLog: ResolverTypeWrapper<AccessLogModel>;
   AlertLog: ResolverTypeWrapper<AlertLogModel>;
+  Asset: ResolverTypeWrapper<AssetModel>;
   AuditLog: ResolverTypeWrapper<AuditLogModel>;
   BlogPost: ResolverTypeWrapper<BlogPostModel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
@@ -428,6 +456,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AccessLog: AccessLogModel;
   AlertLog: AlertLogModel;
+  Asset: AssetModel;
   AuditLog: AuditLogModel;
   BlogPost: BlogPostModel;
   Boolean: Scalars['Boolean'];
@@ -465,6 +494,7 @@ export type ResolversParentTypes = {
 };
 
 export type AuthDirectiveArgs = {
+  action?: Maybe<Scalars['String']>;
   subject?: Maybe<Scalars['String']>;
 };
 
@@ -484,6 +514,24 @@ export type AlertLogResolvers<ContextType = any, ParentType extends ResolversPar
   message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   severity?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AssetResolvers<ContextType = any, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = {
+  children?: Resolver<Maybe<Array<ResolversTypes['Asset']>>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isLost?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  lastKnownHandler?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  lastKnownLocation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  modelNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  parent?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType>;
+  purchaseDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  purchaseLocation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  purchasePrice?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  serialNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  tag?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -668,6 +716,7 @@ export type ProductionVideoResolvers<ContextType = any, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
 };
 
@@ -697,6 +746,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   accessLogs?: Resolver<Maybe<Array<ResolversTypes['AccessLog']>>, ParentType, ContextType>;
   assignedContactSubmissions?: Resolver<Maybe<Array<ResolversTypes['ContactSubmissionAssignee']>>, ParentType, ContextType>;
   auditLogs?: Resolver<Maybe<Array<ResolversTypes['AuditLog']>>, ParentType, ContextType>;
+  checkedOutAssets?: Resolver<Maybe<Array<ResolversTypes['Asset']>>, ParentType, ContextType>;
   discord?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   groups?: Resolver<Maybe<Array<ResolversTypes['UserGroup']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -759,6 +809,7 @@ export type VoteResponseResolvers<ContextType = any, ParentType extends Resolver
 export type Resolvers<ContextType = any> = {
   AccessLog?: AccessLogResolvers<ContextType>;
   AlertLog?: AlertLogResolvers<ContextType>;
+  Asset?: AssetResolvers<ContextType>;
   AuditLog?: AuditLogResolvers<ContextType>;
   BlogPost?: BlogPostResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;

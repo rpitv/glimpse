@@ -15,11 +15,11 @@ import {makeExecutableSchema} from "@graphql-tools/schema";
 import {createServer, YogaNodeServerInstance} from "@graphql-yoga/node";
 
 import {prisma} from "./prisma";
-import {resolvers} from './resolvers';
 import {AbilityActions, GlimpseAbility, GraphQLContext, TrustProxyOption} from "custom";
 import {getPermissions} from "./permissions";
 import {PrismaAbility} from "@casl/prisma";
 import {ResolveUserFn, useGenericAuth, ValidateUserFn} from "@envelop/generic-auth";
+import {loadFiles} from "@graphql-tools/load-files";
 
 dotenv.config();
 
@@ -155,7 +155,7 @@ async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Expre
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
-        resolvers
+        resolvers: await loadFiles('src/resolvers/**/*.ts')
     });
 
     const resolveUserFn: ResolveUserFn<GlimpseAbility, GraphQLContext> = async (ctx: GraphQLContext): Promise<GlimpseAbility> => {

@@ -26,6 +26,7 @@
     "@casl/ability": "^5.4.4",
     "@casl/prisma": "^1.0.2",
     "@envelop/generic-auth": "^4.2.4",
+    "@graphql-tools/load-files": "^6.5.4",
     "@graphql-tools/schema": "^8.3.14",
     "@graphql-yoga/node": "^2.9.1",
     "@prisma/client": "^3.14.0",
