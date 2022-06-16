@@ -23,11 +23,20 @@ type Query {
     Get a single user given their ID, or null if that user does not exist.
     """
     user(id: ID!): User @auth(action: "read", subject: "User")
+    """
+    Get a single user-group pair, given its ID, or null if that user-group pair does not exist.
+    """
+    userGroup(id: ID!): UserGroup @auth(action: "read", subject: "UserGroup")
 }
 
-#type Mutation {
-#
-#}
+type Mutation {
+    createUser(userInput: UserWriteInput!): User!
+    updateUser(id: ID!, userInput: UserWriteInput!): User!
+    deleteUser(id: ID!): User!
+
+    createUserGroup(userGroupInput: UserGroupWriteInput!): UserGroup!
+    deleteUserGroup(id: ID!): UserGroup!
+}
 
 # Basic types #
 
@@ -241,6 +250,11 @@ type UserGroup {
     group: Group @auth(action: "read", subject: "UserGroup")
 }
 
+input UserGroupWriteInput {
+    user: ID
+    group: ID
+}
+
 type UserPermission {
     id: ID! @auth(action: "read", subject: "UserPermission")
     user: User @auth(action: "read", subject: "UserPermission")
@@ -275,6 +289,16 @@ input UserWriteInput {
     person: ID
     discord: String
     password: String
+}
+
+input UserPermissionWriteInput {
+    user: ID
+    action: String
+    subject: [String!]
+    fields: [String!]
+    conditions: JSON
+    inverted: Boolean
+    reason: String
 }
 
 type Video {
