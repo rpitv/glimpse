@@ -148,6 +148,41 @@ export type Image = {
   thumbnailFor?: Maybe<Array<Production>>;
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  createUser: User;
+  createUserGroup: UserGroup;
+  deleteUser: User;
+  deleteUserGroup: UserGroup;
+  updateUser: User;
+};
+
+
+export type MutationCreateUserArgs = {
+  userInput: UserWriteInput;
+};
+
+
+export type MutationCreateUserGroupArgs = {
+  userGroupInput: UserGroupWriteInput;
+};
+
+
+export type MutationDeleteUserArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserGroupArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  id: Scalars['ID'];
+  userInput: UserWriteInput;
+};
+
 /**
  * Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
  * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
@@ -240,12 +275,19 @@ export type Query = {
   __typename?: 'Query';
   /** Get a single user given their ID, or null if that user does not exist. */
   user?: Maybe<User>;
+  /** Get a single user-group pair, given its ID, or null if that user-group pair does not exist. */
+  userGroup?: Maybe<UserGroup>;
   /** Get a list of users which the user currently has access to read. */
   users: Array<User>;
 };
 
 
 export type QueryUserArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryUserGroupArgs = {
   id: Scalars['ID'];
 };
 
@@ -297,6 +339,11 @@ export type UserGroup = {
   user?: Maybe<User>;
 };
 
+export type UserGroupWriteInput = {
+  group?: InputMaybe<Scalars['ID']>;
+  user?: InputMaybe<Scalars['ID']>;
+};
+
 export type UserPermission = {
   __typename?: 'UserPermission';
   action?: Maybe<Scalars['String']>;
@@ -307,6 +354,16 @@ export type UserPermission = {
   reason?: Maybe<Scalars['String']>;
   subject?: Maybe<Array<Scalars['String']>>;
   user?: Maybe<User>;
+};
+
+export type UserPermissionWriteInput = {
+  action?: InputMaybe<Scalars['String']>;
+  conditions?: InputMaybe<Scalars['JSON']>;
+  fields?: InputMaybe<Array<Scalars['String']>>;
+  inverted?: InputMaybe<Scalars['Boolean']>;
+  reason?: InputMaybe<Scalars['String']>;
+  subject?: InputMaybe<Array<Scalars['String']>>;
+  user?: InputMaybe<Scalars['ID']>;
 };
 
 export type UserWriteInput = {
@@ -430,6 +487,7 @@ export type ResolversTypes = {
   Image: ResolverTypeWrapper<ImageModel>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Pagination: Pagination;
   Person: ResolverTypeWrapper<PersonModel>;
   PersonImage: ResolverTypeWrapper<PersonImageModel>;
@@ -445,7 +503,9 @@ export type ResolversTypes = {
   Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<UserModel>;
   UserGroup: ResolverTypeWrapper<UserGroupModel>;
+  UserGroupWriteInput: UserGroupWriteInput;
   UserPermission: ResolverTypeWrapper<UserPermissionModel>;
+  UserPermissionWriteInput: UserPermissionWriteInput;
   UserWriteInput: UserWriteInput;
   Video: ResolverTypeWrapper<VideoModel>;
   Vote: ResolverTypeWrapper<VoteModel>;
@@ -471,6 +531,7 @@ export type ResolversParentTypes = {
   Image: ImageModel;
   Int: Scalars['Int'];
   JSON: Scalars['JSON'];
+  Mutation: {};
   Pagination: Pagination;
   Person: PersonModel;
   PersonImage: PersonImageModel;
@@ -486,7 +547,9 @@ export type ResolversParentTypes = {
   Upload: Scalars['Upload'];
   User: UserModel;
   UserGroup: UserGroupModel;
+  UserGroupWriteInput: UserGroupWriteInput;
   UserPermission: UserPermissionModel;
+  UserPermissionWriteInput: UserPermissionWriteInput;
   UserWriteInput: UserWriteInput;
   Video: VideoModel;
   Vote: VoteModel;
@@ -637,6 +700,14 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'userInput'>>;
+  createUserGroup?: Resolver<ResolversTypes['UserGroup'], ParentType, ContextType, RequireFields<MutationCreateUserGroupArgs, 'userGroupInput'>>;
+  deleteUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  deleteUserGroup?: Resolver<ResolversTypes['UserGroup'], ParentType, ContextType, RequireFields<MutationDeleteUserGroupArgs, 'id'>>;
+  updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'userInput'>>;
+};
+
 export type PersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['Person'] = ResolversParentTypes['Person']> = {
   blogPosts?: Resolver<Maybe<Array<ResolversTypes['BlogPost']>>, ParentType, ContextType>;
   credits?: Resolver<Maybe<Array<ResolversTypes['Credit']>>, ParentType, ContextType>;
@@ -717,6 +788,7 @@ export type ProductionVideoResolvers<ContextType = any, ParentType extends Resol
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
+  userGroup?: Resolver<Maybe<ResolversTypes['UserGroup']>, ParentType, ContextType, RequireFields<QueryUserGroupArgs, 'id'>>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
 };
 
@@ -821,6 +893,7 @@ export type Resolvers<ContextType = any> = {
   GroupPermission?: GroupPermissionResolvers<ContextType>;
   Image?: ImageResolvers<ContextType>;
   JSON?: GraphQLScalarType;
+  Mutation?: MutationResolvers<ContextType>;
   Person?: PersonResolvers<ContextType>;
   PersonImage?: PersonImageResolvers<ContextType>;
   Production?: ProductionResolvers<ContextType>;

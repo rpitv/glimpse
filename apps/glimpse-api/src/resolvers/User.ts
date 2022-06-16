@@ -1,5 +1,5 @@
 import {Resolvers} from "../generated/graphql";
-import {User, Person, UserPermission, UserGroup, AccessLog, Group,
+import {User, Person, UserPermission, UserGroup, AccessLog,
     AuditLog, ContactSubmissionAssignee, ProductionRSVP, VoteResponse, Asset} from ".prisma/client";
 import {subject} from "@casl/ability";
 import {constructPagination} from "../permissions";
@@ -35,42 +35,6 @@ export const resolver: Resolvers = {
                 }
             });
         }
-    },
-    UserGroup: {
-        user: async (parent, args, ctx: GraphQLContext): Promise<User> => {
-            const userGroup = (await ctx.prisma.userGroup.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    user: true
-                }
-            }));
-            if (userGroup === null) {
-                throw new Error('UserGroup is unexpectedly null.');
-            }
-            return userGroup.user;
-        },
-        group: async (parent, args, ctx: GraphQLContext): Promise<Group> => {
-            const userGroup = (await ctx.prisma.userGroup.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    group: true
-                }
-            }));
-            if (userGroup === null) {
-                throw new Error('UserGroup is unexpectedly null.');
-            }
-            return userGroup.group;
-        },
     },
     UserPermission: {
         user: async (parent, args, ctx: GraphQLContext): Promise<User> => {
