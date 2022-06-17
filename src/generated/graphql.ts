@@ -557,8 +557,8 @@ export type ResolversParentTypes = {
 };
 
 export type AuthDirectiveArgs = {
-  action?: Maybe<Scalars['String']>;
-  subject?: Maybe<Scalars['String']>;
+  action: Scalars['String'];
+  subject: Scalars['String'];
 };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;

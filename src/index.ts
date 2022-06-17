@@ -15,11 +15,11 @@ import {makeExecutableSchema} from "@graphql-tools/schema";
 import {createServer, YogaNodeServerInstance} from "@graphql-yoga/node";
 
 import {prisma} from "./prisma";
-import {AbilityActions, GlimpseAbility, GraphQLContext, TrustProxyOption} from "custom";
+import {GraphQLContext, TrustProxyOption} from "custom";
 import {getPermissions} from "./permissions";
 import {PrismaAbility} from "@casl/prisma";
-import {ResolveUserFn, useGenericAuth, ValidateUserFn} from "@envelop/generic-auth";
 import {loadFiles} from "@graphql-tools/load-files";
+import {authDirective} from "./directives/auth";
 
 dotenv.config();
 
@@ -152,78 +152,21 @@ async function createHttpServer(expressServer: Express): Promise<http.Server> {
  * Create a GraphQL server, which can either be ran independently or put on top of an Express server as middleware.
  */
 async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Express.Request, res: Express.Response}, GraphQLContext, { }>> {
+
+    const authDirectiveTransformer = authDirective()
+
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
         resolvers: await loadFiles('src/resolvers/**/*.ts')
     });
 
-    const resolveUserFn: ResolveUserFn<GlimpseAbility, GraphQLContext> = async (ctx: GraphQLContext): Promise<GlimpseAbility> => {
-        return ctx.permissions;
-    }
-
-    const validateUser: ValidateUserFn<GlimpseAbility> = ({fieldAuthDirectiveNode, fieldNode, user}): void => {
-        if(!fieldAuthDirectiveNode?.arguments?.length) {
-            throw new Error('Missing argument to auth directive');
-        }
-
-        let action: AbilityActions|undefined = undefined;
-        let subject: string|undefined = undefined;
-        // --- OUTPUT ---
-        for(const argument of fieldAuthDirectiveNode.arguments) {
-            if(argument.name.value === "subject") {
-                if(argument.value) {
-                    subject = (<any>argument.value).value;
-                }
-            } else if (argument.name.value === "action") {
-                if(argument.value) {
-                    action = (<any>argument.value).value;
-                }
-            }
-        }
-        if(!action) {
-            throw new Error("Expected an action argument to directive but didn't find one.");
-        }
-        if(!subject) {
-            throw new Error("Expected a subject argument to directive but didn't find one.")
-        }
-
-        if(!user.can(action, subject)) {
-            throw new Error('Insufficient permissions...');
-        }
-        if(fieldNode.selectionSet) {
-            for (let i = 0; i < fieldNode.selectionSet.selections.length; i++) {
-                const selection = <any>fieldNode.selectionSet.selections[i]; // One of many types
-                if (selection && selection.name && selection.name.value) {
-                    if(!user.can(action, subject, selection.name.value)) {
-                        throw new Error('Insufficient permissions...');
-                    }
-                }
-            }
-        }
-        // --- INPUT ---
-        if(fieldNode.arguments?.length) {
-            for (let i = 0; i < (fieldNode.arguments?.length ?? 0); i++) {
-                if(fieldNode.arguments[i].name.value === "pagination") {
-                    if(!user.can('read', subject, 'id')) {
-                        throw new Error('Insufficient permissions...');
-                    }
-                }
-            }
-        }
-    }
+    schema = authDirectiveTransformer(schema);
 
     // Create server based on schema
     return createServer({
         schema,
-        context: setupGraphQLContext,
-        plugins: [
-            useGenericAuth({
-                mode: "protect-granular",
-                resolveUserFn,
-                validateUser
-            })
-        ]
+        context: setupGraphQLContext
     });
 }
 
