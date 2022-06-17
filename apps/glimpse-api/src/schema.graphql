@@ -2,7 +2,7 @@ scalar DateTime
 scalar JSON
 scalar Upload
 
-directive @auth(action: String, subject: String) on FIELD_DEFINITION
+directive @auth(action: String!, subject: String!) repeatable on FIELD_DEFINITION
 
 """
 Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
@@ -30,12 +30,12 @@ type Query {
 }
 
 type Mutation {
-    createUser(userInput: UserWriteInput!): User!
-    updateUser(id: ID!, userInput: UserWriteInput!): User!
-    deleteUser(id: ID!): User!
+    createUser(userInput: UserWriteInput!): User! @auth(action: "create", subject: "User")
+    updateUser(id: ID!, userInput: UserWriteInput!): User! @auth(action: "update", subject: "User")
+    deleteUser(id: ID!): User! @auth(action: "delete", subject: "User")
 
-    createUserGroup(userGroupInput: UserGroupWriteInput!): UserGroup!
-    deleteUserGroup(id: ID!): UserGroup!
+    createUserGroup(userGroupInput: UserGroupWriteInput!): UserGroup! @auth(action: "create", subject: "UserGroup")
+    deleteUserGroup(id: ID!): UserGroup! @auth(action: "delete", subject: "UserGroup")
 }
 
 # Basic types #
