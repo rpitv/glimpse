@@ -40,6 +40,7 @@ function checkArgsDirectives(fieldConfig: GraphQLFieldConfig<any, any>, args: { 
 
             // Must parse then stringify to fix a bug in CASL, as it requires objects
             //   to inherit Object, in order to have the hasOwnProperty() method.
+            //   https://github.com/stalniy/casl/issues/604
             const argValue = JSON.parse(JSON.stringify(args[arg.name.value]));
 
             // Each argument can have multiple @auth directives applied to it.
