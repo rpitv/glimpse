@@ -2,6 +2,8 @@ import {Resolvers} from "../generated/graphql";
 import {User, UserGroup, Group} from ".prisma/client";
 import {GraphQLContext} from "custom";
 import {accessibleBy} from "@casl/prisma";
+import {subject} from "@casl/ability";
+import {GraphQLYogaError} from "@graphql-yoga/node";
 
 export const resolver: Resolvers = {
     Query: {
@@ -37,10 +39,15 @@ export const resolver: Resolvers = {
             })
         },
         deleteUserGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup> => {
+            const group = await ctx.prisma.userGroup.findUnique({
+                where: {id: parseInt(args.id)}
+            })
+            // We just need to check the object itself, and not its fields, since you can't delete just one field.
+            if(group === null || !ctx.permissions.can('delete', subject('UserGroup', group))) {
+                throw new GraphQLYogaError('Insufficient permissions');
+            }
             return await ctx.prisma.userGroup.delete({
-                where: {
-                    id: parseInt(args.id)
-                }
+                where: {id: parseInt(args.id)}
             })
         }
     },
@@ -60,6 +67,7 @@ export const resolver: Resolvers = {
             if (userGroup === null) {
                 throw new Error('UserGroup is unexpectedly null.');
             }
+
             return userGroup.user;
         },
         group: async (parent, args, ctx: GraphQLContext): Promise<Group> => {
