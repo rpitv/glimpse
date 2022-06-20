@@ -38,10 +38,9 @@ function checkArgsDirectives(fieldConfig: GraphQLFieldConfig<any, any>, args: { 
                 continue;
             }
 
-            // Must parse then stringify to fix a bug in CASL, as it requires objects
-            //   to inherit Object, in order to have the hasOwnProperty() method.
-            //   https://github.com/stalniy/casl/issues/604
-            const argValue = JSON.parse(JSON.stringify(args[arg.name.value]));
+            const argValue = args[arg.name.value];
+            // Must add hasOwnProperty method https://github.com/stalniy/casl/issues/604
+            argValue.hasOwnProperty = Object.prototype.hasOwnProperty.bind(argValue);
 
             // Each argument can have multiple @auth directives applied to it.
             for(const directive of arg.directives) {
@@ -111,7 +110,7 @@ export function authDirective(): (schema: GraphQLSchema) => GraphQLSchema {
 
                     fieldConfig.resolve = function (parent, args, ctx: GraphQLContext, info) {
                         // Check the directives applied to each argument, if there are any.
-                        checkArgsDirectives(fieldConfig, args, ctx.permissions, authDirectiveDef, "auth");
+                        checkArgsDirectives(fieldConfig, args, ctx.permissions, authDirectiveDef, DIRECTIVE_NAME);
 
                         // If arguments have passed at this point, then we can check the query itself now.
                         if (typeName === subjectVal) {
