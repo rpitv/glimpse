@@ -19,7 +19,8 @@ import {GraphQLContext, TrustProxyOption} from "custom";
 import {getPermissions} from "./permissions";
 import {PrismaAbility} from "@casl/prisma";
 import {loadFiles} from "@graphql-tools/load-files";
-import {authDirective} from "./directives/auth";
+import {authDirective} from "./directives/Auth";
+import {nonNullDirective} from "./directives/NonNull";
 
 dotenv.config();
 
@@ -152,16 +153,16 @@ async function createHttpServer(expressServer: Express): Promise<http.Server> {
  * Create a GraphQL server, which can either be ran independently or put on top of an Express server as middleware.
  */
 async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Express.Request, res: Express.Response}, GraphQLContext, { }>> {
-
-    const authDirectiveTransformer = authDirective()
-
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
         resolvers: await loadFiles('src/resolvers/**/*.ts')
     });
 
-    schema = authDirectiveTransformer(schema);
+    // Apply directives. The order here matters. Faster operations should be done first (e.g. non-null comes before
+    //    auth). This way, if the faster operation fails, we save time that would've been spent on slower directives.
+    schema = authDirective("Auth")(schema);
+    schema = nonNullDirective("NonNull")(schema);
 
     // Create server based on schema
     return createServer({
