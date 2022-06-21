@@ -1,6 +1,7 @@
 scalar DateTime
-scalar JSON
-scalar Upload
+scalar JSONObject
+scalar EmailAddress
+scalar File
 
 directive @Auth(action: String!, subject: String!) repeatable on FIELD_DEFINITION | ARGUMENT_DEFINITION
 """
@@ -16,13 +17,46 @@ Track https://github.com/graphql/graphql-spec/issues/476 for a built-in specifie
 """
 directive @NonNull on INPUT_FIELD_DEFINITION
 
+enum AlertLogSeverity {
+    INFO
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
+
+enum ProductionRSVPAttendanceState {
+    YES
+    NO
+    MAYBE
+}
+
+enum VideoFormat {
+    RTMP
+    HLS
+    EMBED
+}
+
 """
 Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
 used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
 """
 input Pagination {
+    """
+    Number of documents to skip over. Must be an integer greater than or equal to 0 when used. As an example, if you
+    have 10 documents numbered 1-10 and pass {skip: 5, take: 3}, then you will receive documents 6-8.
+    """
     skip: Int @NonNull
+    """
+    Number of documents to fetch. Must be an integer greater than or equal to 1 when used.
+    """
     take: Int! @NonNull
+    """
+    ID of the first document to fetch. If the document doesn't exist or you don't have permission, then it's location
+    is "unknown", and an empty list will always be returned, since we cannot determine what comes before/after it. As
+    an example, if you have 10 documents numbered 1-10 and pass {cursor: 5, take: 3}, then you will receive documents
+    5-7.
+    """
     cursor: ID @NonNull
 }
 
@@ -540,8 +574,6 @@ type Mutation {
     deleteVote(id: ID!): Vote @Auth(action: "delete", subject: "Vote")
 }
 
-# Basic types #
-
 type AccessLog {
     id: ID! @Auth(action: "read", subject: "AccessLog")
     user: User! @Auth(action: "read", subject: "AccessLog")
@@ -553,13 +585,13 @@ type AccessLog {
 type AlertLog {
     id: ID! @Auth(action: "read", subject: "AlertLog")
     message: String! @Auth(action: "read", subject: "AlertLog")
-    severity: String! @Auth(action: "read", subject: "AlertLog")
+    severity: AlertLogSeverity! @Auth(action: "read", subject: "AlertLog")
     timestamp: DateTime! @Auth(action: "read", subject: "AlertLog")
 }
 
 input AlertLogCreateInput {
     message: String! @NonNull
-    severity: String! @NonNull
+    severity: AlertLogSeverity! @NonNull
 }
 
 type Asset {
@@ -617,7 +649,7 @@ type AuditLog {
     modifiedField: String! @Auth(action: "read", subject: "AuditLog")
     previousValue: String @Auth(action: "read", subject: "AuditLog")
     comment: String @Auth(action: "read", subject: "AuditLog")
-    metadata: JSON @Auth(action: "read", subject: "AuditLog")
+    metadata: JSONObject @Auth(action: "read", subject: "AuditLog")
 }
 
 type BlogPost {
@@ -677,23 +709,23 @@ input ContactSubmissionAssigneeCreateInput {
 
 type ContactSubmission {
     id: ID! @Auth(action: "read", subject: "ContactSubmission")
-    email: String! @Auth(action: "read", subject: "ContactSubmission")
+    email: EmailAddress! @Auth(action: "read", subject: "ContactSubmission")
     name: String! @Auth(action: "read", subject: "ContactSubmission")
     timestamp: DateTime! @Auth(action: "read", subject: "ContactSubmission")
     resolved: Boolean! @Auth(action: "read", subject: "ContactSubmission")
-    additionalData: JSON @Auth(action: "read", subject: "ContactSubmission")
+    additionalData: JSONObject @Auth(action: "read", subject: "ContactSubmission")
     assignees: [ContactSubmissionAssignee!] @Auth(action: "read", subject: "ContactSubmission")
 }
 
 input ContactSubmissionCreateInput {
-    email: String! @NonNull
+    email: EmailAddress! @NonNull
     name: String! @NonNull
-    additionalData: JSON
+    additionalData: JSONObject
 }
 
 input ContactSubmissionUpdateInput {
     resolved: Boolean
-    additionalData: JSON
+    additionalData: JSONObject
 }
 
 type Credit {
@@ -725,7 +757,7 @@ type GroupPermission {
     action: String! @Auth(action: "read", subject: "GroupPermission")
     subject: [String!]! @Auth(action: "read", subject: "GroupPermission")
     fields: [String!] @Auth(action: "read", subject: "GroupPermission")
-    conditions: JSON @Auth(action: "read", subject: "GroupPermission")
+    conditions: JSONObject @Auth(action: "read", subject: "GroupPermission")
     inverted: Boolean! @Auth(action: "read", subject: "GroupPermission")
     reason: String @Auth(action: "read", subject: "GroupPermission")
 }
@@ -736,7 +768,7 @@ input GroupPermissionCreateInput {
     action: String! @NonNull
     subject: [String!]! @NonNull
     fields: [String!]
-    conditions: JSON
+    conditions: JSONObject
     inverted: Boolean
     reason: String
 }
@@ -746,7 +778,7 @@ input GroupPermissionUpdateInput {
     action: String @NonNull
     subject: [String!] @NonNull
     fields: [String!]
-    conditions: JSON
+    conditions: JSONObject
     inverted: Boolean
     reason: String
 }
@@ -872,20 +904,20 @@ type ProductionRSVP {
     id: ID! @Auth(action: "read", subject: "ProductionRSVP")
     production: Production! @Auth(action: "read", subject: "ProductionRSVP")
     user: User! @Auth(action: "read", subject: "ProductionRSVP")
-    willAttend: String @Auth(action: "read", subject: "ProductionRSVP")
+    willAttend: ProductionRSVPAttendanceState @Auth(action: "read", subject: "ProductionRSVP")
     notes: String @Auth(action: "read", subject: "ProductionRSVP")
 }
 
 input ProductionRSVPCreateInput {
     production: ID! @NonNull
     user: ID! @NonNull
-    willAttend: String
+    willAttend: ProductionRSVPAttendanceState
     notes: String
 }
 
 input ProductionRSVPUpdateInput {
     # Production ID and user ID can't be updated. Delete and recreate instead.
-    willAttend: String
+    willAttend: ProductionRSVPAttendanceState
     notes: String
 }
 
@@ -1034,7 +1066,7 @@ type UserPermission {
     action: String! @Auth(action: "read", subject: "UserPermission")
     subject: [String!]! @Auth(action: "read", subject: "UserPermission")
     fields: [String!] @Auth(action: "read", subject: "UserPermission")
-    conditions: JSON @Auth(action: "read", subject: "UserPermission")
+    conditions: JSONObject @Auth(action: "read", subject: "UserPermission")
     inverted: Boolean! @Auth(action: "read", subject: "UserPermission")
     reason: String @Auth(action: "read", subject: "UserPermission")
 }
@@ -1044,7 +1076,7 @@ input UserPermissionCreateInput {
     action: String! @NonNull
     subject: [String!]! @NonNull
     fields: [String!]
-    conditions: JSON
+    conditions: JSONObject
     inverted: Boolean
     reason: String
 }
@@ -1054,7 +1086,7 @@ input UserPermissionUpdateInput {
     action: String @NonNull
     subject: [String!] @NonNull
     fields: [String!]
-    conditions: JSON
+    conditions: JSONObject
     inverted: Boolean
     reason: String
 }
@@ -1062,7 +1094,7 @@ input UserPermissionUpdateInput {
 type User {
     id: ID! @Auth(action: "read", subject: "User")
     username: String! @Auth(action: "read", subject: "User")
-    mail: String! @Auth(action: "read", subject: "User")
+    mail: EmailAddress! @Auth(action: "read", subject: "User")
     person: Person @Auth(action: "read", subject: "User")
     discord: String @Auth(action: "read", subject: "User")
     joined: DateTime! @Auth(action: "read", subject: "User")
@@ -1078,7 +1110,7 @@ type User {
 
 input UserCreateInput {
     username: String! @NonNull
-    mail: String! @NonNull
+    mail: EmailAddress! @NonNull
     person: ID
     discord: String
     password: String
@@ -1086,7 +1118,7 @@ input UserCreateInput {
 
 input UserUpdateInput {
     username: String @NonNull
-    mail: String @NonNull
+    mail: EmailAddress @NonNull
     person: ID
     discord: String
     password: String
@@ -1095,21 +1127,21 @@ input UserUpdateInput {
 type Video {
     id: ID! @Auth(action: "read", subject: "Video")
     name: String! @Auth(action: "read", subject: "Video")
-    format: String! @Auth(action: "read", subject: "Video")
-    metadata: JSON @Auth(action: "read", subject: "Video")
+    format: VideoFormat! @Auth(action: "read", subject: "Video")
+    metadata: JSONObject @Auth(action: "read", subject: "Video")
     videoFor: [ProductionVideo!] @Auth(action: "read", subject: "Video")
 }
 
 input VideoCreateInput {
     name: String! @NonNull
-    format: String! @NonNull
-    metadata: JSON
+    format: VideoFormat! @NonNull
+    metadata: JSONObject
 }
 
 input VideoUpdateInput {
     name: String @NonNull
-    format: String @NonNull
-    metadata: JSON
+    format: VideoFormat @NonNull
+    metadata: JSONObject
 }
 
 type VoteResponse {
