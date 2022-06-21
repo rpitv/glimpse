@@ -247,6 +247,223 @@ type Mutation {
     """
     deleteAsset(id: ID!): Asset @Auth(action: "delete", subject: "Asset")
 
+    # Audit logs cannot be created, deleted, or updated.
+
+    """
+    Create a new BlogPost with the given input values.
+    """
+    createBlogPost(input: BlogPostCreateInput! @Auth(action: "create", subject: "BlogPost")): BlogPost! @Auth(action: "create", subject: "BlogPost")
+    """
+    Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist.
+    """
+    updateBlogPost(id: ID!, input: BlogPostUpdateInput! @Auth(action: "update", subject: "BlogPost")): BlogPost! @Auth(action: "update", subject: "BlogPost")
+    """
+    Delete the BlogPost with the provided ID, if it exists. Returns null if the BlogPost does not exist, otherwise returns the deleted object.
+    """
+    deleteBlogPost(id: ID!): BlogPost @Auth(action: "delete", subject: "BlogPost")
+
+    """
+    Create a new Category with the given input values.
+    """
+    createCategory(input: CategoryCreateInput! @Auth(action: "create", subject: "Category")): Category! @Auth(action: "create", subject: "Category")
+    """
+    Update the Category with the provided ID to have the passed values. Throws an error if Category with ID does not exist.
+    """
+    updateCategory(id: ID!, input: CategoryUpdateInput! @Auth(action: "update", subject: "Category")): Category! @Auth(action: "update", subject: "Category")
+    """
+    Delete the Category with the provided ID, if it exists. Returns null if the Category does not exist, otherwise returns the deleted object.
+    """
+    deleteCategory(id: ID!): Category @Auth(action: "delete", subject: "Category")
+
+    # Contact submission assignees cannot be updated. Delete and recreate instead.
+    """
+    Create a new ContactSubmissionAssignee with the given input values.
+    """
+    createContactSubmissionAssignee(input: ContactSubmissionAssigneeCreateInput! @Auth(action: "create", subject: "ContactSubmissionAssignee")): ContactSubmissionAssignee! @Auth(action: "create", subject: "ContactSubmissionAssignee")
+    """
+    Delete the ContactSubmissionAssignee with the provided ID, if it exists. Returns null if the ContactSubmissionAssignee does not exist, otherwise returns the deleted object.
+    """
+    deleteContactSubmissionAssignee(id: ID!): ContactSubmissionAssignee @Auth(action: "delete", subject: "ContactSubmissionAssignee")
+
+    """
+    Create a new ContactSubmission with the given input values.
+    """
+    createContactSubmission(input: ContactSubmissionCreateInput! @Auth(action: "create", subject: "ContactSubmission")): ContactSubmission! @Auth(action: "create", subject: "ContactSubmission")
+    """
+    Update the ContactSubmission with the provided ID to have the passed values. Throws an error if ContactSubmission with ID does not exist.
+    """
+    updateContactSubmission(id: ID!, input: ContactSubmissionUpdateInput! @Auth(action: "update", subject: "ContactSubmission")): ContactSubmission! @Auth(action: "update", subject: "ContactSubmission")
+    """
+    Delete the ContactSubmission with the provided ID, if it exists. Returns null if the ContactSubmission does not exist, otherwise returns the deleted object.
+    """
+    deleteContactSubmission(id: ID!): ContactSubmission @Auth(action: "delete", subject: "ContactSubmission")
+
+    """
+    Create a new Credit with the given input values.
+    """
+    createCredit(input: CreditCreateInput! @Auth(action: "create", subject: "Credit")): Credit! @Auth(action: "create", subject: "Credit")
+    """
+    Update the Credit with the provided ID to have the passed values. Throws an error if Credit with ID does not exist.
+    """
+    updateCredit(id: ID!, input: CreditUpdateInput! @Auth(action: "update", subject: "Credit")): Credit! @Auth(action: "update", subject: "Credit")
+    """
+    Delete the Credit with the provided ID, if it exists. Returns null if the Credit does not exist, otherwise returns the deleted object.
+    """
+    deleteCredit(id: ID!): Credit @Auth(action: "delete", subject: "Credit")
+
+    """
+    Create a new GroupPermission with the given input values.
+    """
+    createGroupPermission(input: GroupPermissionCreateInput! @Auth(action: "create", subject: "GroupPermission")): GroupPermission! @Auth(action: "create", subject: "GroupPermission")
+    """
+    Update the GroupPermission with the provided ID to have the passed values. Throws an error if GroupPermission with ID does not exist.
+    """
+    updateGroupPermission(id: ID!, input: GroupPermissionUpdateInput! @Auth(action: "update", subject: "GroupPermission")): GroupPermission! @Auth(action: "update", subject: "GroupPermission")
+    """
+    Delete the GroupPermission with the provided ID, if it exists. Returns null if the GroupPermission does not exist, otherwise returns the deleted object.
+    """
+    deleteGroupPermission(id: ID!): GroupPermission @Auth(action: "delete", subject: "GroupPermission")
+
+    """
+    Create a new Group with the given input values.
+    """
+    createGroup(input: GroupCreateInput! @Auth(action: "create", subject: "Group")): Group! @Auth(action: "create", subject: "Group")
+    """
+    Update the Group with the provided ID to have the passed values. Throws an error if Group with ID does not exist.
+    """
+    updateGroup(id: ID!, input: GroupUpdateInput! @Auth(action: "update", subject: "Group")): Group! @Auth(action: "update", subject: "Group")
+    """
+    Delete the Group with the provided ID, if it exists. Returns null if the Group does not exist, otherwise returns the deleted object.
+    """
+    deleteGroup(id: ID!): Group @Auth(action: "delete", subject: "Group")
+
+    """
+    Create a new Image with the given input values.
+    """
+    createImage(input: ImageCreateInput! @Auth(action: "create", subject: "Image")): Image! @Auth(action: "create", subject: "Image")
+    """
+    Update the Image with the provided ID to have the passed values. Throws an error if Image with ID does not exist.
+    """
+    updateImage(id: ID!, input: ImageUpdateInput! @Auth(action: "update", subject: "Image")): Image! @Auth(action: "update", subject: "Image")
+    """
+    Delete the Image with the provided ID, if it exists. Returns null if the Image does not exist, otherwise returns the deleted object.
+    """
+    deleteImage(id: ID!): Image @Auth(action: "delete", subject: "Image")
+
+    """
+    Create a new Person with the given input values.
+    """
+    createPerson(input: PersonCreateInput! @Auth(action: "create", subject: "Person")): Person! @Auth(action: "create", subject: "Person")
+    """
+    Update the Person with the provided ID to have the passed values. Throws an error if Person with ID does not exist.
+    """
+    updatePerson(id: ID!, input: PersonUpdateInput! @Auth(action: "update", subject: "Person")): Person! @Auth(action: "update", subject: "Person")
+    """
+    Delete the Person with the provided ID, if it exists. Returns null if the Person does not exist, otherwise returns the deleted object.
+    """
+    deletePerson(id: ID!): Person @Auth(action: "delete", subject: "Person")
+
+    """
+    Create a new PersonImage with the given input values.
+    """
+    createPersonImage(input: PersonImageCreateInput! @Auth(action: "create", subject: "PersonImage")): PersonImage! @Auth(action: "create", subject: "PersonImage")
+    """
+    Update the PersonImage with the provided ID to have the passed values. Throws an error if PersonImage with ID does not exist.
+    """
+    updatePersonImage(id: ID!, input: PersonImageUpdateInput! @Auth(action: "update", subject: "PersonImage")): PersonImage! @Auth(action: "update", subject: "PersonImage")
+    """
+    Delete the PersonImage with the provided ID, if it exists. Returns null if the PersonImage does not exist, otherwise returns the deleted object.
+    """
+    deletePersonImage(id: ID!): PersonImage @Auth(action: "delete", subject: "PersonImage")
+
+    """
+    Create a new ProductionImage with the given input values.
+    """
+    createProductionImage(input: ProductionImageCreateInput! @Auth(action: "create", subject: "ProductionImage")): ProductionImage! @Auth(action: "create", subject: "ProductionImage")
+    """
+    Update the ProductionImage with the provided ID to have the passed values. Throws an error if ProductionImage with ID does not exist.
+    """
+    updateProductionImage(id: ID!, input: ProductionImageUpdateInput! @Auth(action: "update", subject: "ProductionImage")): ProductionImage! @Auth(action: "update", subject: "ProductionImage")
+    """
+    Delete the ProductionImage with the provided ID, if it exists. Returns null if the ProductionImage does not exist, otherwise returns the deleted object.
+    """
+    deleteProductionImage(id: ID!): ProductionImage @Auth(action: "delete", subject: "ProductionImage")
+
+    """
+    Create a new ProductionRSVP with the given input values.
+    """
+    createProductionRSVP(input: ProductionRSVPCreateInput! @Auth(action: "create", subject: "ProductionRSVP")): ProductionRSVP! @Auth(action: "create", subject: "ProductionRSVP")
+    """
+    Update the ProductionRSVP with the provided ID to have the passed values. Throws an error if ProductionRSVP with ID does not exist.
+    """
+    updateProductionRSVP(id: ID!, input: ProductionRSVPUpdateInput! @Auth(action: "update", subject: "ProductionRSVP")): ProductionRSVP! @Auth(action: "update", subject: "ProductionRSVP")
+    """
+    Delete the ProductionRSVP with the provided ID, if it exists. Returns null if the ProductionRSVP does not exist, otherwise returns the deleted object.
+    """
+    deleteProductionRSVP(id: ID!): ProductionRSVP @Auth(action: "delete", subject: "ProductionRSVP")
+
+    # Production tags cannot be updated. Delete and recreate instead.
+    """
+    Create a new ProductionTag with the given input values.
+    """
+    createProductionTag(input: ProductionTagCreateInput! @Auth(action: "create", subject: "ProductionTag")): ProductionTag! @Auth(action: "create", subject: "ProductionTag")
+    """
+    Delete the ProductionTag with the provided ID, if it exists. Returns null if the ProductionTag does not exist, otherwise returns the deleted object.
+    """
+    deleteProductionTag(id: ID!): ProductionTag @Auth(action: "delete", subject: "ProductionTag")
+
+    """
+    Create a new ProductionVideo with the given input values.
+    """
+    createProductionVideo(input: ProductionVideoCreateInput! @Auth(action: "create", subject: "ProductionVideo")): ProductionVideo! @Auth(action: "create", subject: "ProductionVideo")
+    """
+    Update the ProductionVideo with the provided ID to have the passed values. Throws an error if ProductionVideo with ID does not exist.
+    """
+    updateProductionVideo(id: ID!, input: ProductionVideoUpdateInput! @Auth(action: "update", subject: "ProductionVideo")): ProductionVideo! @Auth(action: "update", subject: "ProductionVideo")
+    """
+    Delete the ProductionVideo with the provided ID, if it exists. Returns null if the ProductionVideo does not exist, otherwise returns the deleted object.
+    """
+    deleteProductionVideo(id: ID!): ProductionVideo @Auth(action: "delete", subject: "ProductionVideo")
+
+    """
+    Create a new Production with the given input values.
+    """
+    createProduction(input: ProductionCreateInput! @Auth(action: "create", subject: "Production")): Production! @Auth(action: "create", subject: "Production")
+    """
+    Update the Production with the provided ID to have the passed values. Throws an error if Production with ID does not exist.
+    """
+    updateProduction(id: ID!, input: ProductionUpdateInput! @Auth(action: "update", subject: "Production")): Production! @Auth(action: "update", subject: "Production")
+    """
+    Delete the Production with the provided ID, if it exists. Returns null if the Production does not exist, otherwise returns the deleted object.
+    """
+    deleteProduction(id: ID!): Production @Auth(action: "delete", subject: "Production")
+
+    """
+    Create a new Redirect with the given input values.
+    """
+    createRedirect(input: RedirectCreateInput! @Auth(action: "create", subject: "Redirect")): Redirect! @Auth(action: "create", subject: "Redirect")
+    """
+    Update the Redirect with the provided ID to have the passed values. Throws an error if Redirect with ID does not exist.
+    """
+    updateRedirect(id: ID!, input: RedirectUpdateInput! @Auth(action: "update", subject: "Redirect")): Redirect! @Auth(action: "update", subject: "Redirect")
+    """
+    Delete the Redirect with the provided ID, if it exists. Returns null if the Redirect does not exist, otherwise returns the deleted object.
+    """
+    deleteRedirect(id: ID!): Redirect @Auth(action: "delete", subject: "Redirect")
+
+    """
+    Create a new Role with the given input values.
+    """
+    createRole(input: RoleCreateInput! @Auth(action: "create", subject: "Role")): Role! @Auth(action: "create", subject: "Role")
+    """
+    Update the Role with the provided ID to have the passed values. Throws an error if Role with ID does not exist.
+    """
+    updateRole(id: ID!, input: RoleUpdateInput! @Auth(action: "update", subject: "Role")): Role! @Auth(action: "update", subject: "Role")
+    """
+    Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object.
+    """
+    deleteRole(id: ID!): Role @Auth(action: "delete", subject: "Role")
+
     # User groups cannot be updated. Delete and recreate instead.
     """
     Create a new user-group pair with the given input values.
@@ -283,6 +500,44 @@ type Mutation {
     """
     deleteUser(id: ID!): User @Auth(action: "delete", subject: "User")
 
+    """
+    Create a new Video with the given input values.
+    """
+    createVideo(input: VideoCreateInput! @Auth(action: "create", subject: "Video")): Video! @Auth(action: "create", subject: "Video")
+    """
+    Update the Video with the provided ID to have the passed values. Throws an error if Video with ID does not exist.
+    """
+    updateVideo(id: ID!, input: VideoUpdateInput! @Auth(action: "update", subject: "Video")): Video! @Auth(action: "update", subject: "Video")
+    """
+    Delete the Video with the provided ID, if it exists. Returns null if the Video does not exist, otherwise returns the deleted object.
+    """
+    deleteVideo(id: ID!): Video @Auth(action: "delete", subject: "Video")
+
+    """
+    Create a new VoteResponse with the given input values.
+    """
+    createVoteResponse(input: VoteResponseCreateInput! @Auth(action: "create", subject: "VoteResponse")): VoteResponse! @Auth(action: "create", subject: "VoteResponse")
+    """
+    Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist.
+    """
+    updateVoteResponse(id: ID!, input: VoteResponseUpdateInput! @Auth(action: "update", subject: "VoteResponse")): VoteResponse! @Auth(action: "update", subject: "VoteResponse")
+    """
+    Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object.
+    """
+    deleteVoteResponse(id: ID!): VoteResponse @Auth(action: "delete", subject: "VoteResponse")
+
+    """
+    Create a new Vote with the given input values.
+    """
+    createVote(input: VoteCreateInput! @Auth(action: "create", subject: "Vote")): Vote! @Auth(action: "create", subject: "Vote")
+    """
+    Update the Vote with the provided ID to have the passed values. Throws an error if Vote with ID does not exist.
+    """
+    updateVote(id: ID!, input: VoteUpdateInput! @Auth(action: "update", subject: "Vote")): Vote! @Auth(action: "update", subject: "Vote")
+    """
+    Delete the Vote with the provided ID, if it exists. Returns null if the Vote does not exist, otherwise returns the deleted object.
+    """
+    deleteVote(id: ID!): Vote @Auth(action: "delete", subject: "Vote")
 }
 
 # Basic types #
