@@ -289,26 +289,142 @@ export type Mutation = {
   createAlertLog: AlertLog;
   /** Create a new Asset with the given input values. */
   createAsset: Asset;
+  /** Create a new BlogPost with the given input values. */
+  createBlogPost: BlogPost;
+  /** Create a new Category with the given input values. */
+  createCategory: Category;
+  /** Create a new ContactSubmission with the given input values. */
+  createContactSubmission: ContactSubmission;
+  /** Create a new ContactSubmissionAssignee with the given input values. */
+  createContactSubmissionAssignee: ContactSubmissionAssignee;
+  /** Create a new Credit with the given input values. */
+  createCredit: Credit;
+  /** Create a new Group with the given input values. */
+  createGroup: Group;
+  /** Create a new GroupPermission with the given input values. */
+  createGroupPermission: GroupPermission;
+  /** Create a new Image with the given input values. */
+  createImage: Image;
+  /** Create a new Person with the given input values. */
+  createPerson: Person;
+  /** Create a new PersonImage with the given input values. */
+  createPersonImage: PersonImage;
+  /** Create a new Production with the given input values. */
+  createProduction: Production;
+  /** Create a new ProductionImage with the given input values. */
+  createProductionImage: ProductionImage;
+  /** Create a new ProductionRSVP with the given input values. */
+  createProductionRSVP: ProductionRsvp;
+  /** Create a new ProductionTag with the given input values. */
+  createProductionTag: ProductionTag;
+  /** Create a new ProductionVideo with the given input values. */
+  createProductionVideo: ProductionVideo;
+  /** Create a new Redirect with the given input values. */
+  createRedirect: Redirect;
+  /** Create a new Role with the given input values. */
+  createRole: Role;
   /** Create a new User with the given input values. */
   createUser: User;
   /** Create a new user-group pair with the given input values. */
   createUserGroup: UserGroup;
   /** Create a new UserPermission with the given input values. The User creating the Permission must also have the Permission that's being created. */
   createUserPermission: UserPermission;
+  /** Create a new Video with the given input values. */
+  createVideo: Video;
+  /** Create a new Vote with the given input values. */
+  createVote: Vote;
+  /** Create a new VoteResponse with the given input values. */
+  createVoteResponse: VoteResponse;
   /** Delete the Asset with the provided ID, if it exists. Returns null if the Asset does not exist, otherwise returns the deleted object. */
   deleteAsset?: Maybe<Asset>;
+  /** Delete the BlogPost with the provided ID, if it exists. Returns null if the BlogPost does not exist, otherwise returns the deleted object. */
+  deleteBlogPost?: Maybe<BlogPost>;
+  /** Delete the Category with the provided ID, if it exists. Returns null if the Category does not exist, otherwise returns the deleted object. */
+  deleteCategory?: Maybe<Category>;
+  /** Delete the ContactSubmission with the provided ID, if it exists. Returns null if the ContactSubmission does not exist, otherwise returns the deleted object. */
+  deleteContactSubmission?: Maybe<ContactSubmission>;
+  /** Delete the ContactSubmissionAssignee with the provided ID, if it exists. Returns null if the ContactSubmissionAssignee does not exist, otherwise returns the deleted object. */
+  deleteContactSubmissionAssignee?: Maybe<ContactSubmissionAssignee>;
+  /** Delete the Credit with the provided ID, if it exists. Returns null if the Credit does not exist, otherwise returns the deleted object. */
+  deleteCredit?: Maybe<Credit>;
+  /** Delete the Group with the provided ID, if it exists. Returns null if the Group does not exist, otherwise returns the deleted object. */
+  deleteGroup?: Maybe<Group>;
+  /** Delete the GroupPermission with the provided ID, if it exists. Returns null if the GroupPermission does not exist, otherwise returns the deleted object. */
+  deleteGroupPermission?: Maybe<GroupPermission>;
+  /** Delete the Image with the provided ID, if it exists. Returns null if the Image does not exist, otherwise returns the deleted object. */
+  deleteImage?: Maybe<Image>;
+  /** Delete the Person with the provided ID, if it exists. Returns null if the Person does not exist, otherwise returns the deleted object. */
+  deletePerson?: Maybe<Person>;
+  /** Delete the PersonImage with the provided ID, if it exists. Returns null if the PersonImage does not exist, otherwise returns the deleted object. */
+  deletePersonImage?: Maybe<PersonImage>;
+  /** Delete the Production with the provided ID, if it exists. Returns null if the Production does not exist, otherwise returns the deleted object. */
+  deleteProduction?: Maybe<Production>;
+  /** Delete the ProductionImage with the provided ID, if it exists. Returns null if the ProductionImage does not exist, otherwise returns the deleted object. */
+  deleteProductionImage?: Maybe<ProductionImage>;
+  /** Delete the ProductionRSVP with the provided ID, if it exists. Returns null if the ProductionRSVP does not exist, otherwise returns the deleted object. */
+  deleteProductionRSVP?: Maybe<ProductionRsvp>;
+  /** Delete the ProductionTag with the provided ID, if it exists. Returns null if the ProductionTag does not exist, otherwise returns the deleted object. */
+  deleteProductionTag?: Maybe<ProductionTag>;
+  /** Delete the ProductionVideo with the provided ID, if it exists. Returns null if the ProductionVideo does not exist, otherwise returns the deleted object. */
+  deleteProductionVideo?: Maybe<ProductionVideo>;
+  /** Delete the Redirect with the provided ID, if it exists. Returns null if the Redirect does not exist, otherwise returns the deleted object. */
+  deleteRedirect?: Maybe<Redirect>;
+  /** Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object. */
+  deleteRole?: Maybe<Role>;
   /** Delete the User with the provided ID, if it exists. Returns null if the User does not exist, otherwise returns the deleted object. */
   deleteUser?: Maybe<User>;
   /** Delete the UserGroup with the provided ID, if it exists. Returns null if the UserGroup does not exist, otherwise returns the deleted object. */
   deleteUserGroup?: Maybe<UserGroup>;
   /** Delete the UserPermission with the provided ID, if it exists. Returns null if the UserPermission does not exist, otherwise returns the deleted object. */
   deleteUserPermission?: Maybe<UserPermission>;
+  /** Delete the Video with the provided ID, if it exists. Returns null if the Video does not exist, otherwise returns the deleted object. */
+  deleteVideo?: Maybe<Video>;
+  /** Delete the Vote with the provided ID, if it exists. Returns null if the Vote does not exist, otherwise returns the deleted object. */
+  deleteVote?: Maybe<Vote>;
+  /** Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object. */
+  deleteVoteResponse?: Maybe<VoteResponse>;
   /** Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist. */
   updateAsset: Asset;
+  /** Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist. */
+  updateBlogPost: BlogPost;
+  /** Update the Category with the provided ID to have the passed values. Throws an error if Category with ID does not exist. */
+  updateCategory: Category;
+  /** Update the ContactSubmission with the provided ID to have the passed values. Throws an error if ContactSubmission with ID does not exist. */
+  updateContactSubmission: ContactSubmission;
+  /** Update the Credit with the provided ID to have the passed values. Throws an error if Credit with ID does not exist. */
+  updateCredit: Credit;
+  /** Update the Group with the provided ID to have the passed values. Throws an error if Group with ID does not exist. */
+  updateGroup: Group;
+  /** Update the GroupPermission with the provided ID to have the passed values. Throws an error if GroupPermission with ID does not exist. */
+  updateGroupPermission: GroupPermission;
+  /** Update the Image with the provided ID to have the passed values. Throws an error if Image with ID does not exist. */
+  updateImage: Image;
+  /** Update the Person with the provided ID to have the passed values. Throws an error if Person with ID does not exist. */
+  updatePerson: Person;
+  /** Update the PersonImage with the provided ID to have the passed values. Throws an error if PersonImage with ID does not exist. */
+  updatePersonImage: PersonImage;
+  /** Update the Production with the provided ID to have the passed values. Throws an error if Production with ID does not exist. */
+  updateProduction: Production;
+  /** Update the ProductionImage with the provided ID to have the passed values. Throws an error if ProductionImage with ID does not exist. */
+  updateProductionImage: ProductionImage;
+  /** Update the ProductionRSVP with the provided ID to have the passed values. Throws an error if ProductionRSVP with ID does not exist. */
+  updateProductionRSVP: ProductionRsvp;
+  /** Update the ProductionVideo with the provided ID to have the passed values. Throws an error if ProductionVideo with ID does not exist. */
+  updateProductionVideo: ProductionVideo;
+  /** Update the Redirect with the provided ID to have the passed values. Throws an error if Redirect with ID does not exist. */
+  updateRedirect: Redirect;
+  /** Update the Role with the provided ID to have the passed values. Throws an error if Role with ID does not exist. */
+  updateRole: Role;
   /** Update the User with the provided ID to have the passed values. Throws an error if User with ID does not exist. */
   updateUser: User;
   /** Update the UserPermission with the provided ID to have the passed values. Throws an error if UserPermission with ID does not exist. The User updating the Permission must also have the Permission that's being update to and from.. */
   updateUserPermission: UserPermission;
+  /** Update the Video with the provided ID to have the passed values. Throws an error if Video with ID does not exist. */
+  updateVideo: Video;
+  /** Update the Vote with the provided ID to have the passed values. Throws an error if Vote with ID does not exist. */
+  updateVote: Vote;
+  /** Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist. */
+  updateVoteResponse: VoteResponse;
 };
 
 
@@ -319,6 +435,91 @@ export type MutationCreateAlertLogArgs = {
 
 export type MutationCreateAssetArgs = {
   input: AssetCreateInput;
+};
+
+
+export type MutationCreateBlogPostArgs = {
+  input: BlogPostCreateInput;
+};
+
+
+export type MutationCreateCategoryArgs = {
+  input: CategoryCreateInput;
+};
+
+
+export type MutationCreateContactSubmissionArgs = {
+  input: ContactSubmissionCreateInput;
+};
+
+
+export type MutationCreateContactSubmissionAssigneeArgs = {
+  input: ContactSubmissionAssigneeCreateInput;
+};
+
+
+export type MutationCreateCreditArgs = {
+  input: CreditCreateInput;
+};
+
+
+export type MutationCreateGroupArgs = {
+  input: GroupCreateInput;
+};
+
+
+export type MutationCreateGroupPermissionArgs = {
+  input: GroupPermissionCreateInput;
+};
+
+
+export type MutationCreateImageArgs = {
+  input: ImageCreateInput;
+};
+
+
+export type MutationCreatePersonArgs = {
+  input: PersonCreateInput;
+};
+
+
+export type MutationCreatePersonImageArgs = {
+  input: PersonImageCreateInput;
+};
+
+
+export type MutationCreateProductionArgs = {
+  input: ProductionCreateInput;
+};
+
+
+export type MutationCreateProductionImageArgs = {
+  input: ProductionImageCreateInput;
+};
+
+
+export type MutationCreateProductionRsvpArgs = {
+  input: ProductionRsvpCreateInput;
+};
+
+
+export type MutationCreateProductionTagArgs = {
+  input: ProductionTagCreateInput;
+};
+
+
+export type MutationCreateProductionVideoArgs = {
+  input: ProductionVideoCreateInput;
+};
+
+
+export type MutationCreateRedirectArgs = {
+  input: RedirectCreateInput;
+};
+
+
+export type MutationCreateRoleArgs = {
+  input: RoleCreateInput;
 };
 
 
@@ -337,7 +538,107 @@ export type MutationCreateUserPermissionArgs = {
 };
 
 
+export type MutationCreateVideoArgs = {
+  input: VideoCreateInput;
+};
+
+
+export type MutationCreateVoteArgs = {
+  input: VoteCreateInput;
+};
+
+
+export type MutationCreateVoteResponseArgs = {
+  input: VoteResponseCreateInput;
+};
+
+
 export type MutationDeleteAssetArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteBlogPostArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteCategoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteContactSubmissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteContactSubmissionAssigneeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteCreditArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteGroupArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteGroupPermissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePersonArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePersonImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteProductionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteProductionImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteProductionRsvpArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteProductionTagArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteProductionVideoArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteRedirectArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteRoleArgs = {
   id: Scalars['ID'];
 };
 
@@ -357,9 +658,114 @@ export type MutationDeleteUserPermissionArgs = {
 };
 
 
+export type MutationDeleteVideoArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteVoteArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteVoteResponseArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type MutationUpdateAssetArgs = {
   id: Scalars['ID'];
   input: AssetUpdateInput;
+};
+
+
+export type MutationUpdateBlogPostArgs = {
+  id: Scalars['ID'];
+  input: BlogPostUpdateInput;
+};
+
+
+export type MutationUpdateCategoryArgs = {
+  id: Scalars['ID'];
+  input: CategoryUpdateInput;
+};
+
+
+export type MutationUpdateContactSubmissionArgs = {
+  id: Scalars['ID'];
+  input: ContactSubmissionUpdateInput;
+};
+
+
+export type MutationUpdateCreditArgs = {
+  id: Scalars['ID'];
+  input: CreditUpdateInput;
+};
+
+
+export type MutationUpdateGroupArgs = {
+  id: Scalars['ID'];
+  input: GroupUpdateInput;
+};
+
+
+export type MutationUpdateGroupPermissionArgs = {
+  id: Scalars['ID'];
+  input: GroupPermissionUpdateInput;
+};
+
+
+export type MutationUpdateImageArgs = {
+  id: Scalars['ID'];
+  input: ImageUpdateInput;
+};
+
+
+export type MutationUpdatePersonArgs = {
+  id: Scalars['ID'];
+  input: PersonUpdateInput;
+};
+
+
+export type MutationUpdatePersonImageArgs = {
+  id: Scalars['ID'];
+  input: PersonImageUpdateInput;
+};
+
+
+export type MutationUpdateProductionArgs = {
+  id: Scalars['ID'];
+  input: ProductionUpdateInput;
+};
+
+
+export type MutationUpdateProductionImageArgs = {
+  id: Scalars['ID'];
+  input: ProductionImageUpdateInput;
+};
+
+
+export type MutationUpdateProductionRsvpArgs = {
+  id: Scalars['ID'];
+  input: ProductionRsvpUpdateInput;
+};
+
+
+export type MutationUpdateProductionVideoArgs = {
+  id: Scalars['ID'];
+  input: ProductionVideoUpdateInput;
+};
+
+
+export type MutationUpdateRedirectArgs = {
+  id: Scalars['ID'];
+  input: RedirectUpdateInput;
+};
+
+
+export type MutationUpdateRoleArgs = {
+  id: Scalars['ID'];
+  input: RoleUpdateInput;
 };
 
 
@@ -372,6 +778,24 @@ export type MutationUpdateUserArgs = {
 export type MutationUpdateUserPermissionArgs = {
   id: Scalars['ID'];
   input: UserPermissionUpdateInput;
+};
+
+
+export type MutationUpdateVideoArgs = {
+  id: Scalars['ID'];
+  input: VideoUpdateInput;
+};
+
+
+export type MutationUpdateVoteArgs = {
+  id: Scalars['ID'];
+  input: VoteUpdateInput;
+};
+
+
+export type MutationUpdateVoteResponseArgs = {
+  id: Scalars['ID'];
+  input: VoteResponseUpdateInput;
 };
 
 /**
@@ -1491,16 +1915,74 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAlertLog?: Resolver<ResolversTypes['AlertLog'], ParentType, ContextType, RequireFields<MutationCreateAlertLogArgs, 'input'>>;
   createAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationCreateAssetArgs, 'input'>>;
+  createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
+  createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
+  createContactSubmission?: Resolver<ResolversTypes['ContactSubmission'], ParentType, ContextType, RequireFields<MutationCreateContactSubmissionArgs, 'input'>>;
+  createContactSubmissionAssignee?: Resolver<ResolversTypes['ContactSubmissionAssignee'], ParentType, ContextType, RequireFields<MutationCreateContactSubmissionAssigneeArgs, 'input'>>;
+  createCredit?: Resolver<ResolversTypes['Credit'], ParentType, ContextType, RequireFields<MutationCreateCreditArgs, 'input'>>;
+  createGroup?: Resolver<ResolversTypes['Group'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
+  createGroupPermission?: Resolver<ResolversTypes['GroupPermission'], ParentType, ContextType, RequireFields<MutationCreateGroupPermissionArgs, 'input'>>;
+  createImage?: Resolver<ResolversTypes['Image'], ParentType, ContextType, RequireFields<MutationCreateImageArgs, 'input'>>;
+  createPerson?: Resolver<ResolversTypes['Person'], ParentType, ContextType, RequireFields<MutationCreatePersonArgs, 'input'>>;
+  createPersonImage?: Resolver<ResolversTypes['PersonImage'], ParentType, ContextType, RequireFields<MutationCreatePersonImageArgs, 'input'>>;
+  createProduction?: Resolver<ResolversTypes['Production'], ParentType, ContextType, RequireFields<MutationCreateProductionArgs, 'input'>>;
+  createProductionImage?: Resolver<ResolversTypes['ProductionImage'], ParentType, ContextType, RequireFields<MutationCreateProductionImageArgs, 'input'>>;
+  createProductionRSVP?: Resolver<ResolversTypes['ProductionRSVP'], ParentType, ContextType, RequireFields<MutationCreateProductionRsvpArgs, 'input'>>;
+  createProductionTag?: Resolver<ResolversTypes['ProductionTag'], ParentType, ContextType, RequireFields<MutationCreateProductionTagArgs, 'input'>>;
+  createProductionVideo?: Resolver<ResolversTypes['ProductionVideo'], ParentType, ContextType, RequireFields<MutationCreateProductionVideoArgs, 'input'>>;
+  createRedirect?: Resolver<ResolversTypes['Redirect'], ParentType, ContextType, RequireFields<MutationCreateRedirectArgs, 'input'>>;
+  createRole?: Resolver<ResolversTypes['Role'], ParentType, ContextType, RequireFields<MutationCreateRoleArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createUserGroup?: Resolver<ResolversTypes['UserGroup'], ParentType, ContextType, RequireFields<MutationCreateUserGroupArgs, 'input'>>;
   createUserPermission?: Resolver<ResolversTypes['UserPermission'], ParentType, ContextType, RequireFields<MutationCreateUserPermissionArgs, 'input'>>;
+  createVideo?: Resolver<ResolversTypes['Video'], ParentType, ContextType, RequireFields<MutationCreateVideoArgs, 'input'>>;
+  createVote?: Resolver<ResolversTypes['Vote'], ParentType, ContextType, RequireFields<MutationCreateVoteArgs, 'input'>>;
+  createVoteResponse?: Resolver<ResolversTypes['VoteResponse'], ParentType, ContextType, RequireFields<MutationCreateVoteResponseArgs, 'input'>>;
   deleteAsset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<MutationDeleteAssetArgs, 'id'>>;
+  deleteBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
+  deleteCategory?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
+  deleteContactSubmission?: Resolver<Maybe<ResolversTypes['ContactSubmission']>, ParentType, ContextType, RequireFields<MutationDeleteContactSubmissionArgs, 'id'>>;
+  deleteContactSubmissionAssignee?: Resolver<Maybe<ResolversTypes['ContactSubmissionAssignee']>, ParentType, ContextType, RequireFields<MutationDeleteContactSubmissionAssigneeArgs, 'id'>>;
+  deleteCredit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<MutationDeleteCreditArgs, 'id'>>;
+  deleteGroup?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType, RequireFields<MutationDeleteGroupArgs, 'id'>>;
+  deleteGroupPermission?: Resolver<Maybe<ResolversTypes['GroupPermission']>, ParentType, ContextType, RequireFields<MutationDeleteGroupPermissionArgs, 'id'>>;
+  deleteImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<MutationDeleteImageArgs, 'id'>>;
+  deletePerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<MutationDeletePersonArgs, 'id'>>;
+  deletePersonImage?: Resolver<Maybe<ResolversTypes['PersonImage']>, ParentType, ContextType, RequireFields<MutationDeletePersonImageArgs, 'id'>>;
+  deleteProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<MutationDeleteProductionArgs, 'id'>>;
+  deleteProductionImage?: Resolver<Maybe<ResolversTypes['ProductionImage']>, ParentType, ContextType, RequireFields<MutationDeleteProductionImageArgs, 'id'>>;
+  deleteProductionRSVP?: Resolver<Maybe<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, RequireFields<MutationDeleteProductionRsvpArgs, 'id'>>;
+  deleteProductionTag?: Resolver<Maybe<ResolversTypes['ProductionTag']>, ParentType, ContextType, RequireFields<MutationDeleteProductionTagArgs, 'id'>>;
+  deleteProductionVideo?: Resolver<Maybe<ResolversTypes['ProductionVideo']>, ParentType, ContextType, RequireFields<MutationDeleteProductionVideoArgs, 'id'>>;
+  deleteRedirect?: Resolver<Maybe<ResolversTypes['Redirect']>, ParentType, ContextType, RequireFields<MutationDeleteRedirectArgs, 'id'>>;
+  deleteRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationDeleteRoleArgs, 'id'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteUserGroup?: Resolver<Maybe<ResolversTypes['UserGroup']>, ParentType, ContextType, RequireFields<MutationDeleteUserGroupArgs, 'id'>>;
   deleteUserPermission?: Resolver<Maybe<ResolversTypes['UserPermission']>, ParentType, ContextType, RequireFields<MutationDeleteUserPermissionArgs, 'id'>>;
+  deleteVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationDeleteVideoArgs, 'id'>>;
+  deleteVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<MutationDeleteVoteArgs, 'id'>>;
+  deleteVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<MutationDeleteVoteResponseArgs, 'id'>>;
   updateAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationUpdateAssetArgs, 'id' | 'input'>>;
+  updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
+  updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id' | 'input'>>;
+  updateContactSubmission?: Resolver<ResolversTypes['ContactSubmission'], ParentType, ContextType, RequireFields<MutationUpdateContactSubmissionArgs, 'id' | 'input'>>;
+  updateCredit?: Resolver<ResolversTypes['Credit'], ParentType, ContextType, RequireFields<MutationUpdateCreditArgs, 'id' | 'input'>>;
+  updateGroup?: Resolver<ResolversTypes['Group'], ParentType, ContextType, RequireFields<MutationUpdateGroupArgs, 'id' | 'input'>>;
+  updateGroupPermission?: Resolver<ResolversTypes['GroupPermission'], ParentType, ContextType, RequireFields<MutationUpdateGroupPermissionArgs, 'id' | 'input'>>;
+  updateImage?: Resolver<ResolversTypes['Image'], ParentType, ContextType, RequireFields<MutationUpdateImageArgs, 'id' | 'input'>>;
+  updatePerson?: Resolver<ResolversTypes['Person'], ParentType, ContextType, RequireFields<MutationUpdatePersonArgs, 'id' | 'input'>>;
+  updatePersonImage?: Resolver<ResolversTypes['PersonImage'], ParentType, ContextType, RequireFields<MutationUpdatePersonImageArgs, 'id' | 'input'>>;
+  updateProduction?: Resolver<ResolversTypes['Production'], ParentType, ContextType, RequireFields<MutationUpdateProductionArgs, 'id' | 'input'>>;
+  updateProductionImage?: Resolver<ResolversTypes['ProductionImage'], ParentType, ContextType, RequireFields<MutationUpdateProductionImageArgs, 'id' | 'input'>>;
+  updateProductionRSVP?: Resolver<ResolversTypes['ProductionRSVP'], ParentType, ContextType, RequireFields<MutationUpdateProductionRsvpArgs, 'id' | 'input'>>;
+  updateProductionVideo?: Resolver<ResolversTypes['ProductionVideo'], ParentType, ContextType, RequireFields<MutationUpdateProductionVideoArgs, 'id' | 'input'>>;
+  updateRedirect?: Resolver<ResolversTypes['Redirect'], ParentType, ContextType, RequireFields<MutationUpdateRedirectArgs, 'id' | 'input'>>;
+  updateRole?: Resolver<ResolversTypes['Role'], ParentType, ContextType, RequireFields<MutationUpdateRoleArgs, 'id' | 'input'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
   updateUserPermission?: Resolver<ResolversTypes['UserPermission'], ParentType, ContextType, RequireFields<MutationUpdateUserPermissionArgs, 'id' | 'input'>>;
+  updateVideo?: Resolver<ResolversTypes['Video'], ParentType, ContextType, RequireFields<MutationUpdateVideoArgs, 'id' | 'input'>>;
+  updateVote?: Resolver<ResolversTypes['Vote'], ParentType, ContextType, RequireFields<MutationUpdateVoteArgs, 'id' | 'input'>>;
+  updateVoteResponse?: Resolver<ResolversTypes['VoteResponse'], ParentType, ContextType, RequireFields<MutationUpdateVoteResponseArgs, 'id' | 'input'>>;
 };
 
 export type PersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['Person'] = ResolversParentTypes['Person']> = {
