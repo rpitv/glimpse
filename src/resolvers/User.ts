@@ -36,25 +36,6 @@ export const resolver: Resolvers = {
             });
         }
     },
-    UserPermission: {
-        user: async (parent, args, ctx: GraphQLContext): Promise<User> => {
-            const userPermission = (await ctx.prisma.userPermission.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).UserPermission,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    user: true
-                }
-            }));
-            if (userPermission === null) {
-                throw new Error('UserPermission is unexpectedly null.');
-            }
-            return userPermission.user;
-        }
-    },
     User: {
         person: async (parent, args, ctx: GraphQLContext): Promise<Person | null> => {
             const user = (await ctx.prisma.user.findFirst({

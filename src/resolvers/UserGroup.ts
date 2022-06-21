@@ -20,19 +20,16 @@ export const resolver: Resolvers = {
     },
     Mutation: {
         createUserGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup> => {
-            if(!args.userGroupInput.user || !args.userGroupInput.group) {
-                throw new Error('Both user and group ID are required when creating user groups.');
-            }
             return await ctx.prisma.userGroup.create({
                 data: {
                     user: {
                         connect: {
-                            id: parseInt(args.userGroupInput.user)
+                            id: parseInt(args.input.user)
                         }
                     },
                     group: {
                         connect: {
-                            id: parseInt(args.userGroupInput.group)
+                            id: parseInt(args.input.group)
                         }
                     }
                 }

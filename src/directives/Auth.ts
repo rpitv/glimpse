@@ -10,7 +10,7 @@ import {GraphQLYogaError} from "@graphql-yoga/node";
 import {subject} from "@casl/ability";
 
 /**
- * Check the directives for arguments to a field resolver for @auth directives, and check that the user has permission
+ * Check the directives for arguments to a field resolver for @Auth directives, and check that the user has permission
  *   to use them. This is mostly used for create/update requests.
  *
  *   This checks that the given CASL ability grants
@@ -19,16 +19,16 @@ import {subject} from "@casl/ability";
  *   but it doesn't check that it grants permission to edit users named "Billy". This needs to be done in the individual
  *   update resolvers, but isn't necessary for create resolvers, since there is no original object.
  *
- *   Unlike fields, arguments do not require @auth directives. It does not make sense to apply these directives to
+ *   Unlike fields, arguments do not require @Auth directives. It does not make sense to apply these directives to
  *   arguments which are not used for writing to the database. If an input is purely used for reading/selection, then
- *   permissions for this are handled already by {@link authDirective}. For this reason, the absence of an @auth
+ *   permissions for this are handled already by {@link authDirective}. For this reason, the absence of an @Auth
  *   directive is interpreted as anyone can use the given argument regardless of its value(s), so care needs to be
- *   taken to add the @auth directive to arguments which require it.
+ *   taken to add the @Auth directive to arguments which require it.
  * @param fieldConfig Field definition configuration of the field which we want to search the arguments of.
  * @param args Object containing the passed argument values into the resolver.
  * @param ability CASL ability to check the permissions of.
  * @param directiveDef Definition of the directive to search for, returned from schema.getDirective()
- * @param directiveName Name of the directive to search for. Probably "auth".
+ * @param directiveName Name of the directive to search for. Probably "Auth".
  */
 function checkArgsDirectives(fieldConfig: GraphQLFieldConfig<any, any>, args: { [p: string]: any }, ability: GlimpseAbility, directiveDef: GraphQLDirective, directiveName: string): void {
     if(fieldConfig.astNode && fieldConfig.astNode.arguments && fieldConfig.astNode.arguments.length > 0) {
@@ -42,9 +42,9 @@ function checkArgsDirectives(fieldConfig: GraphQLFieldConfig<any, any>, args: { 
             // Must add hasOwnProperty method https://github.com/stalniy/casl/issues/604
             argValue.hasOwnProperty = Object.prototype.hasOwnProperty.bind(argValue);
 
-            // Each argument can have multiple @auth directives applied to it.
+            // Each argument can have multiple @Auth directives applied to it.
             for(const directive of arg.directives) {
-                // Skip non-"@auth" directives
+                // Skip non-"@Auth" directives
                 if(directive.name.value !== directiveName) {
                     continue;
                 }
@@ -71,30 +71,28 @@ function checkArgsDirectives(fieldConfig: GraphQLFieldConfig<any, any>, args: { 
     }
 }
 
-const DIRECTIVE_NAME = "auth";
-
 /**
- * Attach handlers to each resolver which has the @auth directive. Multiple @auth directives may be applied to one
+ * Attach handlers to each resolver which has the @Auth directive. Multiple @Auth directives may be applied to one
  *   resolver/field. This also takes care of handling the directives on arguments.
  */
-export function authDirective(): (schema: GraphQLSchema) => GraphQLSchema {
+export function authDirective(directiveName: string): (schema: GraphQLSchema) => GraphQLSchema {
     return (schema: GraphQLSchema): GraphQLSchema => {
         return mapSchema(schema, {
             [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
-                // Directive value is an array of directives with the name "auth" on this field.
-                const authDirectives = getDirective(schema, fieldConfig, DIRECTIVE_NAME)
-                // GraphQL fields which don't have an auth directive are presumed to be a mistake.
+                // Directive value is an array of directives with the name "Auth" on this field.
+                const authDirectives = getDirective(schema, fieldConfig, directiveName)
+                // GraphQL fields which don't have an Auth directive are presumed to be a mistake.
                 //   A developer should fix it by adding a directive and then adding the permission to guests.
                 if (!authDirectives || authDirectives.length === 0) {
                     throw new Error('Misconfigured GraphQL field does not have authorization directive(s). Field config: ' +
                         JSON.stringify(fieldConfig))
                 }
 
-                // Get the auth directive definition from the schema. Used for argument directive searching.
-                //   As an added benefit, also asserts that the auth directive is defined, which is required.
-                const authDirectiveDef = schema.getDirective(DIRECTIVE_NAME);
+                // Get the Auth directive definition from the schema. Used for argument directive searching.
+                //   As an added benefit, also asserts that the Auth directive is defined, which is required.
+                const authDirectiveDef = schema.getDirective(directiveName);
                 if(!authDirectiveDef) {
-                    throw new Error("Missing required auth directive");
+                    throw new Error("Missing required Auth directive");
                 }
 
                 // For each directive...
@@ -102,7 +100,7 @@ export function authDirective(): (schema: GraphQLSchema) => GraphQLSchema {
                     // Get the action & subject from the directive. Both are required.
                     const {action, subject: subjectVal} = directive
                     if (!action || !subjectVal) {
-                        throw new Error('Missing action and/or subject from auth directive');
+                        throw new Error('Missing action and/or subject from Auth directive');
                     }
 
                     // Get the current resolver for this field, or default if it doesn't have one.
@@ -110,7 +108,7 @@ export function authDirective(): (schema: GraphQLSchema) => GraphQLSchema {
 
                     fieldConfig.resolve = function (parent, args, ctx: GraphQLContext, info) {
                         // Check the directives applied to each argument, if there are any.
-                        checkArgsDirectives(fieldConfig, args, ctx.permissions, authDirectiveDef, DIRECTIVE_NAME);
+                        checkArgsDirectives(fieldConfig, args, ctx.permissions, authDirectiveDef, directiveName);
 
                         // If arguments have passed at this point, then we can check the query itself now.
                         if (typeName === subjectVal) {
