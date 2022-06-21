@@ -732,7 +732,7 @@ type GroupPermission {
 
 
 input GroupPermissionCreateInput {
-    user: ID! @NonNull
+    group: ID! @NonNull
     action: String! @NonNull
     subject: [String!]! @NonNull
     fields: [String!]
