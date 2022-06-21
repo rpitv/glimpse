@@ -116,7 +116,7 @@ COMMENT ON COLUMN public.alert_logs.message IS 'Message included with this alert
 -- Name: COLUMN alert_logs.severity; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.alert_logs.severity IS 'How critical this alert is. Should be "info", "low", "medium", "high", or "critical". Higher severity levels can change who gets notified and how.';
+COMMENT ON COLUMN public.alert_logs.severity IS 'How critical this alert is. Should be "INFO", "LOW", "MEDIUM", "HIGH", or "CRITICAL". Higher severity levels can change who gets notified and how.';
 
 
 --
@@ -124,6 +124,141 @@ COMMENT ON COLUMN public.alert_logs.severity IS 'How critical this alert is. Sho
 --
 
 COMMENT ON COLUMN public.alert_logs."timestamp" IS 'Time at which this alert was received';
+
+
+--
+-- Name: assets; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.assets (
+    id integer NOT NULL,
+    tag integer,
+    name character varying(150) NOT NULL,
+    last_known_location character varying(100),
+    last_known_handler integer,
+    is_lost boolean DEFAULT false NOT NULL,
+    notes character varying(500),
+    purchase_price integer,
+    purchase_location character varying(1000),
+    purchase_date date,
+    model_number character varying(100),
+    serial_number character varying(100),
+    parent integer
+);
+
+
+ALTER TABLE public.assets OWNER TO postgres;
+
+--
+-- Name: TABLE assets; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.assets IS 'List of assets within RPI TV''s inventory, along with some data about the locations and states of each asset.';
+
+
+--
+-- Name: COLUMN assets.id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.id IS 'Unique ID of this asset.';
+
+
+--
+-- Name: COLUMN assets.tag; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.tag IS 'Tag ID on this asset. May be null if a tag has not been placed yet.';
+
+
+--
+-- Name: COLUMN assets.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.name IS 'Display name of this asset.';
+
+
+--
+-- Name: COLUMN assets.last_known_location; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.last_known_location IS 'Last known location of this asset, or null if unknown/not applicable.';
+
+
+--
+-- Name: COLUMN assets.last_known_handler; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.last_known_handler IS 'ID of the user who last checked out this equipment, or null if unknown/not applicable';
+
+
+--
+-- Name: COLUMN assets.is_lost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.is_lost IS 'Whether this asset is lost or not.';
+
+
+--
+-- Name: COLUMN assets.notes; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.notes IS 'Any notes related to this asset, or alternatively null if no notes currently. These notes should obviously be displayed to a user when they check out a piece of equipment.';
+
+
+--
+-- Name: COLUMN assets.purchase_price; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.purchase_price IS 'Price of this asset when purchased, in cents, if applicable/known.';
+
+
+--
+-- Name: COLUMN assets.purchase_location; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.purchase_location IS 'Location/URL of where this asset was purchased, if known/applicable. Otherwise, null.';
+
+
+--
+-- Name: COLUMN assets.purchase_date; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.purchase_date IS 'Date of when this asset was purchased, if known/applicable. Otherwise null.';
+
+
+--
+-- Name: COLUMN assets.model_number; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.model_number IS 'Model number of this asset, if known/applicable. Otherwise, null.';
+
+
+--
+-- Name: COLUMN assets.serial_number; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.serial_number IS 'Serial number of this asset, if known/applicable. Otherwise null.';
+
+
+--
+-- Name: COLUMN assets.parent; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.assets.parent IS 'ID of parent asset which this asset should always "follow", or null if none.';
+
+
+--
+-- Name: assets_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.assets ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.assets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 
 --
@@ -571,7 +706,7 @@ CREATE TABLE public.group_permissions (
     id integer NOT NULL,
     "group" integer NOT NULL,
     action character varying(100) NOT NULL,
-    subject character varying(300)[],
+    subject character varying(300)[] NOT NULL,
     fields character varying(100)[],
     conditions json,
     inverted boolean DEFAULT false NOT NULL,
@@ -665,7 +800,8 @@ ALTER TABLE public.group_permissions ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 CREATE TABLE public.groups (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
-    parent integer
+    parent integer,
+    priority integer DEFAULT 0 NOT NULL
 );
 
 
@@ -697,6 +833,13 @@ COMMENT ON COLUMN public.groups.name IS 'Display name of this group';
 --
 
 COMMENT ON COLUMN public.groups.parent IS 'FK - Reference to parent group, or null if no parent group exists.';
+
+
+--
+-- Name: COLUMN groups.priority; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.groups.priority IS 'Priority of this group when compared to other groups that an individual user belongs to. This is most important for determining permission priority. A higher priority means that this groups permissions should take prevalence over a group with lower priority. If two groups are equal priority then sorting should be based off of name, followed by ID.';
 
 
 --
@@ -1071,7 +1214,7 @@ COMMENT ON COLUMN public.production_rsvps."user" IS 'FK - User which is attendin
 -- Name: COLUMN production_rsvps.will_attend; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.production_rsvps.will_attend IS 'Whether the user plans on attending. Should be "yes", "no" or "maybe". Can also be null if the user has not responded or retracted their response.';
+COMMENT ON COLUMN public.production_rsvps.will_attend IS 'Whether the user plans on attending. Should be "YES", "NO" or "MAYBE". Can also be null if the user has not responded or retracted their response.';
 
 
 --
@@ -1236,7 +1379,7 @@ CREATE TABLE public.productions (
     event_location character varying(100),
     team_notes text,
     discord_server character(18),
-    discord_channel character(18) NOT NULL,
+    discord_channel character(18),
     thumbnail integer,
     closet_time timestamp without time zone
 );
@@ -1568,7 +1711,7 @@ CREATE TABLE public.user_permissions (
     id integer NOT NULL,
     "user" integer NOT NULL,
     action character varying(100) NOT NULL,
-    subject character varying(300)[],
+    subject character varying(300)[] NOT NULL,
     fields character varying(100)[],
     conditions json,
     inverted boolean DEFAULT false NOT NULL,
@@ -1781,7 +1924,7 @@ COMMENT ON COLUMN public.videos.name IS 'Name of this video. May be displayed to
 -- Name: COLUMN videos.format; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.videos.format IS 'Type of video format being used here. Multiple formats are supported, mainly HLS and YOUTUBE as of now.';
+COMMENT ON COLUMN public.videos.format IS 'Type of video format being used here. Multiple formats are supported, mainly HLS and EMBED as of now, but RTMP is also available.';
 
 
 --
@@ -1813,7 +1956,8 @@ CREATE TABLE public.vote_responses (
     vote integer NOT NULL,
     "user" integer NOT NULL,
     "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id integer NOT NULL
+    id integer NOT NULL,
+    selection character varying(200) NOT NULL
 );
 
 
@@ -1855,6 +1999,13 @@ COMMENT ON COLUMN public.vote_responses.id IS 'Unique ID of this response';
 
 
 --
+-- Name: COLUMN vote_responses.selection; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.vote_responses.selection IS 'The option that this user voted for in the list of options. This is a copy of the option text, so if the option is removed, users'' votes won''t be removed.';
+
+
+--
 -- Name: vote_responses_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1876,7 +2027,7 @@ CREATE TABLE public.votes (
     id integer NOT NULL,
     question character varying(200) NOT NULL,
     options character varying(200)[] NOT NULL,
-    expires timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    expires timestamp without time zone,
     description text
 );
 
@@ -1915,7 +2066,7 @@ COMMENT ON COLUMN public.votes.options IS 'Array of options that users who vote 
 -- Name: COLUMN votes.expires; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.votes.expires IS 'Timestamp at which this vote closes';
+COMMENT ON COLUMN public.votes.expires IS 'Timestamp at which this vote closes. Null for never expires';
 
 
 --
@@ -1938,6 +2089,14 @@ COPY public.access_logs ("user", service, "timestamp", ip, id) FROM stdin;
 --
 
 COPY public.alert_logs (id, message, severity, "timestamp") FROM stdin;
+\.
+
+
+--
+-- Data for Name: assets; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.assets (id, tag, name, last_known_location, last_known_handler, is_lost, notes, purchase_price, purchase_location, purchase_date, model_number, serial_number, parent) FROM stdin;
 \.
 
 
@@ -2001,7 +2160,7 @@ COPY public.group_permissions (id, "group", action, subject, fields, conditions,
 -- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.groups (id, name, parent) FROM stdin;
+COPY public.groups (id, name, parent, priority) FROM stdin;
 \.
 
 
@@ -2106,6 +2265,9 @@ COPY public.user_permissions (id, "user", action, subject, fields, conditions, i
 --
 
 COPY public.users (id, username, mail, person, discord, password, joined) FROM stdin;
+1	robere2	robere2@rpi.edu	\N	\N	\N	2022-06-07 17:31:34.122
+3	sachid	sachid@rpi.edu	\N	\N	\N	2022-06-10 13:44:37.285712
+4	bowerj5	bowerj5@rpi.edu	\N	\N	\N	2022-06-10 13:44:37.285712
 \.
 
 
@@ -2121,7 +2283,7 @@ COPY public.videos (id, name, format, metadata) FROM stdin;
 -- Data for Name: vote_responses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.vote_responses (vote, "user", "timestamp", id) FROM stdin;
+COPY public.vote_responses (vote, "user", "timestamp", id, selection) FROM stdin;
 \.
 
 
@@ -2131,6 +2293,13 @@ COPY public.vote_responses (vote, "user", "timestamp", id) FROM stdin;
 
 COPY public.votes (id, question, options, expires, description) FROM stdin;
 \.
+
+
+--
+-- Name: assets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.assets_id_seq', 1, false);
 
 
 --
@@ -2291,7 +2460,7 @@ SELECT pg_catalog.setval('public.user_permissions_id_seq', 1, false);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 1, true);
+SELECT pg_catalog.setval('public.users_id_seq', 4, true);
 
 
 --
@@ -2322,6 +2491,14 @@ ALTER TABLE ONLY public.access_logs
 
 ALTER TABLE ONLY public.alert_logs
     ADD CONSTRAINT alert_logs_pk PRIMARY KEY (id);
+
+
+--
+-- Name: assets assets_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.assets
+    ADD CONSTRAINT assets_pk PRIMARY KEY (id);
 
 
 --
@@ -2625,6 +2802,41 @@ CREATE INDEX alert_logs_severity_timestamp_index ON public.alert_logs USING btre
 
 
 --
+-- Name: assets_is_lost_tag_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX assets_is_lost_tag_index ON public.assets USING btree (is_lost, tag);
+
+
+--
+-- Name: assets_last_known_handler_tag_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX assets_last_known_handler_tag_index ON public.assets USING btree (last_known_handler, tag);
+
+
+--
+-- Name: assets_last_known_location_tag_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX assets_last_known_location_tag_index ON public.assets USING btree (last_known_location, tag);
+
+
+--
+-- Name: assets_name_tag_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX assets_name_tag_index ON public.assets USING btree (name, tag);
+
+
+--
+-- Name: assets_tag_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX assets_tag_index ON public.assets USING btree (tag);
+
+
+--
 -- Name: audit_logs_mtable_mf_mtype_index; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2720,6 +2932,13 @@ CREATE INDEX group_permissions_group_subject_action_index ON public.group_permis
 --
 
 CREATE INDEX groups_name_index ON public.groups USING btree (name);
+
+
+--
+-- Name: groups_priority_name_id_index; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX groups_priority_name_id_index ON public.groups USING btree (priority, name, id);
 
 
 --
@@ -2861,6 +3080,22 @@ CREATE INDEX votes_expires_index ON public.votes USING btree (expires);
 
 ALTER TABLE ONLY public.access_logs
     ADD CONSTRAINT access_logs_users_id_fk FOREIGN KEY ("user") REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: assets assets_assets_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.assets
+    ADD CONSTRAINT assets_assets_id_fk FOREIGN KEY (parent) REFERENCES public.assets(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: assets assets_users_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.assets
+    ADD CONSTRAINT assets_users_id_fk FOREIGN KEY (last_known_handler) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

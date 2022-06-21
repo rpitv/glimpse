@@ -6,6 +6,11 @@ generates:
       - typescript
       - typescript-resolvers
     config:
+      scalars:
+        JSONObject: string
+        DateTime: string
+        EmailAddress: string
+        File: string
       mappers:
         AccessLog: .prisma/client#AccessLog as AccessLogModel
         AlertLog: .prisma/client#AlertLog as AlertLogModel

@@ -14,9 +14,10 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: any;
-  JSON: any;
-  Upload: any;
+  DateTime: string;
+  EmailAddress: string;
+  File: string;
+  JSONObject: string;
 };
 
 export type AccessLog = {
@@ -32,14 +33,22 @@ export type AlertLog = {
   __typename?: 'AlertLog';
   id: Scalars['ID'];
   message: Scalars['String'];
-  severity: Scalars['String'];
+  severity: AlertLogSeverity;
   timestamp: Scalars['DateTime'];
 };
 
 export type AlertLogCreateInput = {
   message: Scalars['String'];
-  severity: Scalars['String'];
+  severity: AlertLogSeverity;
 };
+
+export enum AlertLogSeverity {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Info = 'INFO',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
 
 export type Asset = {
   __typename?: 'Asset';
@@ -92,7 +101,7 @@ export type AuditLog = {
   __typename?: 'AuditLog';
   comment?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  metadata?: Maybe<Scalars['JSON']>;
+  metadata?: Maybe<Scalars['JSONObject']>;
   modificationType: Scalars['String'];
   modifiedField: Scalars['String'];
   modifiedTable?: Maybe<Scalars['String']>;
@@ -148,9 +157,9 @@ export type CategoryUpdateInput = {
 
 export type ContactSubmission = {
   __typename?: 'ContactSubmission';
-  additionalData?: Maybe<Scalars['JSON']>;
+  additionalData?: Maybe<Scalars['JSONObject']>;
   assignees?: Maybe<Array<ContactSubmissionAssignee>>;
-  email: Scalars['String'];
+  email: Scalars['EmailAddress'];
   id: Scalars['ID'];
   name: Scalars['String'];
   resolved: Scalars['Boolean'];
@@ -171,13 +180,13 @@ export type ContactSubmissionAssigneeCreateInput = {
 };
 
 export type ContactSubmissionCreateInput = {
-  additionalData?: InputMaybe<Scalars['JSON']>;
-  email: Scalars['String'];
+  additionalData?: InputMaybe<Scalars['JSONObject']>;
+  email: Scalars['EmailAddress'];
   name: Scalars['String'];
 };
 
 export type ContactSubmissionUpdateInput = {
-  additionalData?: InputMaybe<Scalars['JSON']>;
+  additionalData?: InputMaybe<Scalars['JSONObject']>;
   resolved?: InputMaybe<Scalars['Boolean']>;
 };
 
@@ -226,7 +235,7 @@ export type GroupCreateInput = {
 export type GroupPermission = {
   __typename?: 'GroupPermission';
   action: Scalars['String'];
-  conditions?: Maybe<Scalars['JSON']>;
+  conditions?: Maybe<Scalars['JSONObject']>;
   fields?: Maybe<Array<Scalars['String']>>;
   group: Group;
   id: Scalars['ID'];
@@ -237,17 +246,17 @@ export type GroupPermission = {
 
 export type GroupPermissionCreateInput = {
   action: Scalars['String'];
-  conditions?: InputMaybe<Scalars['JSON']>;
+  conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
+  group: Scalars['ID'];
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
   subject: Array<Scalars['String']>;
-  user: Scalars['ID'];
 };
 
 export type GroupPermissionUpdateInput = {
   action?: InputMaybe<Scalars['String']>;
-  conditions?: InputMaybe<Scalars['JSON']>;
+  conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
@@ -803,8 +812,19 @@ export type MutationUpdateVoteResponseArgs = {
  * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
  */
 export type Pagination = {
+  /**
+   * ID of the first document to fetch. If the document doesn't exist or you don't have permission, then it's location
+   * is "unknown", and an empty list will always be returned, since we cannot determine what comes before/after it. As
+   * an example, if you have 10 documents numbered 1-10 and pass {cursor: 5, take: 3}, then you will receive documents
+   * 5-7.
+   */
   cursor?: InputMaybe<Scalars['ID']>;
+  /**
+   * Number of documents to skip over. Must be an integer greater than or equal to 0 when used. As an example, if you
+   * have 10 documents numbered 1-10 and pass {skip: 5, take: 3}, then you will receive documents 6-8.
+   */
   skip?: InputMaybe<Scalars['Int']>;
+  /** Number of documents to fetch. Must be an integer greater than or equal to 1 when used. */
   take: Scalars['Int'];
 };
 
@@ -1391,7 +1411,7 @@ export type User = {
   groups?: Maybe<Array<UserGroup>>;
   id: Scalars['ID'];
   joined: Scalars['DateTime'];
-  mail: Scalars['String'];
+  mail: Scalars['EmailAddress'];
   permissions?: Maybe<Array<UserPermission>>;
   person?: Maybe<Person>;
   productionRsvps?: Maybe<Array<ProductionRsvp>>;
@@ -1401,7 +1421,7 @@ export type User = {
 
 export type UserCreateInput = {
   discord?: InputMaybe<Scalars['String']>;
-  mail: Scalars['String'];
+  mail: Scalars['EmailAddress'];
   password?: InputMaybe<Scalars['String']>;
   person?: InputMaybe<Scalars['ID']>;
   username: Scalars['String'];
@@ -1422,7 +1442,7 @@ export type UserGroupCreateInput = {
 export type UserPermission = {
   __typename?: 'UserPermission';
   action: Scalars['String'];
-  conditions?: Maybe<Scalars['JSON']>;
+  conditions?: Maybe<Scalars['JSONObject']>;
   fields?: Maybe<Array<Scalars['String']>>;
   id: Scalars['ID'];
   inverted: Scalars['Boolean'];
@@ -1433,7 +1453,7 @@ export type UserPermission = {
 
 export type UserPermissionCreateInput = {
   action: Scalars['String'];
-  conditions?: InputMaybe<Scalars['JSON']>;
+  conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
@@ -1443,7 +1463,7 @@ export type UserPermissionCreateInput = {
 
 export type UserPermissionUpdateInput = {
   action?: InputMaybe<Scalars['String']>;
-  conditions?: InputMaybe<Scalars['JSON']>;
+  conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
@@ -1452,7 +1472,7 @@ export type UserPermissionUpdateInput = {
 
 export type UserUpdateInput = {
   discord?: InputMaybe<Scalars['String']>;
-  mail?: InputMaybe<Scalars['String']>;
+  mail?: InputMaybe<Scalars['EmailAddress']>;
   password?: InputMaybe<Scalars['String']>;
   person?: InputMaybe<Scalars['ID']>;
   username?: InputMaybe<Scalars['String']>;
@@ -1462,20 +1482,20 @@ export type Video = {
   __typename?: 'Video';
   format: Scalars['String'];
   id: Scalars['ID'];
-  metadata?: Maybe<Scalars['JSON']>;
+  metadata?: Maybe<Scalars['JSONObject']>;
   name: Scalars['String'];
   videoFor?: Maybe<Array<ProductionVideo>>;
 };
 
 export type VideoCreateInput = {
   format: Scalars['String'];
-  metadata?: InputMaybe<Scalars['JSON']>;
+  metadata?: InputMaybe<Scalars['JSONObject']>;
   name: Scalars['String'];
 };
 
 export type VideoUpdateInput = {
   format?: InputMaybe<Scalars['String']>;
-  metadata?: InputMaybe<Scalars['JSON']>;
+  metadata?: InputMaybe<Scalars['JSONObject']>;
   name?: InputMaybe<Scalars['String']>;
 };
 
@@ -1594,6 +1614,7 @@ export type ResolversTypes = {
   AccessLog: ResolverTypeWrapper<AccessLogModel>;
   AlertLog: ResolverTypeWrapper<AlertLogModel>;
   AlertLogCreateInput: AlertLogCreateInput;
+  AlertLogSeverity: AlertLogSeverity;
   Asset: ResolverTypeWrapper<AssetModel>;
   AssetCreateInput: AssetCreateInput;
   AssetUpdateInput: AssetUpdateInput;
@@ -1614,6 +1635,8 @@ export type ResolversTypes = {
   CreditCreateInput: CreditCreateInput;
   CreditUpdateInput: CreditUpdateInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
+  EmailAddress: ResolverTypeWrapper<Scalars['EmailAddress']>;
+  File: ResolverTypeWrapper<Scalars['File']>;
   Group: ResolverTypeWrapper<GroupModel>;
   GroupCreateInput: GroupCreateInput;
   GroupPermission: ResolverTypeWrapper<GroupPermissionModel>;
@@ -1625,7 +1648,7 @@ export type ResolversTypes = {
   ImageCreateInput: ImageCreateInput;
   ImageUpdateInput: ImageUpdateInput;
   Int: ResolverTypeWrapper<Scalars['Int']>;
-  JSON: ResolverTypeWrapper<Scalars['JSON']>;
+  JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   Mutation: ResolverTypeWrapper<{}>;
   Pagination: Pagination;
   Person: ResolverTypeWrapper<PersonModel>;
@@ -1656,7 +1679,6 @@ export type ResolversTypes = {
   RoleCreateInput: RoleCreateInput;
   RoleUpdateInput: RoleUpdateInput;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Upload: ResolverTypeWrapper<Scalars['Upload']>;
   User: ResolverTypeWrapper<UserModel>;
   UserCreateInput: UserCreateInput;
   UserGroup: ResolverTypeWrapper<UserGroupModel>;
@@ -1701,6 +1723,8 @@ export type ResolversParentTypes = {
   CreditCreateInput: CreditCreateInput;
   CreditUpdateInput: CreditUpdateInput;
   DateTime: Scalars['DateTime'];
+  EmailAddress: Scalars['EmailAddress'];
+  File: Scalars['File'];
   Group: GroupModel;
   GroupCreateInput: GroupCreateInput;
   GroupPermission: GroupPermissionModel;
@@ -1712,7 +1736,7 @@ export type ResolversParentTypes = {
   ImageCreateInput: ImageCreateInput;
   ImageUpdateInput: ImageUpdateInput;
   Int: Scalars['Int'];
-  JSON: Scalars['JSON'];
+  JSONObject: Scalars['JSONObject'];
   Mutation: {};
   Pagination: Pagination;
   Person: PersonModel;
@@ -1743,7 +1767,6 @@ export type ResolversParentTypes = {
   RoleCreateInput: RoleCreateInput;
   RoleUpdateInput: RoleUpdateInput;
   String: Scalars['String'];
-  Upload: Scalars['Upload'];
   User: UserModel;
   UserCreateInput: UserCreateInput;
   UserGroup: UserGroupModel;
@@ -1786,7 +1809,7 @@ export type AccessLogResolvers<ContextType = any, ParentType extends ResolversPa
 export type AlertLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['AlertLog'] = ResolversParentTypes['AlertLog']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  severity?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['AlertLogSeverity'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1812,7 +1835,7 @@ export type AssetResolvers<ContextType = any, ParentType extends ResolversParent
 export type AuditLogResolvers<ContextType = any, ParentType extends ResolversParentTypes['AuditLog'] = ResolversParentTypes['AuditLog']> = {
   comment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  metadata?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   modificationType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   modifiedField?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   modifiedTable?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1843,9 +1866,9 @@ export type CategoryResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type ContactSubmissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['ContactSubmission'] = ResolversParentTypes['ContactSubmission']> = {
-  additionalData?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  additionalData?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   assignees?: Resolver<Maybe<Array<ResolversTypes['ContactSubmissionAssignee']>>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['EmailAddress'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   resolved?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1874,6 +1897,14 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export interface EmailAddressScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['EmailAddress'], any> {
+  name: 'EmailAddress';
+}
+
+export interface FileScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['File'], any> {
+  name: 'File';
+}
+
 export type GroupResolvers<ContextType = any, ParentType extends ResolversParentTypes['Group'] = ResolversParentTypes['Group']> = {
   children?: Resolver<Maybe<Array<ResolversTypes['Group']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1887,7 +1918,7 @@ export type GroupResolvers<ContextType = any, ParentType extends ResolversParent
 
 export type GroupPermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['GroupPermission'] = ResolversParentTypes['GroupPermission']> = {
   action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  conditions?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  conditions?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   fields?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   group?: Resolver<ResolversTypes['Group'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1908,8 +1939,8 @@ export type ImageResolvers<ContextType = any, ParentType extends ResolversParent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
-  name: 'JSON';
+export interface JsonObjectScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSONObject'], any> {
+  name: 'JSONObject';
 }
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
@@ -2133,10 +2164,6 @@ export type RoleResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export interface UploadScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Upload'], any> {
-  name: 'Upload';
-}
-
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   accessLogs?: Resolver<Maybe<Array<ResolversTypes['AccessLog']>>, ParentType, ContextType>;
   assignedContactSubmissions?: Resolver<Maybe<Array<ResolversTypes['ContactSubmissionAssignee']>>, ParentType, ContextType>;
@@ -2146,7 +2173,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   groups?: Resolver<Maybe<Array<ResolversTypes['UserGroup']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   joined?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  mail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mail?: Resolver<ResolversTypes['EmailAddress'], ParentType, ContextType>;
   permissions?: Resolver<Maybe<Array<ResolversTypes['UserPermission']>>, ParentType, ContextType>;
   person?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType>;
   productionRsvps?: Resolver<Maybe<Array<ResolversTypes['ProductionRSVP']>>, ParentType, ContextType>;
@@ -2164,7 +2191,7 @@ export type UserGroupResolvers<ContextType = any, ParentType extends ResolversPa
 
 export type UserPermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserPermission'] = ResolversParentTypes['UserPermission']> = {
   action?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  conditions?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  conditions?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   fields?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   inverted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -2177,7 +2204,7 @@ export type UserPermissionResolvers<ContextType = any, ParentType extends Resolv
 export type VideoResolvers<ContextType = any, ParentType extends ResolversParentTypes['Video'] = ResolversParentTypes['Video']> = {
   format?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  metadata?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   videoFor?: Resolver<Maybe<Array<ResolversTypes['ProductionVideo']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -2213,10 +2240,12 @@ export type Resolvers<ContextType = any> = {
   ContactSubmissionAssignee?: ContactSubmissionAssigneeResolvers<ContextType>;
   Credit?: CreditResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  EmailAddress?: GraphQLScalarType;
+  File?: GraphQLScalarType;
   Group?: GroupResolvers<ContextType>;
   GroupPermission?: GroupPermissionResolvers<ContextType>;
   Image?: ImageResolvers<ContextType>;
-  JSON?: GraphQLScalarType;
+  JSONObject?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
   Person?: PersonResolvers<ContextType>;
   PersonImage?: PersonImageResolvers<ContextType>;
@@ -2228,7 +2257,6 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Redirect?: RedirectResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
-  Upload?: GraphQLScalarType;
   User?: UserResolvers<ContextType>;
   UserGroup?: UserGroupResolvers<ContextType>;
   UserPermission?: UserPermissionResolvers<ContextType>;
