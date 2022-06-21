@@ -21,6 +21,7 @@ import {PrismaAbility} from "@casl/prisma";
 import {loadFiles} from "@graphql-tools/load-files";
 import {authDirective} from "./directives/Auth";
 import {nonNullDirective} from "./directives/NonNull";
+import {DateTimeResolver, EmailAddressResolver, JSONObjectResolver} from "graphql-scalars";
 
 dotenv.config();
 
@@ -156,7 +157,12 @@ async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Expre
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
-        resolvers: await loadFiles('src/resolvers/**/*.ts')
+        resolvers: [
+            ...await loadFiles('src/resolvers/**/*.ts'),
+            {JSONObject: JSONObjectResolver},
+            {DateTime: DateTimeResolver},
+            {EmailAddress: EmailAddressResolver}
+        ]
     });
 
     // Apply directives. The order here matters. Faster operations should be done first (e.g. non-null comes before
