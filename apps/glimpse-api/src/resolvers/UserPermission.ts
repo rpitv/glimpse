@@ -9,8 +9,7 @@ import {canUpdate} from "../permissions";
 export const resolver: Resolvers = {
     Query: {
         userPermission: async (parent, args, ctx: GraphQLContext): Promise<UserPermission | null> => {
-            // Get the UserPermission and assert that the current user has permission to see it. Returns null if the
-            //   UserPermission does not exist or the user does not have permission to see it.
+            // Get the UserPermission that matches the passed ID and is allowed by the users permission levels.
             return await ctx.prisma.userPermission.findFirst({
                 where: {
                     AND: [
@@ -98,7 +97,7 @@ export const resolver: Resolvers = {
     UserPermission: {
         user: async (parent, args, ctx: GraphQLContext): Promise<User> => {
             // Get the requested UserPermission, selecting only the connected User.
-            const userPermission = (await ctx.prisma.userPermission.findFirst({
+            const userPermission = (await ctx.prisma.userPermission.findUnique({
                 where: {id: parent.id},
                 select: {user: true}
             }));
