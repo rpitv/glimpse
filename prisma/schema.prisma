@@ -77,10 +77,10 @@ model AuditLog {
 model BlogPost {
   id                Int      @id(map: "blog_pk") @default(autoincrement())
   postedAt          DateTime @default(now()) @map("posted_at") @db.Timestamp(6)
-  content           String   @default("")
+  content           String
   authorId          Int      @map("author")
   authorDisplayName String?  @map("author_display_name") @db.VarChar(100)
-  title             String   @default("") @db.VarChar(150)
+  title             String   @db.VarChar(150)
   author            Person   @relation(fields: [authorId], references: [id], map: "blog_people_id_fk")
 
   @@index([authorId, postedAt], map: "blog_author_posted_at_index")
@@ -228,7 +228,7 @@ model Production {
   eventLocation  String?           @map("event_location") @db.VarChar(100)
   teamNotes      String?           @map("team_notes")
   discordServer  String?           @map("discord_server") @db.Char(18)
-  discordChannel String            @map("discord_channel") @db.Char(18)
+  discordChannel String?           @map("discord_channel") @db.Char(18)
   thumbnailId    Int?              @map("thumbnail")
   closetTime     DateTime?         @map("closet_time") @db.Timestamp(6)
   category       Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
@@ -342,11 +342,11 @@ model User {
 }
 
 model UserGroup {
-  id       Int   @id(map: "user_groups_pk") @default(autoincrement())
-  userId   Int @map("user")
-  groupId  Int @map("group")
-  group    Group @relation("groupsTouser_groups", fields: [groupId], references: [id], map: "user_groups_groups_id_fk")
-  user     User  @relation("user_groupsTousers", fields: [userId], references: [id], map: "user_groups_users_id_fk")
+  id      Int   @id(map: "user_groups_pk") @default(autoincrement())
+  userId  Int   @map("user")
+  groupId Int   @map("group")
+  group   Group @relation("groupsTouser_groups", fields: [groupId], references: [id], map: "user_groups_groups_id_fk")
+  user    User  @relation("user_groupsTousers", fields: [userId], references: [id], map: "user_groups_users_id_fk")
 
   @@unique([userId, groupId], map: "user_groups_pk_2")
   @@map("user_groups")
@@ -381,7 +381,7 @@ model Vote {
   id          Int            @id(map: "votes_pk")
   question    String         @db.VarChar(200)
   options     String[]       @db.VarChar(200)
-  expires     DateTime       @default(now()) @db.Timestamp(6)
+  expires     DateTime?      @db.Timestamp(6)
   description String?
   responses   VoteResponse[]
 
@@ -394,6 +394,7 @@ model VoteResponse {
   userId    Int      @map("user")
   timestamp DateTime @default(now()) @db.Timestamp(6)
   id        Int      @id(map: "vote_responses_pk") @default(autoincrement())
+  selection String   @db.VarChar(200)
   user      User     @relation(fields: [userId], references: [id], map: "vote_responses_users_id_fk")
   vote      Vote     @relation(fields: [voteId], references: [id], map: "vote_responses_votes_id_fk")
 
