@@ -4,10 +4,11 @@ import {
     AuditLog, ContactSubmissionAssignee, ProductionRSVP, VoteResponse, Asset
 } from ".prisma/client";
 import {subject} from "@casl/ability";
-import {canUpdate, constructPagination} from "../permissions";
+import {canUpdate} from "../permissions";
 import {GraphQLContext} from "custom";
 import {accessibleBy} from "@casl/prisma";
 import {GraphQLYogaError} from "@graphql-yoga/node";
+import {constructPagination} from "../utils";
 
 export const resolver: Resolvers = {
     Query: {
