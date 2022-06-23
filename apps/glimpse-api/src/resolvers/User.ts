@@ -47,9 +47,9 @@ export const resolver: Resolvers = {
                 throw new GraphQLYogaError('Insufficient permissions');
             }
 
+            // If person is being updated to a new Person, check that the current user has permission to read the new
+            //   Person, and then connect it. Only ID needs to be selected.
             let person = undefined;
-            // If not null, check that the Person we're linking exists, and the current user has permission to read
-            //   that Person.
             if (args.input.person) {
                 person = await ctx.prisma.person.findFirst({
                     where: {
@@ -63,6 +63,8 @@ export const resolver: Resolvers = {
                 if (person === null) {
                     throw new GraphQLYogaError('Person does not exist');
                 }
+                // Wrap person object in a Prisma relation input.
+                person = { connect: person };
             }
 
             // Create the User.
@@ -70,10 +72,8 @@ export const resolver: Resolvers = {
                 data: {
                     username: args.input.username,
                     mail: args.input.mail,
-                    person: {
-                        connect: person
-                    },
                     discord: args.input.discord,
+                    person
                 }
             });
         },
@@ -87,7 +87,9 @@ export const resolver: Resolvers = {
                 throw new GraphQLYogaError('Insufficient permissions');
             }
 
-            // If person is being updated, check that the Person exists and that the current user has permission to read it.
+            // If person is being updated to a new Person, check that the current user has permission to read the new
+            //   Person, and then connect it. Otherwise, if person is being updated to null, disconnect the Person.
+            //    Only ID needs to be selected.
             let person = undefined;
             if (args.input.person) {
                 person = await ctx.prisma.person.findFirst({
@@ -101,6 +103,11 @@ export const resolver: Resolvers = {
                 if(person === null) {
                     throw new GraphQLYogaError('Person does not exist');
                 }
+                // Wrap person object in a Prisma relation input.
+                person = { connect: person };
+            } else if (args.input.person === null) {
+                // Disconnect if null was provided.
+                person = { disconnect: true };
             }
 
             // Go through with updating the User.
@@ -110,9 +117,7 @@ export const resolver: Resolvers = {
                     username: args.input.username,
                     mail: args.input.mail,
                     discord: args.input.discord,
-                    person: {
-                        connect: person
-                    }
+                    person
                 }
             });
         },

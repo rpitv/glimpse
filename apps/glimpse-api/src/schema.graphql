@@ -615,6 +615,7 @@ input AssetCreateInput {
     tag: Int
     name: String! @NonNull
     lastKnownLocation: String
+    lastKnownHandler: ID
     """Defaults to false."""
     isLost: Boolean! = false @NonNull
     notes: String
@@ -630,6 +631,7 @@ input AssetUpdateInput {
     tag: Int
     name: String @NonNull
     lastKnownLocation: String
+    lastKnownHandler: ID
     isLost: Boolean @NonNull
     notes: String
     purchasePrice: Int
