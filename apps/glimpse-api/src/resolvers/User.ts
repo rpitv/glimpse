@@ -13,14 +13,13 @@ import {constructPagination} from "../utils";
 export const resolver: Resolvers = {
     Query: {
         users: async (parent, args, ctx: GraphQLContext): Promise<User[]> => {
-            // Construct pagination. If user is using cursor-based pagination, check that they
-            //   have permission to read the element at the given cursor before returning. Without this,
-            //   it's possible for users to determine whether a given record exists or not based on the response.
+            // Construct pagination. If user is using cursor-based pagination, then make sure they have permission to
+            //   read the User at the cursor. If not, return empty array, as if the User didn't exist.
             const pagination = constructPagination(args);
             if (pagination.cursor) {
                 const user = await ctx.prisma.user.findUnique({where: {id: pagination.cursor.id}})
                 if (!user || !ctx.permissions.can('read', subject('User', user), 'id')) {
-                    return []; // Return empty list, as if the element doesn't exist at all, if they can't read this.
+                    return [];
                 }
             }
 
@@ -30,8 +29,7 @@ export const resolver: Resolvers = {
             })
         },
         user: async (parent, args, ctx: GraphQLContext): Promise<User | null> => {
-            // Get the User and assert that the current user has permission to see it. Returns null if the
-            //   User does not exist or the user does not have permission to see it.
+            // Get the User that matches the passed ID and is allowed by the users permission levels.
             return await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
@@ -142,7 +140,7 @@ export const resolver: Resolvers = {
     User: {
         person: async (parent, args, ctx: GraphQLContext): Promise<Person | null> => {
             // Get the requested User, selecting only the Person.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {person: true}
             });
@@ -155,7 +153,7 @@ export const resolver: Resolvers = {
         },
         permissions: async (parent, args, ctx: GraphQLContext): Promise<UserPermission[]> => {
             // Get the requested User, selecting only the UserPermissions.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {permissions: true}
             });
@@ -168,7 +166,7 @@ export const resolver: Resolvers = {
         },
         groups: async (parent, args, ctx: GraphQLContext): Promise<UserGroup[]> => {
             // Get the requested User, selecting only the Groups.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {groups: true}
             });
@@ -181,7 +179,7 @@ export const resolver: Resolvers = {
         },
         accessLogs: async (parent, args, ctx: GraphQLContext): Promise<AccessLog[]> => {
             // Get the requested User, selecting only the AccessLogs.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {accessLogs: true}
             });
@@ -194,7 +192,7 @@ export const resolver: Resolvers = {
         },
         auditLogs: async (parent, args, ctx: GraphQLContext): Promise<AuditLog[]> => {
             // Get the requested User, selecting only the AuditLogs.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {auditLogs: true}
             });
@@ -207,7 +205,7 @@ export const resolver: Resolvers = {
         },
         assignedContactSubmissions: async (parent, args, ctx: GraphQLContext): Promise<ContactSubmissionAssignee[]> => {
             // Get the requested User, selecting only the ContactSubmissionAssignees.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {assignedContactSubmissions: true}
             });
@@ -220,7 +218,7 @@ export const resolver: Resolvers = {
         },
         productionRsvps: async (parent, args, ctx: GraphQLContext): Promise<ProductionRSVP[]> => {
             // Get the requested User, selecting only the ProductionRSVPs.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {productionRsvps: true}
             });
@@ -233,7 +231,7 @@ export const resolver: Resolvers = {
         },
         voteResponses: async (parent, args, ctx: GraphQLContext): Promise<VoteResponse[]> => {
             // Get the requested User, selecting only the VoteResponses.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {voteResponses: true}
             });
@@ -246,7 +244,7 @@ export const resolver: Resolvers = {
         },
         checkedOutAssets: async (parent, args, ctx: GraphQLContext): Promise<Asset[]> => {
             // Get the requested User, selecting only the Assets.
-            const user = await ctx.prisma.user.findFirst({
+            const user = await ctx.prisma.user.findUnique({
                 where: {id: parent.id},
                 select: {checkedOutAssets: true}
             });
