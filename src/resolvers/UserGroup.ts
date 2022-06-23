@@ -8,8 +8,7 @@ import {GraphQLYogaError} from "@graphql-yoga/node";
 export const resolver: Resolvers = {
     Query: {
         userGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup | null> => {
-            // Get the UserGroup and assert that the current user has permission to see it. Returns null if the
-            //   UserGroup does not exist or the user does not have permission to see it.
+            // Get the UserGroup that matches the passed ID and is allowed by the users permission levels.
             return await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
