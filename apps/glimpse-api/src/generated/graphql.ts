@@ -71,6 +71,7 @@ export type Asset = {
 export type AssetCreateInput = {
   /** Defaults to false. */
   isLost?: Scalars['Boolean'];
+  lastKnownHandler?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
@@ -85,6 +86,7 @@ export type AssetCreateInput = {
 
 export type AssetUpdateInput = {
   isLost?: InputMaybe<Scalars['Boolean']>;
+  lastKnownHandler?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
