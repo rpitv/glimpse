@@ -946,19 +946,25 @@ export type ProductionRsvp = {
   notes?: Maybe<Scalars['String']>;
   production: Production;
   user: User;
-  willAttend?: Maybe<Scalars['String']>;
+  willAttend?: Maybe<ProductionRsvpAttendanceState>;
 };
+
+export enum ProductionRsvpAttendanceState {
+  Maybe = 'MAYBE',
+  No = 'NO',
+  Yes = 'YES'
+}
 
 export type ProductionRsvpCreateInput = {
   notes?: InputMaybe<Scalars['String']>;
   production: Scalars['ID'];
   user: Scalars['ID'];
-  willAttend?: InputMaybe<Scalars['String']>;
+  willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
 };
 
 export type ProductionRsvpUpdateInput = {
   notes?: InputMaybe<Scalars['String']>;
-  willAttend?: InputMaybe<Scalars['String']>;
+  willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
 };
 
 export type ProductionTag = {
@@ -1480,7 +1486,7 @@ export type UserUpdateInput = {
 
 export type Video = {
   __typename?: 'Video';
-  format: Scalars['String'];
+  format: VideoFormat;
   id: Scalars['ID'];
   metadata?: Maybe<Scalars['JSONObject']>;
   name: Scalars['String'];
@@ -1488,13 +1494,19 @@ export type Video = {
 };
 
 export type VideoCreateInput = {
-  format: Scalars['String'];
+  format: VideoFormat;
   metadata?: InputMaybe<Scalars['JSONObject']>;
   name: Scalars['String'];
 };
 
+export enum VideoFormat {
+  Embed = 'EMBED',
+  Hls = 'HLS',
+  Rtmp = 'RTMP'
+}
+
 export type VideoUpdateInput = {
-  format?: InputMaybe<Scalars['String']>;
+  format?: InputMaybe<VideoFormat>;
   metadata?: InputMaybe<Scalars['JSONObject']>;
   name?: InputMaybe<Scalars['String']>;
 };
@@ -1663,6 +1675,7 @@ export type ResolversTypes = {
   ProductionImageCreateInput: ProductionImageCreateInput;
   ProductionImageUpdateInput: ProductionImageUpdateInput;
   ProductionRSVP: ResolverTypeWrapper<ProductionRSVPModel>;
+  ProductionRSVPAttendanceState: ProductionRsvpAttendanceState;
   ProductionRSVPCreateInput: ProductionRsvpCreateInput;
   ProductionRSVPUpdateInput: ProductionRsvpUpdateInput;
   ProductionTag: ResolverTypeWrapper<ProductionTagModel>;
@@ -1689,6 +1702,7 @@ export type ResolversTypes = {
   UserUpdateInput: UserUpdateInput;
   Video: ResolverTypeWrapper<VideoModel>;
   VideoCreateInput: VideoCreateInput;
+  VideoFormat: VideoFormat;
   VideoUpdateInput: VideoUpdateInput;
   Vote: ResolverTypeWrapper<VoteModel>;
   VoteCreateInput: VoteCreateInput;
@@ -2075,7 +2089,7 @@ export type ProductionRsvpResolvers<ContextType = any, ParentType extends Resolv
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   production?: Resolver<ResolversTypes['Production'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  willAttend?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  willAttend?: Resolver<Maybe<ResolversTypes['ProductionRSVPAttendanceState']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2202,7 +2216,7 @@ export type UserPermissionResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type VideoResolvers<ContextType = any, ParentType extends ResolversParentTypes['Video'] = ResolversParentTypes['Video']> = {
-  format?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  format?: Resolver<ResolversTypes['VideoFormat'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   metadata?: Resolver<Maybe<ResolversTypes['JSONObject']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

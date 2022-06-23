@@ -1,10 +1,13 @@
 import {Resolvers} from "../generated/graphql";
-import {User, Person, UserPermission, UserGroup, AccessLog,
-    AuditLog, ContactSubmissionAssignee, ProductionRSVP, VoteResponse, Asset} from ".prisma/client";
+import {
+    User, Person, UserPermission, UserGroup, AccessLog,
+    AuditLog, ContactSubmissionAssignee, ProductionRSVP, VoteResponse, Asset
+} from ".prisma/client";
 import {subject} from "@casl/ability";
-import {constructPagination} from "../permissions";
+import {canUpdate, constructPagination} from "../permissions";
 import {GraphQLContext} from "custom";
 import {accessibleBy} from "@casl/prisma";
+import {GraphQLYogaError} from "@graphql-yoga/node";
 
 export const resolver: Resolvers = {
     Query: {
@@ -26,6 +29,8 @@ export const resolver: Resolvers = {
             })
         },
         user: async (parent, args, ctx: GraphQLContext): Promise<User | null> => {
+            // Get the User and assert that the current user has permission to see it. Returns null if the
+            //   User does not exist or the user does not have permission to see it.
             return await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
@@ -36,158 +41,219 @@ export const resolver: Resolvers = {
             });
         }
     },
-    User: {
-        person: async (parent, args, ctx: GraphQLContext): Promise<Person | null> => {
-            const user = (await ctx.prisma.user.findFirst({
+    Mutation: {
+        createUser: async (parent, args, ctx: GraphQLContext): Promise<User> => {
+            // Check that user is allowed to create the passed User. Fields aren't relevant in this context.
+            if (!ctx.permissions.can('create', subject('User', args.input))) {
+                throw new GraphQLYogaError('Insufficient permissions');
+            }
+
+            let person = undefined;
+            // If not null, check that the Person we're linking exists, and the current user has permission to read
+            //   that Person.
+            if (args.input.person) {
+                person = await ctx.prisma.person.findFirst({
+                    where: {
+                        AND: [
+                            accessibleBy(ctx.permissions).Person,
+                            {id: parseInt(args.input.person)}
+                        ]
+                    },
+                    select: {id: true}
+                })
+                if (person === null) {
+                    throw new GraphQLYogaError('Person does not exist');
+                }
+            }
+
+            // Create the User.
+            return await ctx.prisma.user.create({
+                data: {
+                    username: args.input.username,
+                    mail: args.input.mail,
+                    person: {
+                        connect: person
+                    },
+                    discord: args.input.discord,
+                }
+            });
+        },
+        updateUser: async (parent, args, ctx: GraphQLContext): Promise<User> => {
+            // Get the requested User in its current state.
+            const user = await ctx.prisma.user.findUnique({
+                where: {id: parseInt(args.id)}
+            });
+            // Check that this User exists and that the current user has permission to update it.
+            if(user === null || !canUpdate(ctx.permissions, "User", user, args.input)) {
+                throw new GraphQLYogaError('Insufficient permissions');
+            }
+
+            // If person is being updated, check that the Person exists and that the current user has permission to read it.
+            let person = undefined;
+            if (args.input.person) {
+                person = await ctx.prisma.person.findFirst({
+                    where: {
+                        AND: [
+                            accessibleBy(ctx.permissions).Person,
+                            {id: parseInt(args.input.person)}
+                        ]
+                    }
+                });
+                if(person === null) {
+                    throw new GraphQLYogaError('Person does not exist');
+                }
+            }
+
+            // Go through with updating the User.
+            return await ctx.prisma.user.update({
+                where: {id: parseInt(args.id)},
+                data: {
+                    username: args.input.username,
+                    mail: args.input.mail,
+                    discord: args.input.discord,
+                    person: {
+                        connect: person
+                    }
+                }
+            });
+        },
+        deleteUser: async (parent, args, ctx: GraphQLContext): Promise<User> => {
+            // Get the User to delete, and check that the current user has permission to delete it.
+            const user = await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
+                        accessibleBy(ctx.permissions, 'delete').User,
+                        {id: parseInt(args.id)}
                     ]
-                },
-                select: {
-                    person: true
                 }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            });
+            // If null is returned, then either the User doesn't exist, or the current user doesn't have permission to
+            //   delete it.
+            if(user === null) {
+                throw new GraphQLYogaError('Insufficient permissions');
             }
+            // Go through with deleting the permission.
+            return await ctx.prisma.user.delete({
+                where: {id: parseInt(args.id)}
+            });
+        }
+    },
+    User: {
+        person: async (parent, args, ctx: GraphQLContext): Promise<Person | null> => {
+            // Get the requested User, selecting only the Person.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {person: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
+            }
+            // Return the Person.
             return user.person;
         },
         permissions: async (parent, args, ctx: GraphQLContext): Promise<UserPermission[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    permissions: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the UserPermissions.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {permissions: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the Permissions array.
             return user.permissions;
         },
         groups: async (parent, args, ctx: GraphQLContext): Promise<UserGroup[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    groups: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the Groups.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {groups: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the Groups array.
             return user.groups;
         },
         accessLogs: async (parent, args, ctx: GraphQLContext): Promise<AccessLog[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    accessLogs: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the AccessLogs.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {accessLogs: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the AccessLogs array.
             return user.accessLogs;
         },
         auditLogs: async (parent, args, ctx: GraphQLContext): Promise<AuditLog[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    auditLogs: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the AuditLogs.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {auditLogs: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the AuditLogs.
             return user.auditLogs;
         },
         assignedContactSubmissions: async (parent, args, ctx: GraphQLContext): Promise<ContactSubmissionAssignee[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    assignedContactSubmissions: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the ContactSubmissionAssignees.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {assignedContactSubmissions: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the ContactSubmissionAssignees array.
             return user.assignedContactSubmissions;
         },
         productionRsvps: async (parent, args, ctx: GraphQLContext): Promise<ProductionRSVP[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    productionRsvps: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the ProductionRSVPs.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {productionRsvps: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the ProductionRSVPs array.
             return user.productionRsvps;
         },
         voteResponses: async (parent, args, ctx: GraphQLContext): Promise<VoteResponse[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    voteResponses: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the VoteResponses.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {voteResponses: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the VoteResponses array.
             return user.voteResponses;
         },
         checkedOutAssets: async (parent, args, ctx: GraphQLContext): Promise<Asset[]> => {
-            const user = (await ctx.prisma.user.findFirst({
-                where: {
-                    AND: [
-                        accessibleBy(ctx.permissions).User,
-                        {id: parent.id}
-                    ]
-                },
-                select: {
-                    checkedOutAssets: true
-                }
-            }));
-            if (user === null) {
-                throw new Error('User is unexpectedly null.');
+            // Get the requested User, selecting only the Assets.
+            const user = await ctx.prisma.user.findFirst({
+                where: {id: parent.id},
+                select: {checkedOutAssets: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
+            if(user === null) {
+                throw new GraphQLYogaError('User is unexpectedly null.');
             }
+            // Return the Assets array.
             return user.checkedOutAssets;
         }
     }
