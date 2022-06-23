@@ -8,6 +8,8 @@ import {GraphQLYogaError} from "@graphql-yoga/node";
 export const resolver: Resolvers = {
     Query: {
         userGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup | null> => {
+            // Get the UserGroup and assert that the current user has permission to see it. Returns null if the
+            //   UserGroup does not exist or the user does not have permission to see it.
             return await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
@@ -20,69 +22,110 @@ export const resolver: Resolvers = {
     },
     Mutation: {
         createUserGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup> => {
+            // Check that user is allowed to create the passed UserGroup. Fields aren't relevant in this context.
+            if (!ctx.permissions.can('create', subject('UserGroup', args.input))) {
+                throw new GraphQLYogaError('Insufficient permissions');
+            }
+
+            // Check if the Group we're linking exists, and the current user has permission to read that Group.
+            const group = await ctx.prisma.group.findFirst({
+                where: {
+                    AND: [
+                        accessibleBy(ctx.permissions).Group,
+                        {id: parseInt(args.input.group)}
+                    ]
+                },
+                select: {id: true}
+            });
+            if (group === null) {
+                throw new GraphQLYogaError('Group does not exist');
+            }
+
+            // Check if the User we're linking exists, and the current user has permission to read that User.
+            const user = await ctx.prisma.user.findFirst({
+                where: {
+                    AND: [
+                        accessibleBy(ctx.permissions).User,
+                        {id: parseInt(args.input.user)}
+                    ]
+                },
+                select: {id: true}
+            });
+            if (user === null) {
+                throw new GraphQLYogaError('User does not exist');
+            }
+
+            // Create the UserGroup.
             return await ctx.prisma.userGroup.create({
                 data: {
                     user: {
-                        connect: {
-                            id: parseInt(args.input.user)
-                        }
+                        connect: user
                     },
                     group: {
-                        connect: {
-                            id: parseInt(args.input.group)
-                        }
+                        connect: group
                     }
                 }
-            })
+            });
         },
         deleteUserGroup: async (parent, args, ctx: GraphQLContext): Promise<UserGroup> => {
-            const group = await ctx.prisma.userGroup.findUnique({
-                where: {id: parseInt(args.id)}
-            })
-            // We just need to check the object itself, and not its fields, since you can't delete just one field.
-            if(group === null || !ctx.permissions.can('delete', subject('UserGroup', group))) {
-                throw new GraphQLYogaError('Insufficient permissions');
+            // Get the UserGroup and assert that the current user has permission to delete it.
+            const userGroup = await ctx.prisma.userGroup.findFirst({
+                where: {
+                    AND: [
+                        accessibleBy(ctx.permissions).UserGroup,
+                        {id: parseInt(args.id)}
+                    ]
+                }
+            });
+            // If null is returned, then either the UserGroup doesn't exist, or they don't have permission to delete it.
+            if (userGroup === null) {
+                throw new GraphQLYogaError('UserGroup does not exist');
             }
+
+            // Delete the UserGroup.
             return await ctx.prisma.userGroup.delete({
                 where: {id: parseInt(args.id)}
-            })
+            });
         }
     },
     UserGroup: {
         user: async (parent, args, ctx: GraphQLContext): Promise<User> => {
-            const userGroup = (await ctx.prisma.userGroup.findFirst({
+            // Get the requested UserGroup, selecting only the connected User.
+            const userGroup = await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
                         accessibleBy(ctx.permissions).UserGroup,
                         {id: parent.id}
                     ]
                 },
-                select: {
-                    user: true
-                }
-            }));
+                select: {user: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
             if (userGroup === null) {
-                throw new Error('UserGroup is unexpectedly null.');
+                throw new GraphQLYogaError('UserGroup does not exist');
             }
 
+            // Return the connected User.
             return userGroup.user;
         },
         group: async (parent, args, ctx: GraphQLContext): Promise<Group> => {
-            const userGroup = (await ctx.prisma.userGroup.findFirst({
+            // Get the requested UserGroup, selecting only the connected Group.
+            const userGroup = await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
                         accessibleBy(ctx.permissions).UserGroup,
                         {id: parent.id}
                     ]
                 },
-                select: {
-                    group: true
-                }
-            }));
+                select: {group: true}
+            });
+            // This should never happen since the parent resolver would have returned null.
             if (userGroup === null) {
-                throw new Error('UserGroup is unexpectedly null.');
+                throw new GraphQLYogaError('UserGroup does not exist');
             }
+
+            // Return the connected Group.
             return userGroup.group;
-        },
+        }
     }
 }
