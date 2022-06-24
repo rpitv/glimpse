@@ -8,6 +8,8 @@
  *   If a key is in the keys array but isn't in the source, it's ignored.
  */
 import {GraphQLYogaError} from "@graphql-yoga/node";
+import {AbilityActions, GlimpseAbility} from "custom";
+import {accessibleBy} from "@casl/prisma";
 
 
 export function pick(source: { [key: string]: any }, keys: string[]) {
@@ -58,4 +60,14 @@ export function assertValidPassword(password: string) {
     if (uniqueChars.size < 5) {
         throw new GraphQLYogaError("Password must contain at least 5 unique characters");
     }
+}
+
+/**
+ * Wrapper around the CASL Prisma accessibleBy method which requires the action parameter. This should be used
+ *   instead of the accessibleBy method directly to avoid accidentally not passing the action parameter.
+ * @param ability Permission Ability to check.
+ * @param action Action to check the ability for permission for.
+ */
+export function getAccessibleByFilter(ability: GlimpseAbility, action: AbilityActions) {
+    return accessibleBy(ability, action);
 }

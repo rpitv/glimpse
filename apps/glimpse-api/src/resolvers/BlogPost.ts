@@ -1,9 +1,8 @@
 import {Resolvers} from "../generated/graphql";
 import {GraphQLContext} from "custom";
 import {BlogPost, Person} from "@prisma/client";
-import {constructPagination} from "../utils";
+import {constructPagination, getAccessibleByFilter} from "../utils";
 import {subject} from "@casl/ability";
-import {accessibleBy} from "@casl/prisma";
 import {GraphQLYogaError} from "@graphql-yoga/node";
 import {canUpdate} from "../permissions";
 
@@ -24,7 +23,7 @@ export const resolver: Resolvers = {
 
             // Get the BlogPosts that the user has permission to read, and inject pagination object.
             return ctx.prisma.blogPost.findMany({
-                where: accessibleBy(ctx.permissions, 'read').BlogPost,
+                where: getAccessibleByFilter(ctx.permissions, 'read').BlogPost,
                 ...pagination
             });
         },
@@ -34,7 +33,7 @@ export const resolver: Resolvers = {
                 where: {
                     AND: [
                         {id: parseInt(args.id)},
-                        accessibleBy(ctx.permissions, 'read').BlogPost
+                        getAccessibleByFilter(ctx.permissions, 'read').BlogPost
                     ]
                 },
             });
@@ -53,7 +52,7 @@ export const resolver: Resolvers = {
                 where: {
                     AND: [
                         {id: parseInt(args.input.author)},
-                        accessibleBy(ctx.permissions, 'read').Person
+                        getAccessibleByFilter(ctx.permissions, 'read').Person
                     ]
                 },
                 select: {id: true}
@@ -90,7 +89,7 @@ export const resolver: Resolvers = {
                     where: {
                         AND: [
                             {id: parseInt(args.input.author)},
-                            accessibleBy(ctx.permissions, 'read').Person
+                            getAccessibleByFilter(ctx.permissions, 'read').Person
                         ]
                     },
                     select: {id: true}
@@ -119,7 +118,7 @@ export const resolver: Resolvers = {
                 where: {
                     AND: [
                         {id: parseInt(args.id)},
-                        accessibleBy(ctx.permissions, 'delete').BlogPost
+                        getAccessibleByFilter(ctx.permissions, 'delete').BlogPost
                     ]
                 }
             });
