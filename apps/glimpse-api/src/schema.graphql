@@ -665,12 +665,14 @@ type BlogPost {
 
 input BlogPostCreateInput {
     content: String! @NonNull
+    author: ID! @NonNull
     authorDisplayName: String
     title: String! @NonNull
 }
 
 input BlogPostUpdateInput {
     content: String @NonNull
+    author: ID @NonNull
     authorDisplayName: String
     title: String @NonNull
 }

@@ -23,7 +23,7 @@ export const resolvers: Resolvers = {
 
             // Get the AccessLogs that the user has permission to read, and inject pagination object.
             return await ctx.prisma.accessLog.findMany({
-                where: accessibleBy(ctx.permissions).AccessLog,
+                where: accessibleBy(ctx.permissions, 'read').AccessLog,
                 ...pagination
             });
         },
@@ -32,7 +32,7 @@ export const resolvers: Resolvers = {
             return await ctx.prisma.accessLog.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).AccessLog,
+                        accessibleBy(ctx.permissions, 'read').AccessLog,
                         {id: parseInt(args.id)}
                     ]
                 }
