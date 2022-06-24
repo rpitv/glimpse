@@ -66,7 +66,7 @@ export function assertValidPassword(password: string) {
  * Wrapper around the CASL Prisma accessibleBy method which requires the action parameter. This should be used
  *   instead of the accessibleBy method directly to avoid accidentally not passing the action parameter.
  * @param ability Permission Ability to check.
- * @param action Action to check the ability for permission for.
+ * @param action Action to check the ability for permission for. Must be a non-empty string, or an Error will be thrown.
  */
 export function getAccessibleByFilter(ability: GlimpseAbility, action: AbilityActions) {
     if(!action) {
