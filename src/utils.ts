@@ -69,5 +69,8 @@ export function assertValidPassword(password: string) {
  * @param action Action to check the ability for permission for.
  */
 export function getAccessibleByFilter(ability: GlimpseAbility, action: AbilityActions) {
+    if(!action) {
+        throw new Error("Action must be provided");
+    }
     return accessibleBy(ability, action);
 }
