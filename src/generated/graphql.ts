@@ -123,12 +123,14 @@ export type BlogPost = {
 };
 
 export type BlogPostCreateInput = {
+  author: Scalars['ID'];
   authorDisplayName?: InputMaybe<Scalars['String']>;
   content: Scalars['String'];
   title: Scalars['String'];
 };
 
 export type BlogPostUpdateInput = {
+  author?: InputMaybe<Scalars['ID']>;
   authorDisplayName?: InputMaybe<Scalars['String']>;
   content?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;

@@ -23,7 +23,7 @@ export const resolver: Resolvers = {
 
             // Get the Assets that the user has permission to read, and inject pagination object.
             return await ctx.prisma.asset.findMany({
-                where: accessibleBy(ctx.permissions).Asset,
+                where: accessibleBy(ctx.permissions, 'read').Asset,
                 ...pagination
             });
         },
@@ -32,7 +32,7 @@ export const resolver: Resolvers = {
             return await ctx.prisma.asset.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).Asset,
+                        accessibleBy(ctx.permissions, 'read').Asset,
                         {id: parseInt(args.id)}
                     ]
                 }
@@ -53,7 +53,7 @@ export const resolver: Resolvers = {
                 newHandler = await ctx.prisma.user.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions).User,
+                            accessibleBy(ctx.permissions, 'read').User,
                             {id: parseInt(args.input.lastKnownHandler)}
                         ]
                     },
@@ -73,7 +73,7 @@ export const resolver: Resolvers = {
                 newParent = await ctx.prisma.asset.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions).Asset,
+                            accessibleBy(ctx.permissions, 'read').Asset,
                             {id: parseInt(args.input.parent)}
                         ]
                     }
@@ -121,7 +121,7 @@ export const resolver: Resolvers = {
                 newHandler = await ctx.prisma.user.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions).User,
+                            accessibleBy(ctx.permissions, 'read').User,
                             {id: parseInt(args.input.lastKnownHandler)}
                         ]
                     }
@@ -144,7 +144,7 @@ export const resolver: Resolvers = {
                 newParent = await ctx.prisma.asset.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions).Asset,
+                            accessibleBy(ctx.permissions, 'read').Asset,
                             {id: parseInt(args.input.parent)}
                         ]
                     }
@@ -181,7 +181,7 @@ export const resolver: Resolvers = {
             const asset = await ctx.prisma.asset.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).Asset,
+                        accessibleBy(ctx.permissions, 'delete').Asset,
                         {id: parseInt(args.id)}
                     ]
                 }

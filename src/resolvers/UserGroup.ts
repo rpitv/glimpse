@@ -12,7 +12,7 @@ export const resolver: Resolvers = {
             return await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
+                        accessibleBy(ctx.permissions, 'read').UserGroup,
                         {id: parseInt(args.id)}
                     ]
                 }
@@ -30,7 +30,7 @@ export const resolver: Resolvers = {
             const group = await ctx.prisma.group.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).Group,
+                        accessibleBy(ctx.permissions, 'read').Group,
                         {id: parseInt(args.input.group)}
                     ]
                 },
@@ -44,7 +44,7 @@ export const resolver: Resolvers = {
             const user = await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).User,
+                        accessibleBy(ctx.permissions, 'read').User,
                         {id: parseInt(args.input.user)}
                     ]
                 },
@@ -71,14 +71,14 @@ export const resolver: Resolvers = {
             const userGroup = await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
+                        accessibleBy(ctx.permissions, 'delete').UserGroup,
                         {id: parseInt(args.id)}
                     ]
                 }
             });
             // If null is returned, then either the UserGroup doesn't exist, or they don't have permission to delete it.
             if (userGroup === null) {
-                throw new GraphQLYogaError('UserGroup does not exist');
+                throw new GraphQLYogaError('Insufficient permissions');
             }
 
             // Delete the UserGroup.
@@ -93,7 +93,7 @@ export const resolver: Resolvers = {
             const userGroup = await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
+                        accessibleBy(ctx.permissions, 'read').UserGroup,
                         {id: parent.id}
                     ]
                 },
@@ -112,7 +112,7 @@ export const resolver: Resolvers = {
             const userGroup = await ctx.prisma.userGroup.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).UserGroup,
+                        accessibleBy(ctx.permissions, 'read').UserGroup,
                         {id: parent.id}
                     ]
                 },
