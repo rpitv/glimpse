@@ -8,7 +8,15 @@ import {canUpdate} from "../permissions";
 import {GraphQLContext} from "custom";
 import {accessibleBy} from "@casl/prisma";
 import {GraphQLYogaError} from "@graphql-yoga/node";
-import {constructPagination} from "../utils";
+import {constructPagination, assertValidPassword} from "../utils";
+import { hash, argon2id } from "argon2";
+
+const PASSWORD_HASH_OPTIONS = {
+    type: argon2id,
+    memoryCost: 32768, // 32MiB
+    timeCost: 4,
+    parallelism: 1,
+}
 
 export const resolver: Resolvers = {
     Query: {
@@ -67,13 +75,25 @@ export const resolver: Resolvers = {
                 person = { connect: person };
             }
 
+            // If password is being added, make sure it is valid, and then hash it using argon2id.
+            let passwordHash = undefined;
+            if (args.input.password) {
+                try {
+                    assertValidPassword(args.input.password)
+                } catch (e) {
+                    throw e;
+                }
+                passwordHash = await hash(args.input.password, PASSWORD_HASH_OPTIONS);
+            }
+
             // Create the User.
             return await ctx.prisma.user.create({
                 data: {
                     username: args.input.username,
                     mail: args.input.mail,
                     discord: args.input.discord,
-                    person
+                    person,
+                    password: passwordHash
                 }
             });
         },
@@ -110,6 +130,17 @@ export const resolver: Resolvers = {
                 person = { disconnect: true };
             }
 
+            // If password is being added, make sure it is valid, and then hash it using argon2id.
+            let passwordHash = undefined;
+            if (args.input.password) {
+                try {
+                    assertValidPassword(args.input.password)
+                } catch (e) {
+                    throw e;
+                }
+                passwordHash = await hash(args.input.password, PASSWORD_HASH_OPTIONS);
+            }
+
             // Go through with updating the User.
             return await ctx.prisma.user.update({
                 where: {id: parseInt(args.id)},
@@ -117,7 +148,8 @@ export const resolver: Resolvers = {
                     username: args.input.username,
                     mail: args.input.mail,
                     discord: args.input.discord,
-                    person
+                    person,
+                    password: passwordHash
                 }
             });
         },
