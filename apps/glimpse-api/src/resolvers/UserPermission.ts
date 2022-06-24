@@ -13,7 +13,7 @@ export const resolver: Resolvers = {
             return await ctx.prisma.userPermission.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).UserPermission,
+                        accessibleBy(ctx.permissions, 'read').UserPermission,
                         {id: parseInt(args.id)}
                     ]
                 }
@@ -31,7 +31,7 @@ export const resolver: Resolvers = {
             const user = await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions).User,
+                        accessibleBy(ctx.permissions, 'read').User,
                         {id: parseInt(args.input.user)}
                     ]
                 },
