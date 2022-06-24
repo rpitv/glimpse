@@ -2,9 +2,8 @@ import {Resolvers} from "../generated/graphql";
 import {AccessLog, User} from ".prisma/client";
 import {GraphQLContext} from "custom";
 import {GraphQLYogaError} from "@graphql-yoga/node";
-import {constructPagination} from "../utils";
+import {constructPagination, getAccessibleByFilter} from "../utils";
 import {subject} from "@casl/ability";
-import {accessibleBy} from "@casl/prisma";
 
 export const resolvers: Resolvers = {
     Query: {
@@ -23,7 +22,7 @@ export const resolvers: Resolvers = {
 
             // Get the AccessLogs that the user has permission to read, and inject pagination object.
             return await ctx.prisma.accessLog.findMany({
-                where: accessibleBy(ctx.permissions, 'read').AccessLog,
+                where: getAccessibleByFilter(ctx.permissions, 'read').AccessLog,
                 ...pagination
             });
         },
@@ -32,7 +31,7 @@ export const resolvers: Resolvers = {
             return await ctx.prisma.accessLog.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'read').AccessLog,
+                        getAccessibleByFilter(ctx.permissions, 'read').AccessLog,
                         {id: parseInt(args.id)}
                     ]
                 }
