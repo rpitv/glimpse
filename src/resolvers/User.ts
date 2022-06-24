@@ -6,9 +6,8 @@ import {
 import {subject} from "@casl/ability";
 import {canUpdate} from "../permissions";
 import {GraphQLContext} from "custom";
-import {accessibleBy} from "@casl/prisma";
 import {GraphQLYogaError} from "@graphql-yoga/node";
-import {constructPagination, assertValidPassword} from "../utils";
+import {constructPagination, assertValidPassword, getAccessibleByFilter} from "../utils";
 import { hash, argon2id } from "argon2";
 
 const PASSWORD_HASH_OPTIONS = {
@@ -33,7 +32,7 @@ export const resolver: Resolvers = {
 
             return await ctx.prisma.user.findMany({
                 ...pagination,
-                where: accessibleBy(ctx.permissions, 'read').User
+                where: getAccessibleByFilter(ctx.permissions, 'read').User
             })
         },
         user: async (parent, args, ctx: GraphQLContext): Promise<User | null> => {
@@ -41,7 +40,7 @@ export const resolver: Resolvers = {
             return await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'read').User,
+                        getAccessibleByFilter(ctx.permissions, 'read').User,
                         {id: parseInt(args.id)}
                     ]
                 }
@@ -62,7 +61,7 @@ export const resolver: Resolvers = {
                 person = await ctx.prisma.person.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions, 'read').Person,
+                            getAccessibleByFilter(ctx.permissions, 'read').Person,
                             {id: parseInt(args.input.person)}
                         ]
                     },
@@ -115,7 +114,7 @@ export const resolver: Resolvers = {
                 person = await ctx.prisma.person.findFirst({
                     where: {
                         AND: [
-                            accessibleBy(ctx.permissions, 'read').Person,
+                            getAccessibleByFilter(ctx.permissions, 'read').Person,
                             {id: parseInt(args.input.person)}
                         ]
                     }
@@ -158,7 +157,7 @@ export const resolver: Resolvers = {
             const user = await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'delete').User,
+                        getAccessibleByFilter(ctx.permissions, 'delete').User,
                         {id: parseInt(args.id)}
                     ]
                 }

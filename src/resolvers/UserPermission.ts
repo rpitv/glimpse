@@ -1,10 +1,10 @@
 import {Resolvers} from "../generated/graphql";
 import {User, UserPermission} from ".prisma/client";
 import {GraphQLContext} from "custom";
-import {accessibleBy} from "@casl/prisma";
 import {GraphQLYogaError} from "@graphql-yoga/node";
 import {subject} from "@casl/ability";
 import {canUpdate} from "../permissions";
+import {getAccessibleByFilter} from "../utils";
 
 export const resolver: Resolvers = {
     Query: {
@@ -13,7 +13,7 @@ export const resolver: Resolvers = {
             return await ctx.prisma.userPermission.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'read').UserPermission,
+                        getAccessibleByFilter(ctx.permissions, 'read').UserPermission,
                         {id: parseInt(args.id)}
                     ]
                 }
@@ -31,7 +31,7 @@ export const resolver: Resolvers = {
             const user = await ctx.prisma.user.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'read').User,
+                        getAccessibleByFilter(ctx.permissions, 'read').User,
                         {id: parseInt(args.input.user)}
                     ]
                 },
@@ -79,7 +79,7 @@ export const resolver: Resolvers = {
             const permission = await ctx.prisma.userPermission.findFirst({
                 where: {
                     AND: [
-                        accessibleBy(ctx.permissions, 'delete').UserPermission,
+                        getAccessibleByFilter(ctx.permissions, 'delete').UserPermission,
                         {id: parseInt(args.id)}
                     ]
                 }
