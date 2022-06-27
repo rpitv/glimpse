@@ -74,3 +74,56 @@ export function canUpdate(ability: GlimpseAbility, subjectType: AbilitySubjects,
     }
     return true;
 }
+
+/**
+ * Check that a given Ability grants permission to delete a given subject, and all the necessary fields. For example,
+ *  if you want to check that a user has permission to delete {x: 1, y: 2}, this method checks that:
+ *  - The user has permission to delete "x" on object {x: 1, y: 2}
+ *  - The user has permission to delete "y" on object {x: 1, y: 2}
+ *  If any of these checks fail, then the method returns false. Otherwise, it returns true.
+ *  @param ability Ability to check. This is typically retrieved from the current context.
+ *  @param subjectType Type of subject we're checking. E.g. "User". This is passed to CASL's subject().
+ *  @param value Value of the subject.
+ */
+export function canDelete(ability: GlimpseAbility, subjectType: AbilitySubjects, value: Record<string, any>): boolean {
+    // Check that the user has permission to delete at least one field in the subject.
+    //   Not required, but saves time in the case that the user has no permission to delete any fields.
+    if(!ability.can('delete', subject(subjectType, value))) {
+        return false;
+    }
+    // Check that the user has permission to delete each individual field in the subject.
+    for(const key in value) {
+        if(!ability.can('delete', subject(subjectType, value), key)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Check that a given Ability grants permission to create a given subject, and all the necessary fields. For example,
+ *  if you want to check that a user has permission to create {x: 1, y: 2}, this method checks that:
+ *  - The user has permission to create "x" on object {x: 1, y: 2}
+ *  - The user has permission to create "y" on object {x: 1, y: 2}
+ *  If any of these checks fail, then the method returns false. Otherwise, it returns true.
+ *  @param ability Ability to check. This is typically retrieved from the current context.
+ *  @param subjectType Type of subject we're checking. E.g. "User". This is passed to CASL's subject().
+ *  @param value Value of the subject. Note, this method does not merge in default values assigned by the database!
+ *    If you pass in {x: 1}, but the database assigns a default "y" value of 2, this method will return true even
+ *    if the user doesn't have permission to create objects with "y" set to 2. For this reason, granular permissions
+ *    on fields with defaults are currently not recommended.
+ */
+export function canCreate(ability: GlimpseAbility, subjectType: AbilitySubjects, value: Record<string, any>): boolean {
+    // Check that the user has permission to create at least one field in the subject.
+    //   Not required, but saves time in the case that the user has no permission to create any fields.
+    if(!ability.can('create', subject(subjectType, value))) {
+        return false;
+    }
+    // Check that the user has permission to create each individual field in the subject.
+    for(const key in value) {
+        if(!ability.can('create', subject(subjectType, value), key)) {
+            return false;
+        }
+    }
+    return true;
+}
