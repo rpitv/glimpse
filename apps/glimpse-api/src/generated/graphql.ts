@@ -1019,349 +1019,349 @@ export type ProductionVideoUpdateInput = {
 
 export type Query = {
   __typename?: 'Query';
-  /** Get a single access log, given its ID, or null if that access log does not exist. */
-  accessLog?: Maybe<AccessLog>;
   /** Get a list of access logs which the user currently has access to read. */
-  accessLogs: Array<AccessLog>;
-  /** Get a single alert log, given its ID, or null if that alert log does not exist. */
-  alertLog?: Maybe<AlertLog>;
+  findManyAccessLog: Array<AccessLog>;
   /** Get a list of alert logs which the user currently has access to read. */
-  alertLogs: Array<AlertLog>;
-  /** Get a single asset, given its ID, or null if that asset does not exist. */
-  asset?: Maybe<Asset>;
+  findManyAlertLog: Array<AlertLog>;
   /** Get a list of assets which the user currently has access to read. */
-  assets: Array<Asset>;
-  /** Get a single audit log, given its ID, or null if that audit log does not exist. */
-  auditLog?: Maybe<AuditLog>;
+  findManyAsset: Array<Asset>;
   /** Get a list of audit logs which the user currently has access to read. */
-  auditLogs: Array<AuditLog>;
-  /** Get a single blog post, given its ID, or null if that blog post does not exist. */
-  blogPost?: Maybe<BlogPost>;
+  findManyAuditLog: Array<AuditLog>;
   /** Get a list of blog posts which the user currently has access to read. */
-  blogPosts: Array<BlogPost>;
+  findManyBlogPost: Array<BlogPost>;
   /** Get a list of categories which the user currently has access to read. */
-  categories: Array<Category>;
-  /** Get a single category, given its ID, or null if that category does not exist. */
-  category?: Maybe<Category>;
-  /** Get a single contact submission, given its ID, or null if that contact submission does not exist. */
-  contactSubmission?: Maybe<ContactSubmission>;
-  /** Get a single contact submission assignee, given its ID, or null if that contact submission assignee does not exist. */
-  contactSubmissionAssignee?: Maybe<ContactSubmissionAssignee>;
-  /** Get a list of contact submission assignees which the user currently has access to read. */
-  contactSubmissionAssignees: Array<ContactSubmissionAssignee>;
+  findManyCategory: Array<Category>;
   /** Get a list of contact submissions which the user currently has access to read. */
-  contactSubmissions: Array<ContactSubmission>;
-  /** Get a single credit, given its ID, or null if that credit does not exist. */
-  credit?: Maybe<Credit>;
+  findManyContactSubmission: Array<ContactSubmission>;
+  /** Get a list of contact submission assignees which the user currently has access to read. */
+  findManyContactSubmissionAssignee: Array<ContactSubmissionAssignee>;
   /** Get a list of credits which the user currently has access to read. */
-  credits: Array<Credit>;
-  /** Get a single group, given its ID, or null if that group does not exist. */
-  group?: Maybe<Group>;
-  /** Get a single group permission, given its ID, or null if that group permission does not exist. */
-  groupPermission?: Maybe<GroupPermission>;
+  findManyCredit: Array<Credit>;
   /** Get a list of groups which the user currently has access to read. */
-  groups: Array<Group>;
-  /** Get a single image, given its ID, or null if that image does not exist. */
-  image?: Maybe<Image>;
+  findManyGroup: Array<Group>;
   /** Get a list of images which the user currently has access to read. */
-  images: Array<Image>;
+  findManyImage: Array<Image>;
   /** Get a list of people which the user currently has access to read. */
-  people: Array<Person>;
-  /** Get a single person, given its ID, or null if that person does not exist. */
-  person?: Maybe<Person>;
-  /** Get a single person-image pair, given its ID, or null if that person-image pair does not exist. */
-  personImage?: Maybe<PersonImage>;
+  findManyPerson: Array<Person>;
   /** Get a list of person-image pairs which the user currently has access to read. */
-  personImages: Array<PersonImage>;
-  /** Get a single production, given its ID, or null if that production does not exist. */
-  production?: Maybe<Production>;
-  /** Get a single production-image pair, given its ID, or null if that production-image pair does not exist. */
-  productionImage?: Maybe<ProductionImage>;
-  /** Get a list of production-image pairs which the user currently has access to read. */
-  productionImages: Array<ProductionImage>;
-  /** Get a single production RSVP, given its ID, or null if that production RSVP does not exist. */
-  productionRSVP?: Maybe<ProductionRsvp>;
-  /** Get a list of production RSVPs which the user currently has access to read. */
-  productionRSVPs: Array<ProductionRsvp>;
-  /** Get a single production tag, given its ID, or null if that production tag does not exist. */
-  productionTag?: Maybe<ProductionTag>;
-  /** Get a single production-video pair, given its ID, or null if that production-video pair does not exist. */
-  productionVideo?: Maybe<ProductionVideo>;
-  /** Get a list of production-video pairs which the user currently has access to read. */
-  productionVideos: Array<ProductionVideo>;
+  findManyPersonImage: Array<PersonImage>;
   /** Get a list of productions which the user currently has access to read. */
-  productions: Array<Production>;
-  /** Get a single production, given its ID, or null if that redirect does not exist. */
-  redirect?: Maybe<Redirect>;
+  findManyProduction: Array<Production>;
+  /** Get a list of production-image pairs which the user currently has access to read. */
+  findManyProductionImage: Array<ProductionImage>;
+  /** Get a list of production RSVPs which the user currently has access to read. */
+  findManyProductionRSVP: Array<ProductionRsvp>;
+  /** Get a list of production-video pairs which the user currently has access to read. */
+  findManyProductionVideo: Array<ProductionVideo>;
   /** Get a list of redirects which the user currently has access to read. */
-  redirects: Array<Redirect>;
-  /** Get a single role, given its ID, or null if that role does not exist. */
-  role?: Maybe<Role>;
+  findManyRedirect: Array<Redirect>;
   /** Get a list of roles which the user currently has access to read. */
-  roles: Array<Role>;
-  /** Get a single user given their ID, or null if that user does not exist. */
-  user?: Maybe<User>;
-  /** Get a single user-group pair, given its ID, or null if that user-group pair does not exist. */
-  userGroup?: Maybe<UserGroup>;
-  /** Get a single user permission, given its ID, or null if that user permission does not exist. */
-  userPermission?: Maybe<UserPermission>;
+  findManyRole: Array<Role>;
   /** Get a list of users which the user currently has access to read. */
-  users: Array<User>;
-  /** Get a single video, given its ID, or null if that video does not exist. */
-  video?: Maybe<Video>;
+  findManyUser: Array<User>;
   /** Get a list of videos which the user currently has access to read. */
-  videos: Array<Video>;
-  /** Get a single vote, given its ID, or null if that vote does not exist. */
-  vote?: Maybe<Vote>;
-  /** Get a single vote response, given its ID, or null if that vote response does not exist. */
-  voteResponse?: Maybe<VoteResponse>;
+  findManyVideo: Array<Video>;
   /** Get a list of votes which the user currently has access to read. */
-  votes: Array<Vote>;
+  findManyVote: Array<Vote>;
+  /** Get a single access log, given its ID, or null if that access log does not exist. */
+  findOneAccessLog?: Maybe<AccessLog>;
+  /** Get a single alert log, given its ID, or null if that alert log does not exist. */
+  findOneAlertLog?: Maybe<AlertLog>;
+  /** Get a single asset, given its ID, or null if that asset does not exist. */
+  findOneAsset?: Maybe<Asset>;
+  /** Get a single audit log, given its ID, or null if that audit log does not exist. */
+  findOneAuditLog?: Maybe<AuditLog>;
+  /** Get a single blog post, given its ID, or null if that blog post does not exist. */
+  findOneBlogPost?: Maybe<BlogPost>;
+  /** Get a single category, given its ID, or null if that category does not exist. */
+  findOneCategory?: Maybe<Category>;
+  /** Get a single contact submission, given its ID, or null if that contact submission does not exist. */
+  findOneContactSubmission?: Maybe<ContactSubmission>;
+  /** Get a single contact submission assignee, given its ID, or null if that contact submission assignee does not exist. */
+  findOneContactSubmissionAssignee?: Maybe<ContactSubmissionAssignee>;
+  /** Get a single credit, given its ID, or null if that credit does not exist. */
+  findOneCredit?: Maybe<Credit>;
+  /** Get a single group, given its ID, or null if that group does not exist. */
+  findOneGroup?: Maybe<Group>;
+  /** Get a single group permission, given its ID, or null if that group permission does not exist. */
+  findOneGroupPermission?: Maybe<GroupPermission>;
+  /** Get a single image, given its ID, or null if that image does not exist. */
+  findOneImage?: Maybe<Image>;
+  /** Get a single person, given its ID, or null if that person does not exist. */
+  findOnePerson?: Maybe<Person>;
+  /** Get a single person-image pair, given its ID, or null if that person-image pair does not exist. */
+  findOnePersonImage?: Maybe<PersonImage>;
+  /** Get a single production, given its ID, or null if that production does not exist. */
+  findOneProduction?: Maybe<Production>;
+  /** Get a single production-image pair, given its ID, or null if that production-image pair does not exist. */
+  findOneProductionImage?: Maybe<ProductionImage>;
+  /** Get a single production RSVP, given its ID, or null if that production RSVP does not exist. */
+  findOneProductionRSVP?: Maybe<ProductionRsvp>;
+  /** Get a single production-video pair, given its ID, or null if that production-video pair does not exist. */
+  findOneProductionVideo?: Maybe<ProductionVideo>;
+  /** Get a single production, given its ID, or null if that redirect does not exist. */
+  findOneRedirect?: Maybe<Redirect>;
+  /** Get a single role, given its ID, or null if that role does not exist. */
+  findOneRole?: Maybe<Role>;
+  /** Get a single user given their ID, or null if that user does not exist. */
+  findOneUser?: Maybe<User>;
+  /** Get a single user-group pair, given its ID, or null if that user-group pair does not exist. */
+  findOneUserGroup?: Maybe<UserGroup>;
+  /** Get a single user permission, given its ID, or null if that user permission does not exist. */
+  findOneUserPermission?: Maybe<UserPermission>;
+  /** Get a single video, given its ID, or null if that video does not exist. */
+  findOneVideo?: Maybe<Video>;
+  /** Get a single vote, given its ID, or null if that vote does not exist. */
+  findOneVote?: Maybe<Vote>;
+  /** Get a single vote response, given its ID, or null if that vote response does not exist. */
+  findOneVoteResponse?: Maybe<VoteResponse>;
+  /** Get a single production tag, given its ID, or null if that production tag does not exist. */
+  fineOneProductionTag?: Maybe<ProductionTag>;
 };
 
 
-export type QueryAccessLogArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryAccessLogsArgs = {
+export type QueryFindManyAccessLogArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryAlertLogArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryAlertLogsArgs = {
+export type QueryFindManyAlertLogArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryAssetArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryAssetsArgs = {
+export type QueryFindManyAssetArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryAuditLogArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryAuditLogsArgs = {
+export type QueryFindManyAuditLogArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryBlogPostArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryBlogPostsArgs = {
+export type QueryFindManyBlogPostArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryCategoriesArgs = {
+export type QueryFindManyCategoryArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryCategoryArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryContactSubmissionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryContactSubmissionAssigneeArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryContactSubmissionAssigneesArgs = {
+export type QueryFindManyContactSubmissionArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryContactSubmissionsArgs = {
+export type QueryFindManyContactSubmissionAssigneeArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryCreditArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryCreditsArgs = {
+export type QueryFindManyCreditArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryGroupArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGroupPermissionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryGroupsArgs = {
+export type QueryFindManyGroupArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryImageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryImagesArgs = {
+export type QueryFindManyImageArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryPeopleArgs = {
+export type QueryFindManyPersonArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryPersonArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryPersonImageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryPersonImagesArgs = {
+export type QueryFindManyPersonImageArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryProductionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryProductionImageArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryProductionImagesArgs = {
+export type QueryFindManyProductionArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryProductionRsvpArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryProductionRsvPsArgs = {
+export type QueryFindManyProductionImageArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryProductionTagArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryProductionVideoArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryProductionVideosArgs = {
+export type QueryFindManyProductionRsvpArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryProductionsArgs = {
+export type QueryFindManyProductionVideoArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryRedirectArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryRedirectsArgs = {
+export type QueryFindManyRedirectArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryRoleArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryRolesArgs = {
+export type QueryFindManyRoleArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryUserArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryUserGroupArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryUserPermissionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryUsersArgs = {
+export type QueryFindManyUserArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryVideoArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryVideosArgs = {
+export type QueryFindManyVideoArgs = {
   pagination?: InputMaybe<Pagination>;
 };
 
 
-export type QueryVoteArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryVoteResponseArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryVotesArgs = {
+export type QueryFindManyVoteArgs = {
   pagination?: InputMaybe<Pagination>;
+};
+
+
+export type QueryFindOneAccessLogArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneAlertLogArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneAssetArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneAuditLogArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneBlogPostArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneCategoryArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneContactSubmissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneContactSubmissionAssigneeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneCreditArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneGroupArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneGroupPermissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOnePersonArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOnePersonImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneProductionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneProductionImageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneProductionRsvpArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneProductionVideoArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneRedirectArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneRoleArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneUserArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneUserGroupArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneUserPermissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneVideoArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneVoteArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFindOneVoteResponseArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryFineOneProductionTagArgs = {
+  id: Scalars['ID'];
 };
 
 export type Redirect = {
@@ -1806,7 +1806,8 @@ export type ResolversParentTypes = {
 
 export type AuthDirectiveArgs = {
   action: Scalars['String'];
-  subject: Scalars['String'];
+  field?: Maybe<Scalars['String']>;
+  subject?: Maybe<Scalars['String']>;
 };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
@@ -2113,55 +2114,55 @@ export type ProductionVideoResolvers<ContextType = any, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  accessLog?: Resolver<Maybe<ResolversTypes['AccessLog']>, ParentType, ContextType, RequireFields<QueryAccessLogArgs, 'id'>>;
-  accessLogs?: Resolver<Array<ResolversTypes['AccessLog']>, ParentType, ContextType, Partial<QueryAccessLogsArgs>>;
-  alertLog?: Resolver<Maybe<ResolversTypes['AlertLog']>, ParentType, ContextType, RequireFields<QueryAlertLogArgs, 'id'>>;
-  alertLogs?: Resolver<Array<ResolversTypes['AlertLog']>, ParentType, ContextType, Partial<QueryAlertLogsArgs>>;
-  asset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryAssetArgs, 'id'>>;
-  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, Partial<QueryAssetsArgs>>;
-  auditLog?: Resolver<Maybe<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryAuditLogArgs, 'id'>>;
-  auditLogs?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, Partial<QueryAuditLogsArgs>>;
-  blogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryBlogPostArgs, 'id'>>;
-  blogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryBlogPostsArgs>>;
-  categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
-  category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<QueryCategoryArgs, 'id'>>;
-  contactSubmission?: Resolver<Maybe<ResolversTypes['ContactSubmission']>, ParentType, ContextType, RequireFields<QueryContactSubmissionArgs, 'id'>>;
-  contactSubmissionAssignee?: Resolver<Maybe<ResolversTypes['ContactSubmissionAssignee']>, ParentType, ContextType, RequireFields<QueryContactSubmissionAssigneeArgs, 'id'>>;
-  contactSubmissionAssignees?: Resolver<Array<ResolversTypes['ContactSubmissionAssignee']>, ParentType, ContextType, Partial<QueryContactSubmissionAssigneesArgs>>;
-  contactSubmissions?: Resolver<Array<ResolversTypes['ContactSubmission']>, ParentType, ContextType, Partial<QueryContactSubmissionsArgs>>;
-  credit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<QueryCreditArgs, 'id'>>;
-  credits?: Resolver<Array<ResolversTypes['Credit']>, ParentType, ContextType, Partial<QueryCreditsArgs>>;
-  group?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType, RequireFields<QueryGroupArgs, 'id'>>;
-  groupPermission?: Resolver<Maybe<ResolversTypes['GroupPermission']>, ParentType, ContextType, RequireFields<QueryGroupPermissionArgs, 'id'>>;
-  groups?: Resolver<Array<ResolversTypes['Group']>, ParentType, ContextType, Partial<QueryGroupsArgs>>;
-  image?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<QueryImageArgs, 'id'>>;
-  images?: Resolver<Array<ResolversTypes['Image']>, ParentType, ContextType, Partial<QueryImagesArgs>>;
-  people?: Resolver<Array<ResolversTypes['Person']>, ParentType, ContextType, Partial<QueryPeopleArgs>>;
-  person?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<QueryPersonArgs, 'id'>>;
-  personImage?: Resolver<Maybe<ResolversTypes['PersonImage']>, ParentType, ContextType, RequireFields<QueryPersonImageArgs, 'id'>>;
-  personImages?: Resolver<Array<ResolversTypes['PersonImage']>, ParentType, ContextType, Partial<QueryPersonImagesArgs>>;
-  production?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<QueryProductionArgs, 'id'>>;
-  productionImage?: Resolver<Maybe<ResolversTypes['ProductionImage']>, ParentType, ContextType, RequireFields<QueryProductionImageArgs, 'id'>>;
-  productionImages?: Resolver<Array<ResolversTypes['ProductionImage']>, ParentType, ContextType, Partial<QueryProductionImagesArgs>>;
-  productionRSVP?: Resolver<Maybe<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, RequireFields<QueryProductionRsvpArgs, 'id'>>;
-  productionRSVPs?: Resolver<Array<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, Partial<QueryProductionRsvPsArgs>>;
-  productionTag?: Resolver<Maybe<ResolversTypes['ProductionTag']>, ParentType, ContextType, RequireFields<QueryProductionTagArgs, 'id'>>;
-  productionVideo?: Resolver<Maybe<ResolversTypes['ProductionVideo']>, ParentType, ContextType, RequireFields<QueryProductionVideoArgs, 'id'>>;
-  productionVideos?: Resolver<Array<ResolversTypes['ProductionVideo']>, ParentType, ContextType, Partial<QueryProductionVideosArgs>>;
-  productions?: Resolver<Array<ResolversTypes['Production']>, ParentType, ContextType, Partial<QueryProductionsArgs>>;
-  redirect?: Resolver<Maybe<ResolversTypes['Redirect']>, ParentType, ContextType, RequireFields<QueryRedirectArgs, 'id'>>;
-  redirects?: Resolver<Array<ResolversTypes['Redirect']>, ParentType, ContextType, Partial<QueryRedirectsArgs>>;
-  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryRoleArgs, 'id'>>;
-  roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType, Partial<QueryRolesArgs>>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
-  userGroup?: Resolver<Maybe<ResolversTypes['UserGroup']>, ParentType, ContextType, RequireFields<QueryUserGroupArgs, 'id'>>;
-  userPermission?: Resolver<Maybe<ResolversTypes['UserPermission']>, ParentType, ContextType, RequireFields<QueryUserPermissionArgs, 'id'>>;
-  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
-  video?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<QueryVideoArgs, 'id'>>;
-  videos?: Resolver<Array<ResolversTypes['Video']>, ParentType, ContextType, Partial<QueryVideosArgs>>;
-  vote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<QueryVoteArgs, 'id'>>;
-  voteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryVoteResponseArgs, 'id'>>;
-  votes?: Resolver<Array<ResolversTypes['Vote']>, ParentType, ContextType, Partial<QueryVotesArgs>>;
+  findManyAccessLog?: Resolver<Array<ResolversTypes['AccessLog']>, ParentType, ContextType, Partial<QueryFindManyAccessLogArgs>>;
+  findManyAlertLog?: Resolver<Array<ResolversTypes['AlertLog']>, ParentType, ContextType, Partial<QueryFindManyAlertLogArgs>>;
+  findManyAsset?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, Partial<QueryFindManyAssetArgs>>;
+  findManyAuditLog?: Resolver<Array<ResolversTypes['AuditLog']>, ParentType, ContextType, Partial<QueryFindManyAuditLogArgs>>;
+  findManyBlogPost?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryFindManyBlogPostArgs>>;
+  findManyCategory?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryFindManyCategoryArgs>>;
+  findManyContactSubmission?: Resolver<Array<ResolversTypes['ContactSubmission']>, ParentType, ContextType, Partial<QueryFindManyContactSubmissionArgs>>;
+  findManyContactSubmissionAssignee?: Resolver<Array<ResolversTypes['ContactSubmissionAssignee']>, ParentType, ContextType, Partial<QueryFindManyContactSubmissionAssigneeArgs>>;
+  findManyCredit?: Resolver<Array<ResolversTypes['Credit']>, ParentType, ContextType, Partial<QueryFindManyCreditArgs>>;
+  findManyGroup?: Resolver<Array<ResolversTypes['Group']>, ParentType, ContextType, Partial<QueryFindManyGroupArgs>>;
+  findManyImage?: Resolver<Array<ResolversTypes['Image']>, ParentType, ContextType, Partial<QueryFindManyImageArgs>>;
+  findManyPerson?: Resolver<Array<ResolversTypes['Person']>, ParentType, ContextType, Partial<QueryFindManyPersonArgs>>;
+  findManyPersonImage?: Resolver<Array<ResolversTypes['PersonImage']>, ParentType, ContextType, Partial<QueryFindManyPersonImageArgs>>;
+  findManyProduction?: Resolver<Array<ResolversTypes['Production']>, ParentType, ContextType, Partial<QueryFindManyProductionArgs>>;
+  findManyProductionImage?: Resolver<Array<ResolversTypes['ProductionImage']>, ParentType, ContextType, Partial<QueryFindManyProductionImageArgs>>;
+  findManyProductionRSVP?: Resolver<Array<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, Partial<QueryFindManyProductionRsvpArgs>>;
+  findManyProductionVideo?: Resolver<Array<ResolversTypes['ProductionVideo']>, ParentType, ContextType, Partial<QueryFindManyProductionVideoArgs>>;
+  findManyRedirect?: Resolver<Array<ResolversTypes['Redirect']>, ParentType, ContextType, Partial<QueryFindManyRedirectArgs>>;
+  findManyRole?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType, Partial<QueryFindManyRoleArgs>>;
+  findManyUser?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryFindManyUserArgs>>;
+  findManyVideo?: Resolver<Array<ResolversTypes['Video']>, ParentType, ContextType, Partial<QueryFindManyVideoArgs>>;
+  findManyVote?: Resolver<Array<ResolversTypes['Vote']>, ParentType, ContextType, Partial<QueryFindManyVoteArgs>>;
+  findOneAccessLog?: Resolver<Maybe<ResolversTypes['AccessLog']>, ParentType, ContextType, RequireFields<QueryFindOneAccessLogArgs, 'id'>>;
+  findOneAlertLog?: Resolver<Maybe<ResolversTypes['AlertLog']>, ParentType, ContextType, RequireFields<QueryFindOneAlertLogArgs, 'id'>>;
+  findOneAsset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryFindOneAssetArgs, 'id'>>;
+  findOneAuditLog?: Resolver<Maybe<ResolversTypes['AuditLog']>, ParentType, ContextType, RequireFields<QueryFindOneAuditLogArgs, 'id'>>;
+  findOneBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryFindOneBlogPostArgs, 'id'>>;
+  findOneCategory?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<QueryFindOneCategoryArgs, 'id'>>;
+  findOneContactSubmission?: Resolver<Maybe<ResolversTypes['ContactSubmission']>, ParentType, ContextType, RequireFields<QueryFindOneContactSubmissionArgs, 'id'>>;
+  findOneContactSubmissionAssignee?: Resolver<Maybe<ResolversTypes['ContactSubmissionAssignee']>, ParentType, ContextType, RequireFields<QueryFindOneContactSubmissionAssigneeArgs, 'id'>>;
+  findOneCredit?: Resolver<Maybe<ResolversTypes['Credit']>, ParentType, ContextType, RequireFields<QueryFindOneCreditArgs, 'id'>>;
+  findOneGroup?: Resolver<Maybe<ResolversTypes['Group']>, ParentType, ContextType, RequireFields<QueryFindOneGroupArgs, 'id'>>;
+  findOneGroupPermission?: Resolver<Maybe<ResolversTypes['GroupPermission']>, ParentType, ContextType, RequireFields<QueryFindOneGroupPermissionArgs, 'id'>>;
+  findOneImage?: Resolver<Maybe<ResolversTypes['Image']>, ParentType, ContextType, RequireFields<QueryFindOneImageArgs, 'id'>>;
+  findOnePerson?: Resolver<Maybe<ResolversTypes['Person']>, ParentType, ContextType, RequireFields<QueryFindOnePersonArgs, 'id'>>;
+  findOnePersonImage?: Resolver<Maybe<ResolversTypes['PersonImage']>, ParentType, ContextType, RequireFields<QueryFindOnePersonImageArgs, 'id'>>;
+  findOneProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<QueryFindOneProductionArgs, 'id'>>;
+  findOneProductionImage?: Resolver<Maybe<ResolversTypes['ProductionImage']>, ParentType, ContextType, RequireFields<QueryFindOneProductionImageArgs, 'id'>>;
+  findOneProductionRSVP?: Resolver<Maybe<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, RequireFields<QueryFindOneProductionRsvpArgs, 'id'>>;
+  findOneProductionVideo?: Resolver<Maybe<ResolversTypes['ProductionVideo']>, ParentType, ContextType, RequireFields<QueryFindOneProductionVideoArgs, 'id'>>;
+  findOneRedirect?: Resolver<Maybe<ResolversTypes['Redirect']>, ParentType, ContextType, RequireFields<QueryFindOneRedirectArgs, 'id'>>;
+  findOneRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryFindOneRoleArgs, 'id'>>;
+  findOneUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryFindOneUserArgs, 'id'>>;
+  findOneUserGroup?: Resolver<Maybe<ResolversTypes['UserGroup']>, ParentType, ContextType, RequireFields<QueryFindOneUserGroupArgs, 'id'>>;
+  findOneUserPermission?: Resolver<Maybe<ResolversTypes['UserPermission']>, ParentType, ContextType, RequireFields<QueryFindOneUserPermissionArgs, 'id'>>;
+  findOneVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<QueryFindOneVideoArgs, 'id'>>;
+  findOneVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<QueryFindOneVoteArgs, 'id'>>;
+  findOneVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryFindOneVoteResponseArgs, 'id'>>;
+  fineOneProductionTag?: Resolver<Maybe<ResolversTypes['ProductionTag']>, ParentType, ContextType, RequireFields<QueryFineOneProductionTagArgs, 'id'>>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {

@@ -1,6 +1,9 @@
 import {RawRuleOf, subject} from "@casl/ability";
-import {AbilitySubjects, GlimpseAbility} from "custom";
+import {AbilityActions, AbilitySubjects, GlimpseAbility} from "custom";
 import {User} from ".prisma/client";
+
+export
+type Permission = { action: AbilityActions, subject?: AbilitySubjects, field?: string };
 
 /**
  * Get the permissions for a specified user from the database. Also retrieves the permissions
