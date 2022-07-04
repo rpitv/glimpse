@@ -3,7 +3,15 @@ scalar JSONObject
 scalar EmailAddress
 scalar File
 
-directive @Auth(action: String!, subject: String!) repeatable on FIELD_DEFINITION
+"""
+Applies authorization requirements to a field, argument, input field, or to all fields on an object/input object.
+The current user must have the provided permission action, subject, and field. Subject and field are optional, but
+action is required. For type fields and input type fields, this checks permission against the actual inputted/outputted
+value, not the type. However for arguments, this only checks that the user has permission for SOME value of the given
+subject type. Typically, checking against the actual value doesn't make sense or isn't necessary. The same can be
+accomplished by applying @Auth directives to input fields, or worst case, checking within the resolver itself.
+"""
+directive @Auth(action: AbilityActions!, subject: AbilitySubjects, field: String) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION | OBJECT | INPUT_OBJECT
 """
 In the context of input types, a value being "required" is not sufficient enough to denote the difference between
 nullable and non-nullable fields. This directive resolves this issue. For fields which are not required, but when they
@@ -37,6 +45,44 @@ enum VideoFormat {
     EMBED
 }
 
+enum AbilitySubjects {
+    AccessLog
+    AlertLog
+    Asset
+    AuditLog
+    BlogPost
+    Category
+    ContactSubmissionAssignee
+    ContactSubmission
+    Credit
+    GroupPermission
+    Group
+    Image
+    Person
+    PersonImage
+    ProductionImage
+    ProductionRSVP
+    ProductionTag
+    ProductionVideo
+    Production
+    Redirect
+    Role
+    UserGroup
+    UserPermission
+    User
+    Video
+    VoteResponse
+    Vote
+}
+
+enum AbilityActions {
+    read
+    create
+    update
+    delete
+    manage
+}
+
 """
 Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
 used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
@@ -64,199 +110,199 @@ type Query {
     """
     Get a list of access logs which the user currently has access to read.
     """
-    accessLogs(pagination: Pagination): [AccessLog!]! @Auth(action: "read", subject: "AccessLog")
+    findManyAccessLog(pagination: Pagination @Auth(action: read, subject: AccessLog, field: "id")): [AccessLog!]! @Auth(action: read, subject: AccessLog)
     """
     Get a single access log, given its ID, or null if that access log does not exist.
     """
-    accessLog(id: ID!): AccessLog @Auth(action: "read", subject: "AccessLog")
+    findOneAccessLog(id: ID! @Auth(action: read, subject: AccessLog, field: "id")): AccessLog @Auth(action: read, subject: AccessLog)
     """
     Get a list of alert logs which the user currently has access to read.
     """
-    alertLogs(pagination: Pagination): [AlertLog!]! @Auth(action: "read", subject: "AlertLog")
+    findManyAlertLog(pagination: Pagination @Auth(action: read, subject: AlertLog, field: "id")): [AlertLog!]! @Auth(action: read, subject: AlertLog)
     """
     Get a single alert log, given its ID, or null if that alert log does not exist.
     """
-    alertLog(id: ID!): AlertLog @Auth(action: "read", subject: "AlertLog")
+    findOneAlertLog(id: ID! @Auth(action: read, subject: AlertLog, field: "id")): AlertLog @Auth(action: read, subject: AlertLog)
     """
     Get a list of assets which the user currently has access to read.
     """
-    assets(pagination: Pagination): [Asset!]! @Auth(action: "read", subject: "Asset")
+    findManyAsset(pagination: Pagination @Auth(action: read, subject: Asset, field: "id")): [Asset!]! @Auth(action: read, subject: Asset)
     """
     Get a single asset, given its ID, or null if that asset does not exist.
     """
-    asset(id: ID!): Asset @Auth(action: "read", subject: "Asset")
+    findOneAsset(id: ID! @Auth(action: read, subject: Asset, field: "id")): Asset @Auth(action: read, subject: Asset)
     """
     Get a list of audit logs which the user currently has access to read.
     """
-    auditLogs(pagination: Pagination): [AuditLog!]! @Auth(action: "read", subject: "AuditLog")
+    findManyAuditLog(pagination: Pagination @Auth(action: read, subject: AuditLog, field: "id")): [AuditLog!]! @Auth(action: read, subject: AuditLog)
     """
     Get a single audit log, given its ID, or null if that audit log does not exist.
     """
-    auditLog(id: ID!): AuditLog @Auth(action: "read", subject: "AuditLog")
+    findOneAuditLog(id: ID! @Auth(action: read, subject: AuditLog, field: "id")): AuditLog @Auth(action: read, subject: AuditLog)
     """
     Get a list of blog posts which the user currently has access to read.
     """
-    blogPosts(pagination: Pagination): [BlogPost!]! @Auth(action: "read", subject: "BlogPost")
+    findManyBlogPost(pagination: Pagination @Auth(action: read, subject: BlogPost, field: "id")): [BlogPost!]! @Auth(action: read, subject: BlogPost)
     """
     Get a single blog post, given its ID, or null if that blog post does not exist.
     """
-    blogPost(id: ID!): BlogPost @Auth(action: "read", subject: "BlogPost")
+    findOneBlogPost(id: ID! @Auth(action: read, subject: BlogPost, field: "id")): BlogPost @Auth(action: read, subject: BlogPost)
     """
     Get a list of categories which the user currently has access to read.
     """
-    categories(pagination: Pagination): [Category!]! @Auth(action: "read", subject: "Category")
+    findManyCategory(pagination: Pagination @Auth(action: read, subject: Category, field: "id")): [Category!]! @Auth(action: read, subject: Category)
     """
     Get a single category, given its ID, or null if that category does not exist.
     """
-    category(id: ID!): Category @Auth(action: "read", subject: "Category")
+    findOneCategory(id: ID! @Auth(action: read, subject: Category, field: "id")): Category @Auth(action: read, subject: Category)
     """
     Get a list of contact submission assignees which the user currently has access to read.
     """
-    contactSubmissionAssignees(pagination: Pagination): [ContactSubmissionAssignee!]! @Auth(action: "read", subject: "ContactSubmissionAssignee")
+    findManyContactSubmissionAssignee(pagination: Pagination @Auth(action: read, subject: ContactSubmissionAssignee, field: "id")): [ContactSubmissionAssignee!]! @Auth(action: read, subject: ContactSubmissionAssignee)
     """
     Get a single contact submission assignee, given its ID, or null if that contact submission assignee does not exist.
     """
-    contactSubmissionAssignee(id: ID!): ContactSubmissionAssignee @Auth(action: "read", subject: "ContactSubmissionAssignee")
+    findOneContactSubmissionAssignee(id: ID! @Auth(action: read, subject: ContactSubmissionAssignee, field: "id")): ContactSubmissionAssignee @Auth(action: read, subject: ContactSubmissionAssignee)
     """
     Get a list of contact submissions which the user currently has access to read.
     """
-    contactSubmissions(pagination: Pagination): [ContactSubmission!]! @Auth(action: "read", subject: "ContactSubmission")
+    findManyContactSubmission(pagination: Pagination @Auth(action: read, subject: ContactSubmission, field: "id")): [ContactSubmission!]! @Auth(action: read, subject: ContactSubmission)
     """
     Get a single contact submission, given its ID, or null if that contact submission does not exist.
     """
-    contactSubmission(id: ID!): ContactSubmission @Auth(action: "read", subject: "ContactSubmission")
+    findOneContactSubmission(id: ID! @Auth(action: read, subject: ContactSubmission, field: "id")): ContactSubmission @Auth(action: read, subject: ContactSubmission)
     """
     Get a list of credits which the user currently has access to read.
     """
-    credits(pagination: Pagination): [Credit!]! @Auth(action: "read", subject: "Credit")
+    findManyCredit(pagination: Pagination @Auth(action: read, subject: Credit, field: "id")): [Credit!]! @Auth(action: read, subject: Credit)
     """
     Get a single credit, given its ID, or null if that credit does not exist.
     """
-    credit(id: ID!): Credit @Auth(action: "read", subject: "Credit")
+    findOneCredit(id: ID! @Auth(action: read, subject: Credit, field: "id")): Credit @Auth(action: read, subject: Credit)
     """
     Get a single group permission, given its ID, or null if that group permission does not exist.
     """
-    groupPermission(id: ID!): GroupPermission @Auth(action: "read", subject: "GroupPermission")
+    findOneGroupPermission(id: ID! @Auth(action: read, subject: GroupPermission, field: "id")): GroupPermission @Auth(action: read, subject: GroupPermission)
     """
     Get a list of groups which the user currently has access to read.
     """
-    groups(pagination: Pagination): [Group!]! @Auth(action: "read", subject: "Group")
+    findManyGroup(pagination: Pagination @Auth(action: read, subject: Group, field: "id")): [Group!]! @Auth(action: read, subject: Group)
     """
     Get a single group, given its ID, or null if that group does not exist.
     """
-    group(id: ID!): Group @Auth(action: "read", subject: "Group")
+    findOneGroup(id: ID! @Auth(action: read, subject: Group, field: "id")): Group @Auth(action: read, subject: Group)
     """
     Get a list of images which the user currently has access to read.
     """
-    images(pagination: Pagination): [Image!]! @Auth(action: "read", subject: "Image")
+    findManyImage(pagination: Pagination @Auth(action: read, subject: Image, field: "id")): [Image!]! @Auth(action: read, subject: Image)
     """
     Get a single image, given its ID, or null if that image does not exist.
     """
-    image(id: ID!): Image @Auth(action: "read", subject: "Image")
+    findOneImage(id: ID! @Auth(action: read, subject: Image, field: "id")): Image @Auth(action: read, subject: Image)
     """
     Get a list of people which the user currently has access to read.
     """
-    people(pagination: Pagination): [Person!]! @Auth(action: "read", subject: "Person")
+    findManyPerson(pagination: Pagination @Auth(action: read, subject: Person, field: "id")): [Person!]! @Auth(action: read, subject: Person)
     """
     Get a single person, given its ID, or null if that person does not exist.
     """
-    person(id: ID!): Person @Auth(action: "read", subject: "Person")
+    findOnePerson(id: ID! @Auth(action: read, subject: Person, field: "id")): Person @Auth(action: read, subject: Person)
     """
     Get a list of person-image pairs which the user currently has access to read.
     """
-    personImages(pagination: Pagination): [PersonImage!]! @Auth(action: "read", subject: "PersonImage")
+    findManyPersonImage(pagination: Pagination @Auth(action: read, subject: PersonImage, field: "id")): [PersonImage!]! @Auth(action: read, subject: PersonImage)
     """
     Get a single person-image pair, given its ID, or null if that person-image pair does not exist.
     """
-    personImage(id: ID!): PersonImage @Auth(action: "read", subject: "PersonImage")
+    findOnePersonImage(id: ID! @Auth(action: read, subject: PersonImage, field: "id")): PersonImage @Auth(action: read, subject: PersonImage)
     """
     Get a list of production-image pairs which the user currently has access to read.
     """
-    productionImages(pagination: Pagination): [ProductionImage!]! @Auth(action: "read", subject: "ProductionImage")
+    findManyProductionImage(pagination: Pagination @Auth(action: read, subject: ProductionImage, field: "id")): [ProductionImage!]! @Auth(action: read, subject: ProductionImage)
     """
     Get a single production-image pair, given its ID, or null if that production-image pair does not exist.
     """
-    productionImage(id: ID!): ProductionImage @Auth(action: "read", subject: "ProductionImage")
+    findOneProductionImage(id: ID! @Auth(action: read, subject: ProductionImage, field: "id")): ProductionImage @Auth(action: read, subject: ProductionImage)
     """
     Get a list of production RSVPs which the user currently has access to read.
     """
-    productionRSVPs(pagination: Pagination): [ProductionRSVP!]! @Auth(action: "read", subject: "ProductionRSVP")
+    findManyProductionRSVP(pagination: Pagination @Auth(action: read, subject: ProductionRSVP, field: "id")): [ProductionRSVP!]! @Auth(action: read, subject: ProductionRSVP)
     """
     Get a single production RSVP, given its ID, or null if that production RSVP does not exist.
     """
-    productionRSVP(id: ID!): ProductionRSVP @Auth(action: "read", subject: "ProductionRSVP")
+    findOneProductionRSVP(id: ID! @Auth(action: read, subject: ProductionRSVP, field: "id")): ProductionRSVP @Auth(action: read, subject: ProductionRSVP)
     """
     Get a single production tag, given its ID, or null if that production tag does not exist.
     """
-    productionTag(id: ID!): ProductionTag @Auth(action: "read", subject: "ProductionTag")
+    fineOneProductionTag(id: ID! @Auth(action: read, subject: ProductionTag, field: "id")): ProductionTag @Auth(action: read, subject: ProductionTag)
     """
     Get a list of production-video pairs which the user currently has access to read.
     """
-    productionVideos(pagination: Pagination): [ProductionVideo!]! @Auth(action: "read", subject: "ProductionVideo")
+    findManyProductionVideo(pagination: Pagination @Auth(action: read, subject: ProductionVideo, field: "id")): [ProductionVideo!]! @Auth(action: read, subject: ProductionVideo)
     """
     Get a single production-video pair, given its ID, or null if that production-video pair does not exist.
     """
-    productionVideo(id: ID!): ProductionVideo @Auth(action: "read", subject: "ProductionVideo")
+    findOneProductionVideo(id: ID! @Auth(action: read, subject: ProductionVideo, field: "id")): ProductionVideo @Auth(action: read, subject: ProductionVideo)
     """
     Get a list of productions which the user currently has access to read.
     """
-    productions(pagination: Pagination): [Production!]! @Auth(action: "read", subject: "Production")
+    findManyProduction(pagination: Pagination @Auth(action: read, subject: Production, field: "id")): [Production!]! @Auth(action: read, subject: Production)
     """
     Get a single production, given its ID, or null if that production does not exist.
     """
-    production(id: ID!): Production @Auth(action: "read", subject: "Production")
+    findOneProduction(id: ID! @Auth(action: read, subject: Production, field: "id")): Production @Auth(action: read, subject: Production)
     """
     Get a list of redirects which the user currently has access to read.
     """
-    redirects(pagination: Pagination): [Redirect!]! @Auth(action: "read", subject: "Redirect")
+    findManyRedirect(pagination: Pagination @Auth(action: read, subject: Redirect, field: "id")): [Redirect!]! @Auth(action: read, subject: Redirect)
     """
     Get a single production, given its ID, or null if that redirect does not exist.
     """
-    redirect(id: ID!): Redirect @Auth(action: "read", subject: "Redirect")
+    findOneRedirect(id: ID! @Auth(action: read, subject: Redirect, field: "id")): Redirect @Auth(action: read, subject: Redirect)
     """
     Get a list of roles which the user currently has access to read.
     """
-    roles(pagination: Pagination): [Role!]! @Auth(action: "read", subject: "Role")
+    findManyRole(pagination: Pagination @Auth(action: read, subject: Role, field: "id")): [Role!]! @Auth(action: read, subject: Role)
     """
     Get a single role, given its ID, or null if that role does not exist.
     """
-    role(id: ID!): Role @Auth(action: "read", subject: "Role")
+    findOneRole(id: ID! @Auth(action: read, subject: Role, field: "id")): Role @Auth(action: read, subject: Role)
     """
     Get a single user-group pair, given its ID, or null if that user-group pair does not exist.
     """
-    userGroup(id: ID!): UserGroup @Auth(action: "read", subject: "UserGroup")
+    findOneUserGroup(id: ID! @Auth(action: read, subject: UserGroup, field: "id")): UserGroup @Auth(action: read, subject: UserGroup)
     """
     Get a single user permission, given its ID, or null if that user permission does not exist.
     """
-    userPermission(id: ID!): UserPermission @Auth(action: "read", subject: "UserPermission")
+    findOneUserPermission(id: ID! @Auth(action: read, subject: UserPermission, field: "id")): UserPermission @Auth(action: read, subject: UserPermission)
     """
     Get a list of users which the user currently has access to read.
     """
-    users(pagination: Pagination): [User!]! @Auth(action: "read", subject: "User")
+    findManyUser(pagination: Pagination @Auth(action: read, subject: User, field: "id")): [User!]! @Auth(action: read, subject: User)
     """
     Get a single user given their ID, or null if that user does not exist.
     """
-    user(id: ID!): User @Auth(action: "read", subject: "User")
+    findOneUser(id: ID! @Auth(action: read, subject: User, field: "id")): User @Auth(action: read, subject: User)
     """
     Get a list of videos which the user currently has access to read.
     """
-    videos(pagination: Pagination): [Video!]! @Auth(action: "read", subject: "Video")
+    findManyVideo(pagination: Pagination @Auth(action: read, subject: Video, field: "id")): [Video!]! @Auth(action: read, subject: Video)
     """
     Get a single video, given its ID, or null if that video does not exist.
     """
-    video(id: ID!): Video @Auth(action: "read", subject: "Video")
+    findOneVideo(id: ID! @Auth(action: read, subject: Video, field: "id")): Video @Auth(action: read, subject: Video)
     """
     Get a single vote response, given its ID, or null if that vote response does not exist.
     """
-    voteResponse(id: ID!): VoteResponse @Auth(action: "read", subject: "VoteResponse")
+    findOneVoteResponse(id: ID! @Auth(action: read, subject: VoteResponse, field: "id")): VoteResponse @Auth(action: read, subject: VoteResponse)
     """
     Get a list of votes which the user currently has access to read.
     """
-    votes(pagination: Pagination): [Vote!]! @Auth(action: "read", subject: "Vote")
+    findManyVote(pagination: Pagination @Auth(action: read, subject: Vote, field: "id")): [Vote!]! @Auth(action: read, subject: Vote)
     """
     Get a single vote, given its ID, or null if that vote does not exist.
     """
-    vote(id: ID!): Vote @Auth(action: "read", subject: "Vote")
+    findOneVote(id: ID! @Auth(action: read, subject: Vote, field: "id")): Vote @Auth(action: read, subject: Vote)
 }
 
 type Mutation {
@@ -266,926 +312,926 @@ type Mutation {
     """
     Create a new AlertLog with the given input values.
     """
-    createAlertLog(input: AlertLogCreateInput!): AlertLog! @Auth(action: "create", subject: "AlertLog")
+    createAlertLog(input: AlertLogCreateInput!): AlertLog! @Auth(action: create, subject: AlertLog)
 
     """
     Create a new Asset with the given input values.
     """
-    createAsset(input: AssetCreateInput!): Asset! @Auth(action: "create", subject: "Asset")
+    createAsset(input: AssetCreateInput!): Asset! @Auth(action: create, subject: Asset)
     """
     Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist.
     """
-    updateAsset(id: ID!, input: AssetUpdateInput!): Asset! @Auth(action: "update", subject: "Asset")
+    updateAsset(id: ID! @Auth(action: read, subject: Asset, field: "id"), input: AssetUpdateInput!): Asset! @Auth(action: update, subject: Asset)
     """
     Delete the Asset with the provided ID, if it exists. Returns null if the Asset does not exist, otherwise returns the deleted object.
     """
-    deleteAsset(id: ID!): Asset @Auth(action: "delete", subject: "Asset")
+    deleteAsset(id: ID!): Asset @Auth(action: delete, subject: Asset)
 
     # Audit logs cannot be created, deleted, or updated.
 
     """
     Create a new BlogPost with the given input values.
     """
-    createBlogPost(input: BlogPostCreateInput!): BlogPost! @Auth(action: "create", subject: "BlogPost")
+    createBlogPost(input: BlogPostCreateInput!): BlogPost! @Auth(action: create, subject: BlogPost)
     """
     Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist.
     """
-    updateBlogPost(id: ID!, input: BlogPostUpdateInput!): BlogPost! @Auth(action: "update", subject: "BlogPost")
+    updateBlogPost(id: ID! @Auth(action: read, subject: BlogPost, field: "id"), input: BlogPostUpdateInput!): BlogPost! @Auth(action: update, subject: BlogPost)
     """
     Delete the BlogPost with the provided ID, if it exists. Returns null if the BlogPost does not exist, otherwise returns the deleted object.
     """
-    deleteBlogPost(id: ID!): BlogPost @Auth(action: "delete", subject: "BlogPost")
+    deleteBlogPost(id: ID!): BlogPost @Auth(action: delete, subject: BlogPost)
 
     """
     Create a new Category with the given input values.
     """
-    createCategory(input: CategoryCreateInput!): Category! @Auth(action: "create", subject: "Category")
+    createCategory(input: CategoryCreateInput!): Category! @Auth(action: create, subject: Category)
     """
     Update the Category with the provided ID to have the passed values. Throws an error if Category with ID does not exist.
     """
-    updateCategory(id: ID!, input: CategoryUpdateInput!): Category! @Auth(action: "update", subject: "Category")
+    updateCategory(id: ID! @Auth(action: read, subject: Category, field: "id"), input: CategoryUpdateInput!): Category! @Auth(action: update, subject: Category)
     """
     Delete the Category with the provided ID, if it exists. Returns null if the Category does not exist, otherwise returns the deleted object.
     """
-    deleteCategory(id: ID!): Category @Auth(action: "delete", subject: "Category")
+    deleteCategory(id: ID!): Category @Auth(action: delete, subject: Category)
 
     # Contact submission assignees cannot be updated. Delete and recreate instead.
     """
     Create a new ContactSubmissionAssignee with the given input values.
     """
-    createContactSubmissionAssignee(input: ContactSubmissionAssigneeCreateInput!): ContactSubmissionAssignee! @Auth(action: "create", subject: "ContactSubmissionAssignee")
+    createContactSubmissionAssignee(input: ContactSubmissionAssigneeCreateInput!): ContactSubmissionAssignee! @Auth(action: create, subject: ContactSubmissionAssignee)
     """
     Delete the ContactSubmissionAssignee with the provided ID, if it exists. Returns null if the ContactSubmissionAssignee does not exist, otherwise returns the deleted object.
     """
-    deleteContactSubmissionAssignee(id: ID!): ContactSubmissionAssignee @Auth(action: "delete", subject: "ContactSubmissionAssignee")
+    deleteContactSubmissionAssignee(id: ID!): ContactSubmissionAssignee @Auth(action: delete, subject: ContactSubmissionAssignee)
 
     """
     Create a new ContactSubmission with the given input values.
     """
-    createContactSubmission(input: ContactSubmissionCreateInput!): ContactSubmission! @Auth(action: "create", subject: "ContactSubmission")
+    createContactSubmission(input: ContactSubmissionCreateInput!): ContactSubmission! @Auth(action: create, subject: ContactSubmission)
     """
     Update the ContactSubmission with the provided ID to have the passed values. Throws an error if ContactSubmission with ID does not exist.
     """
-    updateContactSubmission(id: ID!, input: ContactSubmissionUpdateInput!): ContactSubmission! @Auth(action: "update", subject: "ContactSubmission")
+    updateContactSubmission(id: ID! @Auth(action: read, subject: ContactSubmission, field: "id"), input: ContactSubmissionUpdateInput!): ContactSubmission! @Auth(action: update, subject: ContactSubmission)
     """
     Delete the ContactSubmission with the provided ID, if it exists. Returns null if the ContactSubmission does not exist, otherwise returns the deleted object.
     """
-    deleteContactSubmission(id: ID!): ContactSubmission @Auth(action: "delete", subject: "ContactSubmission")
+    deleteContactSubmission(id: ID!): ContactSubmission @Auth(action: delete, subject: ContactSubmission)
 
     """
     Create a new Credit with the given input values.
     """
-    createCredit(input: CreditCreateInput!): Credit! @Auth(action: "create", subject: "Credit")
+    createCredit(input: CreditCreateInput!): Credit! @Auth(action: create, subject: Credit)
     """
     Update the Credit with the provided ID to have the passed values. Throws an error if Credit with ID does not exist.
     """
-    updateCredit(id: ID!, input: CreditUpdateInput!): Credit! @Auth(action: "update", subject: "Credit")
+    updateCredit(id: ID! @Auth(action: read, subject: Credit, field: "id"), input: CreditUpdateInput!): Credit! @Auth(action: update, subject: Credit)
     """
     Delete the Credit with the provided ID, if it exists. Returns null if the Credit does not exist, otherwise returns the deleted object.
     """
-    deleteCredit(id: ID!): Credit @Auth(action: "delete", subject: "Credit")
+    deleteCredit(id: ID!): Credit @Auth(action: delete, subject: Credit)
 
     """
     Create a new GroupPermission with the given input values.
     """
-    createGroupPermission(input: GroupPermissionCreateInput!): GroupPermission! @Auth(action: "create", subject: "GroupPermission")
+    createGroupPermission(input: GroupPermissionCreateInput!): GroupPermission! @Auth(action: create, subject: GroupPermission)
     """
     Update the GroupPermission with the provided ID to have the passed values. Throws an error if GroupPermission with ID does not exist.
     """
-    updateGroupPermission(id: ID!, input: GroupPermissionUpdateInput!): GroupPermission! @Auth(action: "update", subject: "GroupPermission")
+    updateGroupPermission(id: ID! @Auth(action: read, subject: GroupPermission, field: "id"), input: GroupPermissionUpdateInput!): GroupPermission! @Auth(action: update, subject: GroupPermission)
     """
     Delete the GroupPermission with the provided ID, if it exists. Returns null if the GroupPermission does not exist, otherwise returns the deleted object.
     """
-    deleteGroupPermission(id: ID!): GroupPermission @Auth(action: "delete", subject: "GroupPermission")
+    deleteGroupPermission(id: ID!): GroupPermission @Auth(action: delete, subject: GroupPermission)
 
     """
     Create a new Group with the given input values.
     """
-    createGroup(input: GroupCreateInput!): Group! @Auth(action: "create", subject: "Group")
+    createGroup(input: GroupCreateInput!): Group! @Auth(action: create, subject: Group)
     """
     Update the Group with the provided ID to have the passed values. Throws an error if Group with ID does not exist.
     """
-    updateGroup(id: ID!, input: GroupUpdateInput!): Group! @Auth(action: "update", subject: "Group")
+    updateGroup(id: ID! @Auth(action: read, subject: Group, field: "id"), input: GroupUpdateInput!): Group! @Auth(action: update, subject: Group)
     """
     Delete the Group with the provided ID, if it exists. Returns null if the Group does not exist, otherwise returns the deleted object.
     """
-    deleteGroup(id: ID!): Group @Auth(action: "delete", subject: "Group")
+    deleteGroup(id: ID!): Group @Auth(action: delete, subject: Group)
 
     """
     Create a new Image with the given input values.
     """
-    createImage(input: ImageCreateInput!): Image! @Auth(action: "create", subject: "Image")
+    createImage(input: ImageCreateInput!): Image! @Auth(action: create, subject: Image)
     """
     Update the Image with the provided ID to have the passed values. Throws an error if Image with ID does not exist.
     """
-    updateImage(id: ID!, input: ImageUpdateInput!): Image! @Auth(action: "update", subject: "Image")
+    updateImage(id: ID! @Auth(action: read, subject: Image, field: "id"), input: ImageUpdateInput!): Image! @Auth(action: update, subject: Image)
     """
     Delete the Image with the provided ID, if it exists. Returns null if the Image does not exist, otherwise returns the deleted object.
     """
-    deleteImage(id: ID!): Image @Auth(action: "delete", subject: "Image")
+    deleteImage(id: ID!): Image @Auth(action: delete, subject: Image)
 
     """
     Create a new Person with the given input values.
     """
-    createPerson(input: PersonCreateInput!): Person! @Auth(action: "create", subject: "Person")
+    createPerson(input: PersonCreateInput!): Person! @Auth(action: create, subject: Person)
     """
     Update the Person with the provided ID to have the passed values. Throws an error if Person with ID does not exist.
     """
-    updatePerson(id: ID!, input: PersonUpdateInput!): Person! @Auth(action: "update", subject: "Person")
+    updatePerson(id: ID! @Auth(action: read, subject: Person, field: "id"), input: PersonUpdateInput!): Person! @Auth(action: update, subject: Person)
     """
     Delete the Person with the provided ID, if it exists. Returns null if the Person does not exist, otherwise returns the deleted object.
     """
-    deletePerson(id: ID!): Person @Auth(action: "delete", subject: "Person")
+    deletePerson(id: ID!): Person @Auth(action: delete, subject: Person)
 
     """
     Create a new PersonImage with the given input values.
     """
-    createPersonImage(input: PersonImageCreateInput!): PersonImage! @Auth(action: "create", subject: "PersonImage")
+    createPersonImage(input: PersonImageCreateInput!): PersonImage! @Auth(action: create, subject: PersonImage)
     """
     Update the PersonImage with the provided ID to have the passed values. Throws an error if PersonImage with ID does not exist.
     """
-    updatePersonImage(id: ID!, input: PersonImageUpdateInput!): PersonImage! @Auth(action: "update", subject: "PersonImage")
+    updatePersonImage(id: ID! @Auth(action: read, subject: PersonImage, field: "id"), input: PersonImageUpdateInput!): PersonImage! @Auth(action: update, subject: PersonImage)
     """
     Delete the PersonImage with the provided ID, if it exists. Returns null if the PersonImage does not exist, otherwise returns the deleted object.
     """
-    deletePersonImage(id: ID!): PersonImage @Auth(action: "delete", subject: "PersonImage")
+    deletePersonImage(id: ID!): PersonImage @Auth(action: delete, subject: PersonImage)
 
     """
     Create a new ProductionImage with the given input values.
     """
-    createProductionImage(input: ProductionImageCreateInput!): ProductionImage! @Auth(action: "create", subject: "ProductionImage")
+    createProductionImage(input: ProductionImageCreateInput!): ProductionImage! @Auth(action: create, subject: ProductionImage)
     """
     Update the ProductionImage with the provided ID to have the passed values. Throws an error if ProductionImage with ID does not exist.
     """
-    updateProductionImage(id: ID!, input: ProductionImageUpdateInput!): ProductionImage! @Auth(action: "update", subject: "ProductionImage")
+    updateProductionImage(id: ID! @Auth(action: read, subject: ProductionImage, field: "id"), input: ProductionImageUpdateInput!): ProductionImage! @Auth(action: update, subject: ProductionImage)
     """
     Delete the ProductionImage with the provided ID, if it exists. Returns null if the ProductionImage does not exist, otherwise returns the deleted object.
     """
-    deleteProductionImage(id: ID!): ProductionImage @Auth(action: "delete", subject: "ProductionImage")
+    deleteProductionImage(id: ID!): ProductionImage @Auth(action: delete, subject: ProductionImage)
 
     """
     Create a new ProductionRSVP with the given input values.
     """
-    createProductionRSVP(input: ProductionRSVPCreateInput!): ProductionRSVP! @Auth(action: "create", subject: "ProductionRSVP")
+    createProductionRSVP(input: ProductionRSVPCreateInput!): ProductionRSVP! @Auth(action: create, subject: ProductionRSVP)
     """
     Update the ProductionRSVP with the provided ID to have the passed values. Throws an error if ProductionRSVP with ID does not exist.
     """
-    updateProductionRSVP(id: ID!, input: ProductionRSVPUpdateInput!): ProductionRSVP! @Auth(action: "update", subject: "ProductionRSVP")
+    updateProductionRSVP(id: ID! @Auth(action: read, subject: ProductionRSVP, field: "id"), input: ProductionRSVPUpdateInput!): ProductionRSVP! @Auth(action: update, subject: ProductionRSVP)
     """
     Delete the ProductionRSVP with the provided ID, if it exists. Returns null if the ProductionRSVP does not exist, otherwise returns the deleted object.
     """
-    deleteProductionRSVP(id: ID!): ProductionRSVP @Auth(action: "delete", subject: "ProductionRSVP")
+    deleteProductionRSVP(id: ID!): ProductionRSVP @Auth(action: delete, subject: ProductionRSVP)
 
     # Production tags cannot be updated. Delete and recreate instead.
     """
     Create a new ProductionTag with the given input values.
     """
-    createProductionTag(input: ProductionTagCreateInput!): ProductionTag! @Auth(action: "create", subject: "ProductionTag")
+    createProductionTag(input: ProductionTagCreateInput!): ProductionTag! @Auth(action: create, subject: ProductionTag)
     """
     Delete the ProductionTag with the provided ID, if it exists. Returns null if the ProductionTag does not exist, otherwise returns the deleted object.
     """
-    deleteProductionTag(id: ID!): ProductionTag @Auth(action: "delete", subject: "ProductionTag")
+    deleteProductionTag(id: ID!): ProductionTag @Auth(action: delete, subject: ProductionTag)
 
     """
     Create a new ProductionVideo with the given input values.
     """
-    createProductionVideo(input: ProductionVideoCreateInput!): ProductionVideo! @Auth(action: "create", subject: "ProductionVideo")
+    createProductionVideo(input: ProductionVideoCreateInput!): ProductionVideo! @Auth(action: create, subject: ProductionVideo)
     """
     Update the ProductionVideo with the provided ID to have the passed values. Throws an error if ProductionVideo with ID does not exist.
     """
-    updateProductionVideo(id: ID!, input: ProductionVideoUpdateInput!): ProductionVideo! @Auth(action: "update", subject: "ProductionVideo")
+    updateProductionVideo(id: ID! @Auth(action: read, subject: ProductionVideo, field: "id"), input: ProductionVideoUpdateInput!): ProductionVideo! @Auth(action: update, subject: ProductionVideo)
     """
     Delete the ProductionVideo with the provided ID, if it exists. Returns null if the ProductionVideo does not exist, otherwise returns the deleted object.
     """
-    deleteProductionVideo(id: ID!): ProductionVideo @Auth(action: "delete", subject: "ProductionVideo")
+    deleteProductionVideo(id: ID!): ProductionVideo @Auth(action: delete, subject: ProductionVideo)
 
     """
     Create a new Production with the given input values.
     """
-    createProduction(input: ProductionCreateInput!): Production! @Auth(action: "create", subject: "Production")
+    createProduction(input: ProductionCreateInput!): Production! @Auth(action: create, subject: Production)
     """
     Update the Production with the provided ID to have the passed values. Throws an error if Production with ID does not exist.
     """
-    updateProduction(id: ID!, input: ProductionUpdateInput!): Production! @Auth(action: "update", subject: "Production")
+    updateProduction(id: ID! @Auth(action: read, subject: Production, field: "id"), input: ProductionUpdateInput!): Production! @Auth(action: update, subject: Production)
     """
     Delete the Production with the provided ID, if it exists. Returns null if the Production does not exist, otherwise returns the deleted object.
     """
-    deleteProduction(id: ID!): Production @Auth(action: "delete", subject: "Production")
+    deleteProduction(id: ID!): Production @Auth(action: delete, subject: Production)
 
     """
     Create a new Redirect with the given input values.
     """
-    createRedirect(input: RedirectCreateInput!): Redirect! @Auth(action: "create", subject: "Redirect")
+    createRedirect(input: RedirectCreateInput!): Redirect! @Auth(action: create, subject: Redirect)
     """
     Update the Redirect with the provided ID to have the passed values. Throws an error if Redirect with ID does not exist.
     """
-    updateRedirect(id: ID!, input: RedirectUpdateInput!): Redirect! @Auth(action: "update", subject: "Redirect")
+    updateRedirect(id: ID! @Auth(action: read, subject: Redirect, field: "id"), input: RedirectUpdateInput!): Redirect! @Auth(action: update, subject: Redirect)
     """
     Delete the Redirect with the provided ID, if it exists. Returns null if the Redirect does not exist, otherwise returns the deleted object.
     """
-    deleteRedirect(id: ID!): Redirect @Auth(action: "delete", subject: "Redirect")
+    deleteRedirect(id: ID!): Redirect @Auth(action: delete, subject: Redirect)
 
     """
     Create a new Role with the given input values.
     """
-    createRole(input: RoleCreateInput!): Role! @Auth(action: "create", subject: "Role")
+    createRole(input: RoleCreateInput!): Role! @Auth(action: create, subject: Role)
     """
     Update the Role with the provided ID to have the passed values. Throws an error if Role with ID does not exist.
     """
-    updateRole(id: ID!, input: RoleUpdateInput!): Role! @Auth(action: "update", subject: "Role")
+    updateRole(id: ID! @Auth(action: read, subject: Role, field: "id"), input: RoleUpdateInput!): Role! @Auth(action: update, subject: Role)
     """
     Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object.
     """
-    deleteRole(id: ID!): Role @Auth(action: "delete", subject: "Role")
+    deleteRole(id: ID!): Role @Auth(action: delete, subject: Role)
 
     # User groups cannot be updated. Delete and recreate instead.
     """
     Create a new user-group pair with the given input values.
     """
-    createUserGroup(input: UserGroupCreateInput!): UserGroup! @Auth(action: "create", subject: "UserGroup")
+    createUserGroup(input: UserGroupCreateInput!): UserGroup! @Auth(action: create, subject: UserGroup)
     """
     Delete the UserGroup with the provided ID, if it exists. Returns null if the UserGroup does not exist, otherwise returns the deleted object.
     """
-    deleteUserGroup(id: ID!): UserGroup @Auth(action: "delete", subject: "UserGroup")
+    deleteUserGroup(id: ID!): UserGroup @Auth(action: delete, subject: UserGroup)
 
     """
     Create a new UserPermission with the given input values. The User creating the Permission must also have the Permission that's being created.
     """
-    createUserPermission(input: UserPermissionCreateInput!): UserPermission! @Auth(action: "create", subject: "UserPermission")
+    createUserPermission(input: UserPermissionCreateInput!): UserPermission! @Auth(action: create, subject: UserPermission)
     """
     Update the UserPermission with the provided ID to have the passed values. Throws an error if UserPermission with ID does not exist. The User updating the Permission must also have the Permission that's being update to and from..
     """
-    updateUserPermission(id: ID!, input: UserPermissionUpdateInput!): UserPermission! @Auth(action: "update", subject: "UserPermission")
+    updateUserPermission(id: ID! @Auth(action: read, subject: UserPermission, field: "id"), input: UserPermissionUpdateInput!): UserPermission! @Auth(action: update, subject: UserPermission)
     """
     Delete the UserPermission with the provided ID, if it exists. Returns null if the UserPermission does not exist, otherwise returns the deleted object.
     """
-    deleteUserPermission(id: ID!): UserPermission @Auth(action: "delete", subject: "UserPermission")
+    deleteUserPermission(id: ID!): UserPermission @Auth(action: delete, subject: UserPermission)
 
     """
     Create a new User with the given input values.
     """
-    createUser(input: UserCreateInput!): User! @Auth(action: "create", subject: "User")
+    createUser(input: UserCreateInput!): User! @Auth(action: create, subject: User)
     """
     Update the User with the provided ID to have the passed values. Throws an error if User with ID does not exist.
     """
-    updateUser(id: ID!, input: UserUpdateInput!): User! @Auth(action: "update", subject: "User")
+    updateUser(id: ID! @Auth(action: read, subject: User, field: "id"), input: UserUpdateInput!): User! @Auth(action: update, subject: User)
     """
     Delete the User with the provided ID, if it exists. Returns null if the User does not exist, otherwise returns the deleted object.
     """
-    deleteUser(id: ID!): User @Auth(action: "delete", subject: "User")
+    deleteUser(id: ID!): User @Auth(action: delete, subject: User)
 
     """
     Create a new Video with the given input values.
     """
-    createVideo(input: VideoCreateInput!): Video! @Auth(action: "create", subject: "Video")
+    createVideo(input: VideoCreateInput!): Video! @Auth(action: create, subject: Video)
     """
     Update the Video with the provided ID to have the passed values. Throws an error if Video with ID does not exist.
     """
-    updateVideo(id: ID!, input: VideoUpdateInput!): Video! @Auth(action: "update", subject: "Video")
+    updateVideo(id: ID! @Auth(action: read, subject: Video, field: "id"), input: VideoUpdateInput!): Video! @Auth(action: update, subject: Video)
     """
     Delete the Video with the provided ID, if it exists. Returns null if the Video does not exist, otherwise returns the deleted object.
     """
-    deleteVideo(id: ID!): Video @Auth(action: "delete", subject: "Video")
+    deleteVideo(id: ID!): Video @Auth(action: delete, subject: Video)
 
     """
     Create a new VoteResponse with the given input values.
     """
-    createVoteResponse(input: VoteResponseCreateInput!): VoteResponse! @Auth(action: "create", subject: "VoteResponse")
+    createVoteResponse(input: VoteResponseCreateInput!): VoteResponse! @Auth(action: create, subject: VoteResponse)
     """
     Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist.
     """
-    updateVoteResponse(id: ID!, input: VoteResponseUpdateInput!): VoteResponse! @Auth(action: "update", subject: "VoteResponse")
+    updateVoteResponse(id: ID! @Auth(action: read, subject: VoteResponse, field: "id"), input: VoteResponseUpdateInput!): VoteResponse! @Auth(action: update, subject: VoteResponse)
     """
     Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object.
     """
-    deleteVoteResponse(id: ID!): VoteResponse @Auth(action: "delete", subject: "VoteResponse")
+    deleteVoteResponse(id: ID!): VoteResponse @Auth(action: delete, subject: VoteResponse)
 
     """
     Create a new Vote with the given input values.
     """
-    createVote(input: VoteCreateInput!): Vote! @Auth(action: "create", subject: "Vote")
+    createVote(input: VoteCreateInput!): Vote! @Auth(action: create, subject: Vote)
     """
     Update the Vote with the provided ID to have the passed values. Throws an error if Vote with ID does not exist.
     """
-    updateVote(id: ID!, input: VoteUpdateInput!): Vote! @Auth(action: "update", subject: "Vote")
+    updateVote(id: ID! @Auth(action: read, subject: Vote, field: "id"), input: VoteUpdateInput!): Vote! @Auth(action: update, subject: Vote)
     """
     Delete the Vote with the provided ID, if it exists. Returns null if the Vote does not exist, otherwise returns the deleted object.
     """
-    deleteVote(id: ID!): Vote @Auth(action: "delete", subject: "Vote")
+    deleteVote(id: ID!): Vote @Auth(action: delete, subject: Vote)
 }
 
 type AccessLog {
-    id: ID! @Auth(action: "read", subject: "AccessLog")
-    user: User! @Auth(action: "read", subject: "AccessLog")
-    service: String! @Auth(action: "read", subject: "AccessLog")
-    timestamp: DateTime! @Auth(action: "read", subject: "AccessLog")
-    ip: String @Auth(action: "read", subject: "AccessLog")
+    id: ID! @Auth(action: read, subject: AccessLog, field: "id")
+    user: User! @Auth(action: read, subject: AccessLog, field: "user") @Auth(action: read, subject: User)
+    service: String! @Auth(action: read, subject: AccessLog, field: "service")
+    timestamp: DateTime! @Auth(action: read, subject: AccessLog, field: "timestamp")
+    ip: String @Auth(action: read, subject: AccessLog, field: "ip")
 }
 
 type AlertLog {
-    id: ID! @Auth(action: "read", subject: "AlertLog")
-    message: String! @Auth(action: "read", subject: "AlertLog")
-    severity: AlertLogSeverity! @Auth(action: "read", subject: "AlertLog")
-    timestamp: DateTime! @Auth(action: "read", subject: "AlertLog")
+    id: ID! @Auth(action: read, subject: AlertLog, field: "id")
+    message: String! @Auth(action: read, subject: AlertLog, field: "message")
+    severity: AlertLogSeverity! @Auth(action: read, subject: AlertLog, field: "severity")
+    timestamp: DateTime! @Auth(action: read, subject: AlertLog, field: "timestamp")
 }
 
 input AlertLogCreateInput {
-    message: String! @NonNull
-    severity: AlertLogSeverity! @NonNull
+    message: String! @NonNull @Auth(action: create, subject: AlertLog, field: "message")
+    severity: AlertLogSeverity! @NonNull @Auth(action: create, subject: AlertLog, field: "severity")
 }
 
 type Asset {
-    id: ID! @Auth(action: "read", subject: "Asset")
-    tag: Int @Auth(action: "read", subject: "Asset")
-    name: String! @Auth(action: "read", subject: "Asset")
-    lastKnownLocation: String @Auth(action: "read", subject: "Asset")
-    lastKnownHandler: User @Auth(action: "read", subject: "Asset")
-    isLost: Boolean! @Auth(action: "read", subject: "Asset")
-    notes: String @Auth(action: "read", subject: "Asset")
-    purchasePrice: Int @Auth(action: "read", subject: "Asset")
-    purchaseLocation: String @Auth(action: "read", subject: "Asset")
-    purchaseDate: DateTime @Auth(action: "read", subject: "Asset")
-    modelNumber: String @Auth(action: "read", subject: "Asset")
-    serialNumber: String @Auth(action: "read", subject: "Asset")
-    parent: Asset @Auth(action: "read", subject: "Asset")
-    children: [Asset!] @Auth(action: "read", subject: "Asset")
+    id: ID! @Auth(action: read, subject: Asset, field: "id")
+    tag: Int @Auth(action: read, subject: Asset, field: "tag")
+    name: String! @Auth(action: read, subject: Asset, field: "name")
+    lastKnownLocation: String @Auth(action: read, subject: Asset, field: "lastKnownLocation")
+    lastKnownHandler: User @Auth(action: read, subject: Asset, field: "lastKnownHandler")  @Auth(action: read, subject: User)
+    isLost: Boolean! @Auth(action: read, subject: Asset, field: "isLost")
+    notes: String @Auth(action: read, subject: Asset, field: "notes")
+    purchasePrice: Int @Auth(action: read, subject: Asset, field: "purchasePrice")
+    purchaseLocation: String @Auth(action: read, subject: Asset, field: "purchaseLocation")
+    purchaseDate: DateTime @Auth(action: read, subject: Asset, field: "purchaseDate")
+    modelNumber: String @Auth(action: read, subject: Asset, field: "modelNumber")
+    serialNumber: String @Auth(action: read, subject: Asset, field: "serialNumber")
+    parent: Asset @Auth(action: read, subject: Asset, field: "parent")
+    children: [Asset!] @Auth(action: read, subject: Asset, field: "children")
 }
 
 input AssetCreateInput {
-    tag: Int
-    name: String! @NonNull
-    lastKnownLocation: String
-    lastKnownHandler: ID
+    tag: Int @NonNull @Auth(action: create, subject: Asset, field: "tag")
+    name: String! @NonNull @Auth(action: create, subject: Asset, field: "name")
+    lastKnownLocation: String @Auth(action: create, subject: Asset, field: "lastKnownLocation")
+    lastKnownHandler: ID @Auth(action: create, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
     """Defaults to false."""
-    isLost: Boolean! = false @NonNull
-    notes: String
-    purchasePrice: Int
-    purchaseLocation: String
-    purchaseDate: DateTime
-    modelNumber: String
-    serialNumber: String
-    parent: ID
+    isLost: Boolean! = false @NonNull @Auth(action: create, subject: Asset, field: "isLost")
+    notes: String @Auth(action: create, subject: Asset, field: "notes")
+    purchasePrice: Int @Auth(action: create, subject: Asset, field: "purchasePrice")
+    purchaseLocation: String @Auth(action: create, subject: Asset, field: "purchaseLocation")
+    purchaseDate: DateTime @Auth(action: create, subject: Asset, field: "purchaseDate")
+    modelNumber: String @Auth(action: create, subject: Asset, field: "modelNumber")
+    serialNumber: String @Auth(action: create, subject: Asset, field: "serialNumber")
+    parent: ID @Auth(action: create, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
 }
 
 input AssetUpdateInput {
-    tag: Int
-    name: String @NonNull
-    lastKnownLocation: String
-    lastKnownHandler: ID
-    isLost: Boolean @NonNull
-    notes: String
-    purchasePrice: Int
-    purchaseLocation: String
-    purchaseDate: DateTime
-    modelNumber: String
-    serialNumber: String
-    parent: ID
+    tag: Int @Auth(action: update, subject: Asset, field: "tag")
+    name: String @NonNull @Auth(action: update, subject: Asset, field: "name")
+    lastKnownLocation: String @Auth(action: update, subject: Asset, field: "lastKnownLocation")
+    lastKnownHandler: ID @Auth(action: update, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
+    isLost: Boolean @NonNull @Auth(action: update, subject: Asset, field: "isLost")
+    notes: String @Auth(action: update, subject: Asset, field: "notes")
+    purchasePrice: Int @Auth(action: update, subject: Asset, field: "purchasePrice")
+    purchaseLocation: String @Auth(action: update, subject: Asset, field: "purchaseLocation")
+    purchaseDate: DateTime @Auth(action: update, subject: Asset, field: "purchaseDate")
+    modelNumber: String @Auth(action: update, subject: Asset, field: "modelNumber")
+    serialNumber: String @Auth(action: update, subject: Asset, field: "serialNumber")
+    parent: ID @Auth(action: update, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
 }
 
 type AuditLog {
-    id: ID! @Auth(action: "read", subject: "AuditLog")
-    user: User @Auth(action: "read", subject: "AuditLog")
-    timestamp: DateTime! @Auth(action: "read", subject: "AuditLog")
-    modificationType: String! @Auth(action: "read", subject: "AuditLog")
-    modifiedTable: String @Auth(action: "read", subject: "AuditLog")
-    modifiedField: String! @Auth(action: "read", subject: "AuditLog")
-    previousValue: String @Auth(action: "read", subject: "AuditLog")
-    comment: String @Auth(action: "read", subject: "AuditLog")
-    metadata: JSONObject @Auth(action: "read", subject: "AuditLog")
+    id: ID! @Auth(action: read, subject: AuditLog, field: "id")
+    user: User @Auth(action: read, subject: AuditLog, field: "user") @Auth(action: read, subject: User)
+    timestamp: DateTime! @Auth(action: read, subject: AuditLog, field: "timestamp")
+    modificationType: String! @Auth(action: read, subject: AuditLog, field: "modificationType")
+    modifiedTable: String @Auth(action: read, subject: AuditLog, field: "modifiedTable")
+    modifiedField: String! @Auth(action: read, subject: AuditLog, field: "modifiedField")
+    previousValue: String @Auth(action: read, subject: AuditLog, field: "previousValue")
+    comment: String @Auth(action: read, subject: AuditLog, field: "comment")
+    metadata: JSONObject @Auth(action: read, subject: AuditLog, field: "metadata")
 }
 
 type BlogPost {
-    id: ID! @Auth(action: "read", subject: "BlogPost")
-    postedAt: DateTime! @Auth(action: "read", subject: "BlogPost")
-    content: String! @Auth(action: "read", subject: "BlogPost")
-    author: Person! @Auth(action: "read", subject: "BlogPost")
-    authorDisplayName: String @Auth(action: "read", subject: "BlogPost")
-    title: String! @Auth(action: "read", subject: "BlogPost")
+    id: ID! @Auth(action: read, subject: BlogPost, field: "id")
+    postedAt: DateTime! @Auth(action: read, subject: BlogPost, field: "postedAt")
+    content: String! @Auth(action: read, subject: BlogPost, field: "content")
+    author: Person! @Auth(action: read, subject: BlogPost, field: "author") @Auth(action: read, subject: Person)
+    authorDisplayName: String @Auth(action: read, subject: BlogPost, field: "authorDisplayName")
+    title: String! @Auth(action: read, subject: BlogPost, field: "title")
 }
 
 input BlogPostCreateInput {
-    content: String! @NonNull
-    author: ID! @NonNull
-    authorDisplayName: String
-    title: String! @NonNull
+    content: String! @NonNull @Auth(action: create, subject: BlogPost, field: "content")
+    author: ID! @NonNull @Auth(action: create, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
+    authorDisplayName: String @Auth(action: create, subject: BlogPost, field: "authorDisplayName")
+    title: String! @NonNull @Auth(action: create, subject: BlogPost, field: "title")
 }
 
 input BlogPostUpdateInput {
-    content: String @NonNull
-    author: ID @NonNull
-    authorDisplayName: String
-    title: String @NonNull
+    content: String @NonNull @Auth(action: update, subject: BlogPost, field: "content")
+    author: ID @NonNull @Auth(action: update, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
+    authorDisplayName: String @Auth(action: update, subject: BlogPost, field: "authorDisplayName")
+    title: String @NonNull @Auth(action: update, subject: BlogPost, field: "title")
 }
 
 type Category {
-    id: ID! @Auth(action: "read", subject: "Category")
-    name: String @Auth(action: "read", subject: "Category")
-    priority: Int! @Auth(action: "read", subject: "Category")
-    parent: Category @Auth(action: "read", subject: "Category")
-    children: [Category!] @Auth(action: "read", subject: "Category")
-    productions: [Production!] @Auth(action: "read", subject: "Category")
+    id: ID! @Auth(action: read, subject: Category, field: "id")
+    name: String @Auth(action: read, subject: Category, field: "name")
+    priority: Int! @Auth(action: read, subject: Category, field: "priority")
+    parent: Category @Auth(action: read, subject: Category, field: "parent")
+    children: [Category!] @Auth(action: read, subject: Category, field: "children")
+    productions: [Production!] @Auth(action: read, subject: Category, field: "productions") @Auth(action: read, subject: Production)
 }
 
 input CategoryCreateInput {
-    name: String
+    name: String @Auth(action: create, subject: Category, field: "name")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
-    parent: ID
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: Category, field: "priority")
+    parent: ID @Auth(action: create, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
 }
 
 input CategoryUpdateInput {
-    name: String
-    priority: Int @NonNull
-    parent: ID
+    name: String @Auth(action: update, subject: Category, field: "name")
+    priority: Int @NonNull @Auth(action: update, subject: Category, field: "priority")
+    parent: ID @Auth(action: update, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
 }
 
 type ContactSubmissionAssignee {
-    id: ID! @Auth(action: "read", subject: "ContactSubmissionAssignee")
-    submission: ContactSubmission! @Auth(action: "read", subject: "ContactSubmissionAssignee")
-    user: User! @Auth(action: "read", subject: "ContactSubmissionAssignee")
-    timestamp: DateTime! @Auth(action: "read", subject: "ContactSubmissionAssignee")
+    id: ID! @Auth(action: read, subject: ContactSubmissionAssignee, field: "id")
+    submission: ContactSubmission! @Auth(action: read, subject: ContactSubmissionAssignee, field: "submission") @Auth(action: read, subject: ContactSubmission)
+    user: User! @Auth(action: read, subject: ContactSubmissionAssignee, field: "user") @Auth(action: read, subject: User)
+    timestamp: DateTime! @Auth(action: read, subject: ContactSubmissionAssignee, field: "timestamp")
 }
 
 input ContactSubmissionAssigneeCreateInput {
-    submission: ID! @NonNull
-    user: ID! @NonNull
+    submission: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "submission") @Auth(action: read, subject: ContactSubmission, field: "id")
+    user: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "user") @Auth(action: read, subject: User, field: "id")
 }
 
 type ContactSubmission {
-    id: ID! @Auth(action: "read", subject: "ContactSubmission")
-    email: EmailAddress! @Auth(action: "read", subject: "ContactSubmission")
-    name: String! @Auth(action: "read", subject: "ContactSubmission")
-    timestamp: DateTime! @Auth(action: "read", subject: "ContactSubmission")
-    resolved: Boolean! @Auth(action: "read", subject: "ContactSubmission")
-    additionalData: JSONObject @Auth(action: "read", subject: "ContactSubmission")
-    assignees: [ContactSubmissionAssignee!] @Auth(action: "read", subject: "ContactSubmission")
+    id: ID! @Auth(action: read, subject: ContactSubmission, field: "id")
+    email: EmailAddress! @Auth(action: read, subject: ContactSubmission, field: "email")
+    name: String! @Auth(action: read, subject: ContactSubmission, field: "name")
+    timestamp: DateTime! @Auth(action: read, subject: ContactSubmission, field: "timestamp")
+    resolved: Boolean! @Auth(action: read, subject: ContactSubmission, field: "resolved")
+    additionalData: JSONObject @Auth(action: read, subject: ContactSubmission, field: "additionalData")
+    assignees: [ContactSubmissionAssignee!] @Auth(action: read, subject: ContactSubmission, field: "assignees") @Auth(action: read, subject: ContactSubmissionAssignee)
 }
 
 input ContactSubmissionCreateInput {
-    email: EmailAddress! @NonNull
-    name: String! @NonNull
-    additionalData: JSONObject
+    email: EmailAddress! @NonNull @Auth(action: create, subject: ContactSubmission, field: "email")
+    name: String! @NonNull @Auth(action: create, subject: ContactSubmission, field: "name")
+    additionalData: JSONObject @Auth(action: create, subject: ContactSubmission, field: "additionalData")
 }
 
 input ContactSubmissionUpdateInput {
-    resolved: Boolean
-    additionalData: JSONObject
+    resolved: Boolean @Auth(action: update, subject: ContactSubmission, field: "resolved")
+    additionalData: JSONObject @Auth(action: update, subject: ContactSubmission, field: "additionalData")
 }
 
 type Credit {
-    id: ID! @Auth(action: "read", subject: "Credit")
-    production: Production! @Auth(action: "read", subject: "Credit")
-    person: Person! @Auth(action: "read", subject: "Credit")
-    title: String @Auth(action: "read", subject: "Credit")
-    priority: Int! @Auth(action: "read", subject: "Credit")
+    id: ID! @Auth(action: read, subject: Credit, field: "id")
+    production: Production! @Auth(action: read, subject: Credit, field: "production") @Auth(action: read, subject: Production)
+    person: Person! @Auth(action: read, subject: Credit, field: "person") @Auth(action: read, subject: Person)
+    title: String @Auth(action: read, subject: Credit, field: "title")
+    priority: Int! @Auth(action: read, subject: Credit, field: "priority")
 }
 
 input CreditCreateInput {
-    production: ID! @NonNull
-    person: ID! @NonNull
-    title: String
+    production: ID! @NonNull @Auth(action: create, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
+    person: ID! @NonNull @Auth(action: create, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
+    title: String @Auth(action: create, subject: Credit, field: "title")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: Credit, field: "priority")
 }
 
 input CreditUpdateInput {
-    production: ID @NonNull
-    person: ID @NonNull
-    title: String
-    priority: Int @NonNull
+    production: ID @NonNull @Auth(action: update, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
+    person: ID @NonNull @Auth(action: update, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
+    title: String @Auth(action: update, subject: Credit, field: "title")
+    priority: Int @NonNull @Auth(action: update, subject: Credit, field: "priority")
 }
 
 type GroupPermission {
-    id: ID! @Auth(action: "read", subject: "GroupPermission")
-    group: Group! @Auth(action: "read", subject: "GroupPermission")
-    action: String! @Auth(action: "read", subject: "GroupPermission")
-    subject: [String!]! @Auth(action: "read", subject: "GroupPermission")
-    fields: [String!] @Auth(action: "read", subject: "GroupPermission")
-    conditions: JSONObject @Auth(action: "read", subject: "GroupPermission")
-    inverted: Boolean! @Auth(action: "read", subject: "GroupPermission")
-    reason: String @Auth(action: "read", subject: "GroupPermission")
+    id: ID! @Auth(action: read, subject: GroupPermission, field: "id")
+    group: Group! @Auth(action: read, subject: GroupPermission, field: "group") @Auth(action: read, subject: Group)
+    action: String! @Auth(action: read, subject: GroupPermission, field: "action")
+    subject: [String!]! @Auth(action: read, subject: GroupPermission, field: "subject")
+    fields: [String!] @Auth(action: read, subject: GroupPermission, field: "fields")
+    conditions: JSONObject @Auth(action: read, subject: GroupPermission, field: "conditions")
+    inverted: Boolean! @Auth(action: read, subject: GroupPermission, field: "inverted")
+    reason: String @Auth(action: read, subject: GroupPermission, field: "reason")
 }
 
 
 input GroupPermissionCreateInput {
-    group: ID! @NonNull
-    action: String! @NonNull
-    subject: [String!]! @NonNull
-    fields: [String!]
-    conditions: JSONObject
-    inverted: Boolean
-    reason: String
+    group: ID! @NonNull @Auth(action: create, subject: GroupPermission, field: "group") @Auth(action: read, subject: Group, field: "id")
+    action: String! @NonNull @Auth(action: create, subject: GroupPermission, field: "action")
+    subject: [String!]! @NonNull @Auth(action: create, subject: GroupPermission, field: "subject")
+    fields: [String!] @Auth(action: create, subject: GroupPermission, field: "fields")
+    conditions: JSONObject @Auth(action: create, subject: GroupPermission, field: "conditions")
+    inverted: Boolean = false @NonNull @Auth(action: create, subject: GroupPermission, field: "inverted")
+    reason: String @Auth(action: create, subject: GroupPermission, field: "reason")
 }
 
 input GroupPermissionUpdateInput {
     # Connected group cannot be updated. Delete & create new.
-    action: String @NonNull
-    subject: [String!] @NonNull
-    fields: [String!]
-    conditions: JSONObject
-    inverted: Boolean
-    reason: String
+    action: String @NonNull @Auth(action: update, subject: GroupPermission, field: "action")
+    subject: [String!] @NonNull @Auth(action: update, subject: GroupPermission, field: "subject")
+    fields: [String!] @Auth(action: update, subject: GroupPermission, field: "fields")
+    conditions: JSONObject @Auth(action: update, subject: GroupPermission, field: "conditions")
+    inverted: Boolean @Auth(action: update, subject: GroupPermission, field: "inverted")
+    reason: String @Auth(action: update, subject: GroupPermission, field: "reason")
 }
 
 type Group {
-    id: ID! @Auth(action: "read", subject: "Group")
-    name: String! @Auth(action: "read", subject: "Group")
-    parent: Group @Auth(action: "read", subject: "Group")
-    priority: Int! @Auth(action: "read", subject: "Group")
-    permissions: [GroupPermission!] @Auth(action: "read", subject: "Group")
-    children: [Group!] @Auth(action: "read", subject: "Group")
-    users: [UserGroup!] @Auth(action: "read", subject: "Group")
+    id: ID! @Auth(action: read, subject: Group, field: "id")
+    name: String! @Auth(action: read, subject: Group, field: "name")
+    parent: Group @Auth(action: read, subject: Group, field: "parent")
+    priority: Int! @Auth(action: read, subject: Group, field: "priority")
+    permissions: [GroupPermission!] @Auth(action: read, subject: Group, field: "permissions") @Auth(action: read, subject: GroupPermission)
+    children: [Group!] @Auth(action: read, subject: Group, field: "children") @Auth(action: read, subject: Group)
+    users: [UserGroup!] @Auth(action: read, subject: Group, field: "users") @Auth(action: read, subject: UserGroup)
 }
 
 input GroupCreateInput {
-    name: String! @NonNull
-    parent: ID
+    name: String! @NonNull @Auth(action: create, subject: Group, field: "name")
+    parent: ID @Auth(action: create, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: Group, field: "priority")
 }
 
 input GroupUpdateInput {
-    name: String @NonNull
-    parent: ID
-    priority: Int @NonNull
+    name: String @NonNull @Auth(action: update, subject: Group, field: "name")
+    parent: ID @Auth(action: update, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
+    priority: Int @NonNull @Auth(action: update, subject: Group, field: "priority")
 }
 
 type Image {
-    id: ID! @Auth(action: "read", subject: "Image")
-    name: String! @Auth(action: "read", subject: "Image")
-    description: String @Auth(action: "read", subject: "Image")
-    path: String! @Auth(action: "read", subject: "Image")
-    people: [PersonImage!] @Auth(action: "read", subject: "Image")
-    imageFor: [ProductionImage!] @Auth(action: "read", subject: "Image")
-    thumbnailFor: [Production!] @Auth(action: "read", subject: "Image")
+    id: ID! @Auth(action: read, subject: Image, field: "id")
+    name: String! @Auth(action: read, subject: Image, field: "name")
+    description: String @Auth(action: read, subject: Image, field: "description")
+    path: String! @Auth(action: read, subject: Image, field: "path")
+    people: [PersonImage!] @Auth(action: read, subject: Image, field: "people") @Auth(action: read, subject: PersonImage)
+    imageFor: [ProductionImage!] @Auth(action: read, subject: Image, field: "imageFor") @Auth(action: read, subject: ProductionImage)
+    thumbnailFor: [Production!] @Auth(action: read, subject: Image, field: "thumbnailFor") @Auth(action: read, subject: Production)
 }
 
 input ImageCreateInput {
-    name: String! @NonNull
-    description: String
-    path: String! @NonNull
+    name: String! @NonNull @Auth(action: create, subject: Image, field: "name")
+    description: String @Auth(action: create, subject: Image, field: "description")
+    path: String! @NonNull @Auth(action: create, subject: Image, field: "path")
 }
 
 input ImageUpdateInput {
-    name: String @NonNull
-    description: String
-    path: String @NonNull
+    name: String @NonNull @Auth(action: update, subject: Image, field: "name")
+    description: String @Auth(action: update, subject: Image, field: "description")
+    path: String @NonNull @Auth(action: update, subject: Image, field: "path")
 }
 
 type Person {
-    id: ID! @Auth(action: "read", subject: "Person")
-    name: String! @Auth(action: "read", subject: "Person")
-    pronouns: String @Auth(action: "read", subject: "Person")
-    graduation: DateTime @Auth(action: "read", subject: "Person")
-    start: DateTime! @Auth(action: "read", subject: "Person")
-    end: DateTime @Auth(action: "read", subject: "Person")
-    description: String @Auth(action: "read", subject: "Person")
-    images: [PersonImage!] @Auth(action: "read", subject: "Person")
-    blogPosts: [BlogPost!] @Auth(action: "read", subject: "Person")
-    credits: [Credit!] @Auth(action: "read", subject: "Person")
-    roles: [Role!] @Auth(action: "read", subject: "Person")
-    users: [User!] @Auth(action: "read", subject: "Person")
+    id: ID! @Auth(action: read, subject: Person, field: "id")
+    name: String! @Auth(action: read, subject: Person, field: "name")
+    pronouns: String @Auth(action: read, subject: Person, field: "pronouns")
+    graduation: DateTime @Auth(action: read, subject: Person, field: "graduation")
+    start: DateTime! @Auth(action: read, subject: Person, field: "start")
+    end: DateTime @Auth(action: read, subject: Person, field: "end")
+    description: String @Auth(action: read, subject: Person, field: "description")
+    images: [PersonImage!] @Auth(action: read, subject: Person, field: "images") @Auth(action: read, subject: PersonImage)
+    blogPosts: [BlogPost!] @Auth(action: read, subject: Person, field: "blogPosts") @Auth(action: read, subject: BlogPost)
+    credits: [Credit!] @Auth(action: read, subject: Person, field: "credits") @Auth(action: read, subject: Credit)
+    roles: [Role!] @Auth(action: read, subject: Person, field: "roles") @Auth(action: read, subject: Role)
+    users: [User!] @Auth(action: read, subject: Person, field: "users") @Auth(action: read, subject: User)
 }
 
 input PersonCreateInput {
-    name: String! @NonNull
-    pronouns: String
-    graduation: DateTime
+    name: String! @NonNull @Auth(action: create, subject: Person, field: "name")
+    pronouns: String @Auth(action: create, subject: Person, field: "pronouns")
+    graduation: DateTime @Auth(action: create, subject: Person, field: "graduation")
     """Defaults to now."""
-    start: DateTime @NonNull
-    end: DateTime
-    description: String
+    start: DateTime @NonNull @Auth(action: create, subject: Person, field: "start")
+    end: DateTime @Auth(action: create, subject: Person, field: "end")
+    description: String @Auth(action: create, subject: Person, field: "description")
 }
 
 input PersonUpdateInput {
-    name: String @NonNull
-    pronouns: String
-    graduation: DateTime
-    start: DateTime @NonNull
-    end: DateTime
-    description: String
+    name: String @NonNull @Auth(action: update, subject: Person, field: "name")
+    pronouns: String @Auth(action: update, subject: Person, field: "pronouns")
+    graduation: DateTime @Auth(action: update, subject: Person, field: "graduation")
+    start: DateTime @NonNull @Auth(action: update, subject: Person, field: "start")
+    end: DateTime @Auth(action: update, subject: Person, field: "end")
+    description: String @Auth(action: update, subject: Person, field: "description")
 }
 
 type PersonImage {
-    id: ID! @Auth(action: "read", subject: "PersonImage")
-    image: Image! @Auth(action: "read", subject: "PersonImage")
-    person: Person! @Auth(action: "read", subject: "PersonImage")
-    priority: Int! @Auth(action: "read", subject: "PersonImage")
+    id: ID! @Auth(action: read, subject: PersonImage, field: "id")
+    image: Image! @Auth(action: read, subject: PersonImage, field: "image") @Auth(action: read, subject: Image)
+    person: Person! @Auth(action: read, subject: PersonImage, field: "person") @Auth(action: read, subject: Person)
+    priority: Int! @Auth(action: read, subject: PersonImage, field: "priority")
 }
 
 input PersonImageCreateInput {
-    image: ID! @NonNull
-    person: ID! @NonNull
+    image: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "image") @Auth(action: read, subject: Image, field: "id")
+    person: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "person") @Auth(action: read, subject: Person, field: "id")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: PersonImage, field: "priority")
 }
 
 input PersonImageUpdateInput {
     # Person ID and image ID cannot be updated. Delete and recreate instead.
-    priority: Int @NonNull
+    priority: Int @NonNull @Auth(action: update, subject: PersonImage, field: "priority")
 }
 
 type ProductionImage {
-    id: ID! @Auth(action: "read", subject: "ProductionImage")
-    production: Production! @Auth(action: "read", subject: "ProductionImage")
-    image: Image! @Auth(action: "read", subject: "ProductionImage")
-    priority: Int! @Auth(action: "read", subject: "ProductionImage")
+    id: ID! @Auth(action: read, subject: ProductionImage, field: "id")
+    production: Production! @Auth(action: read, subject: ProductionImage, field: "production") @Auth(action: read, subject: Production)
+    image: Image! @Auth(action: read, subject: ProductionImage, field: "image") @Auth(action: read, subject: Image)
+    priority: Int! @Auth(action: read, subject: ProductionImage, field: "priority")
 }
 
 input ProductionImageCreateInput {
-    production: ID! @NonNull
-    image: ID! @NonNull
+    production: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "production") @Auth(action: read, subject: Production, field: "id")
+    image: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "image") @Auth(action: read, subject: Image, field: "id")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: ProductionImage, field: "priority")
 }
 
 input ProductionImageUpdateInput {
     # Production ID and image ID cannot be updated. Delete and recreate instead.
-    priority: Int @NonNull
+    priority: Int @NonNull @Auth(action: update, subject: ProductionImage, field: "priority")
 }
 
 type ProductionRSVP {
-    id: ID! @Auth(action: "read", subject: "ProductionRSVP")
-    production: Production! @Auth(action: "read", subject: "ProductionRSVP")
-    user: User! @Auth(action: "read", subject: "ProductionRSVP")
-    willAttend: ProductionRSVPAttendanceState @Auth(action: "read", subject: "ProductionRSVP")
-    notes: String @Auth(action: "read", subject: "ProductionRSVP")
+    id: ID! @Auth(action: read, subject: ProductionRSVP, field: "id")
+    production: Production! @Auth(action: read, subject: ProductionRSVP, field: "production") @Auth(action: read, subject: Production)
+    user: User! @Auth(action: read, subject: ProductionRSVP, field: "user") @Auth(action: read, subject: User)
+    willAttend: ProductionRSVPAttendanceState @Auth(action: read, subject: ProductionRSVP, field: "willAttend")
+    notes: String @Auth(action: read, subject: ProductionRSVP, field: "notes")
 }
 
 input ProductionRSVPCreateInput {
-    production: ID! @NonNull
-    user: ID! @NonNull
-    willAttend: ProductionRSVPAttendanceState
-    notes: String
+    production: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "production") @Auth(action: read, subject: Production, field: "id")
+    user: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "user") @Auth(action: read, subject: User, field: "id")
+    willAttend: ProductionRSVPAttendanceState @Auth(action: create, subject: ProductionRSVP, field: "willAttend")
+    notes: String @Auth(action: create, subject: ProductionRSVP, field: "notes")
 }
 
 input ProductionRSVPUpdateInput {
     # Production ID and user ID can't be updated. Delete and recreate instead.
-    willAttend: ProductionRSVPAttendanceState
-    notes: String
+    willAttend: ProductionRSVPAttendanceState @Auth(action: update, subject: ProductionRSVP, field: "willAttend")
+    notes: String @Auth(action: update, subject: ProductionRSVP, field: "notes")
 }
 
 type ProductionTag {
-    id: ID! @Auth(action: "read", subject: "ProductionTag")
-    production: Production! @Auth(action: "read", subject: "ProductionTag")
-    tag: String! @Auth(action: "read", subject: "ProductionTag")
+    id: ID! @Auth(action: read, subject: ProductionTag, field: "id")
+    production: Production! @Auth(action: read, subject: ProductionTag, field: "production") @Auth(action: read, subject: Production)
+    tag: String! @Auth(action: read, subject: ProductionTag, field: "tag")
 }
 
 input ProductionTagCreateInput {
-    production: ID! @NonNull
-    tag: String! @NonNull
+    production: ID! @NonNull @Auth(action: create, subject: ProductionTag, field: "production") @Auth(action: read, subject: Production, field: "id")
+    tag: String! @NonNull @Auth(action: create, subject: ProductionTag, field: "tag")
 }
 
 type ProductionVideo {
-    id: ID! @Auth(action: "read", subject: "ProductionVideo")
-    production: Production! @Auth(action: "read", subject: "ProductionVideo")
-    video: Video! @Auth(action: "read", subject: "ProductionVideo")
-    priority: Int! @Auth(action: "read", subject: "ProductionVideo")
+    id: ID! @Auth(action: read, subject: ProductionVideo, field: "id")
+    production: Production! @Auth(action: read, subject: ProductionVideo, field: "production") @Auth(action: read, subject: Production)
+    video: Video! @Auth(action: read, subject: ProductionVideo, field: "video") @Auth(action: read, subject: Video)
+    priority: Int! @Auth(action: read, subject: ProductionVideo, field: "priority")
 }
 
 input ProductionVideoCreateInput {
-    production: ID! @NonNull
-    video: ID! @NonNull
-    priority: Int! = 0 @NonNull
+    production: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "production") @Auth(action: read, subject: Production, field: "id")
+    video: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "video") @Auth(action: read, subject: Video, field: "id")
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: ProductionVideo, field: "priority")
 }
 
 input ProductionVideoUpdateInput {
     # Production ID and video ID cannot be updated. Delete and recreate instead.
-    priority: Int @NonNull
+    priority: Int @NonNull @Auth(action: update, subject: ProductionVideo, field: "priority")
 }
 
 type Production {
-    id: ID! @Auth(action: "read", subject: "Production")
-    name: String! @Auth(action: "read", subject: "Production")
-    description: String @Auth(action: "read", subject: "Production")
-    startTime: DateTime @Auth(action: "read", subject: "Production")
-    endTime: DateTime @Auth(action: "read", subject: "Production")
-    isLive: Boolean! @Auth(action: "read", subject: "Production")
-    category: Category @Auth(action: "read", subject: "Production")
-    closetLocation: String @Auth(action: "read", subject: "Production")
-    eventLocation: String @Auth(action: "read", subject: "Production")
-    teamNotes: String @Auth(action: "read", subject: "Production")
-    discordServer: String @Auth(action: "read", subject: "Production")
-    discordChannel: String @Auth(action: "read", subject: "Production")
-    thumbnail: Image @Auth(action: "read", subject: "Production")
-    closetTime: DateTime @Auth(action: "read", subject: "Production")
-    images: [ProductionImage!] @Auth(action: "read", subject: "Production")
-    rsvps: [ProductionRSVP!] @Auth(action: "read", subject: "Production")
-    tags: [ProductionTag!] @Auth(action: "read", subject: "Production")
-    videos: [ProductionVideo!] @Auth(action: "read", subject: "Production")
+    id: ID! @Auth(action: read, subject: Production, field: "id")
+    name: String! @Auth(action: read, subject: Production, field: "name")
+    description: String @Auth(action: read, subject: Production, field: "description")
+    startTime: DateTime @Auth(action: read, subject: Production, field: "startTime")
+    endTime: DateTime @Auth(action: read, subject: Production, field: "endTime")
+    isLive: Boolean! @Auth(action: read, subject: Production, field: "isLive")
+    category: Category @Auth(action: read, subject: Production, field: "category") @Auth(action: read, subject: Category)
+    closetLocation: String @Auth(action: read, subject: Production, field: "closetLocation")
+    eventLocation: String @Auth(action: read, subject: Production, field: "eventLocation")
+    teamNotes: String @Auth(action: read, subject: Production, field: "teamNotes")
+    discordServer: String @Auth(action: read, subject: Production, field: "discordServer")
+    discordChannel: String @Auth(action: read, subject: Production, field: "discordChannel")
+    thumbnail: Image @Auth(action: read, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image)
+    closetTime: DateTime @Auth(action: read, subject: Production, field: "closetTime")
+    images: [ProductionImage!] @Auth(action: read, subject: Production, field: "images") @Auth(action: read, subject: ProductionImage)
+    rsvps: [ProductionRSVP!] @Auth(action: read, subject: Production ,field: "rsvps") @Auth(action: read, subject: ProductionRSVP)
+    tags: [ProductionTag!] @Auth(action: read, subject: Production, field: "tags") @Auth(action: read, subject: ProductionTag)
+    videos: [ProductionVideo!] @Auth(action: read, subject: Production, field: "videos") @Auth(action: read, subject: ProductionVideo)
 }
 
 input ProductionCreateInput {
-    name: String! @NonNull
-    description: String
-    startTime: DateTime
-    endTime: DateTime
+    name: String! @NonNull @Auth(action: create, subject: Production, field: "name")
+    description: String @Auth(action: create, subject: Production, field: "description")
+    startTime: DateTime @NonNull @Auth(action: create, subject: Production, field: "startTime")
+    endTime: DateTime @NonNull @Auth(action: create, subject: Production, field: "endTime")
     """Defaults to false."""
-    isLive: Boolean! = false @NonNull
-    category: ID
-    closetLocation: String
-    eventLocation: String
-    teamNotes: String
-    discordServer: String
-    discordChannel: String
-    thumbnail: ID
-    closetTime: DateTime
+    isLive: Boolean! = false @NonNull @Auth(action: create, subject: Production, field: "isLive")
+    category: ID @Auth(action: create, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
+    closetLocation: String @Auth(action: create, subject: Production, field: "closetLocation")
+    eventLocation: String @Auth(action: create, subject: Production, field: "eventLocation")
+    teamNotes: String @Auth(action: create, subject: Production, field: "teamNotes")
+    discordServer: String @Auth(action: create, subject: Production, field: "discordServer")
+    discordChannel: String @Auth(action: create, subject: Production, field: "discordChannel")
+    thumbnail: ID @Auth(action: create, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
+    closetTime: DateTime @Auth(action: create, subject: Production, field: "closetTime")
 }
 
 input ProductionUpdateInput {
-    name: String @NonNull
-    description: String
-    startTime: DateTime
-    endTime: DateTime
-    isLive: Boolean @NonNull
-    category: ID
-    closetLocation: String
-    eventLocation: String
-    teamNotes: String
-    discordServer: String
-    discordChannel: String
-    thumbnail: ID
-    closetTime: DateTime
+    name: String @NonNull @Auth(action: update, subject: Production, field: "name")
+    description: String @Auth(action: update, subject: Production, field: "description")
+    startTime: DateTime @NonNull @Auth(action: update, subject: Production, field: "startTime")
+    endTime: DateTime @NonNull @Auth(action: update, subject: Production, field: "endTime")
+    isLive: Boolean @NonNull @Auth(action: update, subject: Production, field: "isLive")
+    category: ID @Auth(action: update, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
+    closetLocation: String @Auth(action: update, subject: Production, field: "closetLocation")
+    eventLocation: String @Auth(action: update, subject: Production, field: "eventLocation")
+    teamNotes: String @Auth(action: update, subject: Production, field: "teamNotes")
+    discordServer: String @Auth(action: update, subject: Production, field: "discordServer")
+    discordChannel: String @Auth(action: update, subject: Production, field: "discordChannel")
+    thumbnail: ID @Auth(action: update, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
+    closetTime: DateTime @Auth(action: update, subject: Production, field: "closetTime")
 }
 
 type Redirect {
-    id: ID! @Auth(action: "read", subject: "Redirect")
-    key: String! @Auth(action: "read", subject: "Redirect")
-    location: String! @Auth(action: "read", subject: "Redirect")
-    expires: DateTime @Auth(action: "read", subject: "Redirect")
+    id: ID! @Auth(action: read, subject: Redirect, field: "id")
+    key: String! @Auth(action: read, subject: Redirect, field: "key")
+    location: String! @Auth(action: read, subject: Redirect, field: "location")
+    expires: DateTime @Auth(action: read, subject: Redirect, field: "expires")
 }
 
 input RedirectCreateInput {
-    key: String! @NonNull
-    location: String! @NonNull
-    expires: DateTime
+    key: String! @NonNull @Auth(action: create, subject: Redirect, field: "key")
+    location: String! @NonNull @Auth(action: create, subject: Redirect, field: "location")
+    expires: DateTime @Auth(action: create, subject: Redirect, field: "expires")
 }
 
 input RedirectUpdateInput {
-    key: String @NonNull
-    location: String @NonNull
-    expires: DateTime
+    key: String @NonNull @Auth(action: update, subject: Redirect, field: "key")
+    location: String @NonNull @Auth(action: update, subject: Redirect, field: "location")
+    expires: DateTime @Auth(action: update, subject: Redirect, field: "expires")
 }
 
 type Role {
-    id: ID! @Auth(action: "read", subject: "Role")
-    person: Person! @Auth(action: "read", subject: "Role")
-    name: String! @Auth(action: "read", subject: "Role")
-    startTime: DateTime! @Auth(action: "read", subject: "Role")
-    endTime: DateTime @Auth(action: "read", subject: "Role")
-    priority: Int! @Auth(action: "read", subject: "Role")
+    id: ID! @Auth(action: read, subject: Role, field: "id")
+    person: Person! @Auth(action: read, subject: Role, field: "person") @Auth(action: read, subject: Person)
+    name: String! @Auth(action: read, subject: Role, field: "name")
+    startTime: DateTime! @Auth(action: read, subject: Role, field: "startTime")
+    endTime: DateTime @Auth(action: read, subject: Role, field: "endTime")
+    priority: Int! @Auth(action: read, subject: Role, field: "priority")
 }
 
 input RoleCreateInput {
-    person: ID! @NonNull
-    name: String! @NonNull
-    startTime: DateTime @NonNull
-    endTime: DateTime
+    person: ID! @NonNull @Auth(action: create, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
+    name: String! @NonNull @Auth(action: create, subject: Role, field: "name")
+    startTime: DateTime @NonNull @Auth(action: create, subject: Role, field: "startTime")
+    endTime: DateTime @Auth(action: create, subject: Role, field: "endTime")
     """Defaults to 0."""
-    priority: Int! = 0 @NonNull
+    priority: Int! = 0 @NonNull @Auth(action: create, subject: Role, field: "priority")
 }
 
 input RoleUpdateInput {
-    person: ID @NonNull
-    name: String @NonNull
-    startTime: DateTime @NonNull
-    endTime: DateTime
-    priority: Int @NonNull
+    person: ID @NonNull @Auth(action: update, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
+    name: String @NonNull @Auth(action: update, subject: Role, field: "name")
+    startTime: DateTime @NonNull @Auth(action: update, subject: Role, field: "startTime")
+    endTime: DateTime @Auth(action: update, subject: Role, field: "endTime")
+    priority: Int @NonNull @Auth(action: update, subject: Role, field: "priority")
 }
 
 type UserGroup {
-    id: ID! @Auth(action: "read", subject: "UserGroup")
-    user: User! @Auth(action: "read", subject: "UserGroup")
-    group: Group! @Auth(action: "read", subject: "UserGroup")
+    id: ID! @Auth(action: read, subject: UserGroup, field: "id")
+    user: User! @Auth(action: read, subject: UserGroup, field: "user") @Auth(action: read, subject: User)
+    group: Group! @Auth(action: read, subject: UserGroup, field: "group") @Auth(action: read, subject: Group)
 }
 
 input UserGroupCreateInput {
-    user: ID! @NonNull
-    group: ID! @NonNull
+    user: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "user") @Auth(action: read, subject: User, field: "id")
+    group: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "group") @Auth(action: read, subject: Group, field: "id")
 }
 
 type UserPermission {
-    id: ID! @Auth(action: "read", subject: "UserPermission")
-    user: User! @Auth(action: "read", subject: "UserPermission")
-    action: String! @Auth(action: "read", subject: "UserPermission")
-    subject: [String!]! @Auth(action: "read", subject: "UserPermission")
-    fields: [String!] @Auth(action: "read", subject: "UserPermission")
-    conditions: JSONObject @Auth(action: "read", subject: "UserPermission")
-    inverted: Boolean! @Auth(action: "read", subject: "UserPermission")
-    reason: String @Auth(action: "read", subject: "UserPermission")
+    id: ID! @Auth(action: read, subject: UserPermission, field: "id")
+    user: User! @Auth(action: read, subject: UserPermission, field: "user") @Auth(action: read, subject: User)
+    action: String! @Auth(action: read, subject: UserPermission, field: "action")
+    subject: [String!]! @Auth(action: read, subject: UserPermission, field: "subject")
+    fields: [String!] @Auth(action: read, subject: UserPermission, field: "fields")
+    conditions: JSONObject @Auth(action: read, subject: UserPermission, field: "conditions")
+    inverted: Boolean! @Auth(action: read, subject: UserPermission, field: "inverted")
+    reason: String @Auth(action: read, subject: UserPermission, field: "reason")
 }
 
 input UserPermissionCreateInput {
-    user: ID! @NonNull
-    action: String! @NonNull
-    subject: [String!]! @NonNull
-    fields: [String!]
-    conditions: JSONObject
-    inverted: Boolean
-    reason: String
+    user: ID! @NonNull @Auth(action: create, subject: UserPermission, field: "user") @Auth(action: read, subject: User, field: "id")
+    action: String! @NonNull @Auth(action: create, subject: UserPermission, field: "action")
+    subject: [String!]! @NonNull @Auth(action: create, subject: UserPermission, field: "subject")
+    fields: [String!] @Auth(action: create, subject: UserPermission, field: "fields")
+    conditions: JSONObject @Auth(action: create, subject: UserPermission, field: "conditions")
+    inverted: Boolean @NonNull @Auth(action: create, subject: UserPermission, field: "inverted")
+    reason: String @Auth(action: create, subject: UserPermission, field: "reason")
 }
 
 input UserPermissionUpdateInput {
     # Connected user cannot be updated. Delete & create new.
-    action: String @NonNull
-    subject: [String!] @NonNull
-    fields: [String!]
-    conditions: JSONObject
-    inverted: Boolean
-    reason: String
+    action: String @NonNull @Auth(action: update, subject: UserPermission, field: "action")
+    subject: [String!] @NonNull @Auth(action: update, subject: UserPermission, field: "subject")
+    fields: [String!] @Auth(action: update, subject: UserPermission, field: "fields")
+    conditions: JSONObject @Auth(action: update, subject: UserPermission, field: "conditions")
+    inverted: Boolean @NonNull @Auth(action: update, subject: UserPermission, field: "inverted")
+    reason: String @Auth(action: update, subject: UserPermission, field: "reason")
 }
 
 type User {
-    id: ID! @Auth(action: "read", subject: "User")
-    username: String! @Auth(action: "read", subject: "User")
-    mail: EmailAddress! @Auth(action: "read", subject: "User")
-    person: Person @Auth(action: "read", subject: "User")
-    discord: String @Auth(action: "read", subject: "User")
-    joined: DateTime! @Auth(action: "read", subject: "User")
-    permissions: [UserPermission!] @Auth(action: "read", subject: "User")
-    groups: [UserGroup!] @Auth(action: "read", subject: "User")
-    accessLogs: [AccessLog!] @Auth(action: "read", subject: "User")
-    auditLogs: [AuditLog!] @Auth(action: "read", subject: "User")
-    assignedContactSubmissions: [ContactSubmissionAssignee!] @Auth(action: "read", subject: "User")
-    productionRsvps: [ProductionRSVP!] @Auth(action: "read", subject: "User")
-    voteResponses: [VoteResponse!] @Auth(action: "read", subject: "User")
-    checkedOutAssets: [Asset!] @Auth(action: "read", subject: "User")
+    id: ID! @Auth(action: read, subject: User, field: "id")
+    username: String! @Auth(action: read, subject: User, field: "username")
+    mail: EmailAddress! @Auth(action: read, subject: User, field: "mail")
+    person: Person @Auth(action: read, subject: User, field: "person")
+    discord: String @Auth(action: read, subject: User, field: "discord")
+    joined: DateTime! @Auth(action: read, subject: User, field: "joined")
+    permissions: [UserPermission!] @Auth(action: read, subject: User, field: "permissions") @Auth(action: read, subject: UserPermission)
+    groups: [UserGroup!] @Auth(action: read, subject: User, field: "groups") @Auth(action: read, subject: UserGroup)
+    accessLogs: [AccessLog!] @Auth(action: read, subject: User, field: "accessLogs") @Auth(action: read, subject: AccessLog)
+    auditLogs: [AuditLog!] @Auth(action: read, subject: User, field: "auditLogs") @Auth(action: read, subject: AuditLog)
+    assignedContactSubmissions: [ContactSubmissionAssignee!] @Auth(action: read, subject: User, field: "assignedContactSubmissions") @Auth(action: read, subject: ContactSubmissionAssignee)
+    productionRsvps: [ProductionRSVP!] @Auth(action: read, subject: User, field: "productionRsvps") @Auth(action: read, subject: ProductionRSVP)
+    voteResponses: [VoteResponse!] @Auth(action: read, subject: User, field: "voteResponses") @Auth(action: read, subject: VoteResponse)
+    checkedOutAssets: [Asset!] @Auth(action: read, subject: User, field: "checkedOutAssets") @Auth(action: read, subject: Asset)
 }
 
 input UserCreateInput {
-    username: String! @NonNull
-    mail: EmailAddress! @NonNull
-    person: ID
-    discord: String
-    password: String
+    username: String! @NonNull @Auth(action: create, subject: User, field: "username")
+    mail: EmailAddress! @NonNull @Auth(action: create, subject: User, field: "mail")
+    person: ID @Auth(action: create, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
+    discord: String @Auth(action: create, subject: User, field: "discord")
+    password: String @NonNull @Auth(action: create, subject: User, field: "password")
 }
 
 input UserUpdateInput {
-    username: String @NonNull
-    mail: EmailAddress @NonNull
-    person: ID
-    discord: String
-    password: String
+    username: String @NonNull @Auth(action: update, subject: User, field: "username")
+    mail: EmailAddress @NonNull @Auth(action: update, subject: User, field: "mail")
+    person: ID @Auth(action: update, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
+    discord: String @Auth(action: update, subject: User, field: "discord")
+    password: String @Auth(action: update, subject: User, field: "password")
 }
 
 type Video {
-    id: ID! @Auth(action: "read", subject: "Video")
-    name: String! @Auth(action: "read", subject: "Video")
-    format: VideoFormat! @Auth(action: "read", subject: "Video")
-    metadata: JSONObject @Auth(action: "read", subject: "Video")
-    videoFor: [ProductionVideo!] @Auth(action: "read", subject: "Video")
+    id: ID! @Auth(action: read, subject: Video, field: "id")
+    name: String! @Auth(action: read, subject: Video, field: "name")
+    format: VideoFormat! @Auth(action: read, subject: Video, field: "format")
+    metadata: JSONObject @Auth(action: read, subject: Video, field: "metadata")
+    videoFor: [ProductionVideo!] @Auth(action: read, subject: Video, field: "videoFor") @Auth(action: read, subject: ProductionVideo)
 }
 
 input VideoCreateInput {
-    name: String! @NonNull
-    format: VideoFormat! @NonNull
-    metadata: JSONObject
+    name: String! @NonNull @Auth(action: create, subject: Video, field: "name")
+    format: VideoFormat! @NonNull @Auth(action: create, subject: Video, field: "format")
+    metadata: JSONObject @Auth(action: create, subject: Video, field: "metadata")
 }
 
 input VideoUpdateInput {
-    name: String @NonNull
-    format: VideoFormat @NonNull
-    metadata: JSONObject
+    name: String @NonNull @Auth(action: update, subject: Video, field: "name")
+    format: VideoFormat @NonNull @Auth(action: update, subject: Video, field: "format")
+    metadata: JSONObject @Auth(action: update, subject: Video, field: "metadata")
 }
 
 type VoteResponse {
-    id: ID! @Auth(action: "read", subject: "VoteResponse")
-    vote: Vote! @Auth(action: "read", subject: "VoteResponse")
-    user: User! @Auth(action: "read", subject: "VoteResponse")
-    timestamp: DateTime! @Auth(action: "read", subject: "VoteResponse")
-    selection: String! @Auth(action: "read", subject: "VoteResponse")
+    id: ID! @Auth(action: read, subject: VoteResponse, field: "id")
+    vote: Vote! @Auth(action: read, subject: VoteResponse, field: "vote") @Auth(action: read, subject: Vote)
+    user: User! @Auth(action: read, subject: VoteResponse, field: "user") @Auth(action: read, subject: User)
+    timestamp: DateTime! @Auth(action: read, subject: VoteResponse, field: "timestamp")
+    selection: String! @Auth(action: read, subject: VoteResponse, field: "selection")
 }
 
 input VoteResponseCreateInput {
-    vote: ID! @NonNull
-    user: ID! @NonNull
-    selection: String! @NonNull
+    vote: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "vote") @Auth(action: read, subject: Vote, field: "id")
+    user: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "user") @Auth(action: read, subject: User, field: "id")
+    selection: String! @NonNull @Auth(action: create, subject: VoteResponse, field: "selection")
 }
 
 input VoteResponseUpdateInput {
     # Cannot update the vote ID or user ID. Delete and recreate instead.
-    selection: String @NonNull
+    selection: String @NonNull @Auth(action: update, subject: VoteResponse, field: "selection")
 }
 
 type Vote {
-    id: ID! @Auth(action: "read", subject: "Vote")
-    question: String! @Auth(action: "read", subject: "Vote")
-    options: [String!]! @Auth(action: "read", subject: "Vote")
-    expires: DateTime @Auth(action: "read", subject: "Vote")
-    description: String @Auth(action: "read", subject: "Vote")
-    responses: [VoteResponse!] @Auth(action: "read", subject: "Vote")
+    id: ID! @Auth(action: read, subject: Vote, field: "id")
+    question: String! @Auth(action: read, subject: Vote, field: "question")
+    options: [String!]! @Auth(action: read, subject: Vote, field: "options")
+    expires: DateTime @Auth(action: read, subject: Vote, field: "expires")
+    description: String @Auth(action: read, subject: Vote, field: "description")
+    responses: [VoteResponse!] @Auth(action: read, subject: Vote, field: "responses") @Auth(action: read, subject: VoteResponse)
 }
 
 input VoteCreateInput {
-    question: String! @NonNull
-    options: [String!]! @NonNull
-    expires: DateTime
-    description: String
+    question: String! @NonNull @Auth(action: create, subject: Vote, field: "question")
+    options: [String!]! @NonNull @Auth(action: create, subject: Vote, field: "options")
+    expires: DateTime @Auth(action: create, subject: Vote, field: "expires")
+    description: String @Auth(action: create, subject: Vote, field: "description")
 }
 
 input VoteUpdateInput {
-    question: String @NonNull
-    options: [String!] @NonNull
-    expires: DateTime
-    description: String
+    question: String @NonNull @Auth(action: update, subject: Vote, field: "question")
+    options: [String!] @NonNull @Auth(action: update, subject: Vote, field: "options")
+    expires: DateTime @Auth(action: update, subject: Vote, field: "expires")
+    description: String @Auth(action: update, subject: Vote, field: "description")
 }
