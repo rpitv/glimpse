@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import express, {Express} from "express";
+import express, { Express } from "express";
 import session from "express-session";
-import {createClient} from "redis"
+import { createClient } from "redis";
 import connectRedis from "connect-redis";
 import https from "https";
 import http from "http";
@@ -11,17 +11,22 @@ import * as ip from "ip";
 import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
-import {makeExecutableSchema} from "@graphql-tools/schema";
-import {createServer, YogaNodeServerInstance} from "@graphql-yoga/node";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { createServer, YogaNodeServerInstance } from "@graphql-yoga/node";
 
-import {prisma} from "./prisma";
-import {GraphQLContext, TrustProxyOption} from "custom";
-import {getPermissions} from "./permissions";
-import {PrismaAbility} from "@casl/prisma";
-import {loadFiles} from "@graphql-tools/load-files";
-import {authDirective} from "./directives/Auth";
-import {nonNullDirective} from "./directives/NonNull";
-import {DateTimeResolver, EmailAddressResolver, JSONObjectResolver} from "graphql-scalars";
+import { prisma } from "./prisma";
+import { GraphQLContext, TrustProxyOption } from "custom";
+import { getPermissions } from "./permissions";
+import { PrismaAbility } from "@casl/prisma";
+import { loadFiles } from "@graphql-tools/load-files";
+import { authDirective } from "./directives/Auth";
+import { nonNullDirective } from "./directives/NonNull";
+import {
+    DateTimeResolver,
+    EmailAddressResolver,
+    JSONObjectResolver,
+} from "graphql-scalars";
+import { generateCrudResolvers } from "./ExampleCrud";
 
 dotenv.config();
 
@@ -49,28 +54,30 @@ async function setupExpressMiddleware(expressServer: Express): Promise<void> {
     // Create and add the middleware for sessions.
     const redisSessionStorageClient = createClient({
         legacyMode: true,
-        url: process.env.REDIS_URL
+        url: process.env.REDIS_URL,
     });
     redisSessionStorageClient.connect().catch(console.error);
-    expressServer.use(session({
-        store: new (connectRedis(session))({
-            client: redisSessionStorageClient,
-            prefix: 'glimpse-sess:'
-        }),
-        name: 'glimpse-sess',
-        cookie: {
-            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
-            secure: isHttps()
-        },
-        secret: process.env.SESSION_SECRET ?? '',
-        saveUninitialized: false,
-        resave: false,
-    }));
+    expressServer.use(
+        session({
+            store: new (connectRedis(session))({
+                client: redisSessionStorageClient,
+                prefix: "glimpse-sess:",
+            }),
+            name: "glimpse-sess",
+            cookie: {
+                maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+                secure: isHttps(),
+            },
+            secret: process.env.SESSION_SECRET ?? "",
+            saveUninitialized: false,
+            resave: false,
+        })
+    );
 
     // Serve GraphQL server
-    expressServer.use('/graphql', await createGraphQLServer());
+    expressServer.use("/graphql", await createGraphQLServer());
     // Serve static content
-    expressServer.use('/', express.static('public'));
+    expressServer.use("/", express.static("public"));
 }
 
 /**
@@ -78,20 +85,28 @@ async function setupExpressMiddleware(expressServer: Express): Promise<void> {
  * @param req Express Request
  * @param res Express Response
  */
-async function setupGraphQLContext({req, res}: {req: Express.Request, res: Express.Response}): Promise<GraphQLContext> {
+async function setupGraphQLContext({
+    req,
+    res,
+}: {
+    req: Express.Request;
+    res: Express.Response;
+}): Promise<GraphQLContext> {
     let user;
-    if(req.session.userId) {
-        user = await prisma.user.findUnique({ where: { id: req.session.userId }})
+    if (req.session.userId) {
+        user = await prisma.user.findUnique({
+            where: { id: req.session.userId },
+        });
         user = user ?? undefined; // If null, set to undefined
     }
-    if(!req.session.permissionJSON) {
+    if (!req.session.permissionJSON) {
         req.session.permissionJSON = await getPermissions(user);
     }
     return {
         prisma,
         permissions: new PrismaAbility(req.session.permissionJSON),
-        user
-    }
+        user,
+    };
 }
 
 /**
@@ -99,7 +114,7 @@ async function setupGraphQLContext({req, res}: {req: Express.Request, res: Expre
  * @returns The GraphQL schema as a string
  */
 async function loadGraphQLSchema(): Promise<string> {
-    const file = await fs.readFile(path.join(__dirname, "schema.graphql"))
+    const file = await fs.readFile(path.join(__dirname, "schema.graphql"));
     return file.toString();
 }
 
@@ -110,12 +125,14 @@ async function loadGraphQLSchema(): Promise<string> {
  *   to not trust proxies, then this can be omitted.
  * @see http://expressjs.com/en/guide/behind-proxies.html
  */
-async function createExpressServer(customTrustProxyValue?: TrustProxyOption): Promise<Express> {
+async function createExpressServer(
+    customTrustProxyValue?: TrustProxyOption
+): Promise<Express> {
     const expressServer = express();
     // When behind an HTTP proxy server, the PROXIED environment variable can be passed to enable express to trust it.
     //   http://expressjs.com/en/guide/behind-proxies.html
     if (customTrustProxyValue !== undefined) {
-        expressServer.set('trust proxy', customTrustProxyValue);
+        expressServer.set("trust proxy", customTrustProxyValue);
     }
 
     await setupExpressMiddleware(expressServer);
@@ -153,16 +170,22 @@ async function createHttpServer(expressServer: Express): Promise<http.Server> {
 /**
  * Create a GraphQL server, which can either be ran independently or put on top of an Express server as middleware.
  */
-async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Express.Request, res: Express.Response}, GraphQLContext, { }>> {
+async function createGraphQLServer(): Promise<
+    YogaNodeServerInstance<
+        { req: Express.Request; res: Express.Response },
+        GraphQLContext,
+        {}
+    >
+> {
     // Create schema from resolver functions & graphql.schema file
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
         resolvers: [
-            ...await loadFiles('src/resolvers/**/*.ts'),
-            {JSONObject: JSONObjectResolver},
-            {DateTime: DateTimeResolver},
-            {EmailAddress: EmailAddressResolver}
-        ]
+            ...(await loadFiles("src/resolvers/**/*.ts")),
+            { JSONObject: JSONObjectResolver },
+            { DateTime: DateTimeResolver },
+            { EmailAddress: EmailAddressResolver },
+        ],
     });
 
     // Apply directives. The order here matters. Faster operations should be done first (e.g. non-null comes before
@@ -170,10 +193,22 @@ async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Expre
     schema = authDirective("Auth")(schema);
     schema = nonNullDirective("NonNull")(schema);
 
+    console.log(
+        generateCrudResolvers("Category", {
+            findMany: true,
+            findOne: true,
+            create: true,
+            update: true,
+            delete: true,
+            incomingRelations: ["children", "productions"],
+            outgoingRelations: ["parent"],
+        })
+    );
+
     // Create server based on schema
     return createServer({
         schema,
-        context: setupGraphQLContext
+        context: setupGraphQLContext,
     });
 }
 
@@ -182,22 +217,31 @@ async function createGraphQLServer(): Promise<YogaNodeServerInstance<{req: Expre
  */
 async function main(): Promise<void> {
     // Enforce that some environment variables are set
-    if(!process.env.DATABASE_URL) {
-        throw new Error("DATABASE_URL environment variable not set. This is required.");
+    if (!process.env.DATABASE_URL) {
+        throw new Error(
+            "DATABASE_URL environment variable not set. This is required."
+        );
     }
     if (!process.env.SESSION_SECRET) {
-        throw new Error("SESSION_SECRET environment variable not set. This is required.");
+        throw new Error(
+            "SESSION_SECRET environment variable not set. This is required."
+        );
     }
     if (!process.env.REDIS_URL) {
-        throw new Error("REDIS_URL environment variable not set. This is required.");
+        throw new Error(
+            "REDIS_URL environment variable not set. This is required."
+        );
     }
-    if(!process.env.NODE_ENV) {
-        console.warn("NODE_ENV not set. Defaulting to production.")
+    if (!process.env.NODE_ENV) {
+        console.warn("NODE_ENV not set. Defaulting to production.");
         process.env.NODE_ENV = "production";
     }
 
     // If PROXIED environment variable is set and isn't equal to "false", then trust one layer of proxy.
-    const trustProxyOption = (!!process.env.PROXIED && process.env.PROXIED !== "false") ? 1 : undefined;
+    const trustProxyOption =
+        !!process.env.PROXIED && process.env.PROXIED !== "false"
+            ? 1
+            : undefined;
 
     // Create the three servers this app uses. Note, express isn't an actual server with it's own port. It is just
     //   middleware on top of the HTTP server.
@@ -207,17 +251,19 @@ async function main(): Promise<void> {
     const port = parseInt(process.env.PORT ?? "4000");
     const host = "0.0.0.0";
 
-    httpServer.listen({port, host}, () => {
+    httpServer.listen({ port, host }, () => {
         const localIp = ip.address();
         const protocol = httpServer instanceof https.Server ? "https" : "http";
         console.log(
             "\n🎥 Glimpse GraphQL API is now running.\n" +
-            `\tLocal: \t ${protocol}://localhost:${port}/\n` +
-            `\tRemote:\t ${protocol}://${localIp}:${port}/\n`
+                `\tLocal: \t ${protocol}://localhost:${port}/\n` +
+                `\tRemote:\t ${protocol}://${localIp}:${port}/\n`
         );
 
         if (process.env.NODE_ENV !== "development" && !isHttps()) {
-            console.warn("Server is running without HTTPS outside of development. This is not recommended.");
+            console.warn(
+                "Server is running without HTTPS outside of development. This is not recommended."
+            );
         }
     });
 }
