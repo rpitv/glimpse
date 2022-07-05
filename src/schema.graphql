@@ -6,10 +6,30 @@ scalar File
 """
 Applies authorization requirements to a field, argument, input field, or to all fields on an object/input object.
 The current user must have the provided permission action, subject, and field. Subject and field are optional, but
-action is required. For type fields and input type fields, this checks permission against the actual inputted/outputted
-value, not the type. However for arguments, this only checks that the user has permission for SOME value of the given
-subject type. Typically, checking against the actual value doesn't make sense or isn't necessary. The same can be
-accomplished by applying @Auth directives to input fields, or worst case, checking within the resolver itself.
+action is required. When @Auth is applied multiple times to a single field/argument, the user must have all of the
+permissions. There is currently no way to say that the user must have at least one of many permissions. This directive
+has different behavior depending on where it is used.
+- ARGUMENT: This is the simplest use-case. Whenever a user uses an argument, the directive makes sure that the user
+has the provided permission. The subject is not applied to a specific object, but used generally.
+- FIELD_DEFINITION: This is the most common use-case, but also perhaps the most complex. Whenever the user uses a field
+with this directive, the user must have the provided permission both generally and specifically. If the subject matches
+the name of the parent type (e.g., requesting 'id' on Role and subject is also 'Role'), then the user must have
+permission to read that specific object. NOTE: There is currently not a good way to implement this with all relational
+children resolved, without a hit to performance. For this reason, conditional permissions should not be based on
+relational fields, as they are not guaranteed to be resolved by the time the permission is checked. If the subject does
+not match the type name, then the permission is just checked generally (e.g., requesting 'person' on Role requires
+permission to read the 'id' field on Person. This will just check that the user has permission to read _some_ Person's
+id, but not necessarily this one. Specifically checking this person should be applied to the Person fields).
+- INPUT_FIELD_DEFINITION: When applied to input object types, we're making one major (but fair) assumption: that the
+type which it's being applied to is used to mutate or create another correspond type. For example, CreateRoleInput is
+used to create a Role type. This means that the user must not only have permission to create some Role, but
+specifically one with the values in the CreateRoleInput, as the permission is applied to the object directly. If this
+is undesirable, you can probably accomplish what you want using a combination of FIELD_DEFINITION and ARGUMENT
+@Auth directives, but if not, this could be fixed with a future update to the options to @Auth.
+- OBJECT: This is an alias for applying the @Auth directive to each field of the type. This is combined with (not
+overwritten by) any other @Auth directives applied to the field directly.
+- INPUT_OBJECT: This is an alias for applying the @Auth directive to each field of the type. This is combined with (not
+overwritten by) any other @Auth directives applied to the field directly.
 """
 directive @Auth(action: AbilityActions!, subject: AbilitySubjects, field: String) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION | OBJECT | INPUT_OBJECT
 """

@@ -332,25 +332,52 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
     for (const directive of outputAuthDirectives) {
         const resolver = fieldConfig.resolve || defaultFieldResolver;
         fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info) => {
-            // Check if the user is allowed to access the field on at least one object. If not, throw an error.
-            logger.debug({directive},
-                `Checking if user is authorized to read output field ${typeName}.${fieldName}`);
-            if (!ctx.permissions.can(directive.action, directive.subject, directive.field)) {
-                throw new GraphQLYogaError('Insufficient permissions to access field ' + fieldName);
-            }
-            const returnedObject = await resolver(parent, args, ctx, info);
-            // Check if the user is allowed to access the field on this specific object. If not, throw an error.
-            logger.debug({directive, returnedObject, parent},
-                `Checking if user is authorized to read output field value ${typeName}.${fieldName}`);
-
-            // If the directive has a field, then we're presumably checking if the user is allowed to access the
-            //   field on the parent object plus the returned object merged into it.
-            if(directive.field) {
-                if (!ctx.permissions.can(directive.action,
-                    subject(directive.subject, {...parent, [directive.field]: returnedObject}), directive.field)) {
+            // For top-level resolvers we need to check permissions for "our own" resolver too instead of just
+            // "our children's" resolvers. Top-level resolvers don't have a parent which already did this check.
+            if(parent === undefined) {
+                logger.debug({directive},
+                    `Checking if user is authorized to read output field ${typeName}.${fieldName}`);
+                if (!ctx.permissions.can(directive.action, directive.subject, directive.field)) {
                     throw new GraphQLYogaError('Insufficient permissions to access field ' + fieldName);
                 }
             }
+
+            // Check if the user is allowed to read all the requested child fields. If not, throw an error.
+            //   We do this here instead of inside the child resolver to avoid giving away whether this field is null.
+            //   If it is null, then the child resolver will not be called, and their permission checks wouldn't happen.
+            const ownType = getRawType(info.returnType.toString());
+            for(const child of info.fieldNodes[0].selectionSet?.selections ?? []) {
+                if(child.kind === 'Field') {
+                    const childName = child.name.value;
+                    const childFieldAuthDirectives = getAuthDirectivesForOutputField(ownType, childName);
+                    for (const childDirective of childFieldAuthDirectives) {
+                        logger.debug({childDirective},
+                            `Checking if user is authorized to read output field ${ownType}.${childName}`);
+                        if (!ctx.permissions.can(childDirective.action, childDirective.subject, childDirective.field)) {
+                            throw new GraphQLYogaError('Insufficient permissions to access field ' + childName);
+                        }
+                    }
+                }
+            }
+
+            const returnedObject = await resolver(parent, args, ctx, info);
+            // Delete password before logging/returning. Should NEVER be accessible.
+            if(parent) {
+                delete parent.password;
+            }
+
+            // If the directive's subject name matches the name of the type, then we're presumably checking if the user
+            //   is allowed to access the field on the parent object plus the returned object merged into it.
+            if(directive.subject === typeName) {
+                // Check if the user is allowed to access the field on this specific object. If not, throw an error.
+                logger.debug({directive, returnedObject, parent},
+                    `Checking if user is authorized to read output field value ${typeName}.${fieldName}`);
+                if (!ctx.permissions.can(directive.action,
+                    subject(directive.subject, {...parent, [fieldName]: returnedObject}), directive.field)) {
+                    throw new GraphQLYogaError('Insufficient permissions to access field ' + fieldName);
+                }
+            }
+
             return returnedObject;
         }
     }
@@ -368,11 +395,12 @@ export function authDirective(directiveName: string): (schema: GraphQLSchema) =>
         // Modify the resolvers for all fields to check the @Auth directive usages, to see if the user is allowed.
         return mapSchema(schema, {
             [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
+                fieldConfig = addHandlerForOutputFieldsAuthDirectives(fieldConfig, fieldName, typeName);
                 for (const arg in fieldConfig.args) {
                     fieldConfig = addHandlerForArgumentsAuthDirectives(fieldConfig, fieldName, typeName, arg);
                     fieldConfig = addHandlerForInputFieldsAuthDirectives(fieldConfig, fieldName, typeName, arg);
                 }
-                return addHandlerForOutputFieldsAuthDirectives(fieldConfig, fieldName, typeName);
+                return fieldConfig;
             }
         })
     }
