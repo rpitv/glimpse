@@ -246,7 +246,7 @@ function addHandlerForArgumentsAuthDirectives(fieldConfig: GraphQLFieldConfig<an
         const resolver = fieldConfig.resolve || defaultFieldResolver;
         fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info): Promise<unknown> => {
             // Only check if the argument is being used
-            if(args[argName] !== undefined) {
+            if (args[argName] !== undefined) {
                 // Check if the user is allowed to use the argument. If not, throw an error.
                 logger.debug({directive},
                     `Checking if user is authorized to use argument ${argName} on field ${typeName}.${fieldName}`);
@@ -370,28 +370,39 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
         }
         const returnedObject = await resolver(parent, args, ctx, info);
         // Delete password before logging/returning. Should NEVER be accessible.
-        if(parent) {
+        if (parent) {
             delete parent.password;
         }
 
-        // for (const child of info.fieldNodes[0].selectionSet?.selections ?? []) {
-        //     if (child.kind === 'Field') {
-        //         const childName = child.name.value;
-        //         const childFieldAuthDirectives = getAuthDirectivesForOutputField(ownType, childName);
-        //         for (const childDirective of childFieldAuthDirectives) {
-        //             if(childDirective.subject === typeName) {
-        //                 // Check if the user is allowed to access the field on this specific object. If not, throw an error.
-        //                 logger.debug({childDirective, returnedObject, parent},
-        //                     `Checking if user is authorized to read output field value ${typeName}.${fieldName}`);
-        //                 if (!ctx.permissions.can(childDirective.action,
-        //                     subject(childDirective.subject, {...parent, [fieldName]: returnedObject}),
-        //                     childDirective.field)) {
-        //                     throw new GraphQLYogaError('Insufficient permissions to access field ' + fieldName);
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        for (const child of info.fieldNodes[0].selectionSet?.selections ?? []) {
+            if (child.kind === 'Field') {
+                const childName = child.name.value;
+                const childFieldAuthDirectives = getAuthDirectivesForOutputField(ownType, childName);
+                for (const childDirective of childFieldAuthDirectives) {
+                    console.log(childDirective.subject, ownType);
+                    if (childDirective.subject === ownType) {
+                        let returnedValueAsArray: unknown[] = [];
+                        if(Array.isArray(returnedObject)) {
+                            returnedValueAsArray = returnedObject;
+                        } else {
+                            returnedValueAsArray = [returnedObject];
+                        }
+
+                        for (const returnedValue of returnedValueAsArray) {
+                            // Check if the user is allowed to access the field on this specific object. If not, throw an error.
+                            logger.debug({childDirective, returnedValue, parent},
+                                `Checking if user is authorized to read output object with field ${ownType}.${childName}`);
+                            if (returnedValue !== null && !ctx.permissions.can(childDirective.action,
+                                subject(childDirective.subject, <any>returnedValue),
+                                childDirective.field)) {
+                                throw new GraphQLYogaError('Insufficient permissions to access field ' + childName);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
 
         return returnedObject;
     }

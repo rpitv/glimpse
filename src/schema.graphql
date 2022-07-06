@@ -19,7 +19,10 @@ children resolved, without a hit to performance. For this reason, conditional pe
 relational fields, as they are not guaranteed to be resolved by the time the permission is checked. If the subject does
 not match the type name, then the permission is just checked generally (e.g., requesting 'person' on Role requires
 permission to read the 'id' field on Person. This will just check that the user has permission to read _some_ Person's
-id, but not necessarily this one. Specifically checking this person should be applied to the Person fields).
+id, but not necessarily this one. Specifically checking this person should be applied to the Person fields). When
+checking the permission against the value, if the value is an array, each element of the array is checked. This could be
+optimized by baking the checks into the individual resolvers and removing value checks from fields, if necessary,
+however the current implementation insures against permission leaks on individual resolvers.
 - INPUT_FIELD_DEFINITION: When applied to input object types, we're making one major (but fair) assumption: that the
 type which it's being applied to is used to mutate or create another correspond type. For example, CreateRoleInput is
 used to create a Role type. This means that the user must not only have permission to create some Role, but
