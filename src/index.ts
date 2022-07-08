@@ -185,6 +185,17 @@ async function createGraphQLServer(): Promise<
             { JSONObject: JSONObjectResolver },
             { DateTime: DateTimeResolver },
             { EmailAddress: EmailAddressResolver },
+            generateCrudResolvers("Category", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    "parent": "Category"
+                },
+                readOnlyRelations: ["children", "productions"]
+            })
         ],
     });
 
@@ -192,18 +203,6 @@ async function createGraphQLServer(): Promise<
     //    auth). This way, if the faster operation fails, we save time that would've been spent on slower directives.
     schema = authDirective("Auth")(schema);
     schema = nonNullDirective("NonNull")(schema);
-
-    console.log(
-        generateCrudResolvers("Category", {
-            findMany: true,
-            findOne: true,
-            create: true,
-            update: true,
-            delete: true,
-            incomingRelations: ["children", "productions"],
-            outgoingRelations: ["parent"],
-        })
-    );
 
     // Create server based on schema
     return createServer({
