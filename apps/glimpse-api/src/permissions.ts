@@ -49,6 +49,10 @@ export async function getPermissions(user?: User): Promise<RawRuleOf<GlimpseAbil
  *   value, so any fields not in the new value are inherited from the old value.
  */
 export function canUpdate(ability: GlimpseAbility, subjectType: AbilitySubjects, oldValue: Record<string, any>, newValue: Record<string, any>): boolean {
+    // Add hasOwnProperty method to value. Requirement of CASL at the moment: https://github.com/stalniy/casl/issues/604
+    newValue = {...newValue};
+    oldValue= {...oldValue};
+
     // Check that the user has permission to update at least one field in the subject in its current state.
     //   Not required, but saves time in the case that the user has no permission to update any fields.
     if(!ability.can('update', subject(subjectType, oldValue))) {
@@ -89,6 +93,8 @@ export function canUpdate(ability: GlimpseAbility, subjectType: AbilitySubjects,
  *  @param value Value of the subject.
  */
 export function canDelete(ability: GlimpseAbility, subjectType: AbilitySubjects, value: Record<string, any>): boolean {
+    // Add hasOwnProperty method to value. Requirement of CASL at the moment: https://github.com/stalniy/casl/issues/604
+    value = {...value};
     // Check that the user has permission to delete at least one field in the subject.
     //   Not required, but saves time in the case that the user has no permission to delete any fields.
     if(!ability.can('delete', subject(subjectType, value))) {
@@ -117,6 +123,8 @@ export function canDelete(ability: GlimpseAbility, subjectType: AbilitySubjects,
  *    on fields with defaults are currently not recommended.
  */
 export function canCreate(ability: GlimpseAbility, subjectType: AbilitySubjects, value: Record<string, any>): boolean {
+    // Add hasOwnProperty method to value. Requirement of CASL at the moment: https://github.com/stalniy/casl/issues/604
+    value = {...value};
     // Check that the user has permission to create at least one field in the subject.
     //   Not required, but saves time in the case that the user has no permission to create any fields.
     if(!ability.can('create', subject(subjectType, value))) {
