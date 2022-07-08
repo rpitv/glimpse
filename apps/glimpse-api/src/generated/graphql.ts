@@ -20,6 +20,44 @@ export type Scalars = {
   JSONObject: string;
 };
 
+export enum AbilityActions {
+  Create = 'create',
+  Delete = 'delete',
+  Manage = 'manage',
+  Read = 'read',
+  Update = 'update'
+}
+
+export enum AbilitySubjects {
+  AccessLog = 'AccessLog',
+  AlertLog = 'AlertLog',
+  Asset = 'Asset',
+  AuditLog = 'AuditLog',
+  BlogPost = 'BlogPost',
+  Category = 'Category',
+  ContactSubmission = 'ContactSubmission',
+  ContactSubmissionAssignee = 'ContactSubmissionAssignee',
+  Credit = 'Credit',
+  Group = 'Group',
+  GroupPermission = 'GroupPermission',
+  Image = 'Image',
+  Person = 'Person',
+  PersonImage = 'PersonImage',
+  Production = 'Production',
+  ProductionImage = 'ProductionImage',
+  ProductionRsvp = 'ProductionRSVP',
+  ProductionTag = 'ProductionTag',
+  ProductionVideo = 'ProductionVideo',
+  Redirect = 'Redirect',
+  Role = 'Role',
+  User = 'User',
+  UserGroup = 'UserGroup',
+  UserPermission = 'UserPermission',
+  Video = 'Video',
+  Vote = 'Vote',
+  VoteResponse = 'VoteResponse'
+}
+
 export type AccessLog = {
   __typename?: 'AccessLog';
   id: Scalars['ID'];
@@ -1627,6 +1665,8 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AbilityActions: AbilityActions;
+  AbilitySubjects: AbilitySubjects;
   AccessLog: ResolverTypeWrapper<AccessLogModel>;
   AlertLog: ResolverTypeWrapper<AlertLogModel>;
   AlertLogCreateInput: AlertLogCreateInput;
@@ -1805,9 +1845,9 @@ export type ResolversParentTypes = {
 };
 
 export type AuthDirectiveArgs = {
-  action: Scalars['String'];
+  action: AbilityActions;
   field?: Maybe<Scalars['String']>;
-  subject?: Maybe<Scalars['String']>;
+  subject?: Maybe<AbilitySubjects>;
 };
 
 export type AuthDirectiveResolver<Result, Parent, ContextType = any, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
