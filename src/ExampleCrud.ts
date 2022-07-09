@@ -13,13 +13,13 @@ import {canCreate, canDelete, canUpdate} from "./permissions";
 import {logger} from "./logger";
 
 type CrudGeneratorOptions<Type extends string | number | symbol = string> = {
-    findMany: boolean;
-    findOne: boolean;
-    create: boolean;
-    update: boolean;
-    delete: boolean;
-    readOnlyRelations: Type[];
-    writableRelations: Partial<Record<Type, ValidCrudResolvers>>;
+    findMany?: boolean;
+    findOne?: boolean;
+    create?: boolean;
+    update?: boolean;
+    delete?: boolean;
+    readOnlyRelations?: Type[];
+    writableRelations?: Partial<Record<Type, ValidCrudResolvers>>;
 };
 
 type OmitChildType<Type, OmittedChild> = {
@@ -97,8 +97,8 @@ function generateRelationResolvers<ModelName extends ValidCrudResolvers>(
 ): Resolvers[ModelName] {
     const fieldResolvers: Resolvers[ModelName] = {};
     const relations = [
-        ...options.readOnlyRelations,
-        ...Object.keys(options.writableRelations)
+        ...options.readOnlyRelations || [],
+        ...Object.keys(options.writableRelations || {})
     ];
     for (const fieldName of relations) {
         // FIXME - Required casting which should be removed. Casting required since keyof NonNullable<T> cannot
