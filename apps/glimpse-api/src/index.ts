@@ -27,6 +27,7 @@ import {
     JSONObjectResolver,
 } from "graphql-scalars";
 import { generateCrudResolvers } from "./ExampleCrud";
+import { resolver as userResolvers } from "./resolvers/User";
 
 dotenv.config();
 
@@ -185,6 +186,47 @@ async function createGraphQLServer(): Promise<
             { JSONObject: JSONObjectResolver },
             { DateTime: DateTimeResolver },
             { EmailAddress: EmailAddressResolver },
+            generateCrudResolvers("AccessLog", {
+                findMany: true,
+                findOne: true,
+                writableRelations: {
+                    user: "User"
+                }
+            }),
+            generateCrudResolvers("AlertLog", {
+                findMany: true,
+                findOne: true,
+                create: true
+            }),
+            generateCrudResolvers("Asset", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    parent: "Asset",
+                    lastKnownHandler: "User"
+                },
+                readOnlyRelations: ["children"]
+            }),
+            generateCrudResolvers("AuditLog", {
+                findMany: true,
+                findOne: true,
+                writableRelations: {
+                    user: "User"
+                }
+            }),
+            generateCrudResolvers("BlogPost", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    author: "Person"
+                }
+            }),
             generateCrudResolvers("Category", {
                 findMany: true,
                 findOne: true,
@@ -192,9 +234,200 @@ async function createGraphQLServer(): Promise<
                 update: true,
                 delete: true,
                 writableRelations: {
-                    "parent": "Category"
+                    parent: "Category"
                 },
                 readOnlyRelations: ["children", "productions"]
+            }),
+            generateCrudResolvers("ContactSubmissionAssignee", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                delete: true,
+                writableRelations: {
+                    user: "User",
+                    submission: "ContactSubmission"
+                }
+            }),
+            generateCrudResolvers("ContactSubmission", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                readOnlyRelations: ["assignees"]
+            }),
+            generateCrudResolvers("Credit", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    person: "Person",
+                    production: "Production"
+                }
+            }),
+            generateCrudResolvers("GroupPermission", {
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    group: "Group",
+                }
+            }),
+            generateCrudResolvers("Group", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    parent: "Group"
+                },
+                readOnlyRelations: ["permissions", "children", "users"]
+            }),
+            generateCrudResolvers("Image", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                readOnlyRelations: ["people", "imageFor", "thumbnailFor"]
+            }),
+            generateCrudResolvers("Person", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                readOnlyRelations: ["images", "blogPosts", "credits", "roles", "users"]
+            }),
+            generateCrudResolvers("PersonImage", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    person: "Person",
+                }
+            }),
+            generateCrudResolvers("ProductionImage", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    image: "Image",
+                    production: "Production"
+                }
+            }),
+            generateCrudResolvers("ProductionRSVP", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    production: "Production",
+                    user: "User"
+                }
+            }),
+            generateCrudResolvers("ProductionTag", {
+                findOne: true,
+                create: true,
+                delete: true,
+                writableRelations: {
+                    production: "Production"
+                }
+            }),
+            generateCrudResolvers("ProductionVideo", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    production: "Production",
+                    video: "Video"
+                }
+            }),
+            generateCrudResolvers("Production", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    category: "Category",
+                    thumbnail: "Image",
+                },
+                readOnlyRelations: ["images", "rsvps", "tags", "videos"]
+            }),
+            generateCrudResolvers("Redirect", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+            }),
+            generateCrudResolvers("Role", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    person: "Person",
+                }
+            }),
+            generateCrudResolvers("UserGroup", {
+                findOne: true,
+                create: true,
+                delete: true,
+                writableRelations: {
+                    user: "User",
+                    group: "Group"
+                }
+            }),
+            generateCrudResolvers("UserPermission", {
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    user: "User"
+                }
+            }),
+            /* User has custom implemented resolvers due to password field */
+            userResolvers,
+            generateCrudResolvers("Video", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                readOnlyRelations: ["videoFor"]
+            }),
+            generateCrudResolvers("VoteResponse", {
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                writableRelations: {
+                    vote: "Vote",
+                    user: "User"
+                }
+            }),
+            generateCrudResolvers("Vote", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                readOnlyRelations: ["responses"]
             })
         ],
     });
