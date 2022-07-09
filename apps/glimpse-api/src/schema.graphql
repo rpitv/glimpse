@@ -257,7 +257,7 @@ type Query {
     """
     Get a single production tag, given its ID, or null if that production tag does not exist.
     """
-    fineOneProductionTag(id: ID! @Auth(action: read, subject: ProductionTag, field: "id")): ProductionTag @Auth(action: read, subject: ProductionTag)
+    findOneProductionTag(id: ID! @Auth(action: read, subject: ProductionTag, field: "id")): ProductionTag @Auth(action: read, subject: ProductionTag)
     """
     Get a list of production-video pairs which the user currently has access to read.
     """
