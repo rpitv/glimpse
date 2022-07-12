@@ -1,14 +1,14 @@
 import {
     defaultFieldResolver,
     GraphQLFieldConfig,
-    GraphQLSchema
+    GraphQLSchema,
 } from "graphql";
-import {getDirective, MapperKind, mapSchema} from "@graphql-tools/utils";
-import {GraphQLContext} from "custom";
-import {GraphQLYogaError} from "@graphql-yoga/node";
-import {subject} from "@casl/ability";
-import {Permission} from "../permissions";
-import {logger} from "../logger";
+import { getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
+import { GraphQLContext } from "custom";
+import { GraphQLYogaError } from "@graphql-yoga/node";
+import { subject } from "@casl/ability";
+import { Permission } from "../permissions";
+import { logger } from "../logger";
 
 /**
  * Cache containing all the @Auth directives on fields on GraphQL output types. First key is the name of the type,
@@ -26,7 +26,10 @@ const authedInputFields: Record<string, Record<string, Permission[]>> = {};
  * Cache containing all the @Auth directives on fields on GraphQL input arguments. First key is the name of the type,
  *   second key is the name of the field, and third key is the name of the argument.
  */
-const authedArguments: Record<string, Record<string, Record<string, Permission[]>>> = {};
+const authedArguments: Record<
+    string,
+    Record<string, Record<string, Permission[]>>
+> = {};
 
 const listOfScalars: string[] = [];
 
@@ -38,11 +41,14 @@ const listOfScalars: string[] = [];
  * @returns List of @Auth directives that are applied to the given field on the given type. This includes the
  *   default @Auth directives which are applied to the type as a whole.
  */
-function getAuthDirectivesForOutputField(typeName: string, fieldName: string): Permission[] {
+function getAuthDirectivesForOutputField(
+    typeName: string,
+    fieldName: string
+): Permission[] {
     return [
-        ...(authedOutputFields[typeName]?.['*'] || []),
-        ...(authedOutputFields[typeName]?.[fieldName] || [])
-    ]
+        ...(authedOutputFields[typeName]?.["*"] || []),
+        ...(authedOutputFields[typeName]?.[fieldName] || []),
+    ];
 }
 
 /**
@@ -53,11 +59,14 @@ function getAuthDirectivesForOutputField(typeName: string, fieldName: string): P
  * @returns List of @Auth directives that are applied to the given field on the given type. This includes the
  *   default @Auth directives which are applied to the type as a whole.
  */
-function getAuthDirectivesForInputField(typeName: string, fieldName: string): Permission[] {
+function getAuthDirectivesForInputField(
+    typeName: string,
+    fieldName: string
+): Permission[] {
     return [
-        ...(authedOutputFields[typeName]?.['*'] || []),
-        ...(authedOutputFields[typeName]?.[fieldName] || [])
-    ]
+        ...(authedOutputFields[typeName]?.["*"] || []),
+        ...(authedOutputFields[typeName]?.[fieldName] || []),
+    ];
 }
 
 /**
@@ -68,8 +77,12 @@ function getAuthDirectivesForInputField(typeName: string, fieldName: string): Pe
  * @param argumentName Name of the argument on the field which should be looked up.
  * @returns List of @Auth directives that are applied to the given argument on the given field on the given type.
  */
-function getAuthDirectivesForArgument(typeName: string, fieldName: string, argumentName: string): Permission[] {
-    return authedArguments[typeName]?.[fieldName]?.[argumentName] || []
+function getAuthDirectivesForArgument(
+    typeName: string,
+    fieldName: string,
+    argumentName: string
+): Permission[] {
+    return authedArguments[typeName]?.[fieldName]?.[argumentName] || [];
 }
 
 /**
@@ -77,7 +90,7 @@ function getAuthDirectivesForArgument(typeName: string, fieldName: string, argum
  * @param type
  */
 function getRawType(type: string): string {
-    return type.replace(/[!?\[\]]/g, '');
+    return type.replace(/[!?\[\]]/g, "");
 }
 
 /**
@@ -86,7 +99,10 @@ function getRawType(type: string): string {
  * @param directiveName The name of the directive to search for.
  * @param schema The GraphQL schema to search through.
  */
-function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLSchema): void {
+function collectAuthDirectiveDefinitions(
+    directiveName: string,
+    schema: GraphQLSchema
+): void {
     mapSchema(schema, {
         [MapperKind.SCALAR_TYPE]: (type) => {
             listOfScalars.push(type.name);
@@ -95,9 +111,15 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
         [MapperKind.ARGUMENT]: (argConfig, fieldName, typeName) => {
             const argName = argConfig.astNode?.name.value;
             if (!argName) {
-                throw new Error(`GraphQL Argument AST for ${typeName}:${fieldName} is missing for some reason.`);
+                throw new Error(
+                    `GraphQL Argument AST for ${typeName}:${fieldName} is missing for some reason.`
+                );
             }
-            const authDirectives = getDirective(schema, argConfig, directiveName);
+            const authDirectives = getDirective(
+                schema,
+                argConfig,
+                directiveName
+            );
             if (authDirectives) {
                 for (const directive of authDirectives) {
                     if (!authedArguments[typeName]) {
@@ -111,12 +133,14 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
                     }
                     // If a field is provided, then subject is required.
                     if (directive.field && !directive.subject) {
-                        throw new Error('Misconfigured GraphQL field has authorization directive(s) with field but no subject.');
+                        throw new Error(
+                            "Misconfigured GraphQL field has authorization directive(s) with field but no subject."
+                        );
                     }
                     authedArguments[typeName][fieldName][argName].push({
                         action: directive.action,
                         subject: directive.subject || undefined,
-                        field: directive.field || undefined
+                        field: directive.field || undefined,
                     });
                 }
             }
@@ -129,17 +153,19 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
                     if (!authedInputFields[type.name]) {
                         authedInputFields[type.name] = {};
                     }
-                    if (!authedInputFields[type.name]['*']) {
-                        authedInputFields[type.name]['*'] = [];
+                    if (!authedInputFields[type.name]["*"]) {
+                        authedInputFields[type.name]["*"] = [];
                     }
                     // If a field is provided, then subject is required.
                     if (directive.field && !directive.subject) {
-                        throw new Error('Misconfigured GraphQL field has authorization directive(s) with field but no subject.');
+                        throw new Error(
+                            "Misconfigured GraphQL field has authorization directive(s) with field but no subject."
+                        );
                     }
-                    authedInputFields[type.name]['*'].push({
+                    authedInputFields[type.name]["*"].push({
                         action: directive.action,
                         subject: directive.subject || undefined,
-                        field: directive.field || undefined
+                        field: directive.field || undefined,
                     });
                 }
             }
@@ -147,7 +173,11 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
             return type;
         },
         [MapperKind.INPUT_OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
-            const authDirectives = getDirective(schema, fieldConfig, directiveName);
+            const authDirectives = getDirective(
+                schema,
+                fieldConfig,
+                directiveName
+            );
             if (authDirectives) {
                 for (const directive of authDirectives) {
                     if (!authedInputFields[typeName]) {
@@ -158,12 +188,14 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
                     }
                     // If a field is provided, then subject is required.
                     if (directive.field && !directive.subject) {
-                        throw new Error('Misconfigured GraphQL field has authorization directive(s) with field but no subject.');
+                        throw new Error(
+                            "Misconfigured GraphQL field has authorization directive(s) with field but no subject."
+                        );
                     }
                     authedInputFields[typeName][fieldName].push({
                         action: directive.action,
                         subject: directive.subject || undefined,
-                        field: directive.field || undefined
+                        field: directive.field || undefined,
                     });
                 }
             }
@@ -177,17 +209,19 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
                     if (!authedOutputFields[type.name]) {
                         authedOutputFields[type.name] = {};
                     }
-                    if (!authedOutputFields[type.name]['*']) {
-                        authedOutputFields[type.name]['*'] = [];
+                    if (!authedOutputFields[type.name]["*"]) {
+                        authedOutputFields[type.name]["*"] = [];
                     }
                     // If a field is provided, then subject is required.
                     if (directive.field && !directive.subject) {
-                        throw new Error('Misconfigured GraphQL field has authorization directive(s) with field but no subject.');
+                        throw new Error(
+                            "Misconfigured GraphQL field has authorization directive(s) with field but no subject."
+                        );
                     }
-                    authedOutputFields[type.name]['*'].push({
+                    authedOutputFields[type.name]["*"].push({
                         action: directive.action,
                         subject: directive.subject || undefined,
-                        field: directive.field || undefined
+                        field: directive.field || undefined,
                     });
                 }
             }
@@ -195,12 +229,18 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
             return type;
         },
         [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
-            const authDirectives = getDirective(schema, fieldConfig, directiveName);
+            const authDirectives = getDirective(
+                schema,
+                fieldConfig,
+                directiveName
+            );
             // GraphQL fields which don't have an Auth directive are presumed to be a mistake.
             //   A developer should fix it by adding a directive and then adding the permission to guests.
             if (!authDirectives || authDirectives.length === 0) {
-                throw new Error('Misconfigured GraphQL field does not have authorization directive(s). Field config: ' +
-                    JSON.stringify(fieldConfig))
+                throw new Error(
+                    "Misconfigured GraphQL field does not have authorization directive(s). Field config: " +
+                        JSON.stringify(fieldConfig)
+                );
             }
 
             if (authDirectives) {
@@ -213,18 +253,20 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
                     }
                     // If a field is provided, then subject is required.
                     if (directive.field && !directive.subject) {
-                        throw new Error('Misconfigured GraphQL field has authorization directive(s) with field but no subject.');
+                        throw new Error(
+                            "Misconfigured GraphQL field has authorization directive(s) with field but no subject."
+                        );
                     }
                     authedOutputFields[typeName][fieldName].push({
                         action: directive.action,
                         subject: directive.subject || undefined,
-                        field: directive.field || undefined
+                        field: directive.field || undefined,
                     });
                 }
             }
-            return fieldConfig
-        }
-    })
+            return fieldConfig;
+        },
+    });
 }
 
 /**
@@ -239,23 +281,46 @@ function collectAuthDirectiveDefinitions(directiveName: string, schema: GraphQLS
  * @param argName The name of the argument on the field
  * @returns A new or modified fieldConfig object
  */
-function addHandlerForArgumentsAuthDirectives(fieldConfig: GraphQLFieldConfig<any, any>, fieldName: string,
-                                              typeName: string, argName: string): GraphQLFieldConfig<any, any> {
-    const argAuthDirectives = getAuthDirectivesForArgument(typeName, fieldName, argName);
+function addHandlerForArgumentsAuthDirectives(
+    fieldConfig: GraphQLFieldConfig<any, any>,
+    fieldName: string,
+    typeName: string,
+    argName: string
+): GraphQLFieldConfig<any, any> {
+    const argAuthDirectives = getAuthDirectivesForArgument(
+        typeName,
+        fieldName,
+        argName
+    );
     for (const directive of argAuthDirectives) {
         const resolver = fieldConfig.resolve || defaultFieldResolver;
-        fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info): Promise<unknown> => {
+        fieldConfig.resolve = async (
+            parent,
+            args,
+            ctx: GraphQLContext,
+            info
+        ): Promise<unknown> => {
             // Only check if the argument is being used
             if (args[argName] !== undefined) {
                 // Check if the user is allowed to use the argument. If not, throw an error.
-                logger.debug({directive},
-                    `Checking if user is authorized to use argument ${argName} on field ${typeName}.${fieldName}`);
-                if (!ctx.permissions.can(directive.action, directive.subject, directive.field)) {
-                    throw new GraphQLYogaError('Insufficient permissions to use argument ' + argName);
+                logger.debug(
+                    { directive },
+                    `Checking if user is authorized to use argument ${argName} on field ${typeName}.${fieldName}`
+                );
+                if (
+                    !ctx.permissions.can(
+                        directive.action,
+                        directive.subject,
+                        directive.field
+                    )
+                ) {
+                    throw new GraphQLYogaError(
+                        "Insufficient permissions to use argument " + argName
+                    );
                 }
             }
             return resolver(parent, args, ctx, info);
-        }
+        };
     }
     return fieldConfig;
 }
@@ -272,11 +337,19 @@ function addHandlerForArgumentsAuthDirectives(fieldConfig: GraphQLFieldConfig<an
  * @param argName The name of the argument, which is used for getting the type and value.
  * @returns A new or modified fieldConfig object
  */
-function addHandlerForInputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig<any, any>, fieldName: string,
-                                                typeName: string, argName: string): GraphQLFieldConfig<any, any> {
-    if (!fieldConfig.args) { // Should never happen.
-        throw new Error('Field has no args, yet it was attempted to add handlers for input auth directives to it.' +
-            ' Field config: ' + JSON.stringify(fieldConfig));
+function addHandlerForInputFieldsAuthDirectives(
+    fieldConfig: GraphQLFieldConfig<any, any>,
+    fieldName: string,
+    typeName: string,
+    argName: string
+): GraphQLFieldConfig<any, any> {
+    if (!fieldConfig.args) {
+        // Should never happen.
+        throw new Error(
+            "Field has no args, yet it was attempted to add handlers for input auth directives to it." +
+                " Field config: " +
+                JSON.stringify(fieldConfig)
+        );
     }
 
     const argType = getRawType(fieldConfig.args[argName].type.toString());
@@ -286,7 +359,12 @@ function addHandlerForInputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig<
     }
 
     const resolver = fieldConfig.resolve || defaultFieldResolver;
-    fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info): Promise<unknown> => {
+    fieldConfig.resolve = async (
+        parent,
+        args,
+        ctx: GraphQLContext,
+        info
+    ): Promise<unknown> => {
         // Simplify code by checking if the argument is an object, and if so, just make it a one-item array. This way
         //   all items can just be handled as arrays.
         let arrayOfValues;
@@ -300,20 +378,34 @@ function addHandlerForInputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig<
         for (const element of arrayOfValues) {
             // For each property on the value...
             for (const prop in element) {
-                const inputAuthDirectives = getAuthDirectivesForInputField(argType, prop);
+                const inputAuthDirectives = getAuthDirectivesForInputField(
+                    argType,
+                    prop
+                );
                 // For each @Auth directive applied to that property...
                 for (const directive of inputAuthDirectives) {
                     // Check whether the user satisfies the @Auth directives requirements. If not, throw an error.
-                    logger.debug({directive, element},
-                        `Checking if user is authorized to use input field ${argType}.${prop}.`);
-                    if (!ctx.permissions.can(directive.action, subject(directive.subject, element[prop]), directive.field)) {
-                        throw new GraphQLYogaError('Insufficient permissions to use input field ' + prop);
+                    logger.debug(
+                        { directive, element },
+                        `Checking if user is authorized to use input field ${argType}.${prop}.`
+                    );
+                    if (
+                        !ctx.permissions.can(
+                            directive.action,
+                            subject(directive.subject, element[prop]),
+                            directive.field
+                        )
+                    ) {
+                        throw new GraphQLYogaError(
+                            "Insufficient permissions to use input field " +
+                                prop
+                        );
                     }
                 }
             }
         }
         return resolver(parent, args, ctx, info);
-    }
+    };
 
     return fieldConfig;
 }
@@ -329,23 +421,48 @@ function addHandlerForInputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig<
  * @param typeName The output type which the field belongs to
  * @returns A new or modified fieldConfig object
  */
-function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig<any, any>, fieldName: string,
-                                                 typeName: string): GraphQLFieldConfig<any, any> {
+function addHandlerForOutputFieldsAuthDirectives(
+    fieldConfig: GraphQLFieldConfig<any, any>,
+    fieldName: string,
+    typeName: string
+): GraphQLFieldConfig<any, any> {
     // For top-level resolvers we need to check permissions for "our own" resolver too instead of just
     // "our children's" resolvers. Top-level resolvers don't have a parent which already did this check.
-    if (typeName === "Query" || typeName === "Mutation" || typeName === "Subscription") {
-        const outputAuthDirectives = getAuthDirectivesForOutputField(typeName, fieldName);
+    if (
+        typeName === "Query" ||
+        typeName === "Mutation" ||
+        typeName === "Subscription"
+    ) {
+        const outputAuthDirectives = getAuthDirectivesForOutputField(
+            typeName,
+            fieldName
+        );
         for (const directive of outputAuthDirectives) {
             const resolver = fieldConfig.resolve || defaultFieldResolver;
-            fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info): Promise<unknown> => {
-                logger.debug({directive},
-                    `Checking if user is authorized to read output field ${typeName}.${fieldName}`);
-                if (!ctx.permissions.can(directive.action, directive.subject, directive.field)) {
-                    throw new GraphQLYogaError('Insufficient permissions to access field ' + fieldName);
+            fieldConfig.resolve = async (
+                parent,
+                args,
+                ctx: GraphQLContext,
+                info
+            ): Promise<unknown> => {
+                logger.debug(
+                    { directive },
+                    `Checking if user is authorized to read output field ${typeName}.${fieldName}`
+                );
+                if (
+                    !ctx.permissions.can(
+                        directive.action,
+                        directive.subject,
+                        directive.field
+                    )
+                ) {
+                    throw new GraphQLYogaError(
+                        "Insufficient permissions to access field " + fieldName
+                    );
                 }
 
                 return resolver(parent, args, ctx, info);
-            }
+            };
         }
     }
 
@@ -353,17 +470,34 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
     //   We do this here instead of inside the child resolver to avoid giving away whether this field is null.
     //   If it is null, then the child resolver will not be called, and their permission checks wouldn't happen.
     const resolver = fieldConfig.resolve || defaultFieldResolver;
-    fieldConfig.resolve = async (parent, args, ctx: GraphQLContext, info): Promise<unknown> => {
+    fieldConfig.resolve = async (
+        parent,
+        args,
+        ctx: GraphQLContext,
+        info
+    ): Promise<unknown> => {
         const ownType = getRawType(info.returnType.toString());
         for (const child of info.fieldNodes[0].selectionSet?.selections ?? []) {
-            if (child.kind === 'Field') {
+            if (child.kind === "Field") {
                 const childName = child.name.value;
-                const childFieldAuthDirectives = getAuthDirectivesForOutputField(ownType, childName);
+                const childFieldAuthDirectives =
+                    getAuthDirectivesForOutputField(ownType, childName);
                 for (const childDirective of childFieldAuthDirectives) {
-                    logger.debug({childDirective},
-                        `Checking if user is authorized to read output field ${ownType}.${childName}`);
-                    if (!ctx.permissions.can(childDirective.action, childDirective.subject, childDirective.field)) {
-                        throw new GraphQLYogaError('Insufficient permissions to access field ' + childName);
+                    logger.debug(
+                        { childDirective },
+                        `Checking if user is authorized to read output field ${ownType}.${childName}`
+                    );
+                    if (
+                        !ctx.permissions.can(
+                            childDirective.action,
+                            childDirective.subject,
+                            childDirective.field
+                        )
+                    ) {
+                        throw new GraphQLYogaError(
+                            "Insufficient permissions to access field " +
+                                childName
+                        );
                     }
                 }
             }
@@ -375,14 +509,14 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
         }
 
         for (const child of info.fieldNodes[0].selectionSet?.selections ?? []) {
-            if (child.kind === 'Field') {
+            if (child.kind === "Field") {
                 const childName = child.name.value;
-                const childFieldAuthDirectives = getAuthDirectivesForOutputField(ownType, childName);
+                const childFieldAuthDirectives =
+                    getAuthDirectivesForOutputField(ownType, childName);
                 for (const childDirective of childFieldAuthDirectives) {
-                    console.log(childDirective.subject, ownType);
                     if (childDirective.subject === ownType) {
                         let returnedValueAsArray: unknown[] = [];
-                        if(Array.isArray(returnedObject)) {
+                        if (Array.isArray(returnedObject)) {
                             returnedValueAsArray = returnedObject;
                         } else {
                             returnedValueAsArray = [returnedObject];
@@ -390,22 +524,34 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
 
                         for (const returnedValue of returnedValueAsArray) {
                             // Check if the user is allowed to access the field on this specific object. If not, throw an error.
-                            logger.debug({childDirective, returnedValue, parent},
-                                `Checking if user is authorized to read output object with field ${ownType}.${childName}`);
-                            if (returnedValue !== null && !ctx.permissions.can(childDirective.action,
-                                subject(childDirective.subject, <any>returnedValue),
-                                childDirective.field)) {
-                                throw new GraphQLYogaError('Insufficient permissions to access field ' + childName);
+                            logger.debug(
+                                { childDirective, returnedValue, parent },
+                                `Checking if user is authorized to read output object with field ${ownType}.${childName}`
+                            );
+                            if (
+                                returnedValue !== null &&
+                                !ctx.permissions.can(
+                                    childDirective.action,
+                                    subject(
+                                        childDirective.subject,
+                                        <any>returnedValue
+                                    ),
+                                    childDirective.field
+                                )
+                            ) {
+                                throw new GraphQLYogaError(
+                                    "Insufficient permissions to access field " +
+                                        childName
+                                );
                             }
                         }
-
                     }
                 }
             }
         }
 
         return returnedObject;
-    }
+    };
     return fieldConfig;
 }
 
@@ -413,21 +559,36 @@ function addHandlerForOutputFieldsAuthDirectives(fieldConfig: GraphQLFieldConfig
  * Attach handlers to each resolver which has the @Auth directive. Multiple @Auth directives may be applied to one
  *   resolver/field. This also takes care of handling the directives on arguments.
  */
-export function authDirective(directiveName: string): (schema: GraphQLSchema) => GraphQLSchema {
+export function authDirective(
+    directiveName: string
+): (schema: GraphQLSchema) => GraphQLSchema {
     return (schema: GraphQLSchema): GraphQLSchema => {
         // Search through the provided schema to get all the locations the @Auth directive is used, and cache them.
         collectAuthDirectiveDefinitions(directiveName, schema);
         // Modify the resolvers for all fields to check the @Auth directive usages, to see if the user is allowed.
         return mapSchema(schema, {
             [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
-                fieldConfig = addHandlerForOutputFieldsAuthDirectives(fieldConfig, fieldName, typeName);
+                fieldConfig = addHandlerForOutputFieldsAuthDirectives(
+                    fieldConfig,
+                    fieldName,
+                    typeName
+                );
                 for (const arg in fieldConfig.args) {
-                    fieldConfig = addHandlerForArgumentsAuthDirectives(fieldConfig, fieldName, typeName, arg);
-                    fieldConfig = addHandlerForInputFieldsAuthDirectives(fieldConfig, fieldName, typeName, arg);
+                    fieldConfig = addHandlerForArgumentsAuthDirectives(
+                        fieldConfig,
+                        fieldName,
+                        typeName,
+                        arg
+                    );
+                    fieldConfig = addHandlerForInputFieldsAuthDirectives(
+                        fieldConfig,
+                        fieldName,
+                        typeName,
+                        arg
+                    );
                 }
                 return fieldConfig;
-            }
-        })
-    }
+            },
+        });
+    };
 }
-
