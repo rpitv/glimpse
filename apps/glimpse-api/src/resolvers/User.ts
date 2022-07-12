@@ -12,7 +12,7 @@ import {
     Asset,
 } from ".prisma/client";
 import { subject } from "@casl/ability";
-import { canUpdate } from "../permissions";
+import { canCreate, canUpdate } from "../permissions";
 import { GraphQLContext } from "custom";
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import {
@@ -79,20 +79,21 @@ export const resolver: Resolvers = {
             ctx: GraphQLContext
         ): Promise<User> => {
             // Check that user is allowed to create the passed User. Fields aren't relevant in this context.
-            if (!ctx.permissions.can("create", subject("User", args.input))) {
-                throw new GraphQLYogaError("Insufficient permissions");
+            if (!canCreate(ctx.permissions, "User", args.input)) {
+                throw new GraphQLYogaError(
+                    "Insufficient permissions to create User."
+                );
             }
 
             // If person is being updated to a new Person, check that the current user has permission to read the new
-            //   Person, and then connect it. Only ID needs to be selected.
-            let person = undefined;
-            if (args.input.person) {
-                person = await ctx.prisma.person.findFirst({
+            //   Person.
+            if (args.input.personId) {
+                const person = await ctx.prisma.person.findFirst({
                     where: {
                         AND: [
                             getAccessibleByFilter(ctx.permissions, "read")
                                 .Person,
-                            { id: parseInt(args.input.person) },
+                            { id: parseInt(args.input.personId) },
                         ],
                     },
                     select: { id: true },
@@ -100,8 +101,6 @@ export const resolver: Resolvers = {
                 if (person === null) {
                     throw new GraphQLYogaError("Person does not exist");
                 }
-                // Wrap person object in a Prisma relation input.
-                person = { connect: person };
             }
 
             // If password is being added, make sure it is valid, and then hash it using argon2id.
@@ -124,7 +123,10 @@ export const resolver: Resolvers = {
                     username: args.input.username,
                     mail: args.input.mail,
                     discord: args.input.discord,
-                    person,
+                    personId:
+                        typeof args.input.personId === "string"
+                            ? parseInt(args.input.personId)
+                            : args.input.personId,
                     password: passwordHash,
                 },
             });
@@ -147,27 +149,21 @@ export const resolver: Resolvers = {
             }
 
             // If person is being updated to a new Person, check that the current user has permission to read the new
-            //   Person, and then connect it. Otherwise, if person is being updated to null, disconnect the Person.
-            //    Only ID needs to be selected.
-            let person = undefined;
-            if (args.input.person) {
-                person = await ctx.prisma.person.findFirst({
+            //   Person.
+            if (args.input.personId) {
+                const person = await ctx.prisma.person.findFirst({
                     where: {
                         AND: [
                             getAccessibleByFilter(ctx.permissions, "read")
                                 .Person,
-                            { id: parseInt(args.input.person) },
+                            { id: parseInt(args.input.personId) },
                         ],
                     },
+                    select: { id: true },
                 });
                 if (person === null) {
                     throw new GraphQLYogaError("Person does not exist");
                 }
-                // Wrap person object in a Prisma relation input.
-                person = { connect: person };
-            } else if (args.input.person === null) {
-                // Disconnect if null was provided.
-                person = { disconnect: true };
             }
 
             // If password is being added, make sure it is valid, and then hash it using argon2id.
@@ -191,7 +187,10 @@ export const resolver: Resolvers = {
                     username: args.input.username,
                     mail: args.input.mail,
                     discord: args.input.discord,
-                    person,
+                    personId:
+                        typeof args.input.personId === "string"
+                            ? parseInt(args.input.personId)
+                            : args.input.personId,
                     password: passwordHash,
                 },
             });

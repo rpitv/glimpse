@@ -684,7 +684,7 @@ input AssetCreateInput {
     tag: Int @NonNull @Auth(action: create, subject: Asset, field: "tag")
     name: String! @NonNull @Auth(action: create, subject: Asset, field: "name")
     lastKnownLocation: String @Auth(action: create, subject: Asset, field: "lastKnownLocation")
-    lastKnownHandler: ID @Auth(action: create, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
+    lastKnownHandlerId: ID @Auth(action: create, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
     """Defaults to false."""
     isLost: Boolean! = false @NonNull @Auth(action: create, subject: Asset, field: "isLost")
     notes: String @Auth(action: create, subject: Asset, field: "notes")
@@ -693,14 +693,14 @@ input AssetCreateInput {
     purchaseDate: DateTime @Auth(action: create, subject: Asset, field: "purchaseDate")
     modelNumber: String @Auth(action: create, subject: Asset, field: "modelNumber")
     serialNumber: String @Auth(action: create, subject: Asset, field: "serialNumber")
-    parent: ID @Auth(action: create, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
+    parentId: ID @Auth(action: create, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
 }
 
 input AssetUpdateInput {
     tag: Int @Auth(action: update, subject: Asset, field: "tag")
     name: String @NonNull @Auth(action: update, subject: Asset, field: "name")
     lastKnownLocation: String @Auth(action: update, subject: Asset, field: "lastKnownLocation")
-    lastKnownHandler: ID @Auth(action: update, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
+    lastKnownHandlerId: ID @Auth(action: update, subject: Asset, field: "lastKnownHandler") @Auth(action: read, subject: User, field: "id")
     isLost: Boolean @NonNull @Auth(action: update, subject: Asset, field: "isLost")
     notes: String @Auth(action: update, subject: Asset, field: "notes")
     purchasePrice: Int @Auth(action: update, subject: Asset, field: "purchasePrice")
@@ -708,7 +708,7 @@ input AssetUpdateInput {
     purchaseDate: DateTime @Auth(action: update, subject: Asset, field: "purchaseDate")
     modelNumber: String @Auth(action: update, subject: Asset, field: "modelNumber")
     serialNumber: String @Auth(action: update, subject: Asset, field: "serialNumber")
-    parent: ID @Auth(action: update, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
+    parentId: ID @Auth(action: update, subject: Asset, field: "parent") @Auth(action: read, subject: Asset, field: "id")
 }
 
 type AuditLog {
@@ -734,14 +734,14 @@ type BlogPost {
 
 input BlogPostCreateInput {
     content: String! @NonNull @Auth(action: create, subject: BlogPost, field: "content")
-    author: ID! @NonNull @Auth(action: create, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
+    authorId: ID! @NonNull @Auth(action: create, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
     authorDisplayName: String @Auth(action: create, subject: BlogPost, field: "authorDisplayName")
     title: String! @NonNull @Auth(action: create, subject: BlogPost, field: "title")
 }
 
 input BlogPostUpdateInput {
     content: String @NonNull @Auth(action: update, subject: BlogPost, field: "content")
-    author: ID @NonNull @Auth(action: update, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
+    authorId: ID @NonNull @Auth(action: update, subject: BlogPost, field: "author") @Auth(action: read, subject: Person, field: "id")
     authorDisplayName: String @Auth(action: update, subject: BlogPost, field: "authorDisplayName")
     title: String @NonNull @Auth(action: update, subject: BlogPost, field: "title")
 }
@@ -759,13 +759,13 @@ input CategoryCreateInput {
     name: String @Auth(action: create, subject: Category, field: "name")
     """Defaults to 0."""
     priority: Int! = 0 @NonNull @Auth(action: create, subject: Category, field: "priority")
-    parent: ID @Auth(action: create, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
+    parentId: ID @Auth(action: create, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
 }
 
 input CategoryUpdateInput {
     name: String @Auth(action: update, subject: Category, field: "name")
     priority: Int @NonNull @Auth(action: update, subject: Category, field: "priority")
-    parent: ID @Auth(action: update, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
+    parentId: ID @Auth(action: update, subject: Category, field: "parent") @Auth(action: read, subject: Category, field: "id")
 }
 
 type ContactSubmissionAssignee {
@@ -776,8 +776,8 @@ type ContactSubmissionAssignee {
 }
 
 input ContactSubmissionAssigneeCreateInput {
-    submission: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "submission") @Auth(action: read, subject: ContactSubmission, field: "id")
-    user: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "user") @Auth(action: read, subject: User, field: "id")
+    submissionId: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "submission") @Auth(action: read, subject: ContactSubmission, field: "id")
+    userId: ID! @NonNull @Auth(action: create, subject: ContactSubmissionAssignee, field: "user") @Auth(action: read, subject: User, field: "id")
 }
 
 type ContactSubmission {
@@ -810,16 +810,16 @@ type Credit {
 }
 
 input CreditCreateInput {
-    production: ID! @NonNull @Auth(action: create, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
-    person: ID! @NonNull @Auth(action: create, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
+    productionId: ID! @NonNull @Auth(action: create, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
+    personId: ID! @NonNull @Auth(action: create, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
     title: String @Auth(action: create, subject: Credit, field: "title")
     """Defaults to 0."""
     priority: Int! = 0 @NonNull @Auth(action: create, subject: Credit, field: "priority")
 }
 
 input CreditUpdateInput {
-    production: ID @NonNull @Auth(action: update, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
-    person: ID @NonNull @Auth(action: update, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
+    productionId: ID @NonNull @Auth(action: update, subject: Credit, field: "production") @Auth(action: read, subject: Production, field: "id")
+    personId: ID @NonNull @Auth(action: update, subject: Credit, field: "person") @Auth(action: read, subject: Person, field: "id")
     title: String @Auth(action: update, subject: Credit, field: "title")
     priority: Int @NonNull @Auth(action: update, subject: Credit, field: "priority")
 }
@@ -837,7 +837,7 @@ type GroupPermission {
 
 
 input GroupPermissionCreateInput {
-    group: ID! @NonNull @Auth(action: create, subject: GroupPermission, field: "group") @Auth(action: read, subject: Group, field: "id")
+    groupId: ID! @NonNull @Auth(action: create, subject: GroupPermission, field: "group") @Auth(action: read, subject: Group, field: "id")
     action: String! @NonNull @Auth(action: create, subject: GroupPermission, field: "action")
     subject: [String!]! @NonNull @Auth(action: create, subject: GroupPermission, field: "subject")
     fields: [String!] @Auth(action: create, subject: GroupPermission, field: "fields")
@@ -868,14 +868,14 @@ type Group {
 
 input GroupCreateInput {
     name: String! @NonNull @Auth(action: create, subject: Group, field: "name")
-    parent: ID @Auth(action: create, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
+    parentId: ID @Auth(action: create, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
     """Defaults to 0."""
     priority: Int! = 0 @NonNull @Auth(action: create, subject: Group, field: "priority")
 }
 
 input GroupUpdateInput {
     name: String @NonNull @Auth(action: update, subject: Group, field: "name")
-    parent: ID @Auth(action: update, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
+    parentId: ID @Auth(action: update, subject: Group, field: "parent") @Auth(action: read, subject: Group, field: "id")
     priority: Int @NonNull @Auth(action: update, subject: Group, field: "priority")
 }
 
@@ -943,8 +943,8 @@ type PersonImage {
 }
 
 input PersonImageCreateInput {
-    image: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "image") @Auth(action: read, subject: Image, field: "id")
-    person: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "person") @Auth(action: read, subject: Person, field: "id")
+    imageId: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "image") @Auth(action: read, subject: Image, field: "id")
+    personId: ID! @NonNull @Auth(action: create, subject: PersonImage, field: "person") @Auth(action: read, subject: Person, field: "id")
     """Defaults to 0."""
     priority: Int! = 0 @NonNull @Auth(action: create, subject: PersonImage, field: "priority")
 }
@@ -962,8 +962,8 @@ type ProductionImage {
 }
 
 input ProductionImageCreateInput {
-    production: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "production") @Auth(action: read, subject: Production, field: "id")
-    image: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "image") @Auth(action: read, subject: Image, field: "id")
+    productionId: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "production") @Auth(action: read, subject: Production, field: "id")
+    imageId: ID! @NonNull @Auth(action: create, subject: ProductionImage, field: "image") @Auth(action: read, subject: Image, field: "id")
     """Defaults to 0."""
     priority: Int! = 0 @NonNull @Auth(action: create, subject: ProductionImage, field: "priority")
 }
@@ -982,8 +982,8 @@ type ProductionRSVP {
 }
 
 input ProductionRSVPCreateInput {
-    production: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "production") @Auth(action: read, subject: Production, field: "id")
-    user: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "user") @Auth(action: read, subject: User, field: "id")
+    productionId: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "production") @Auth(action: read, subject: Production, field: "id")
+    userId: ID! @NonNull @Auth(action: create, subject: ProductionRSVP, field: "user") @Auth(action: read, subject: User, field: "id")
     willAttend: ProductionRSVPAttendanceState @Auth(action: create, subject: ProductionRSVP, field: "willAttend")
     notes: String @Auth(action: create, subject: ProductionRSVP, field: "notes")
 }
@@ -1001,7 +1001,7 @@ type ProductionTag {
 }
 
 input ProductionTagCreateInput {
-    production: ID! @NonNull @Auth(action: create, subject: ProductionTag, field: "production") @Auth(action: read, subject: Production, field: "id")
+    productionId: ID! @NonNull @Auth(action: create, subject: ProductionTag, field: "production") @Auth(action: read, subject: Production, field: "id")
     tag: String! @NonNull @Auth(action: create, subject: ProductionTag, field: "tag")
 }
 
@@ -1013,8 +1013,8 @@ type ProductionVideo {
 }
 
 input ProductionVideoCreateInput {
-    production: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "production") @Auth(action: read, subject: Production, field: "id")
-    video: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "video") @Auth(action: read, subject: Video, field: "id")
+    productionId: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "production") @Auth(action: read, subject: Production, field: "id")
+    videoId: ID! @NonNull @Auth(action: create, subject: ProductionVideo, field: "video") @Auth(action: read, subject: Video, field: "id")
     priority: Int! = 0 @NonNull @Auth(action: create, subject: ProductionVideo, field: "priority")
 }
 
@@ -1051,13 +1051,13 @@ input ProductionCreateInput {
     endTime: DateTime @NonNull @Auth(action: create, subject: Production, field: "endTime")
     """Defaults to false."""
     isLive: Boolean! = false @NonNull @Auth(action: create, subject: Production, field: "isLive")
-    category: ID @Auth(action: create, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
+    categoryId: ID @Auth(action: create, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
     closetLocation: String @Auth(action: create, subject: Production, field: "closetLocation")
     eventLocation: String @Auth(action: create, subject: Production, field: "eventLocation")
     teamNotes: String @Auth(action: create, subject: Production, field: "teamNotes")
     discordServer: String @Auth(action: create, subject: Production, field: "discordServer")
     discordChannel: String @Auth(action: create, subject: Production, field: "discordChannel")
-    thumbnail: ID @Auth(action: create, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
+    thumbnailId: ID @Auth(action: create, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
     closetTime: DateTime @Auth(action: create, subject: Production, field: "closetTime")
 }
 
@@ -1067,13 +1067,13 @@ input ProductionUpdateInput {
     startTime: DateTime @NonNull @Auth(action: update, subject: Production, field: "startTime")
     endTime: DateTime @NonNull @Auth(action: update, subject: Production, field: "endTime")
     isLive: Boolean @NonNull @Auth(action: update, subject: Production, field: "isLive")
-    category: ID @Auth(action: update, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
+    categoryId: ID @Auth(action: update, subject: Production, field: "category") @Auth(action: read, subject: Category, field: "id")
     closetLocation: String @Auth(action: update, subject: Production, field: "closetLocation")
     eventLocation: String @Auth(action: update, subject: Production, field: "eventLocation")
     teamNotes: String @Auth(action: update, subject: Production, field: "teamNotes")
     discordServer: String @Auth(action: update, subject: Production, field: "discordServer")
     discordChannel: String @Auth(action: update, subject: Production, field: "discordChannel")
-    thumbnail: ID @Auth(action: update, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
+    thumbnailId: ID @Auth(action: update, subject: Production, field: "thumbnail") @Auth(action: read, subject: Image, field: "id")
     closetTime: DateTime @Auth(action: update, subject: Production, field: "closetTime")
 }
 
@@ -1106,7 +1106,7 @@ type Role {
 }
 
 input RoleCreateInput {
-    person: ID! @NonNull @Auth(action: create, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
+    personId: ID! @NonNull @Auth(action: create, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
     name: String! @NonNull @Auth(action: create, subject: Role, field: "name")
     startTime: DateTime @NonNull @Auth(action: create, subject: Role, field: "startTime")
     endTime: DateTime @Auth(action: create, subject: Role, field: "endTime")
@@ -1115,7 +1115,7 @@ input RoleCreateInput {
 }
 
 input RoleUpdateInput {
-    person: ID @NonNull @Auth(action: update, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
+    personId: ID @NonNull @Auth(action: update, subject: Role, field: "person") @Auth(action: read, subject: Person, field: "id")
     name: String @NonNull @Auth(action: update, subject: Role, field: "name")
     startTime: DateTime @NonNull @Auth(action: update, subject: Role, field: "startTime")
     endTime: DateTime @Auth(action: update, subject: Role, field: "endTime")
@@ -1129,8 +1129,8 @@ type UserGroup {
 }
 
 input UserGroupCreateInput {
-    user: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "user") @Auth(action: read, subject: User, field: "id")
-    group: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "group") @Auth(action: read, subject: Group, field: "id")
+    userId: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "user") @Auth(action: read, subject: User, field: "id")
+    groupId: ID! @NonNull @Auth(action: create, subject: UserGroup, field: "group") @Auth(action: read, subject: Group, field: "id")
 }
 
 type UserPermission {
@@ -1145,7 +1145,7 @@ type UserPermission {
 }
 
 input UserPermissionCreateInput {
-    user: ID! @NonNull @Auth(action: create, subject: UserPermission, field: "user") @Auth(action: read, subject: User, field: "id")
+    userId: ID! @NonNull @Auth(action: create, subject: UserPermission, field: "user") @Auth(action: read, subject: User, field: "id")
     action: String! @NonNull @Auth(action: create, subject: UserPermission, field: "action")
     subject: [String!]! @NonNull @Auth(action: create, subject: UserPermission, field: "subject")
     fields: [String!] @Auth(action: create, subject: UserPermission, field: "fields")
@@ -1184,7 +1184,7 @@ type User {
 input UserCreateInput {
     username: String! @NonNull @Auth(action: create, subject: User, field: "username")
     mail: EmailAddress! @NonNull @Auth(action: create, subject: User, field: "mail")
-    person: ID @Auth(action: create, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
+    personId: ID @Auth(action: create, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
     discord: String @Auth(action: create, subject: User, field: "discord")
     password: String @NonNull @Auth(action: create, subject: User, field: "password")
 }
@@ -1192,7 +1192,7 @@ input UserCreateInput {
 input UserUpdateInput {
     username: String @NonNull @Auth(action: update, subject: User, field: "username")
     mail: EmailAddress @NonNull @Auth(action: update, subject: User, field: "mail")
-    person: ID @Auth(action: update, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
+    personId: ID @Auth(action: update, subject: User, field: "person") @Auth(action: read, subject: Person, field: "id")
     discord: String @Auth(action: update, subject: User, field: "discord")
     password: String @Auth(action: update, subject: User, field: "password")
 }
@@ -1226,8 +1226,8 @@ type VoteResponse {
 }
 
 input VoteResponseCreateInput {
-    vote: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "vote") @Auth(action: read, subject: Vote, field: "id")
-    user: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "user") @Auth(action: read, subject: User, field: "id")
+    voteId: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "vote") @Auth(action: read, subject: Vote, field: "id")
+    userId: ID! @NonNull @Auth(action: create, subject: VoteResponse, field: "user") @Auth(action: read, subject: User, field: "id")
     selection: String! @NonNull @Auth(action: create, subject: VoteResponse, field: "selection")
 }
 

@@ -109,12 +109,12 @@ export type Asset = {
 export type AssetCreateInput = {
   /** Defaults to false. */
   isLost?: Scalars['Boolean'];
-  lastKnownHandler?: InputMaybe<Scalars['ID']>;
+  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   notes?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   purchaseDate?: InputMaybe<Scalars['DateTime']>;
   purchaseLocation?: InputMaybe<Scalars['String']>;
   purchasePrice?: InputMaybe<Scalars['Int']>;
@@ -124,12 +124,12 @@ export type AssetCreateInput = {
 
 export type AssetUpdateInput = {
   isLost?: InputMaybe<Scalars['Boolean']>;
-  lastKnownHandler?: InputMaybe<Scalars['ID']>;
+  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   notes?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   purchaseDate?: InputMaybe<Scalars['DateTime']>;
   purchaseLocation?: InputMaybe<Scalars['String']>;
   purchasePrice?: InputMaybe<Scalars['Int']>;
@@ -161,15 +161,15 @@ export type BlogPost = {
 };
 
 export type BlogPostCreateInput = {
-  author: Scalars['ID'];
   authorDisplayName?: InputMaybe<Scalars['String']>;
+  authorId: Scalars['ID'];
   content: Scalars['String'];
   title: Scalars['String'];
 };
 
 export type BlogPostUpdateInput = {
-  author?: InputMaybe<Scalars['ID']>;
   authorDisplayName?: InputMaybe<Scalars['String']>;
+  authorId?: InputMaybe<Scalars['ID']>;
   content?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
 };
@@ -186,14 +186,14 @@ export type Category = {
 
 export type CategoryCreateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
 
 export type CategoryUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
 };
 
@@ -217,8 +217,8 @@ export type ContactSubmissionAssignee = {
 };
 
 export type ContactSubmissionAssigneeCreateInput = {
-  submission: Scalars['ID'];
-  user: Scalars['ID'];
+  submissionId: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type ContactSubmissionCreateInput = {
@@ -242,17 +242,17 @@ export type Credit = {
 };
 
 export type CreditCreateInput = {
-  person: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
   title?: InputMaybe<Scalars['String']>;
 };
 
 export type CreditUpdateInput = {
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
-  production?: InputMaybe<Scalars['ID']>;
+  productionId?: InputMaybe<Scalars['ID']>;
   title?: InputMaybe<Scalars['String']>;
 };
 
@@ -269,7 +269,7 @@ export type Group = {
 
 export type GroupCreateInput = {
   name: Scalars['String'];
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
@@ -290,7 +290,7 @@ export type GroupPermissionCreateInput = {
   action: Scalars['String'];
   conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
-  group: Scalars['ID'];
+  groupId: Scalars['ID'];
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
   subject: Array<Scalars['String']>;
@@ -307,7 +307,7 @@ export type GroupPermissionUpdateInput = {
 
 export type GroupUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
 };
 
@@ -905,8 +905,8 @@ export type PersonImage = {
 };
 
 export type PersonImageCreateInput = {
-  image: Scalars['ID'];
-  person: Scalars['ID'];
+  imageId: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
@@ -947,7 +947,7 @@ export type Production = {
 };
 
 export type ProductionCreateInput = {
-  category?: InputMaybe<Scalars['ID']>;
+  categoryId?: InputMaybe<Scalars['ID']>;
   closetLocation?: InputMaybe<Scalars['String']>;
   closetTime?: InputMaybe<Scalars['DateTime']>;
   description?: InputMaybe<Scalars['String']>;
@@ -960,7 +960,7 @@ export type ProductionCreateInput = {
   name: Scalars['String'];
   startTime?: InputMaybe<Scalars['DateTime']>;
   teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['ID']>;
+  thumbnailId?: InputMaybe<Scalars['ID']>;
 };
 
 export type ProductionImage = {
@@ -972,10 +972,10 @@ export type ProductionImage = {
 };
 
 export type ProductionImageCreateInput = {
-  image: Scalars['ID'];
+  imageId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
 };
 
 export type ProductionImageUpdateInput = {
@@ -999,8 +999,8 @@ export enum ProductionRsvpAttendanceState {
 
 export type ProductionRsvpCreateInput = {
   notes?: InputMaybe<Scalars['String']>;
-  production: Scalars['ID'];
-  user: Scalars['ID'];
+  productionId: Scalars['ID'];
+  userId: Scalars['ID'];
   willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
 };
 
@@ -1017,12 +1017,12 @@ export type ProductionTag = {
 };
 
 export type ProductionTagCreateInput = {
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
   tag: Scalars['String'];
 };
 
 export type ProductionUpdateInput = {
-  category?: InputMaybe<Scalars['ID']>;
+  categoryId?: InputMaybe<Scalars['ID']>;
   closetLocation?: InputMaybe<Scalars['String']>;
   closetTime?: InputMaybe<Scalars['DateTime']>;
   description?: InputMaybe<Scalars['String']>;
@@ -1034,7 +1034,7 @@ export type ProductionUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
   startTime?: InputMaybe<Scalars['DateTime']>;
   teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['ID']>;
+  thumbnailId?: InputMaybe<Scalars['ID']>;
 };
 
 export type ProductionVideo = {
@@ -1047,8 +1047,8 @@ export type ProductionVideo = {
 
 export type ProductionVideoCreateInput = {
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
-  video: Scalars['ID'];
+  productionId: Scalars['ID'];
+  videoId: Scalars['ID'];
 };
 
 export type ProductionVideoUpdateInput = {
@@ -1135,6 +1135,8 @@ export type Query = {
   findOneProductionImage?: Maybe<ProductionImage>;
   /** Get a single production RSVP, given its ID, or null if that production RSVP does not exist. */
   findOneProductionRSVP?: Maybe<ProductionRsvp>;
+  /** Get a single production tag, given its ID, or null if that production tag does not exist. */
+  findOneProductionTag?: Maybe<ProductionTag>;
   /** Get a single production-video pair, given its ID, or null if that production-video pair does not exist. */
   findOneProductionVideo?: Maybe<ProductionVideo>;
   /** Get a single production, given its ID, or null if that redirect does not exist. */
@@ -1153,8 +1155,6 @@ export type Query = {
   findOneVote?: Maybe<Vote>;
   /** Get a single vote response, given its ID, or null if that vote response does not exist. */
   findOneVoteResponse?: Maybe<VoteResponse>;
-  /** Get a single production tag, given its ID, or null if that production tag does not exist. */
-  fineOneProductionTag?: Maybe<ProductionTag>;
 };
 
 
@@ -1353,6 +1353,11 @@ export type QueryFindOneProductionRsvpArgs = {
 };
 
 
+export type QueryFindOneProductionTagArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type QueryFindOneProductionVideoArgs = {
   id: Scalars['ID'];
 };
@@ -1397,11 +1402,6 @@ export type QueryFindOneVoteResponseArgs = {
   id: Scalars['ID'];
 };
 
-
-export type QueryFineOneProductionTagArgs = {
-  id: Scalars['ID'];
-};
-
 export type Redirect = {
   __typename?: 'Redirect';
   expires?: Maybe<Scalars['DateTime']>;
@@ -1435,7 +1435,7 @@ export type Role = {
 export type RoleCreateInput = {
   endTime?: InputMaybe<Scalars['DateTime']>;
   name: Scalars['String'];
-  person: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
   startTime?: InputMaybe<Scalars['DateTime']>;
@@ -1444,7 +1444,7 @@ export type RoleCreateInput = {
 export type RoleUpdateInput = {
   endTime?: InputMaybe<Scalars['DateTime']>;
   name?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
   startTime?: InputMaybe<Scalars['DateTime']>;
 };
@@ -1471,7 +1471,7 @@ export type UserCreateInput = {
   discord?: InputMaybe<Scalars['String']>;
   mail: Scalars['EmailAddress'];
   password?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   username: Scalars['String'];
 };
 
@@ -1483,8 +1483,8 @@ export type UserGroup = {
 };
 
 export type UserGroupCreateInput = {
-  group: Scalars['ID'];
-  user: Scalars['ID'];
+  groupId: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type UserPermission = {
@@ -1506,7 +1506,7 @@ export type UserPermissionCreateInput = {
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
   subject: Array<Scalars['String']>;
-  user: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type UserPermissionUpdateInput = {
@@ -1522,7 +1522,7 @@ export type UserUpdateInput = {
   discord?: InputMaybe<Scalars['String']>;
   mail?: InputMaybe<Scalars['EmailAddress']>;
   password?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   username?: InputMaybe<Scalars['String']>;
 };
 
@@ -1581,8 +1581,8 @@ export type VoteResponse = {
 
 export type VoteResponseCreateInput = {
   selection: Scalars['String'];
-  user: Scalars['ID'];
-  vote: Scalars['ID'];
+  userId: Scalars['ID'];
+  voteId: Scalars['ID'];
 };
 
 export type VoteResponseUpdateInput = {
@@ -2193,6 +2193,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findOneProduction?: Resolver<Maybe<ResolversTypes['Production']>, ParentType, ContextType, RequireFields<QueryFindOneProductionArgs, 'id'>>;
   findOneProductionImage?: Resolver<Maybe<ResolversTypes['ProductionImage']>, ParentType, ContextType, RequireFields<QueryFindOneProductionImageArgs, 'id'>>;
   findOneProductionRSVP?: Resolver<Maybe<ResolversTypes['ProductionRSVP']>, ParentType, ContextType, RequireFields<QueryFindOneProductionRsvpArgs, 'id'>>;
+  findOneProductionTag?: Resolver<Maybe<ResolversTypes['ProductionTag']>, ParentType, ContextType, RequireFields<QueryFindOneProductionTagArgs, 'id'>>;
   findOneProductionVideo?: Resolver<Maybe<ResolversTypes['ProductionVideo']>, ParentType, ContextType, RequireFields<QueryFindOneProductionVideoArgs, 'id'>>;
   findOneRedirect?: Resolver<Maybe<ResolversTypes['Redirect']>, ParentType, ContextType, RequireFields<QueryFindOneRedirectArgs, 'id'>>;
   findOneRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryFindOneRoleArgs, 'id'>>;
@@ -2202,7 +2203,6 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findOneVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<QueryFindOneVideoArgs, 'id'>>;
   findOneVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<QueryFindOneVoteArgs, 'id'>>;
   findOneVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryFindOneVoteResponseArgs, 'id'>>;
-  fineOneProductionTag?: Resolver<Maybe<ResolversTypes['ProductionTag']>, ParentType, ContextType, RequireFields<QueryFineOneProductionTagArgs, 'id'>>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
