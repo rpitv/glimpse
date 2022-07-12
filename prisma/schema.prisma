@@ -150,7 +150,7 @@ model Group {
   parentId          Int?             @map("parent")
   priority          Int              @default(0)
   parent            Group?           @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
-  group_permissions GroupPermission? @relation("group_permissionsTogroups")
+  permissions       GroupPermission[] @relation("group_permissionsTogroups")
   children          Group[]          @relation("GroupToGroup_parentId")
   users             UserGroup[]      @relation("groupsTouser_groups")
 
@@ -168,7 +168,7 @@ model GroupPermission {
   conditions Json?    @db.Json
   inverted   Boolean  @default(false)
   reason     String?  @db.VarChar(300)
-  groups     Group    @relation("group_permissionsTogroups", fields: [id], references: [id], map: "group_permissions_groups_id_fk")
+  group     Group    @relation("group_permissionsTogroups", fields: [groupId], references: [id], map: "group_permissions_groups_id_fk")
 
   @@index([groupId, subject, action], map: "group_permissions_group_subject_action_index")
   @@map("group_permissions")

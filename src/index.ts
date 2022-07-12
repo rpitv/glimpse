@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 
 import express, { Express } from "express";
@@ -12,7 +13,10 @@ import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import { createServer, YogaNodeServerInstance } from "@graphql-yoga/node";
+import {
+    createServer,
+    YogaNodeServerInstance,
+} from "@graphql-yoga/node";
 
 import { prisma } from "./prisma";
 import { GraphQLContext, TrustProxyOption } from "custom";
@@ -26,7 +30,10 @@ import {
     EmailAddressResolver,
     JSONObjectResolver,
 } from "graphql-scalars";
-import { generateCrudResolvers } from "./ExampleCrud";
+import {
+    generateCrudResolvers,
+    relationalIdWriteTransformer,
+} from "./CrudGenerator";
 import { resolver as userResolvers } from "./resolvers/User";
 
 dotenv.config();
@@ -189,14 +196,17 @@ async function createGraphQLServer(): Promise<
             generateCrudResolvers("AccessLog", {
                 findMany: true,
                 findOne: true,
-                writableRelations: {
-                    user: "User"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                    },
+                },
+                relations: ["user"],
             }),
             generateCrudResolvers("AlertLog", {
                 findMany: true,
                 findOne: true,
-                create: true
+                create: true,
             }),
             generateCrudResolvers("Asset", {
                 findMany: true,
@@ -204,18 +214,24 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    parent: "Asset",
-                    lastKnownHandler: "User"
+                transformers: {
+                    write: {
+                        parentId: relationalIdWriteTransformer("Asset"),
+                        lastKnownHandlerId:
+                            relationalIdWriteTransformer("User"),
+                    },
                 },
-                readOnlyRelations: ["children"]
+                relations: ["children", "parent", "lastKnownHandler"],
             }),
             generateCrudResolvers("AuditLog", {
                 findMany: true,
                 findOne: true,
-                writableRelations: {
-                    user: "User"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                    },
+                },
+                relations: ["user"],
             }),
             generateCrudResolvers("BlogPost", {
                 findMany: true,
@@ -223,9 +239,12 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    author: "Person"
-                }
+                transformers: {
+                    write: {
+                        authorId: relationalIdWriteTransformer("Person"),
+                    },
+                },
+                relations: ["author"],
             }),
             generateCrudResolvers("Category", {
                 findMany: true,
@@ -233,20 +252,26 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    parent: "Category"
+                transformers: {
+                    write: {
+                        parentId: relationalIdWriteTransformer("Category"),
+                    },
                 },
-                readOnlyRelations: ["children", "productions"]
+                relations: ["children", "productions", "parent"],
             }),
             generateCrudResolvers("ContactSubmissionAssignee", {
                 findMany: true,
                 findOne: true,
                 create: true,
                 delete: true,
-                writableRelations: {
-                    user: "User",
-                    submission: "ContactSubmission"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                        submissionId:
+                            relationalIdWriteTransformer("ContactSubmission"),
+                    },
+                },
+                relations: ["user", "submission"],
             }),
             generateCrudResolvers("ContactSubmission", {
                 findMany: true,
@@ -254,7 +279,7 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                readOnlyRelations: ["assignees"]
+                relations: ["assignees"],
             }),
             generateCrudResolvers("Credit", {
                 findMany: true,
@@ -262,19 +287,26 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    person: "Person",
-                    production: "Production"
-                }
+                transformers: {
+                    write: {
+                        personId: relationalIdWriteTransformer("Person"),
+                        productionId:
+                            relationalIdWriteTransformer("Production"),
+                    },
+                },
+                relations: ["person", "production"],
             }),
             generateCrudResolvers("GroupPermission", {
                 findOne: true,
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    group: "Group",
-                }
+                transformers: {
+                    write: {
+                        groupId: relationalIdWriteTransformer("Group"),
+                    },
+                },
+                relations: ["group"],
             }),
             generateCrudResolvers("Group", {
                 findMany: true,
@@ -282,10 +314,12 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    parent: "Group"
+                transformers: {
+                    write: {
+                        parentId: relationalIdWriteTransformer("Group"),
+                    },
                 },
-                readOnlyRelations: ["permissions", "children", "users"]
+                relations: ["permissions", "children", "users", "parent"],
             }),
             generateCrudResolvers("Image", {
                 findMany: true,
@@ -293,7 +327,7 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                readOnlyRelations: ["people", "imageFor", "thumbnailFor"]
+                relations: ["people", "imageFor", "thumbnailFor"],
             }),
             generateCrudResolvers("Person", {
                 findMany: true,
@@ -301,7 +335,7 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                readOnlyRelations: ["images", "blogPosts", "credits", "roles", "users"]
+                relations: ["images", "blogPosts", "credits", "roles", "users"],
             }),
             generateCrudResolvers("PersonImage", {
                 findMany: true,
@@ -309,9 +343,12 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    person: "Person",
-                }
+                transformers: {
+                    write: {
+                        personId: relationalIdWriteTransformer("Person"),
+                    },
+                },
+                relations: ["person"],
             }),
             generateCrudResolvers("ProductionImage", {
                 findMany: true,
@@ -319,10 +356,14 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    image: "Image",
-                    production: "Production"
-                }
+                transformers: {
+                    write: {
+                        imageId: relationalIdWriteTransformer("Image"),
+                        productionId:
+                            relationalIdWriteTransformer("Production"),
+                    },
+                },
+                relations: ["image", "production"],
             }),
             generateCrudResolvers("ProductionRSVP", {
                 findMany: true,
@@ -330,18 +371,26 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    production: "Production",
-                    user: "User"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                        productionId:
+                            relationalIdWriteTransformer("Production"),
+                    },
+                },
+                relations: ["user", "production"],
             }),
             generateCrudResolvers("ProductionTag", {
                 findOne: true,
                 create: true,
                 delete: true,
-                writableRelations: {
-                    production: "Production"
-                }
+                transformers: {
+                    write: {
+                        productionId:
+                            relationalIdWriteTransformer("Production"),
+                    },
+                },
+                relations: ["production"],
             }),
             generateCrudResolvers("ProductionVideo", {
                 findMany: true,
@@ -349,10 +398,14 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    production: "Production",
-                    video: "Video"
-                }
+                transformers: {
+                    write: {
+                        productionId:
+                            relationalIdWriteTransformer("Production"),
+                        videoId: relationalIdWriteTransformer("Video"),
+                    },
+                },
+                relations: ["production", "video"],
             }),
             generateCrudResolvers("Production", {
                 findMany: true,
@@ -360,11 +413,20 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    category: "Category",
-                    thumbnail: "Image",
+                transformers: {
+                    write: {
+                        categoryId: relationalIdWriteTransformer("Category"),
+                        thumbnailId: relationalIdWriteTransformer("Image"),
+                    },
                 },
-                readOnlyRelations: ["images", "rsvps", "tags", "videos"]
+                relations: [
+                    "images",
+                    "rsvps",
+                    "tags",
+                    "videos",
+                    "category",
+                    "thumbnail",
+                ],
             }),
             generateCrudResolvers("Redirect", {
                 findMany: true,
@@ -379,27 +441,36 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    person: "Person",
-                }
+                transformers: {
+                    write: {
+                        personId: relationalIdWriteTransformer("Person"),
+                    },
+                },
+                relations: ["person"],
             }),
             generateCrudResolvers("UserGroup", {
                 findOne: true,
                 create: true,
                 delete: true,
-                writableRelations: {
-                    user: "User",
-                    group: "Group"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                        groupId: relationalIdWriteTransformer("Group"),
+                    },
+                },
+                relations: ["user", "group"],
             }),
             generateCrudResolvers("UserPermission", {
                 findOne: true,
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    user: "User"
-                }
+                transformers: {
+                    write: {
+                        userId: relationalIdWriteTransformer("User"),
+                    },
+                },
+                relations: ["user"],
             }),
             /* User has custom implemented resolvers due to password field */
             userResolvers,
@@ -409,17 +480,20 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                readOnlyRelations: ["videoFor"]
+                relations: ["videoFor"],
             }),
             generateCrudResolvers("VoteResponse", {
                 findOne: true,
                 create: true,
                 update: true,
                 delete: true,
-                writableRelations: {
-                    vote: "Vote",
-                    user: "User"
-                }
+                transformers: {
+                    write: {
+                        voteId: relationalIdWriteTransformer("Vote"),
+                        userId: relationalIdWriteTransformer("User"),
+                    },
+                },
+                relations: ["vote", "user"],
             }),
             generateCrudResolvers("Vote", {
                 findMany: true,
@@ -427,8 +501,8 @@ async function createGraphQLServer(): Promise<
                 create: true,
                 update: true,
                 delete: true,
-                readOnlyRelations: ["responses"]
-            })
+                relations: ["responses"],
+            }),
         ],
     });
 
