@@ -1,6 +1,6 @@
 import { RawRuleOf, subject } from "@casl/ability";
 import { AbilityActions, AbilitySubjects, GlimpseAbility } from "custom";
-import { User } from ".prisma/client";
+import { User, GroupPermission, UserPermission } from ".prisma/client";
 import { prisma } from "./prisma";
 import { logger } from "./logger";
 
@@ -27,38 +27,17 @@ export async function getPermissions(
     user?: User
 ): Promise<RawRuleOf<GlimpseAbility>[]> {
     if (user) {
-        const userPermissions = await prisma.userPermission.findMany({
-            where: {
-                user: { id: user.id },
-            },
-            select: {
-                action: true,
-                subject: true,
-                fields: true,
-                conditions: true,
-                inverted: true,
-                reason: true,
-            },
-        });
-        const groupPermissions = await prisma.groupPermission.findMany({
-            where: {
-                group: {
-                    users: {
-                        some: {
-                            userId: user.id,
-                        },
-                    },
-                },
-            },
-            select: {
-                action: true,
-                subject: true,
-                fields: true,
-                conditions: true,
-                inverted: true,
-                reason: true,
-            },
-        });
+        const userPermissions = await prisma.$queryRaw<
+            UserPermission[]
+        >`SELECT action, subject, fields, conditions, inverted, reason
+                        FROM user_permission WHERE "user" = ${user.id}`;
+
+        const groupPermissions = await prisma.$queryRaw<
+            GroupPermission[]
+        >`SELECT action, subject, fields, conditions, inverted, reason
+                        FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
+                        "user" = ${user.id})`;
+
         const permissions = [...userPermissions, ...groupPermissions];
         logger.debug(
             { user, permissions },
@@ -67,21 +46,10 @@ export async function getPermissions(
         // Must make an assumption that the database has correct values.
         return <RawRuleOf<GlimpseAbility>[]>permissions;
     } else {
-        const guestPermissions = await prisma.groupPermission.findMany({
-            where: {
-                group: {
-                    name: "Guest",
-                },
-            },
-            select: {
-                action: true,
-                subject: true,
-                fields: true,
-                conditions: true,
-                inverted: true,
-                reason: true,
-            },
-        });
+        const guestPermissions =
+            await prisma.$queryRaw`SELECT action, subject, fields, conditions, inverted, reason 
+                                        FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
+                                                              name = 'Guest' LIMIT 1)`;
         logger.debug(
             guestPermissions,
             "Retrieved guest permissions from database"

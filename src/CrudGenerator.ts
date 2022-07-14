@@ -413,7 +413,7 @@ export function relationalIdWriteTransformer(
 
         const idAsNumber = parseInt(val, 10);
         if (isNaN(idAsNumber)) {
-            throw new Error(`Invalid ID: ${val}`);
+            throw new GraphQLYogaError(`Invalid ID: ${val}`);
         }
 
         // Check that the user has permission to read the requested object to be written.

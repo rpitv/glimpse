@@ -13,10 +13,7 @@ import cors from "cors";
 import fs from "fs-extra";
 import path from "path";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-import {
-    createServer,
-    YogaNodeServerInstance,
-} from "@graphql-yoga/node";
+import { createServer, YogaNodeServerInstance } from "@graphql-yoga/node";
 
 import { prisma } from "./prisma";
 import { GraphQLContext, TrustProxyOption } from "custom";
@@ -35,6 +32,7 @@ import {
     relationalIdWriteTransformer,
 } from "./CrudGenerator";
 import { resolver as userResolvers } from "./resolvers/User";
+import { logger } from "./logger";
 
 dotenv.config();
 
@@ -576,6 +574,7 @@ async function main(): Promise<void> {
 
 main()
     .catch((e) => {
+        logger.fatal(e);
         throw e;
     })
     .finally(async () => {
