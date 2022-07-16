@@ -232,7 +232,7 @@ model Production {
   thumbnailId    Int?              @map("thumbnail")
   closetTime     DateTime?         @map("closet_time") @db.Timestamp(6)
   category       Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
-  image          Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
+  thumbnail      Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
   credits        Credit[]
   images         ProductionImage[] @relation("production_imagesToproductions")
   rsvps          ProductionRSVP[]
