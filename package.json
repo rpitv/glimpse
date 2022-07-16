@@ -9,7 +9,8 @@
     "test:e2e": "start-server-and-test preview http://127.0.0.1:3000/ 'cypress open'",
     "test:e2e:ci": "start-server-and-test preview http://127.0.0.1:3000/ 'cypress run'",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "generate": "npx graphql-codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.6.2",
@@ -28,6 +29,10 @@
     "vue-router": "^4.0.14"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^2.8.1",
+    "@graphql-codegen/typed-document-node": "^2.3.1",
+    "@graphql-codegen/typescript": "^2.7.1",
+    "@graphql-codegen/typescript-operations": "^2.5.1",
     "@rushstack/eslint-patch": "^1.1.0",
     "@types/jsdom": "^16.2.14",
     "@types/node": "^16.11.27",

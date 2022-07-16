@@ -1,0 +1,10 @@
+query FindAllProductions($pagination: Pagination) {
+  productions: findManyProduction(pagination: $pagination) {
+    id
+    name
+    startTime
+    thumbnail {
+      path
+    }
+  }
+}

@@ -1,8 +1,12 @@
 import { createApp, provide, h } from "vue";
 import { createPinia } from "pinia";
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
+import {
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache,
+} from "@apollo/client/core";
 import { createApolloProvider } from "@vue/apollo-option";
-import { DefaultApolloClient } from '@vue/apollo-composable'
+import { DefaultApolloClient } from "@vue/apollo-composable";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -13,18 +17,16 @@ import {
   faFilm,
   faEllipsis,
   faBookHeart,
-  faPeopleGroup
+  faPeopleGroup,
 } from "@fortawesome/pro-light-svg-icons";
-import {
-  faHexagonExclamation
-} from "@fortawesome/pro-duotone-svg-icons";
+import { faHexagonExclamation } from "@fortawesome/pro-duotone-svg-icons";
 import {
   faGithub,
   faYoutube,
   faDiscord,
   faInstagram,
   faTwitter,
-  faRedditAlien
+  faRedditAlien,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
@@ -51,27 +53,27 @@ import router from "./router";
 
 // HTTP connection to the API
 const httpLink = createHttpLink({
-  uri: 'http://localhost:4000/graphql',
-})
+  uri: "https://localhost:4000/graphql",
+});
 
 // Cache implementation
-const cache = new InMemoryCache()
+const cache = new InMemoryCache();
 
 // Create the apollo client
 const apolloClient = new ApolloClient({
   link: httpLink,
   cache,
-})
+});
 const apolloProvider = createApolloProvider({
   defaultClient: apolloClient,
-})
+});
 
 const app = createApp({
-  setup () {
-    provide(DefaultApolloClient, apolloClient)
+  setup() {
+    provide(DefaultApolloClient, apolloClient);
   },
   render: () => h(App),
-})
+});
 
 app.use(createPinia());
 app.use(router);

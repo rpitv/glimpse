@@ -7,46 +7,28 @@
     </n-spin>
   </div>
   <div v-else>
-    <pre>{{response.result}}</pre>
+    <pre>{{ response.result }}</pre>
   </div>
 </template>
 
 <script setup lang="ts">
-import { NSpin } from "naive-ui";
-import { useQuery } from "@vue/apollo-composable";
-import gql from "graphql-tag";
+import {NSpin} from "naive-ui";
+import {useQuery} from "@vue/apollo-composable";
+import {FindAllProductionsDocument} from "@/graphql/types";
 
-let toggledAdvancedSearch = false;
-let searchValue = "";
 let pageSize = 20;
-let prevPageIndex = 0;
 
-const response = useQuery(gql`query ProductionsGetProductions($prevProductionIndex: Int!, $pageSize: Int!,
-            $searchVal: String, $isAdvancedSearch: Boolean) {
-        productions: productions(pageSize: $pageSize, prevProductionIndex: $prevProductionIndex,
-            searchCtx: $searchVal, advancedSearch: $isAdvancedSearch) {
-          id
-          name
-          startTime
-          thumbnail {
-            link
-          }
-        }
-      }`,
-  {
-    prevProductionIndex: prevPageIndex,
-    pageSize: pageSize,
-    searchVal: searchValue,
-    isAdvancedSearch: toggledAdvancedSearch
-  }, {
-    errorPolicy: "all"
-  });
+const response = useQuery(FindAllProductionsDocument, {
+  pagination: {
+    take: pageSize
+  }
+});
 </script>
 
 <style scoped lang="scss">
-  .loading {
-    display: flex;
-    justify-content: center;
-    padding-top: 5em;
-  }
+.loading {
+  display: flex;
+  justify-content: center;
+  padding-top: 5em;
+}
 </style>
