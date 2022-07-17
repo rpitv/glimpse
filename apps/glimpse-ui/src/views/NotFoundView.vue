@@ -11,6 +11,9 @@
       <FontAwesomeIcon :icon="['fad', 'hexagon-exclamation']" class="icon" />
     </template>
     <template #footer>
+      <a @click="$router.back()">
+        <n-button class="back-button">Go Back</n-button>
+      </a>
       <RouterLink to="/">
         <n-button>Go Home</n-button>
       </RouterLink>
@@ -37,5 +40,8 @@ div {
 }
 a {
   text-decoration: none;
+}
+.back-button {
+  margin-right: 10px;
 }
 </style>
