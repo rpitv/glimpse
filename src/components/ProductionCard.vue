@@ -10,7 +10,7 @@
         ></n-image>
       </template>
       <p class="production-description">{{ props.description }}</p>
-      <small class="production-date">{{ moment(props.startTime).format("YYYY-MM-DD HH:mm:ss") }}</small>
+      <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
     </n-card>
   </RouterLink>
 </template>
