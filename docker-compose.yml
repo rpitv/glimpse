@@ -1,0 +1,59 @@
+version: '3.9'
+services:
+  api:
+    depends_on:
+      - db
+      - redis
+    build: .
+    ports:
+      - "4000:4000"
+      - "5858:5858"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    command: npm run dev.debug
+    volumes:
+      - .:/usr/src/app
+      - ../glimpse-ui/dist:/usr/src/app/public
+      - /usr/src/app/node_modules
+      - ./cert:/etc/cert
+    networks:
+      - glimpse_network
+
+  db:
+    image: postgres:14
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - .db-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - glimpse_network
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - .redis-data:/data
+    networks:
+      - glimpse_network
+  search:
+    image: getmeili/meilisearch:v0.27.1
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    env_file:
+      - .env
+    volumes:
+      - .meili-data:/meili_data
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    name: glimpse_network
