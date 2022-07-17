@@ -1,36 +1,14 @@
-// tsconfig.json
 {
-  "compilerOptions": {
-    "target": "es2018",
-    "module": "esnext",
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "lib": [
-      "esnext",
-      "esnext.asynciterable",
-      "dom"
-    ],
-    "esModuleInterop": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "strict": true,
-    "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "./*"
-      ],
-      "@/*": [
-        "./*"
-      ]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.vite-config.json"
     },
-    "types": [
-      "@types/node",
-      "@nuxt/types",
-      "@types/jest"
-    ]
-  },
-  "exclude": [
-    "node_modules"
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
   ]
 }
