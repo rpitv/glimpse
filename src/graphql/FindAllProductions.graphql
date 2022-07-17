@@ -3,6 +3,7 @@ query FindAllProductions($pagination: Pagination) {
     id
     name
     startTime
+    description
     thumbnail {
       path
     }
