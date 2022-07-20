@@ -1,4 +1,4 @@
-import { RawRuleOf, subject } from "@casl/ability";
+import { subject } from "@casl/ability";
 import { AbilityActions, AbilitySubjects, GlimpseAbility } from "custom";
 import { User, GroupPermission, UserPermission } from ".prisma/client";
 import { prisma } from "./prisma";
@@ -11,43 +11,44 @@ export type Permission = {
 };
 
 /**
- * Get the permissions for a specified user from the database. Also retrieves the permissions
- *   for the group(s) that they are in and combines them into one permission set. If the user
- *   does not have any denying permissions, then this is straightforward. If the user has any
- *   denying permissions, then they are applied in the order of the priority of the groups,
- *   with the higher priority groups' permissions ranking higher than lower priority groups.
- *   The user's direct permissions are applied last.
+ * Get the permissions objects for a specified user from the database. Also retrieves the
+ *   permissions for the group(s) that they are in and combines them into one permission set.
+ *   If the user does not have any denying permissions, then this is straightforward. If the
+ *   user has any denying permissions, then they are applied in the order of the priority of
+ *   the groups, with the higher priority groups' permissions ranking higher than lower priority
+ *   groups. The user's direct permissions are applied last.
  * @param user User to get the permissions for, or undefined if there is no user that is
  *   currently logged in. If that is the case, then default permissions are retrieved from
  *   the reserved group "Guest". If the "Guest" group does not exist, then it's assumed
  *   the user has no permissions, and must log in to do anything.
- * @returns An array of CASL rules which can be passed directly to the Ability constructor.
+ * @returns An array of either UserPermission or GroupPermission objects.
  */
 export async function getPermissions(
     user?: User
-): Promise<RawRuleOf<GlimpseAbility>[]> {
+): Promise<(UserPermission | GroupPermission)[]> {
     if (user) {
         const userPermissions = await prisma.$queryRaw<
             UserPermission[]
-        >`SELECT action, subject, fields, conditions, inverted, reason
-                        FROM user_permission WHERE "user" = ${user.id}`;
+        >`SELECT id, "user" AS "userId", action, subject, fields, conditions, inverted, reason
+                        FROM user_permissions WHERE "user" = ${user.id}`;
 
         const groupPermissions = await prisma.$queryRaw<
             GroupPermission[]
-        >`SELECT action, subject, fields, conditions, inverted, reason
+        >`SELECT  id, "group" AS "groupId", action, subject, fields, conditions, inverted, reason
                         FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
                         "user" = ${user.id})`;
 
         const permissions = [...userPermissions, ...groupPermissions];
+        delete (<any>user).password; // Hide password from logs
         logger.debug(
             { user, permissions },
             `Retrieved permissions for user ${user.id} from database`
         );
         // Must make an assumption that the database has correct values.
-        return <RawRuleOf<GlimpseAbility>[]>permissions;
+        return <(UserPermission | GroupPermission)[]>permissions;
     } else {
         const guestPermissions =
-            await prisma.$queryRaw`SELECT action, subject, fields, conditions, inverted, reason 
+            await prisma.$queryRaw`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
                                         FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
                                                               name = 'Guest' LIMIT 1)`;
         logger.debug(
@@ -55,7 +56,7 @@ export async function getPermissions(
             "Retrieved guest permissions from database"
         );
         // Must make an assumption that the database has correct values.
-        return <RawRuleOf<GlimpseAbility>[]>guestPermissions;
+        return <GroupPermission[]>guestPermissions;
     }
 }
 

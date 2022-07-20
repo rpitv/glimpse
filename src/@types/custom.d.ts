@@ -4,6 +4,7 @@ import { User } from ".prisma/client";
 import { PrismaAbility } from "@casl/prisma";
 import {
     MutationResolvers,
+    PermissionResolvers,
     QueryResolvers,
     Resolvers,
 } from "../generated/graphql";
@@ -47,7 +48,7 @@ type OmitChildType<Type, OmittedChild> = {
 
 type ValidCrudResolvers = keyof OmitChildType<
     Resolvers<GraphQLContext>,
-    GraphQLScalarType | MutationResolvers | QueryResolvers
+    GraphQLScalarType | MutationResolvers | QueryResolvers | PermissionResolvers
 >;
 
 type PrismaDelegateName =
@@ -86,6 +87,7 @@ type GraphQLContext = {
     prisma: PrismaClient;
     permissions: GlimpseAbility;
     user?: User;
+    req: Express.Request;
 };
 
 /**

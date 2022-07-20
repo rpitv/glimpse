@@ -434,6 +434,10 @@ export type Mutation = {
   deleteVote?: Maybe<Vote>;
   /** Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object. */
   deleteVoteResponse?: Maybe<VoteResponse>;
+  /** Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request. */
+  emailLogin: Scalars['Boolean'];
+  /** Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise. */
+  logout: Scalars['Boolean'];
   /** Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist. */
   updateAsset: Asset;
   /** Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist. */
@@ -724,6 +728,12 @@ export type MutationDeleteVoteResponseArgs = {
 };
 
 
+export type MutationEmailLoginArgs = {
+  email: Scalars['EmailAddress'];
+  password: Scalars['String'];
+};
+
+
 export type MutationUpdateAssetArgs = {
   id: Scalars['ID'];
   input: AssetUpdateInput;
@@ -869,6 +879,12 @@ export type Pagination = {
   /** Number of documents to fetch. Must be an integer greater than or equal to 1 when used. */
   take: Scalars['Int'];
 };
+
+/**
+ * A Permission is either a UserPermission or a GroupPermission. This is useful when retrieving what permissions
+ * a user has if you don't care whether they're inherited from a group or not.
+ */
+export type Permission = GroupPermission | UserPermission;
 
 export type Person = {
   __typename?: 'Person';
@@ -1155,6 +1171,8 @@ export type Query = {
   findOneVote?: Maybe<Vote>;
   /** Get a single vote response, given its ID, or null if that vote response does not exist. */
   findOneVoteResponse?: Maybe<VoteResponse>;
+  /** Get the permissions that the current user has, including permissions inherited from groups. */
+  permissionsFor: Array<Permission>;
 };
 
 
@@ -1400,6 +1418,11 @@ export type QueryFindOneVoteArgs = {
 
 export type QueryFindOneVoteResponseArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryPermissionsForArgs = {
+  user?: InputMaybe<Scalars['ID']>;
 };
 
 export type Redirect = {
@@ -1707,6 +1730,7 @@ export type ResolversTypes = {
   JSONObject: ResolverTypeWrapper<Scalars['JSONObject']>;
   Mutation: ResolverTypeWrapper<{}>;
   Pagination: Pagination;
+  Permission: ResolversTypes['GroupPermission'] | ResolversTypes['UserPermission'];
   Person: ResolverTypeWrapper<PersonModel>;
   PersonCreateInput: PersonCreateInput;
   PersonImage: ResolverTypeWrapper<PersonImageModel>;
@@ -1797,6 +1821,7 @@ export type ResolversParentTypes = {
   JSONObject: Scalars['JSONObject'];
   Mutation: {};
   Pagination: Pagination;
+  Permission: ResolversParentTypes['GroupPermission'] | ResolversParentTypes['UserPermission'];
   Person: PersonModel;
   PersonCreateInput: PersonCreateInput;
   PersonImage: PersonImageModel;
@@ -2052,6 +2077,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationDeleteVideoArgs, 'id'>>;
   deleteVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<MutationDeleteVoteArgs, 'id'>>;
   deleteVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<MutationDeleteVoteResponseArgs, 'id'>>;
+  emailLogin?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEmailLoginArgs, 'email' | 'password'>>;
+  logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   updateAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationUpdateAssetArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id' | 'input'>>;
@@ -2073,6 +2100,10 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateVideo?: Resolver<ResolversTypes['Video'], ParentType, ContextType, RequireFields<MutationUpdateVideoArgs, 'id' | 'input'>>;
   updateVote?: Resolver<ResolversTypes['Vote'], ParentType, ContextType, RequireFields<MutationUpdateVoteArgs, 'id' | 'input'>>;
   updateVoteResponse?: Resolver<ResolversTypes['VoteResponse'], ParentType, ContextType, RequireFields<MutationUpdateVoteResponseArgs, 'id' | 'input'>>;
+};
+
+export type PermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Permission'] = ResolversParentTypes['Permission']> = {
+  __resolveType: TypeResolveFn<'GroupPermission' | 'UserPermission', ParentType, ContextType>;
 };
 
 export type PersonResolvers<ContextType = any, ParentType extends ResolversParentTypes['Person'] = ResolversParentTypes['Person']> = {
@@ -2203,6 +2234,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findOneVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<QueryFindOneVideoArgs, 'id'>>;
   findOneVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<QueryFindOneVoteArgs, 'id'>>;
   findOneVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryFindOneVoteResponseArgs, 'id'>>;
+  permissionsFor?: Resolver<Array<ResolversTypes['Permission']>, ParentType, ContextType, Partial<QueryPermissionsForArgs>>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
@@ -2306,6 +2338,7 @@ export type Resolvers<ContextType = any> = {
   Image?: ImageResolvers<ContextType>;
   JSONObject?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
+  Permission?: PermissionResolvers<ContextType>;
   Person?: PersonResolvers<ContextType>;
   PersonImage?: PersonImageResolvers<ContextType>;
   Production?: ProductionResolvers<ContextType>;

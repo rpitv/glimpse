@@ -243,12 +243,14 @@ function generateCreateResolver<ModelName extends ValidCrudResolvers>(
             }
         }
 
-        // testing.priority = args.input.priority;
-        // Create the object. Permissions have already been checked by @Auth directives.
+        // Hide password inputs from logs
+        const inputCopy = args.input;
+        delete inputCopy.password;
         logger.debug(
-            { input: args.input },
+            { input: inputCopy },
             `Querying prisma to create ${modelName} in CRUD create resolver`
         );
+        // Create the object. Permissions have already been checked by @Auth directives.
         return await (<any>(
             ctx.prisma[modelNameToPrismaDelegateMap[modelName]]
         )).create({
