@@ -36,6 +36,7 @@ import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin} from "naive-ui"
 import {ref} from "vue";
 import {useMutation} from "@vue/apollo-composable";
 import {UsernameLoginDocument} from "@/graphql/types";
+import {useAuthStore} from "@/stores/auth";
 
 // Setup references
 const formRef = ref<FormInst | null>(null)
@@ -50,13 +51,14 @@ const loginErrorResponse = ref<string | null>(null);
 const emit = defineEmits(["success", "close"]);
 const props = defineProps(["closable"]);
 
-// Import usages
+// Import composables
 const {mutate: login} = useMutation(UsernameLoginDocument, () => ({
   variables: {
     username: formValue.value.username,
     password: formValue.value.password
   }
-}))
+}));
+const authStore = useAuthStore();
 
 // Define rules for form input, as well as how to handle incorrect input.
 const formRules = {
@@ -121,6 +123,7 @@ async function submit() {
           // If login was successful, then emit success. Otherwise, show an unknown error message (should never happen).
           if (result?.data?.loginSuccess) {
             emit("success");
+            authStore.isLoggedIn = true;
           } else {
             loginErrorResponse.value = "Login failed. Please try again.";
           }
@@ -152,9 +155,5 @@ async function submit() {
 
 .login-error {
   margin-bottom: 20px;
-}
-
-.close-button {
-justify-content: right;
 }
 </style>

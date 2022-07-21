@@ -11,14 +11,33 @@
 
 <script setup lang="ts">
 import LoginCard from "@/components/LoginCard.vue";
-import {NModal} from "naive-ui";
+import {NModal, useMessage} from "naive-ui";
 import {ref} from "vue";
+import {useAuthStore} from "@/stores/auth";
+import {logout} from "@/logout";
 
 const isLoginShown = ref(false);
 
-function onClick() {
-  /* TODO change the action depending on login state */
-  isLoginShown.value = !isLoginShown.value;
+const authStore = useAuthStore();
+const message = useMessage();
+
+async function onClick() {
+  if(authStore.isLoggedIn) {
+    try {
+      await logout();
+    } catch(e: any) {
+      console.error(e);
+      if(e.message) {
+        message.error(e.message);
+      } else {
+        message.error(e);
+      }
+      return;
+    }
+    message.success("Logged out successfully");
+  } else {
+    isLoginShown.value = true;
+  }
 }
 
 function loginSuccess() {

@@ -1,10 +1,5 @@
 import { createApp, provide, h } from "vue";
 import { createPinia } from "pinia";
-import {
-  ApolloClient,
-  createHttpLink,
-  InMemoryCache,
-} from "@apollo/client/core";
 import { createApolloProvider } from "@vue/apollo-option";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 
@@ -13,6 +8,7 @@ import {
   faCircleInfo,
   faHome,
   faArrowRightToArc,
+  faArrowRightFromArc,
   faEnvelope,
   faFilm,
   faEllipsis,
@@ -34,6 +30,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faHome);
 library.add(faCircleInfo);
 library.add(faArrowRightToArc);
+library.add(faArrowRightFromArc);
 library.add(faEnvelope);
 library.add(faFilm);
 library.add(faEllipsis);
@@ -52,20 +49,8 @@ library.add(faRedditAlien);
 
 import App from "./App.vue";
 import router from "./router";
+import { apolloClient } from "./apollo";
 
-// HTTP connection to the API
-const httpLink = createHttpLink({
-  uri: "https://localhost:4000/graphql",
-});
-
-// Cache implementation
-const cache = new InMemoryCache();
-
-// Create the apollo client
-const apolloClient = new ApolloClient({
-  link: httpLink,
-  cache,
-});
 const apolloProvider = createApolloProvider({
   defaultClient: apolloClient,
 });

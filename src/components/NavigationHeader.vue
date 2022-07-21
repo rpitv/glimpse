@@ -14,51 +14,10 @@ import { h, ref, onMounted, onUnmounted, computed } from "vue";
 import { RouterLink } from "vue-router";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
+import {useAuthStore} from "@/stores/auth";
 
-/**
- * Create a button for the navbar
- * @param name Text to display on this button.
- * @param to Name of router page that this button should open, or undefined if none. If "login", this is a special
- *   case that will open the login modal when clicked.
- * @param icon Name of the FontAwesome icon, or undefined if none.
- * @param children Children MenuOptions to show in the dropdown.
- */
-function createButton(name: string, to?: string, icon?: string, children?: MenuOption[]): MenuOption {
-  if(to === "login") {
-    return {
-      label: () => h(
-        LoginLogoutPopupButton,
-        {},
-        {default: () => name} /* TODO change name & icon based on login state */
-      ),
-      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", icon]}) : undefined,
-      key: name,
-      children: children
-    };
-  } else {
-    return {
-      label: () => h(
-        RouterLink,
-        {to: {name: to}},
-        {default: () => name}
-      ),
-      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", icon]}) : undefined,
-      key: name,
-      children: children
-    };
-  }
-}
-
-// Wrap Y scroll position in a Vue ref
-let scrollPos = ref(0);
-
-function updateScroll(): void {
-  scrollPos.value = window.scrollY;
-}
-
-// Listen for scrolling to update navbar transparency
-onMounted(() => document.addEventListener("scroll", updateScroll));
-onUnmounted(() => document.removeEventListener("scroll", updateScroll));
+// Import composables
+const authStore = useAuthStore();
 
 // Used in v-bind in <style>
 const navbarColor = computed(() => {
@@ -69,13 +28,13 @@ const navbarBlur = computed(() => {
   return scrollPos.value <= 0 ? "blur(0)" : "blur(0.3em)";
 });
 
-// Arrangement of navbar items is based on screen size. Watch for changes.
+// Define references
 const windowWidth = ref(window.innerWidth);
+const scrollPos = ref(0);
 
-function updateWindowWidth() {
-  windowWidth.value = window.innerWidth;
-}
-
+// Listen for scrolling/resizing to update navbar transparency
+onMounted(() => document.addEventListener("scroll", updateScroll));
+onUnmounted(() => document.removeEventListener("scroll", updateScroll));
 onMounted(() => window.addEventListener("resize", updateWindowWidth));
 onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 
@@ -204,6 +163,48 @@ const rightNavOptions = computed(() => {
   // Phones. Everything in "more" dropdown
   return [];
 });
+
+/**
+ * Create a button for the navbar
+ * @param name Text to display on this button.
+ * @param to Name of router page that this button should open, or undefined if none. If "login", this is a special
+ *   case that will open the login modal when clicked.
+ * @param icon Name of the FontAwesome icon, or undefined if none.
+ * @param children Children MenuOptions to show in the dropdown.
+ */
+function createButton(name: string, to?: string, icon?: string, children?: MenuOption[]): MenuOption {
+  if(to === "login") {
+    return {
+      label: () => h(
+        LoginLogoutPopupButton,
+        {},
+        {default: () => authStore.isLoggedIn ? "Logout" : "Login"} /* TODO change name & icon based on login state */
+      ),
+      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc"]}) : undefined,
+      key: name,
+      children: children
+    };
+  } else {
+    return {
+      label: () => h(
+        RouterLink,
+        {to: {name: to}},
+        {default: () => name}
+      ),
+      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", icon]}) : undefined,
+      key: name,
+      children: children
+    };
+  }
+}
+
+function updateScroll(): void {
+  scrollPos.value = window.scrollY;
+}
+
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth;
+}
 </script>
 
 <style scoped lang="scss">
