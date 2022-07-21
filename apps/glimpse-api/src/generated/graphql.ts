@@ -434,8 +434,6 @@ export type Mutation = {
   deleteVote?: Maybe<Vote>;
   /** Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object. */
   deleteVoteResponse?: Maybe<VoteResponse>;
-  /** Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request. */
-  emailLogin: Scalars['Boolean'];
   /** Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise. */
   logout: Scalars['Boolean'];
   /** Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist. */
@@ -480,6 +478,8 @@ export type Mutation = {
   updateVote: Vote;
   /** Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist. */
   updateVoteResponse: VoteResponse;
+  /** Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request. */
+  usernameLogin: Scalars['Boolean'];
 };
 
 
@@ -728,12 +728,6 @@ export type MutationDeleteVoteResponseArgs = {
 };
 
 
-export type MutationEmailLoginArgs = {
-  email: Scalars['EmailAddress'];
-  password: Scalars['String'];
-};
-
-
 export type MutationUpdateAssetArgs = {
   id: Scalars['ID'];
   input: AssetUpdateInput;
@@ -857,6 +851,12 @@ export type MutationUpdateVoteArgs = {
 export type MutationUpdateVoteResponseArgs = {
   id: Scalars['ID'];
   input: VoteResponseUpdateInput;
+};
+
+
+export type MutationUsernameLoginArgs = {
+  password: Scalars['String'];
+  username: Scalars['String'];
 };
 
 /**
@@ -2077,7 +2077,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteVideo?: Resolver<Maybe<ResolversTypes['Video']>, ParentType, ContextType, RequireFields<MutationDeleteVideoArgs, 'id'>>;
   deleteVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<MutationDeleteVoteArgs, 'id'>>;
   deleteVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<MutationDeleteVoteResponseArgs, 'id'>>;
-  emailLogin?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEmailLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   updateAsset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType, RequireFields<MutationUpdateAssetArgs, 'id' | 'input'>>;
   updateBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationUpdateBlogPostArgs, 'id' | 'input'>>;
@@ -2100,6 +2099,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateVideo?: Resolver<ResolversTypes['Video'], ParentType, ContextType, RequireFields<MutationUpdateVideoArgs, 'id' | 'input'>>;
   updateVote?: Resolver<ResolversTypes['Vote'], ParentType, ContextType, RequireFields<MutationUpdateVoteArgs, 'id' | 'input'>>;
   updateVoteResponse?: Resolver<ResolversTypes['VoteResponse'], ParentType, ContextType, RequireFields<MutationUpdateVoteResponseArgs, 'id' | 'input'>>;
+  usernameLogin?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUsernameLoginArgs, 'password' | 'username'>>;
 };
 
 export type PermissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Permission'] = ResolversParentTypes['Permission']> = {
