@@ -9,12 +9,12 @@ import { RawRuleOf } from "@casl/ability";
 
 export const resolver: Resolvers = {
     Mutation: {
-        emailLogin: async (
+        usernameLogin: async (
             parent,
             args,
             ctx: GraphQLContext
         ): Promise<boolean> => {
-            logger.debug(`Attempting to log in with email ${args.email}`);
+            logger.debug(`Attempting to log in with username ${args.username}`);
             // Users must log out before logging into another account.
             if (ctx.user !== undefined) {
                 logger.debug(
@@ -23,12 +23,12 @@ export const resolver: Resolvers = {
                 throw new GraphQLYogaError("You are already logged in");
             }
 
-            // Get the user with the matching email from the database.
+            // Get the user with the matching username from the database.
             const user = await ctx.prisma.user.findUnique({
-                where: { mail: args.email },
+                where: { username: args.username },
             });
             if (!user || !user.password) {
-                throw new GraphQLYogaError("Incorrect password or email");
+                throw new GraphQLYogaError("Incorrect password or username");
             }
             // Check that the password is correct and catch any errors.
             let isValid = false;
@@ -41,13 +41,13 @@ export const resolver: Resolvers = {
             } catch (err) {
                 logger.error(
                     { error: err },
-                    `Error while verifying password for user with email ${args.email}`
+                    `Error while verifying password for user with username ${args.username}`
                 );
                 throw err;
             }
 
             if (!isValid) {
-                throw new GraphQLYogaError("Incorrect password or email");
+                throw new GraphQLYogaError("Incorrect password or username");
             }
 
             // Log the user in by updating their session.
