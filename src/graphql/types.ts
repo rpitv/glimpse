@@ -109,12 +109,12 @@ export type Asset = {
 export type AssetCreateInput = {
   /** Defaults to false. */
   isLost?: Scalars['Boolean'];
-  lastKnownHandler?: InputMaybe<Scalars['ID']>;
+  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   notes?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   purchaseDate?: InputMaybe<Scalars['DateTime']>;
   purchaseLocation?: InputMaybe<Scalars['String']>;
   purchasePrice?: InputMaybe<Scalars['Int']>;
@@ -124,12 +124,12 @@ export type AssetCreateInput = {
 
 export type AssetUpdateInput = {
   isLost?: InputMaybe<Scalars['Boolean']>;
-  lastKnownHandler?: InputMaybe<Scalars['ID']>;
+  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
   lastKnownLocation?: InputMaybe<Scalars['String']>;
   modelNumber?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   notes?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   purchaseDate?: InputMaybe<Scalars['DateTime']>;
   purchaseLocation?: InputMaybe<Scalars['String']>;
   purchasePrice?: InputMaybe<Scalars['Int']>;
@@ -161,15 +161,15 @@ export type BlogPost = {
 };
 
 export type BlogPostCreateInput = {
-  author: Scalars['ID'];
   authorDisplayName?: InputMaybe<Scalars['String']>;
+  authorId: Scalars['ID'];
   content: Scalars['String'];
   title: Scalars['String'];
 };
 
 export type BlogPostUpdateInput = {
-  author?: InputMaybe<Scalars['ID']>;
   authorDisplayName?: InputMaybe<Scalars['String']>;
+  authorId?: InputMaybe<Scalars['ID']>;
   content?: InputMaybe<Scalars['String']>;
   title?: InputMaybe<Scalars['String']>;
 };
@@ -186,14 +186,14 @@ export type Category = {
 
 export type CategoryCreateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
 
 export type CategoryUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
 };
 
@@ -217,8 +217,8 @@ export type ContactSubmissionAssignee = {
 };
 
 export type ContactSubmissionAssigneeCreateInput = {
-  submission: Scalars['ID'];
-  user: Scalars['ID'];
+  submissionId: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type ContactSubmissionCreateInput = {
@@ -242,17 +242,17 @@ export type Credit = {
 };
 
 export type CreditCreateInput = {
-  person: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
   title?: InputMaybe<Scalars['String']>;
 };
 
 export type CreditUpdateInput = {
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
-  production?: InputMaybe<Scalars['ID']>;
+  productionId?: InputMaybe<Scalars['ID']>;
   title?: InputMaybe<Scalars['String']>;
 };
 
@@ -269,7 +269,7 @@ export type Group = {
 
 export type GroupCreateInput = {
   name: Scalars['String'];
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
@@ -290,7 +290,7 @@ export type GroupPermissionCreateInput = {
   action: Scalars['String'];
   conditions?: InputMaybe<Scalars['JSONObject']>;
   fields?: InputMaybe<Array<Scalars['String']>>;
-  group: Scalars['ID'];
+  groupId: Scalars['ID'];
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
   subject: Array<Scalars['String']>;
@@ -307,7 +307,7 @@ export type GroupPermissionUpdateInput = {
 
 export type GroupUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
-  parent?: InputMaybe<Scalars['ID']>;
+  parentId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
 };
 
@@ -434,6 +434,8 @@ export type Mutation = {
   deleteVote?: Maybe<Vote>;
   /** Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object. */
   deleteVoteResponse?: Maybe<VoteResponse>;
+  /** Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise. */
+  logout: Scalars['Boolean'];
   /** Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist. */
   updateAsset: Asset;
   /** Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist. */
@@ -476,6 +478,8 @@ export type Mutation = {
   updateVote: Vote;
   /** Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist. */
   updateVoteResponse: VoteResponse;
+  /** Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request. */
+  usernameLogin: Scalars['Boolean'];
 };
 
 
@@ -849,6 +853,12 @@ export type MutationUpdateVoteResponseArgs = {
   input: VoteResponseUpdateInput;
 };
 
+
+export type MutationUsernameLoginArgs = {
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
 /**
  * Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
  * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
@@ -869,6 +879,12 @@ export type Pagination = {
   /** Number of documents to fetch. Must be an integer greater than or equal to 1 when used. */
   take: Scalars['Int'];
 };
+
+/**
+ * A Permission is either a UserPermission or a GroupPermission. This is useful when retrieving what permissions
+ * a user has if you don't care whether they're inherited from a group or not.
+ */
+export type Permission = GroupPermission | UserPermission;
 
 export type Person = {
   __typename?: 'Person';
@@ -905,8 +921,8 @@ export type PersonImage = {
 };
 
 export type PersonImageCreateInput = {
-  image: Scalars['ID'];
-  person: Scalars['ID'];
+  imageId: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
 };
@@ -947,7 +963,7 @@ export type Production = {
 };
 
 export type ProductionCreateInput = {
-  category?: InputMaybe<Scalars['ID']>;
+  categoryId?: InputMaybe<Scalars['ID']>;
   closetLocation?: InputMaybe<Scalars['String']>;
   closetTime?: InputMaybe<Scalars['DateTime']>;
   description?: InputMaybe<Scalars['String']>;
@@ -960,7 +976,7 @@ export type ProductionCreateInput = {
   name: Scalars['String'];
   startTime?: InputMaybe<Scalars['DateTime']>;
   teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['ID']>;
+  thumbnailId?: InputMaybe<Scalars['ID']>;
 };
 
 export type ProductionImage = {
@@ -972,10 +988,10 @@ export type ProductionImage = {
 };
 
 export type ProductionImageCreateInput = {
-  image: Scalars['ID'];
+  imageId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
 };
 
 export type ProductionImageUpdateInput = {
@@ -999,8 +1015,8 @@ export enum ProductionRsvpAttendanceState {
 
 export type ProductionRsvpCreateInput = {
   notes?: InputMaybe<Scalars['String']>;
-  production: Scalars['ID'];
-  user: Scalars['ID'];
+  productionId: Scalars['ID'];
+  userId: Scalars['ID'];
   willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
 };
 
@@ -1017,12 +1033,12 @@ export type ProductionTag = {
 };
 
 export type ProductionTagCreateInput = {
-  production: Scalars['ID'];
+  productionId: Scalars['ID'];
   tag: Scalars['String'];
 };
 
 export type ProductionUpdateInput = {
-  category?: InputMaybe<Scalars['ID']>;
+  categoryId?: InputMaybe<Scalars['ID']>;
   closetLocation?: InputMaybe<Scalars['String']>;
   closetTime?: InputMaybe<Scalars['DateTime']>;
   description?: InputMaybe<Scalars['String']>;
@@ -1034,7 +1050,7 @@ export type ProductionUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
   startTime?: InputMaybe<Scalars['DateTime']>;
   teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnail?: InputMaybe<Scalars['ID']>;
+  thumbnailId?: InputMaybe<Scalars['ID']>;
 };
 
 export type ProductionVideo = {
@@ -1047,8 +1063,8 @@ export type ProductionVideo = {
 
 export type ProductionVideoCreateInput = {
   priority?: Scalars['Int'];
-  production: Scalars['ID'];
-  video: Scalars['ID'];
+  productionId: Scalars['ID'];
+  videoId: Scalars['ID'];
 };
 
 export type ProductionVideoUpdateInput = {
@@ -1155,6 +1171,8 @@ export type Query = {
   findOneVote?: Maybe<Vote>;
   /** Get a single vote response, given its ID, or null if that vote response does not exist. */
   findOneVoteResponse?: Maybe<VoteResponse>;
+  /** Get the permissions that the current user has, including permissions inherited from groups. */
+  permissionsFor: Array<Permission>;
 };
 
 
@@ -1402,6 +1420,11 @@ export type QueryFindOneVoteResponseArgs = {
   id: Scalars['ID'];
 };
 
+
+export type QueryPermissionsForArgs = {
+  user?: InputMaybe<Scalars['ID']>;
+};
+
 export type Redirect = {
   __typename?: 'Redirect';
   expires?: Maybe<Scalars['DateTime']>;
@@ -1435,7 +1458,7 @@ export type Role = {
 export type RoleCreateInput = {
   endTime?: InputMaybe<Scalars['DateTime']>;
   name: Scalars['String'];
-  person: Scalars['ID'];
+  personId: Scalars['ID'];
   /** Defaults to 0. */
   priority?: Scalars['Int'];
   startTime?: InputMaybe<Scalars['DateTime']>;
@@ -1444,7 +1467,7 @@ export type RoleCreateInput = {
 export type RoleUpdateInput = {
   endTime?: InputMaybe<Scalars['DateTime']>;
   name?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   priority?: InputMaybe<Scalars['Int']>;
   startTime?: InputMaybe<Scalars['DateTime']>;
 };
@@ -1471,7 +1494,7 @@ export type UserCreateInput = {
   discord?: InputMaybe<Scalars['String']>;
   mail: Scalars['EmailAddress'];
   password?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   username: Scalars['String'];
 };
 
@@ -1483,8 +1506,8 @@ export type UserGroup = {
 };
 
 export type UserGroupCreateInput = {
-  group: Scalars['ID'];
-  user: Scalars['ID'];
+  groupId: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type UserPermission = {
@@ -1506,7 +1529,7 @@ export type UserPermissionCreateInput = {
   inverted?: InputMaybe<Scalars['Boolean']>;
   reason?: InputMaybe<Scalars['String']>;
   subject: Array<Scalars['String']>;
-  user: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 export type UserPermissionUpdateInput = {
@@ -1522,7 +1545,7 @@ export type UserUpdateInput = {
   discord?: InputMaybe<Scalars['String']>;
   mail?: InputMaybe<Scalars['EmailAddress']>;
   password?: InputMaybe<Scalars['String']>;
-  person?: InputMaybe<Scalars['ID']>;
+  personId?: InputMaybe<Scalars['ID']>;
   username?: InputMaybe<Scalars['String']>;
 };
 
@@ -1581,8 +1604,8 @@ export type VoteResponse = {
 
 export type VoteResponseCreateInput = {
   selection: Scalars['String'];
-  user: Scalars['ID'];
-  vote: Scalars['ID'];
+  userId: Scalars['ID'];
+  voteId: Scalars['ID'];
 };
 
 export type VoteResponseUpdateInput = {
@@ -1603,5 +1626,14 @@ export type FindAllProductionsQueryVariables = Exact<{
 
 export type FindAllProductionsQuery = { __typename?: 'Query', productions: Array<{ __typename?: 'Production', id: string, name: string, startTime?: any | null, description?: string | null, thumbnail?: { __typename?: 'Image', path: string } | null }> };
 
+export type UsernameLoginMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type UsernameLoginMutation = { __typename?: 'Mutation', loginSuccess: boolean };
+
 
 export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
+export const UsernameLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UsernameLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"loginSuccess"},"name":{"kind":"Name","value":"usernameLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}]}]}}]} as unknown as DocumentNode<UsernameLoginMutation, UsernameLoginMutationVariables>;

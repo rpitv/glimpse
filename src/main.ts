@@ -18,6 +18,7 @@ import {
   faEllipsis,
   faBookHeart,
   faPeopleGroup,
+  faXmark,
 } from "@fortawesome/pro-light-svg-icons";
 import { faHexagonExclamation } from "@fortawesome/pro-duotone-svg-icons";
 import {
@@ -38,6 +39,7 @@ library.add(faFilm);
 library.add(faEllipsis);
 library.add(faBookHeart);
 library.add(faPeopleGroup);
+library.add(faXmark);
 
 library.add(faHexagonExclamation);
 
