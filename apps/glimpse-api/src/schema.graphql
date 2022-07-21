@@ -659,7 +659,7 @@ type Mutation {
     """
     Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request.
     """
-    emailLogin(email: EmailAddress!, password: String!): Boolean!
+    usernameLogin(username: String!, password: String!): Boolean!
     """
     Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise.
     """
