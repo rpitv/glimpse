@@ -178,7 +178,7 @@ function createButton(name: string, to?: string, icon?: string, children?: MenuO
       label: () => h(
         LoginLogoutPopupButton,
         {},
-        {default: () => authStore.isLoggedIn ? "Logout" : "Login"} /* TODO change name & icon based on login state */
+        {default: () => authStore.isLoggedIn ? "Logout" : "Login"}
       ),
       icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc"]}) : undefined,
       key: name,
