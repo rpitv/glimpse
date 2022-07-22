@@ -34,7 +34,11 @@ export const resolver: Resolvers = {
                 user = undefined;
             }
 
-            // Return the user's permissions
+            // Return the user's permissions. In this case, being able to check your own permissions is an implicitly
+            //   guaranteed permission. Therefore, we don't need to check that the user is able to read each permission,
+            //   since all users can read all of their own permissions. However, note that this caveat only applies
+            //   to the scalar fields in permissions. Checking the name of the group your permissions belong to, for
+            //   example, is not a guaranteed right.
             return await getPermissions(user);
         },
     },
