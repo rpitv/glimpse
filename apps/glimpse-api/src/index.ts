@@ -55,7 +55,7 @@ function isHttps(): boolean {
 async function setupExpressMiddleware(expressServer: Express): Promise<void> {
     // Enable CORS in development environments, as frontend and backend may be running on separate ports/hosts
     if (process.env.NODE_ENV === "development") {
-        expressServer.use(cors());
+        expressServer.use(cors({ origin: true, credentials: true }));
         console.log("App booted in development, enabling CORS");
     }
 

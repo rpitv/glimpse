@@ -1173,6 +1173,8 @@ export type Query = {
   findOneVoteResponse?: Maybe<VoteResponse>;
   /** Get the permissions that the current user has, including permissions inherited from groups. */
   permissionsFor: Array<Permission>;
+  /** Get the currently signed in User. Null if the user is not signed in. */
+  self?: Maybe<User>;
 };
 
 
@@ -2235,6 +2237,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findOneVote?: Resolver<Maybe<ResolversTypes['Vote']>, ParentType, ContextType, RequireFields<QueryFindOneVoteArgs, 'id'>>;
   findOneVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryFindOneVoteResponseArgs, 'id'>>;
   permissionsFor?: Resolver<Array<ResolversTypes['Permission']>, ParentType, ContextType, Partial<QueryPermissionsForArgs>>;
+  self?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
