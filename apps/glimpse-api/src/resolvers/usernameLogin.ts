@@ -6,6 +6,7 @@ import { PASSWORD_HASH_OPTIONS } from "../utils";
 import { logger } from "../logger";
 import { getPermissions } from "../permissions";
 import { RawRuleOf } from "@casl/ability";
+import { PrismaAbility } from "@casl/prisma";
 
 export const resolver: Resolvers = {
     Mutation: {
@@ -58,6 +59,7 @@ export const resolver: Resolvers = {
             ctx.req.session.permissionJSON = <RawRuleOf<GlimpseAbility>[]>(
                 await getPermissions(user)
             );
+            ctx.permissions = new PrismaAbility(ctx.req.session.permissionJSON);
 
             logger.debug(`User ${user.id} logged in.`);
             return true;

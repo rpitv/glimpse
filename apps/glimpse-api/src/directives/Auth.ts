@@ -520,7 +520,9 @@ function addHandlerForOutputFieldsAuthDirectives(
                         for (const returnedValue of returnedValueAsArray) {
                             // Hide password values from logs
                             const parentCopy = parent;
-                            delete parentCopy.password;
+                            if (parent) {
+                                delete parent.password;
+                            }
                             const returnedValueCopy = returnedValue;
                             if (returnedValue) {
                                 delete (<any>returnedValueCopy).password;
