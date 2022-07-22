@@ -340,7 +340,7 @@ type Query {
     """
     Get the permissions that the current user has, including permissions inherited from groups.
     """
-    permissionsFor(user: ID @Auth(action: read, subject: User, field: "id")): [Permission!]! @Auth(action: read, subject: UserPermission) @Auth(action: read, subject: GroupPermission)
+    permissionsFor(user: ID @Auth(action: read, subject: User, field: "id")): [Permission!]!
     """
     Get the currently signed in User. Null if the user is not signed in.
     """
