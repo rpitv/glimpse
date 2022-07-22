@@ -18,7 +18,11 @@ export const resolver: Resolvers = {
             );
 
             let user;
-            if (args.user !== undefined && args.user !== null) {
+            if (
+                args.user !== undefined &&
+                args.user !== null &&
+                !isNaN(parseInt(args.user))
+            ) {
                 user = await ctx.prisma.user.findUnique({
                     where: { id: parseInt(args.user) },
                 });
