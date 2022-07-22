@@ -124,6 +124,10 @@ async function submit() {
           if (result?.data?.loginSuccess) {
             emit("success");
             authStore.isLoggedIn = true;
+            authStore.permissions = null;
+            authStore.userId = undefined;
+            await authStore.getOwnId();
+            await authStore.getPermissions();
           } else {
             loginErrorResponse.value = "Login failed. Please try again.";
           }

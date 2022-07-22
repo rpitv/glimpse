@@ -25,6 +25,9 @@ async function onClick() {
   if(authStore.isLoggedIn) {
     try {
       await logout();
+      authStore.permissions = null;
+      authStore.userId = null;
+      await authStore.getPermissions();
     } catch(e: any) {
       console.error(e);
       if(e.message) {

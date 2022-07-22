@@ -12,9 +12,18 @@
 import { defineComponent } from "vue";
 import Page from "./Page.vue";
 import { NMessageProvider, NConfigProvider, NLoadingBarProvider, darkTheme } from "naive-ui";
+import {useAuthStore} from "@/stores/auth";
 
 export default defineComponent({
   name: "App",
+  async mounted() {
+    const authStore = useAuthStore();
+    const ownId = await authStore.getOwnId();
+    if(typeof ownId === "number") {
+      authStore.isLoggedIn = true;
+    }
+    await authStore.getPermissions();
+  },
   data: () => {
     return {
       layoutCssName: "wave-layout",
