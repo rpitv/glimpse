@@ -15,7 +15,7 @@
         <p>
           <a href="https://github.com/rpitv/glimpse" class="github-link">
             An RCOS Project
-            <FontAwesomeIcon class="github-icon icon" :icon="['fab', 'github']" />
+            <FontAwesomeIcon class="github-icon icon" icon="fa-brands fa-github" />
           </a>
         </p>
         <p><RouterLink to="constitution">Constitution</RouterLink></p>
@@ -24,27 +24,27 @@
       <n-gi class="col last-col social">
         <h2>Social</h2>
         <p><a href="https://www.youtube.com/rpitv">
-          <FontAwesomeIcon class="youtube-icon icon" :icon="['fab', 'youtube']" />
+          <FontAwesomeIcon class="youtube-icon icon" icon="fa-brands fa-youtube" />
           YouTube
         </a></p>
         <p><a href="https://twitter.com/rpitv">
-          <FontAwesomeIcon class="twitter-icon icon" :icon="['fab', 'twitter']" />
+          <FontAwesomeIcon class="twitter-icon icon" icon="fa-brands fa-twitter" />
           Twitter
         </a></p>
         <p><a href="https://discord.com/invite/zr6Xy8nK6E">
-          <FontAwesomeIcon class="discord-icon icon" :icon="['fab', 'discord']" />
+          <FontAwesomeIcon class="discord-icon icon" icon="fa-brands fa-discord" />
           Discord
         </a></p>
         <p><a href="https://www.instagram.com/rpitvweb/">
-          <FontAwesomeIcon class="instagram-icon icon" :icon="['fab', 'instagram']" />
+          <FontAwesomeIcon class="instagram-icon icon" icon="fa-brands fa-instagram" />
           Instagram
         </a></p>
         <p><a href="https://www.reddit.com/user/rpi_tv/">
-          <FontAwesomeIcon class="reddit-icon icon" :icon="['fab', 'reddit-alien']" />
+          <FontAwesomeIcon class="reddit-icon icon" icon="fa-brands fa-reddit-alien" />
           Reddit
         </a></p>
         <p><a href="https://github.com/rpitv">
-          <FontAwesomeIcon class="github-icon icon" :icon="['fab', 'github']" />
+          <FontAwesomeIcon class="github-icon icon" icon="fa-brands fa-github" />
           GitHub
         </a></p>
       </n-gi>

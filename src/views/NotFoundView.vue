@@ -8,7 +8,7 @@
     size="huge"
   >
     <template #icon>
-      <FontAwesomeIcon :icon="['fad', 'hexagon-exclamation']" class="icon" />
+      <FontAwesomeIcon icon="fa-duotone hexagon-exclamation" class="icon" />
     </template>
     <template #footer>
       <a @click="$router.back()">

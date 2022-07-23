@@ -1,41 +1,66 @@
 <template>
-<n-card title="Login" size="large" class="login-card">
-  <n-form
-    ref="formRef"
-    :model="formValue"
-    :rules="formRules"
-    size="medium"
-    @keyup="keyTyped"
-  >
-    <n-form-item label="Username" path="username">
-      <n-input v-model:value="formValue.username" placeholder="" />
-    </n-form-item>
-    <n-form-item label="Password" path="password">
-      <n-input v-model:value="formValue.password" type="password" placeholder="" />
-    </n-form-item>
-    <n-form-item>
-      <n-button @click="submitted">
-        Login
-      </n-button>
-    </n-form-item>
-  </n-form>
-</n-card>
+  <n-spin :show="isLoggingIn">
+    <template #description>
+      Logging you in...
+    </template>
+    <n-card title="Login" size="large" class="login-card" :closable="closable" @close="cardClosed">
+      <n-alert v-if="loginErrorResponse" title="Login Error" type="error" class="login-error">
+        {{ loginErrorResponse }}
+      </n-alert>
+      <n-form
+        ref="formRef"
+        :model="formValue"
+        :rules="formRules"
+        size="medium"
+        @keyup="keyTyped"
+      >
+        <n-form-item label="Username" path="username">
+          <n-input v-model:value="formValue.username" placeholder=""/>
+        </n-form-item>
+        <n-form-item label="Password" path="password">
+          <n-input v-model:value="formValue.password" type="password" placeholder=""/>
+        </n-form-item>
+        <n-form-item>
+          <n-button @click="submit">
+            Login
+          </n-button>
+        </n-form-item>
+      </n-form>
+    </n-card>
+  </n-spin>
 </template>
 
 <script setup lang="ts">
-import type { FormInst, FormItemRule, FormValidationError } from "naive-ui";
-import { NCard, NForm, NFormItem, NInput, NButton } from "naive-ui";
-import { ref } from "vue";
+import type {FormInst, FormItemRule, FormValidationError} from "naive-ui";
+import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin} from "naive-ui";
+import {ref} from "vue";
+import {useMutation} from "@vue/apollo-composable";
+import {UsernameLoginDocument} from "@/graphql/types";
+import {useAuthStore} from "@/stores/auth";
 
-
-
+// Setup references
 const formRef = ref<FormInst | null>(null)
-
+const isLoggingIn = ref<boolean>(false);
 const formValue = ref({
   username: "",
   password: ""
 })
+const loginErrorResponse = ref<string | null>(null);
 
+// Define emits & props
+const emit = defineEmits(["success", "close"]);
+const props = defineProps(["closable"]);
+
+// Import composables
+const {mutate: login} = useMutation(UsernameLoginDocument, () => ({
+  variables: {
+    username: formValue.value.username,
+    password: formValue.value.password
+  }
+}));
+const authStore = useAuthStore();
+
+// Define rules for form input, as well as how to handle incorrect input.
 const formRules = {
   username: {
     required: true,
@@ -46,37 +71,82 @@ const formRules = {
     required: true,
     trigger: "blur",
     validator(rule: FormItemRule, value: string) {
-      if(!value) {
+      if (!value) {
         return new Error("Please input your password");
       }
-      if(value.length < 8) {
+      if (value.length < 8) {
         return new Error("Passwords must be at least 8 characters")
+      }
+      const uniqueChars = new Set(value.split(""));
+      if (uniqueChars.size < 5) {
+        return new Error("Password must contain at least 5 unique characters");
       }
     }
   }
 }
 
+/**
+ * Handler for when the "close" button on the NCard is clicked. This button is only visible
+ *   when the "closable" prop is set to true.
+ */
+function cardClosed() {
+  emit("close");
+}
+
+/**
+ * Called whenever a key is pressed anywhere in the form. This is used to detect the enter key,
+ *   and subsequently submit the form.
+ * @param e The key event
+ */
 async function keyTyped(e: KeyboardEvent) {
-  if(e.key === "Enter") {
-    await submitted()
+  if (e.key === "Enter") {
+    await submit()
   }
 }
 
-async function submitted() {
+/**
+ * Submit the form to the GraphQL API. Also update the UI to show the loading state, and redirect
+ *   the user/show login errors, depending on login success.
+ */
+async function submit() {
+  // Validate the form
   formRef.value?.validate(
     async (errors: Array<FormValidationError> | undefined) => {
       if (!errors) {
-        await login(formValue.value.username, formValue.value.password);
-      } else {
-        console.error(errors)
+        // If form validation found no errors, then attempt to log in.
+        // Show spinner and hide any error messages from previous login attempts
+        isLoggingIn.value = true;
+        loginErrorResponse.value = null;
+        // Send login request to GraphQL API
+        try {
+          const result = await login();
+          // If login was successful, then emit success. Otherwise, show an unknown error message (should never happen).
+          if (result?.data?.loginSuccess) {
+            emit("success");
+            authStore.isLoggedIn = true;
+            authStore.permissions = null;
+            authStore.userId = undefined;
+            await authStore.getOwnId();
+            await authStore.getPermissions();
+          } else {
+            loginErrorResponse.value = "Login failed. Please try again.";
+          }
+        } catch (e: any) {
+          // If there were any issues with the login input (e.g. wrong username/password), then show an error message.
+          if (e.message) {
+            loginErrorResponse.value = e.message;
+          } else {
+            loginErrorResponse.value = "Unknown error. Please contact an administrator.";
+            console.error(e);
+          }
+        }
+        // Hide the spinner, as login request has completed.
+        isLoggingIn.value = false;
       }
     }
   )
 }
 
-async function login(username: string, password: string) {
-  console.log(username, password);
-}
 </script>
 
 <style scoped lang="scss">
@@ -85,5 +155,9 @@ async function login(username: string, password: string) {
     width: 60%;
     margin-left: 20%;
   }
+}
+
+.login-error {
+  margin-bottom: 20px;
 }
 </style>
