@@ -48,6 +48,12 @@ Track https://github.com/graphql/graphql-spec/issues/476 for a built-in specifie
 """
 directive @NonNull on INPUT_FIELD_DEFINITION
 
+"""
+A Permission is either a UserPermission or a GroupPermission. This is useful when retrieving what permissions
+a user has if you don't care whether they're inherited from a group or not.
+"""
+union Permission = GroupPermission | UserPermission
+
 enum AlertLogSeverity {
     INFO
     LOW
@@ -326,6 +332,19 @@ type Query {
     Get a single vote, given its ID, or null if that vote does not exist.
     """
     findOneVote(id: ID! @Auth(action: read, subject: Vote, field: "id")): Vote @Auth(action: read, subject: Vote)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Custom methods
+    # -----------------------------------------------------------------------------------------------------------------
+
+    """
+    Get the permissions that the current user has, including permissions inherited from groups.
+    """
+    permissionsFor(user: ID @Auth(action: read, subject: User, field: "id")): [Permission!]!
+    """
+    Get the currently signed in User. Null if the user is not signed in.
+    """
+    self: User @Auth(action: read, subject: User)
 }
 
 type Mutation {
@@ -641,6 +660,19 @@ type Mutation {
     Delete the Vote with the provided ID, if it exists. Returns null if the Vote does not exist, otherwise returns the deleted object.
     """
     deleteVote(id: ID!): Vote @Auth(action: delete, subject: Vote)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Custom methods
+    # -----------------------------------------------------------------------------------------------------------------
+
+    """
+    Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request.
+    """
+    usernameLogin(username: String!, password: String!): Boolean!
+    """
+    Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise.
+    """
+    logout: Boolean!
 }
 
 type AccessLog {

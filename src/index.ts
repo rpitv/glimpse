@@ -16,7 +16,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import { createServer, YogaNodeServerInstance } from "@graphql-yoga/node";
 
 import { prisma } from "./prisma";
-import { GraphQLContext, TrustProxyOption } from "custom";
+import { GlimpseAbility, GraphQLContext, TrustProxyOption } from "custom";
 import { getPermissions } from "./permissions";
 import { PrismaAbility } from "@casl/prisma";
 import { loadFiles } from "@graphql-tools/load-files";
@@ -31,8 +31,10 @@ import {
     generateCrudResolvers,
     relationalIdWriteTransformer,
 } from "./CrudGenerator";
-import { resolver as userResolvers } from "./resolvers/User";
 import { logger } from "./logger";
+import { assertValidPassword, PASSWORD_HASH_OPTIONS } from "./utils";
+import { hash } from "argon2";
+import { RawRuleOf } from "@casl/ability";
 
 dotenv.config();
 
@@ -53,7 +55,7 @@ function isHttps(): boolean {
 async function setupExpressMiddleware(expressServer: Express): Promise<void> {
     // Enable CORS in development environments, as frontend and backend may be running on separate ports/hosts
     if (process.env.NODE_ENV === "development") {
-        expressServer.use(cors());
+        expressServer.use(cors({ origin: true, credentials: true }));
         console.log("App booted in development, enabling CORS");
     }
 
@@ -106,12 +108,16 @@ async function setupGraphQLContext({
         user = user ?? undefined; // If null, set to undefined
     }
     if (!req.session.permissionJSON) {
-        req.session.permissionJSON = await getPermissions(user);
+        // Cast is required since string is not covariant with AbilityActions, but DB doesn't have AbilityActions enum.
+        req.session.permissionJSON = <RawRuleOf<GlimpseAbility>[]>(
+            await getPermissions(user)
+        );
     }
     return {
         prisma,
         permissions: new PrismaAbility(req.session.permissionJSON),
         user,
+        req,
     };
 }
 
@@ -470,8 +476,40 @@ async function createGraphQLServer(): Promise<
                 },
                 relations: ["user"],
             }),
-            /* User has custom implemented resolvers due to password field */
-            userResolvers,
+            generateCrudResolvers("User", {
+                findMany: true,
+                findOne: true,
+                create: true,
+                update: true,
+                delete: true,
+                transformers: {
+                    write: {
+                        personId: relationalIdWriteTransformer("Person"),
+                        password: async (value) => {
+                            if (!value) {
+                                return value;
+                            }
+                            try {
+                                assertValidPassword(value);
+                            } catch (e) {
+                                throw e;
+                            }
+                            return await hash(value, PASSWORD_HASH_OPTIONS);
+                        },
+                    },
+                },
+                relations: [
+                    "person",
+                    "permissions",
+                    "groups",
+                    "accessLogs",
+                    "auditLogs",
+                    "assignedContactSubmissions",
+                    "productionRsvps",
+                    "voteResponses",
+                    "checkedOutAssets",
+                ],
+            }),
             generateCrudResolvers("Video", {
                 findMany: true,
                 findOne: true,

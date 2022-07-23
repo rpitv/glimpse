@@ -234,14 +234,6 @@ function collectAuthDirectiveDefinitions(
                 fieldConfig,
                 directiveName
             );
-            // GraphQL fields which don't have an Auth directive are presumed to be a mistake.
-            //   A developer should fix it by adding a directive and then adding the permission to guests.
-            if (!authDirectives || authDirectives.length === 0) {
-                throw new Error(
-                    "Misconfigured GraphQL field does not have authorization directive(s). Field config: " +
-                        JSON.stringify(fieldConfig)
-                );
-            }
 
             if (authDirectives) {
                 for (const directive of authDirectives) {
@@ -384,11 +376,14 @@ function addHandlerForInputFieldsAuthDirectives(
                 );
                 // For each @Auth directive applied to that property...
                 for (const directive of inputAuthDirectives) {
-                    // Check whether the user satisfies the @Auth directives requirements. If not, throw an error.
+                    // Hide password values from logs
+                    const elementCopy = element;
+                    delete elementCopy.password;
                     logger.debug(
-                        { directive, element },
+                        { directive, element: elementCopy },
                         `Checking if user is authorized to use input field ${argType}.${prop}.`
                     );
+                    // Check whether the user satisfies the @Auth directives requirements. If not, throw an error.
                     if (
                         !ctx.permissions.can(
                             directive.action,
@@ -523,11 +518,24 @@ function addHandlerForOutputFieldsAuthDirectives(
                         }
 
                         for (const returnedValue of returnedValueAsArray) {
-                            // Check if the user is allowed to access the field on this specific object. If not, throw an error.
+                            // Hide password values from logs
+                            const parentCopy = parent;
+                            if (parent) {
+                                delete parent.password;
+                            }
+                            const returnedValueCopy = returnedValue;
+                            if (returnedValue) {
+                                delete (<any>returnedValueCopy).password;
+                            }
                             logger.debug(
-                                { childDirective, returnedValue, parent },
+                                {
+                                    childDirective,
+                                    returnedValue: returnedValueCopy,
+                                    parent: parentCopy,
+                                },
                                 `Checking if user is authorized to read output object with field ${ownType}.${childName}`
                             );
+                            // Check if the user is allowed to access the field on this specific object. If not, throw an error.
                             if (
                                 returnedValue !== null &&
                                 !ctx.permissions.can(
