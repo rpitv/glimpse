@@ -22,7 +22,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { NGrid, NGi } from "naive-ui";
 </script>
 

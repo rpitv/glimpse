@@ -7,15 +7,36 @@ import ContactView from "../views/ContactView.vue";
 import LoginView from "../views/LoginView.vue";
 import DonateView from "../views/DonateView.vue";
 import JoinView from "../views/JoinView.vue";
-import NotFoundView from "../views/NotFoundView.vue"
+import NotFoundView from "../views/NotFoundView.vue";
+import NoPermissionView from "../views/NoPermissionView.vue";
+import { ability } from "@/casl";
+import type { AbilityActions, AbilitySubjects } from "@/casl";
+import type { Component } from "vue";
+import { h } from "vue";
+
+function restrictedComponent(
+  component: Component,
+  action: AbilityActions,
+  subject: AbilitySubjects,
+  field?: string
+) {
+  return {
+    functional: true,
+    render() {
+      return ability.can(action, subject, field)
+        ? h(component)
+        : h(NoPermissionView);
+    },
+  };
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     } else {
-      return { top: 0, behavior: "smooth" }
+      return { top: 0, behavior: "smooth" };
     }
   },
   routes: [
@@ -24,55 +45,59 @@ const router = createRouter({
       name: "home",
       component: HomeView,
       meta: {
-        layoutCssName: 'wave-layout'
-      }
+        layoutCssName: "wave-layout",
+      },
     },
     {
       path: "/about",
       name: "about",
       component: AboutView,
       meta: {
-        layoutCssName: 'plain-layout'
-      }
+        layoutCssName: "plain-layout",
+      },
+    },
+    {
+      path: "/productions",
+      name: "productions",
+      component: restrictedComponent(ProductionsView, "read", "Production"),
+      meta: {
+        layoutCssName: "plain-layout",
+      },
     },
     {
       path: "/productions",
       name: "productions",
       component: ProductionsView,
       meta: {
-        layoutCssName: 'plain-layout'
-      }
-    },
-    {
-      path: "/productions",
-      name: "productions",
-      component: ProductionsView,
-      meta: {
-        layoutCssName: 'plain-layout'
-      }
+        layoutCssName: "plain-layout",
+      },
     },
     {
       path: "/contact",
       name: "contact",
-      component: ContactView,
+      component: restrictedComponent(
+        ContactView,
+        "create",
+        "ContactSubmission"
+      ),
       meta: {
-        layoutCssName: 'wave-layout'
-      }
+        layoutCssName: "wave-layout",
+      },
     },
     {
       path: "/login",
       name: "login",
       component: LoginView,
       meta: {
-        layoutCssName: 'wave-layout'
-      }
+        layoutCssName: "wave-layout",
+      },
     },
     {
       path: "/donate",
       name: "donate",
       component: DonateView,
       meta: {
-        layoutCssName: 'wave-layout'
+        layoutCssName: "wave-layout",
       },
     },
     {
@@ -80,18 +105,18 @@ const router = createRouter({
       name: "join",
       component: JoinView,
       meta: {
-        layoutCssName: 'wave-layout'
-      }
+        layoutCssName: "wave-layout",
+      },
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: '404',
+      path: "/:pathMatch(.*)*",
+      name: "404",
       component: NotFoundView,
       meta: {
-        layoutCssName: 'plain-layout'
-      }
-    }
-  ]
+        layoutCssName: "plain-layout",
+      },
+    },
+  ],
 });
 
 export default router;

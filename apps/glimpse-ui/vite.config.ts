@@ -8,17 +8,24 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url))
-    }
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
   build: {
-    sourcemap: true
+    sourcemap: true,
   },
   css: {
-    devSourcemap: true
+    devSourcemap: true,
   },
   server: {
-    strictPort: true
-  }
-
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "https://localhost:4000",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
 });
