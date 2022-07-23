@@ -41,7 +41,7 @@ if(mediaQuery && mediaQuery.matches) {
   onMounted(() => {
     interval = setInterval(() => {
       generateNoise();
-    }, 1000 / 30);
+    }, 1000 / 20);
   })
   onBeforeUnmount(() => {
     if(!interval) {

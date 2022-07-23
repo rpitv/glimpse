@@ -3,6 +3,7 @@ import type { PermissionsForQuery } from "@/graphql/types";
 import { provideApolloClient, useQuery } from "@vue/apollo-composable";
 import { apolloClient } from "@/apollo";
 import { PermissionsForDocument, SelfIdDocument } from "@/graphql/types";
+import { ability } from "@/casl";
 
 provideApolloClient(apolloClient);
 
@@ -29,6 +30,8 @@ export const useAuthStore = defineStore("auth", {
           await new Promise<void>((resolve, reject) => {
             permissionsResult.onResult(({ data }) => {
               this.permissions = data.permissions;
+              // Cast to get rid of err about string not being covariant with AbilityActions. Assume server is correct.
+              ability.update(<any>this.permissions);
               resolve();
             });
             permissionsResult.onError((error) => {

@@ -16,7 +16,10 @@ import {
   faPeopleGroup,
   faXmark,
 } from "@fortawesome/pro-light-svg-icons";
-import { faHexagonExclamation } from "@fortawesome/pro-duotone-svg-icons";
+import {
+  faHexagonExclamation,
+  faDoNotEnter,
+} from "@fortawesome/pro-duotone-svg-icons";
 import {
   faGithub,
   faYoutube,
@@ -39,6 +42,7 @@ library.add(faPeopleGroup);
 library.add(faXmark);
 
 library.add(faHexagonExclamation);
+library.add(faDoNotEnter);
 
 library.add(faGithub);
 library.add(faYoutube);
@@ -50,6 +54,8 @@ library.add(faRedditAlien);
 import App from "./App.vue";
 import router from "./router";
 import { apolloClient } from "./apollo";
+import { abilitiesPlugin } from "@casl/vue";
+import { ability } from "@/casl";
 
 const apolloProvider = createApolloProvider({
   defaultClient: apolloClient,
@@ -62,6 +68,7 @@ const app = createApp({
   render: () => h(App),
 });
 
+app.use(abilitiesPlugin, ability);
 app.use(createPinia());
 app.use(router);
 app.use(apolloProvider);

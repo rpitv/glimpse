@@ -35,9 +35,18 @@ import Footer from "@/components/Footer.vue";
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useLoadingBar, useMessage } from "naive-ui";
 import { useRoute } from "vue-router";
+import {useAuthStore} from "@/stores/auth";
 
 const route = useRoute();
 const message = useMessage();
+const authStore = useAuthStore();
+
+// Fetch identity and permissions from server
+const ownId = await authStore.getOwnId();
+if(typeof ownId === "number") {
+  authStore.isLoggedIn = true;
+}
+await authStore.getPermissions();
 
 // Listen for scrolling to update the logo size
 const scrollY = ref(window.scrollY);
