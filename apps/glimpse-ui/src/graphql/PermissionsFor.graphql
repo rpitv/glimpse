@@ -1,0 +1,20 @@
+query PermissionsFor($user: ID) {
+  permissions: permissionsFor(user: $user) {
+    ...on GroupPermission {
+      action
+      subject
+      fields
+      conditions
+      inverted
+      reason
+    }
+    ...on UserPermission {
+      action
+      subject
+      fields
+      conditions
+      inverted
+      reason
+    }
+  }
+}

@@ -2,16 +2,24 @@
   <n-config-provider :theme="darkTheme" :theme-overrides="theme">
     <n-loading-bar-provider>
       <n-message-provider placement="bottom">
-        <Page />
+        <Suspense>
+          <Page/>
+          <template #fallback>
+            <div class="glimpse-loading">
+              <n-spin></n-spin>
+              <p>Loading...</p>
+            </div>
+          </template>
+        </Suspense>
       </n-message-provider>
     </n-loading-bar-provider>
   </n-config-provider>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import Page from "./Page.vue";
-import { NMessageProvider, NConfigProvider, NLoadingBarProvider, darkTheme } from "naive-ui";
+import {NMessageProvider, NConfigProvider, NLoadingBarProvider, darkTheme, NSpin} from "naive-ui";
 
 export default defineComponent({
   name: "App",
@@ -49,6 +57,7 @@ export default defineComponent({
     NMessageProvider,
     NConfigProvider,
     NLoadingBarProvider,
+    NSpin,
     Page
   }
 });
@@ -56,4 +65,12 @@ export default defineComponent({
 
 <style lang="scss">
 @import "./assets/base.css";
+
+.glimpse-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+}
 </style>
