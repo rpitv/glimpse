@@ -4,6 +4,7 @@ import { createApolloProvider } from "@vue/apollo-option";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCaretDown } from "@fortawesome/pro-solid-svg-icons";
 import {
   faCircleInfo,
   faHome,
@@ -29,6 +30,8 @@ import {
   faRedditAlien,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(faCaretDown);
 
 library.add(faHome);
 library.add(faCircleInfo);
