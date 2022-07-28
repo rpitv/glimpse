@@ -3,7 +3,8 @@
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
         <li v-for="button in leftButtons">
-          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : null">
+          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}"
+                      :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -35,7 +36,8 @@
 
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightButtons">
-          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : null">
+          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}"
+                      :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -65,9 +67,12 @@ import {RouterLink, useRoute} from "vue-router";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
 import {requirePermission} from "@/casl";
+import {useAuthStore} from "@/stores/auth";
+import {subject} from "@casl/ability";
 
 // Import composables
 const route = useRoute();
+const authStore = useAuthStore();
 
 // Used in v-bind in <style>
 const navbarColor = computed(() => {
@@ -89,9 +94,11 @@ onMounted(() => document.addEventListener("scroll", updateScroll));
 onUnmounted(() => document.removeEventListener("scroll", updateScroll));
 onMounted(() => window.addEventListener("resize", updateWindowWidth));
 onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
+
 function updateScroll(): void {
   scrollPos.value = window.scrollY;
 }
+
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
@@ -147,14 +154,35 @@ const leftButtons: Ref<NavButton[]> = ref([
   }
 ]);
 // Define the list of buttons to render on the right side of the navbar
-const rightButtons: Ref<NavButton[]> = ref([
-  {
-    name: "Login",
-    icon: "arrow-right-to-arc",
-    showIconOnDesktop: true,
-    route: "login"
+const rightButtons: Ref<NavButton[]> = computed(() => {
+  const list: NavButton[] = [
+    {
+      name: "Admin",
+      icon: "hammer",
+      showIconOnDesktop: true,
+      route: "admin"
+    },
+    {
+      name: authStore.isLoggedIn ? "Logout" : "Login",
+      icon: authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc",
+      showIconOnDesktop: true,
+      route: "login"
+    }
+  ]
+
+  // Insert "Account" button if user is logged in. In between the login and admin buttons.
+  if(authStore.isLoggedIn) {
+    list.splice(1, 0, {
+      name: "Account",
+      icon: "user",
+      showIconOnDesktop: true,
+      route: "account",
+      visible: requirePermission("update", subject("User", {id: authStore.userId})),
+    })
   }
-]);
+
+  return list;
+});
 
 // List of buttons to render in the "More" dropdown, along with their widths. Separate lists are maintained
 //   here for the left and right side, however when it comes time to render, we combine them (see below).
@@ -181,22 +209,22 @@ const moreButtonsOptions: Ref<DropdownOption[]> = computed(() => {
       key: button.name,
       render: () => h(button.route === "login" ? LoginLogoutPopupButton : RouterLink,
         button.route === "login" ? {} : {
-        to: {name: button.route},
-        ariaCurrentValue: route.name === button.route ? "page" : null
-      }, () => [
-        h(NButton, {
-          class: "navbar-dropdown-button",
-          type: "default",
-          large: true,
-          quaternary: true,
+          to: {name: button.route},
+          ariaCurrentValue: route.name === button.route ? "page" : null
         }, () => [
-          h(FontAwesomeIcon, {
-            class: "navbar-dropdown-button-icon",
-            icon: ["fal", button.icon]
-          }),
-          button.name
+          h(NButton, {
+            class: "navbar-dropdown-button",
+            type: "default",
+            large: true,
+            quaternary: true,
+          }, () => [
+            h(FontAwesomeIcon, {
+              class: "navbar-dropdown-button-icon",
+              icon: ["fal", button.icon]
+            }),
+            button.name
+          ])
         ])
-      ])
     });
   }
   return options;

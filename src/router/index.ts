@@ -7,6 +7,8 @@ import ContactView from "../views/ContactView.vue";
 import LoginView from "../views/LoginView.vue";
 import DonateView from "../views/DonateView.vue";
 import JoinView from "../views/JoinView.vue";
+import AdminView from "../views/AdminView.vue";
+import AccountView from "../views/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import { ability } from "@/casl";
@@ -104,6 +106,22 @@ const router = createRouter({
       path: "/join",
       name: "join",
       component: JoinView,
+      meta: {
+        layoutCssName: "wave-layout",
+      },
+    },
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
+      meta: {
+        layoutCssName: "wave-layout",
+      },
+    },
+    {
+      path: "/account",
+      name: "account",
+      component: AccountView,
       meta: {
         layoutCssName: "wave-layout",
       },

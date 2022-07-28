@@ -16,6 +16,8 @@ import {
   faBookHeart,
   faPeopleGroup,
   faXmark,
+  faHammer,
+  faUser,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -43,6 +45,8 @@ library.add(faEllipsis);
 library.add(faBookHeart);
 library.add(faPeopleGroup);
 library.add(faXmark);
+library.add(faHammer);
+library.add(faUser);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
