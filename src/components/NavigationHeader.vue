@@ -3,7 +3,7 @@
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
         <li v-for="button in leftButtons">
-          <RouterLink :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : undefined">
+          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -11,6 +11,15 @@
               {{ button.name }}
             </n-button>
           </RouterLink>
+
+          <LoginLogoutPopupButton v-else>
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </LoginLogoutPopupButton>
         </li>
         <li v-if="leftMoreButtons.length || rightMoreButtons.length">
           <n-dropdown :options="moreButtonsOptions" placement="bottom-end">
@@ -26,7 +35,7 @@
 
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightButtons">
-          <RouterLink :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : undefined">
+          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}" :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -34,6 +43,15 @@
               {{ button.name }}
             </n-button>
           </RouterLink>
+
+          <LoginLogoutPopupButton v-else>
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </LoginLogoutPopupButton>
         </li>
       </ul>
     </nav>
@@ -46,11 +64,9 @@ import {h, ref, onMounted, onUnmounted, computed, Ref, nextTick, watch} from "vu
 import {RouterLink, useRoute} from "vue-router";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
-import {useAuthStore} from "@/stores/auth";
 import {requirePermission} from "@/casl";
 
 // Import composables
-const authStore = useAuthStore();
 const route = useRoute();
 
 // Used in v-bind in <style>
@@ -73,6 +89,12 @@ onMounted(() => document.addEventListener("scroll", updateScroll));
 onUnmounted(() => document.removeEventListener("scroll", updateScroll));
 onMounted(() => window.addEventListener("resize", updateWindowWidth));
 onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
+function updateScroll(): void {
+  scrollPos.value = window.scrollY;
+}
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth;
+}
 
 type NavButton = {
   name: string;
@@ -83,6 +105,7 @@ type NavButton = {
   visible?: (() => Ref<boolean>);
 }
 
+// Define the list of buttons to render on the left side of the navbar
 const leftButtons: Ref<NavButton[]> = ref([
   {
     name: "Home",
@@ -123,8 +146,9 @@ const leftButtons: Ref<NavButton[]> = ref([
     route: "donate"
   }
 ]);
+// Define the list of buttons to render on the right side of the navbar
 const rightButtons: Ref<NavButton[]> = ref([
-  { /* Login is a special case, icon and route are overwritten. */
+  {
     name: "Login",
     icon: "arrow-right-to-arc",
     showIconOnDesktop: true,
@@ -132,23 +156,33 @@ const rightButtons: Ref<NavButton[]> = ref([
   }
 ]);
 
+// List of buttons to render in the "More" dropdown, along with their widths. Separate lists are maintained
+//   here for the left and right side, however when it comes time to render, we combine them (see below).
 const leftMoreButtons: Ref<NavButton[]> = ref([]);
 const leftMoreButtonWidths: Ref<number[]> = ref([]);
 const rightMoreButtons: Ref<NavButton[]> = ref([]);
 const rightMoreButtonWidths: Ref<number[]> = ref([]);
 
-const moreButtonsOptions = computed(() => {
+// Computed list of items for the "more" dropdown, which is passed to the NaiveUI dropdown component.
+//   This essentially combines the left and right side lists of buttons into one list and then transforms them
+//   into a format that the dropdown component can understand.
+const moreButtonsOptions: Ref<DropdownOption[]> = computed(() => {
   const options: DropdownOption[] = [];
+  // Combine left and right "more" dropdowns
   const combinedMoreButtons = [...rightMoreButtons.value, ...leftMoreButtons.value];
 
+  // Reverse list, since updatePriorityPlus puts the first buttons last.
   for (let i = combinedMoreButtons.length - 1; i >= 0; i--) {
     const button = combinedMoreButtons[i];
 
+    // Push the NaiveUI configuration for the button into the options list.
     options.push({
       type: "render",
       key: button.name,
-      render: () => h(RouterLink, {
-        to: {name: button.route}
+      render: () => h(button.route === "login" ? LoginLogoutPopupButton : RouterLink,
+        button.route === "login" ? {} : {
+        to: {name: button.route},
+        ariaCurrentValue: route.name === button.route ? "page" : null
       }, () => [
         h(NButton, {
           class: "navbar-dropdown-button",
@@ -168,9 +202,11 @@ const moreButtonsOptions = computed(() => {
   return options;
 });
 
+// Computed maximum width of the left side of the navbar. Any buttons which overflow this width will be
+//   rendered in the "More" dropdown.
 const leftMaxWidth: Ref<number> = computed(() => {
   if (windowWidth.value >= 800) {
-    return windowWidth.value / 2 - 100;
+    return windowWidth.value / 2 - 60;
   } else if (windowWidth.value >= 500) {
     return windowWidth.value - (rightNav.value?.clientWidth ?? 0) - 100;
   } else {
@@ -178,6 +214,8 @@ const leftMaxWidth: Ref<number> = computed(() => {
   }
 });
 
+// Computed maximum width of the right side of the navbar. Any buttons which overflow this width will be
+//   rendered in the "More" dropdown.
 const rightMaxWidth: Ref<number> = computed(() => {
   if (windowWidth.value >= 800) {
     return windowWidth.value / 2 - 100;
@@ -186,16 +224,36 @@ const rightMaxWidth: Ref<number> = computed(() => {
   }
 });
 
+// Watch the window's width for changes, and re-compute what goes in the "More" dropdown if it changes.
+//   Also compute once initially on mount.
 watch(() => windowWidth.value, () => {
-  handlePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
-  handlePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
+  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
 })
 onMounted(() => {
-  handlePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
-  handlePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
+  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
 })
 
-function handlePriorityPlus(buttonList: Ref<NavButton[]>,
+/**
+ * Compute the buttons which should be rendered in the "More" dropdown, and then update the lists of
+ *   buttons to be shown in the dropdown vs. not in the dropdown. Any buttons which overflow the
+ *   maximum width will be popped off of the button list and pushed onto the more button list. Similarly,
+ *   if a button is on the more button list but is able to fit in the maximum width, it will be popped
+ *   off of the more button list and pushed onto the button list.
+ *
+ *   This is known as the priority plus paradigm.
+ *
+ * @param buttonList List of buttons which should not be rendered in the "More" dropdown. This list will be updated.
+ * @param moreButtonList List of buttons which should be rendered in the "More" dropdown. This list will be updated.
+ * @param moreButtonWidths List of widths required to move a button from the "More" dropdown to the main navbar. The
+ *   size of this list will always be equal to the size of the moreButtonList. This is essentially a cache from
+ *   previous calls to this function. This list will be updated.
+ * @param navElement The element which contains all the buttons in the navbar.
+ * @param maxWidth The maximum width that buttons should take up in navElement. Any buttons that overflow this width
+ *   will be hidden in the "More" dropdown.
+ */
+function updatePriorityPlus(buttonList: Ref<NavButton[]>,
                             moreButtonList: Ref<NavButton[]>,
                             moreButtonWidths: Ref<number[]>,
                             navElement: Ref<HTMLElement | null>,
@@ -211,7 +269,7 @@ function handlePriorityPlus(buttonList: Ref<NavButton[]>,
     moreButtonWidths.value.push(currentWidth);
     // Keep calling until no more changes need to be made.
     nextTick(() => {
-      handlePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
     })
   } else if (moreButtonWidths.value.length > 0 && moreButtonWidths.value[moreButtonWidths.value.length - 1] < maxWidth) {
     // If the screen is large enough to fit the last button in the more list, move it back to the main list.
@@ -223,17 +281,9 @@ function handlePriorityPlus(buttonList: Ref<NavButton[]>,
     moreButtonWidths.value.pop();
     // Keep calling until no more changes need to be made.
     nextTick(() => {
-      handlePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
     })
   }
-}
-
-function updateScroll(): void {
-  scrollPos.value = window.scrollY;
-}
-
-function updateWindowWidth() {
-  windowWidth.value = window.innerWidth;
 }
 </script>
 
