@@ -3,7 +3,7 @@
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
         <li v-for="button in leftButtons">
-          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}"
+          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
                       :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
@@ -13,7 +13,7 @@
             </n-button>
           </RouterLink>
 
-          <LoginLogoutPopupButton v-else>
+          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -36,7 +36,7 @@
 
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightButtons">
-          <RouterLink v-if="button.route !== 'login'" :to="{name: button.route}"
+          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
                       :aria-current="route.name === button.route ? 'page' : null">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
@@ -46,7 +46,7 @@
             </n-button>
           </RouterLink>
 
-          <LoginLogoutPopupButton v-else>
+          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
             <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
               <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
                 <FontAwesomeIcon :icon="['fal', button.icon]"/>
@@ -62,13 +62,14 @@
 
 <script setup lang="ts">
 import {DropdownOption, NButton, NDropdown} from "naive-ui";
-import {h, ref, onMounted, onUnmounted, computed, Ref, nextTick, watch} from "vue";
+import {computed, h, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
 import {RouterLink, useRoute} from "vue-router";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
-import {requirePermission} from "@/casl";
+import {canViewDashboard, requirePermission} from "@/casl";
 import {useAuthStore} from "@/stores/auth";
 import {subject} from "@casl/ability";
+import {AbilityActions, AbilitySubjects} from "@/graphql/types";
 
 // Import composables
 const route = useRoute();
@@ -125,7 +126,7 @@ const leftButtons: Ref<NavButton[]> = ref([
     icon: "film",
     showIconOnDesktop: false,
     route: "productions",
-    visible: requirePermission("read", "Production")
+    visible: requirePermission(AbilityActions.Read, AbilitySubjects.Production)
   },
   {
     name: "About",
@@ -138,7 +139,7 @@ const leftButtons: Ref<NavButton[]> = ref([
     icon: "envelope",
     showIconOnDesktop: false,
     route: "contact",
-    visible: requirePermission("create", "ContactSubmission")
+    visible: requirePermission(AbilityActions.Create, AbilitySubjects.ContactSubmission)
   },
   {
     name: "Join the Club",
@@ -157,10 +158,11 @@ const leftButtons: Ref<NavButton[]> = ref([
 const rightButtons: Ref<NavButton[]> = computed(() => {
   const list: NavButton[] = [
     {
-      name: "Admin",
+      name: "Dashboard",
       icon: "hammer",
       showIconOnDesktop: true,
-      route: "admin"
+      route: "dashboard",
+      visible: canViewDashboard
     },
     {
       name: authStore.isLoggedIn ? "Logout" : "Login",
@@ -177,7 +179,7 @@ const rightButtons: Ref<NavButton[]> = computed(() => {
       icon: "user",
       showIconOnDesktop: true,
       route: "account",
-      visible: requirePermission("update", subject("User", {id: authStore.userId})),
+      visible: requirePermission(AbilityActions.Update, subject(AbilitySubjects.User, {id: authStore.userId})),
     })
   }
 
@@ -202,6 +204,11 @@ const moreButtonsOptions: Ref<DropdownOption[]> = computed(() => {
   // Reverse list, since updatePriorityPlus puts the first buttons last.
   for (let i = combinedMoreButtons.length - 1; i >= 0; i--) {
     const button = combinedMoreButtons[i];
+
+    // Skip buttons which are not currently visible.
+    if(!(button.visible?.().value ?? true)) {
+      continue;
+    }
 
     // Push the NaiveUI configuration for the button into the options list.
     options.push({
