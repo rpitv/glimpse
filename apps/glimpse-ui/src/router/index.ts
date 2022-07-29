@@ -7,12 +7,14 @@ import ContactView from "../views/ContactView.vue";
 import LoginView from "../views/LoginView.vue";
 import DonateView from "../views/DonateView.vue";
 import JoinView from "../views/JoinView.vue";
+import DashboardView from "../views/DashboardView.vue";
+import AccountView from "../views/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import { ability } from "@/casl";
-import type { AbilityActions, AbilitySubjects } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
+import { AbilityActions, AbilitySubjects } from "@/graphql/types";
 
 function restrictedComponent(
   component: Component,
@@ -59,7 +61,11 @@ const router = createRouter({
     {
       path: "/productions",
       name: "productions",
-      component: restrictedComponent(ProductionsView, "read", "Production"),
+      component: restrictedComponent(
+        ProductionsView,
+        AbilityActions.Read,
+        AbilitySubjects.Production
+      ),
       meta: {
         layoutCssName: "plain-layout",
       },
@@ -77,8 +83,8 @@ const router = createRouter({
       name: "contact",
       component: restrictedComponent(
         ContactView,
-        "create",
-        "ContactSubmission"
+        AbilityActions.Create,
+        AbilitySubjects.ContactSubmission
       ),
       meta: {
         layoutCssName: "wave-layout",
@@ -104,6 +110,22 @@ const router = createRouter({
       path: "/join",
       name: "join",
       component: JoinView,
+      meta: {
+        layoutCssName: "wave-layout",
+      },
+    },
+    {
+      path: "/dashboard",
+      name: "dashboard",
+      component: DashboardView,
+      meta: {
+        layoutCssName: "wave-layout",
+      },
+    },
+    {
+      path: "/account",
+      name: "account",
+      component: AccountView,
       meta: {
         layoutCssName: "wave-layout",
       },

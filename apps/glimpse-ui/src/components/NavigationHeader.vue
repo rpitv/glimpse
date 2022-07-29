@@ -1,22 +1,78 @@
 <template>
-  <header class="nav-wrapper">
-    <nav class="glimpse-main-nav">
-      <n-menu class="left-nav" mode="horizontal" :options="leftNavOptions" />
-      <n-menu class="right-nav" mode="horizontal" :options="rightNavOptions" />
+  <header>
+    <nav class="navbar" aria-label="Website Navigation">
+      <ul ref="leftNav" class="navbar-section left">
+        <li v-for="button in leftButtons">
+          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
+                      :aria-current="route.name === button.route ? 'page' : null">
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </RouterLink>
+
+          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </LoginLogoutPopupButton>
+        </li>
+        <li v-if="leftMoreButtons.length || rightMoreButtons.length">
+          <n-dropdown :options="moreButtonsOptions" placement="bottom-end">
+            <n-button class="nav-button" large quaternary>
+              <template #icon>
+                <FontAwesomeIcon :icon="windowWidth >= 500 ? ['fas', 'caret-down'] : ['fal', 'ellipsis']"/>
+              </template>
+              More
+            </n-button>
+          </n-dropdown>
+        </li>
+      </ul>
+
+      <ul ref="rightNav" class="navbar-section right">
+        <li v-for="button in rightButtons">
+          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
+                      :aria-current="route.name === button.route ? 'page' : null">
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </RouterLink>
+
+          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
+            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
+              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
+                <FontAwesomeIcon :icon="['fal', button.icon]"/>
+              </template>
+              {{ button.name }}
+            </n-button>
+          </LoginLogoutPopupButton>
+        </li>
+      </ul>
     </nav>
   </header>
 </template>
 
 <script setup lang="ts">
-import type { MenuOption } from "naive-ui";
-import { NMenu } from "naive-ui";
-import { h, ref, onMounted, onUnmounted, computed } from "vue";
-import { RouterLink } from "vue-router";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import {DropdownOption, NButton, NDropdown} from "naive-ui";
+import {computed, h, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
+import {RouterLink, useRoute} from "vue-router";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
+import {canViewDashboard, requirePermission} from "@/casl";
 import {useAuthStore} from "@/stores/auth";
+import {subject} from "@casl/ability";
+import {AbilityActions, AbilitySubjects} from "@/graphql/types";
 
 // Import composables
+const route = useRoute();
 const authStore = useAuthStore();
 
 // Used in v-bind in <style>
@@ -31,172 +87,14 @@ const navbarBlur = computed(() => {
 // Define references
 const windowWidth = ref(window.innerWidth);
 const scrollPos = ref(0);
+const leftNav = ref<HTMLElement | null>(null);
+const rightNav = ref<HTMLElement | null>(null);
 
 // Listen for scrolling/resizing to update navbar transparency
 onMounted(() => document.addEventListener("scroll", updateScroll));
 onUnmounted(() => document.removeEventListener("scroll", updateScroll));
 onMounted(() => window.addEventListener("resize", updateWindowWidth));
 onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
-
-// Compute items on left side of navigation bar
-const leftNavOptions = computed(() => {
-  // Width < 500 -- Phones
-  // Navigation is along the bottom
-  if (windowWidth.value < 500) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions", "film"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("Login", "login", "arrow-right-to-arc"),
-        createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 500 < width < 550 -- Large phones / small tablets
-  // Nav is at the top, logo on left and login on right, only enough space for 2 buttons
-  if (500 <= windowWidth.value && windowWidth.value < 550) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("Productions", "productions", "film"),
-        createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 550 < width < 675 -- Tablets
-  // Nav is at the top, logo on left and login on right, enough space for 3 buttons
-  if (550 <= windowWidth.value && windowWidth.value < 675) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 675 < width < 800 -- Tablets
-  // Nav is at the top, logo on left and login on right, enough space for 4 buttons
-  if (675 <= windowWidth.value && windowWidth.value < 800) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("Contact Us", "contact", "envelope"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 800 < width < 1000 -- Small computers
-  // Nav is at the top, logo centered and login on right, enough space for only 3 buttons
-  if (800 <= windowWidth.value && windowWidth.value < 1000) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("Contact Us", "contact", "envelope"),
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 1000 < width < 1200 -- Computers
-  // Nav is at the top, logo centered and login on right, enough space for 4 buttons
-  if (1000 <= windowWidth.value && windowWidth.value < 1200) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("Contact Us", "contact"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("About", "about", "circle-info"),
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-  // 1200 < width < 1400 -- Computers
-  // Nav is at the top, logo centered and login on right, enough space for 5 buttons
-  if (1200 <= windowWidth.value && windowWidth.value < 1400) {
-    return [
-      createButton("Home", "home", "home"),
-      createButton("Productions", "productions"),
-      createButton("Contact Us", "contact"),
-      createButton("About", "about"),
-      createButton("More", undefined, "ellipsis", [
-        createButton("Join the Club", "join", "people-group"),
-        createButton("Donate", "donate", "book-heart")
-      ])
-    ];
-  }
-
-  // 1600 < width -- Large computers
-  // Nav is at the top, logo centered and login on right, enough space for 6 buttons
-  return [
-    createButton("Home", "home", "home"),
-    createButton("Productions", "productions"),
-    createButton("Contact Us", "contact"),
-    createButton("About", "about"),
-    createButton("Join the Club", "join"),
-    createButton("Donate", "donate")
-  ];
-});
-
-// Compute items on right side of navigation bar
-const rightNavOptions = computed(() => {
-  // Tablets and larger. Navbar is used
-  if (500 <= windowWidth.value) {
-    return [
-      createButton("Login", "login", "arrow-right-to-arc")
-    ];
-  }
-  // Phones. Everything in "more" dropdown
-  return [];
-});
-
-/**
- * Create a button for the navbar
- * @param name Text to display on this button.
- * @param to Name of router page that this button should open, or undefined if none. If "login", this is a special
- *   case that will open the login modal when clicked.
- * @param icon Name of the FontAwesome icon, or undefined if none.
- * @param children Children MenuOptions to show in the dropdown.
- */
-function createButton(name: string, to?: string, icon?: string, children?: MenuOption[]): MenuOption {
-  if(to === "login") {
-    return {
-      label: () => h(
-        LoginLogoutPopupButton,
-        {},
-        {default: () => authStore.isLoggedIn ? "Logout" : "Login"}
-      ),
-      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc"]}) : undefined,
-      key: name,
-      children: children
-    };
-  } else {
-    return {
-      label: () => h(
-        RouterLink,
-        {to: {name: to}},
-        {default: () => name}
-      ),
-      icon: icon ? () => h(FontAwesomeIcon, {icon: ["fal", icon]}) : undefined,
-      key: name,
-      children: children
-    };
-  }
-}
 
 function updateScroll(): void {
   scrollPos.value = window.scrollY;
@@ -205,39 +103,257 @@ function updateScroll(): void {
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
+
+type NavButton = {
+  name: string;
+  icon: string;
+  showIconOnDesktop: boolean;
+  route?: string;
+  children?: NavButton[];
+  visible?: (() => Ref<boolean>);
+}
+
+// Define the list of buttons to render on the left side of the navbar
+const leftButtons: Ref<NavButton[]> = ref([
+  {
+    name: "Home",
+    icon: "home",
+    showIconOnDesktop: true,
+    route: "home"
+  },
+  {
+    name: "Productions",
+    icon: "film",
+    showIconOnDesktop: false,
+    route: "productions",
+    visible: requirePermission(AbilityActions.Read, AbilitySubjects.Production)
+  },
+  {
+    name: "About",
+    icon: "info-circle",
+    showIconOnDesktop: false,
+    route: "about"
+  },
+  {
+    name: "Contact Us",
+    icon: "envelope",
+    showIconOnDesktop: false,
+    route: "contact",
+    visible: requirePermission(AbilityActions.Create, AbilitySubjects.ContactSubmission)
+  },
+  {
+    name: "Join the Club",
+    icon: "people-group",
+    showIconOnDesktop: false,
+    route: "join"
+  },
+  {
+    name: "Donate",
+    icon: "book-heart",
+    showIconOnDesktop: false,
+    route: "donate"
+  }
+]);
+// Define the list of buttons to render on the right side of the navbar
+const rightButtons: Ref<NavButton[]> = computed(() => {
+  const list: NavButton[] = [
+    {
+      name: "Dashboard",
+      icon: "hammer",
+      showIconOnDesktop: true,
+      route: "dashboard",
+      visible: canViewDashboard
+    },
+    {
+      name: authStore.isLoggedIn ? "Logout" : "Login",
+      icon: authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc",
+      showIconOnDesktop: true,
+      route: "login"
+    }
+  ]
+
+  // Insert "Account" button if user is logged in. In between the login and admin buttons.
+  if(authStore.isLoggedIn) {
+    list.splice(1, 0, {
+      name: "Account",
+      icon: "user",
+      showIconOnDesktop: true,
+      route: "account",
+      visible: requirePermission(AbilityActions.Update, subject(AbilitySubjects.User, {id: authStore.userId})),
+    })
+  }
+
+  return list;
+});
+
+// List of buttons to render in the "More" dropdown, along with their widths. Separate lists are maintained
+//   here for the left and right side, however when it comes time to render, we combine them (see below).
+const leftMoreButtons: Ref<NavButton[]> = ref([]);
+const leftMoreButtonWidths: Ref<number[]> = ref([]);
+const rightMoreButtons: Ref<NavButton[]> = ref([]);
+const rightMoreButtonWidths: Ref<number[]> = ref([]);
+
+// Computed list of items for the "more" dropdown, which is passed to the NaiveUI dropdown component.
+//   This essentially combines the left and right side lists of buttons into one list and then transforms them
+//   into a format that the dropdown component can understand.
+const moreButtonsOptions: Ref<DropdownOption[]> = computed(() => {
+  const options: DropdownOption[] = [];
+  // Combine left and right "more" dropdowns
+  const combinedMoreButtons = [...rightMoreButtons.value, ...leftMoreButtons.value];
+
+  // Reverse list, since updatePriorityPlus puts the first buttons last.
+  for (let i = combinedMoreButtons.length - 1; i >= 0; i--) {
+    const button = combinedMoreButtons[i];
+
+    // Skip buttons which are not currently visible.
+    if(!(button.visible?.().value ?? true)) {
+      continue;
+    }
+
+    // Push the NaiveUI configuration for the button into the options list.
+    options.push({
+      type: "render",
+      key: button.name,
+      render: () => h(button.route === "login" ? LoginLogoutPopupButton : RouterLink,
+        button.route === "login" ? {} : {
+          to: {name: button.route},
+          ariaCurrentValue: route.name === button.route ? "page" : null
+        }, () => [
+          h(NButton, {
+            class: "navbar-dropdown-button",
+            type: "default",
+            large: true,
+            quaternary: true,
+          }, () => [
+            h(FontAwesomeIcon, {
+              class: "navbar-dropdown-button-icon",
+              icon: ["fal", button.icon]
+            }),
+            button.name
+          ])
+        ])
+    });
+  }
+  return options;
+});
+
+// Computed maximum width of the left side of the navbar. Any buttons which overflow this width will be
+//   rendered in the "More" dropdown.
+const leftMaxWidth: Ref<number> = computed(() => {
+  if (windowWidth.value >= 800) {
+    return windowWidth.value / 2 - 60;
+  } else if (windowWidth.value >= 500) {
+    return windowWidth.value - (rightNav.value?.clientWidth ?? 0) - 100;
+  } else {
+    return windowWidth.value;
+  }
+});
+
+// Computed maximum width of the right side of the navbar. Any buttons which overflow this width will be
+//   rendered in the "More" dropdown.
+const rightMaxWidth: Ref<number> = computed(() => {
+  if (windowWidth.value >= 800) {
+    return windowWidth.value / 2 - 100;
+  } else {
+    return 0;
+  }
+});
+
+// Watch the window's width for changes, and re-compute what goes in the "More" dropdown if it changes.
+//   Also compute once initially on mount.
+watch(() => windowWidth.value, () => {
+  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
+})
+onMounted(() => {
+  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
+})
+
+/**
+ * Compute the buttons which should be rendered in the "More" dropdown, and then update the lists of
+ *   buttons to be shown in the dropdown vs. not in the dropdown. Any buttons which overflow the
+ *   maximum width will be popped off of the button list and pushed onto the more button list. Similarly,
+ *   if a button is on the more button list but is able to fit in the maximum width, it will be popped
+ *   off of the more button list and pushed onto the button list.
+ *
+ *   This is known as the priority plus paradigm.
+ *
+ * @param buttonList List of buttons which should not be rendered in the "More" dropdown. This list will be updated.
+ * @param moreButtonList List of buttons which should be rendered in the "More" dropdown. This list will be updated.
+ * @param moreButtonWidths List of widths required to move a button from the "More" dropdown to the main navbar. The
+ *   size of this list will always be equal to the size of the moreButtonList. This is essentially a cache from
+ *   previous calls to this function. This list will be updated.
+ * @param navElement The element which contains all the buttons in the navbar.
+ * @param maxWidth The maximum width that buttons should take up in navElement. Any buttons that overflow this width
+ *   will be hidden in the "More" dropdown.
+ */
+function updatePriorityPlus(buttonList: Ref<NavButton[]>,
+                            moreButtonList: Ref<NavButton[]>,
+                            moreButtonWidths: Ref<number[]>,
+                            navElement: Ref<HTMLElement | null>,
+                            maxWidth: number) {
+  const currentWidth = navElement.value?.clientWidth ?? 0;
+  // If the screen is too small to fit the current buttons in the row, move one to the more list.
+  if (currentWidth > maxWidth) {
+    const poppedButton = buttonList.value.pop();
+    if (!poppedButton) {
+      return;
+    }
+    moreButtonList.value.push(poppedButton);
+    moreButtonWidths.value.push(currentWidth);
+    // Keep calling until no more changes need to be made.
+    nextTick(() => {
+      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+    })
+  } else if (moreButtonWidths.value.length > 0 && moreButtonWidths.value[moreButtonWidths.value.length - 1] < maxWidth) {
+    // If the screen is large enough to fit the last button in the more list, move it back to the main list.
+    const poppedButton = moreButtonList.value.pop();
+    if (!poppedButton) {
+      return;
+    }
+    buttonList.value.push(poppedButton);
+    moreButtonWidths.value.pop();
+    // Keep calling until no more changes need to be made.
+    nextTick(() => {
+      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+    })
+  }
+}
 </script>
 
 <style scoped lang="scss">
 header {
-  display: flex;
-  justify-content: center;
   z-index: 1;
 }
 
-img {
-  position: fixed;
-  z-index: 2;
-  pointer-events: none;
-}
-
-nav {
+.navbar {
+  padding: 0 10px;
+  display: flex;
   position: fixed;
   width: 100%;
+}
+
+.navbar-section {
   display: flex;
   align-items: center;
+  list-style: none;
+}
+
+.nav-button {
+  font-size: 1.2em;
 }
 
 @media(min-width: 500px) {
-  .right-nav {
-    position: absolute;
-    right: 0;
+  .navbar {
+    justify-content: space-between;
   }
 }
 
 // Phone displays
 @media (max-width: 499px) {
   // Move navbar to the bottom of the screen
-  nav {
+  .navbar {
     bottom: 0;
     top: initial;
     padding: 1em;
@@ -245,68 +361,42 @@ nav {
     background-color: rgb(27, 29, 35);
     height: 5em;
   }
-  // Move image to the center top of the screen
-  img {
-    position: absolute;
-    top: 0;
-    margin: 0;
-    height: 25vw;
-  }
 }
 
 // Tablets & Computers
 @media (min-width: 500px) {
   // Position navbar at top of screen & enable color changing on scroll
-  nav {
-    text-transform: uppercase;
+  .navbar {
     top: 0;
     height: 4em;
     transition: background-color 0.5s, backdrop-filter 0.5s;
     background-color: v-bind(navbarColor);
     backdrop-filter: v-bind(navbarBlur);
   }
+  // Uppercase buttons not on mobile
+  .nav-button {
+    text-transform: uppercase;
+  }
 }
 
 // Tablet displays
 @media (min-width: 500px) and (max-width: 799px) {
-  // Move logo to top left of nav
-  img {
-    height: 4em;
-    margin-left: 0.5em;
-    left: 0;
-  }
-  // Move nav over to make room for logo
-  nav {
-    padding-left: 6em;
+  // Logo is on the left, so we can center the navbar
+  .navbar {
+    justify-content: center;
   }
 }
 
-// Computer displays
-@media (min-width: 800px) {
-  // Move logo to top center of screen
-  img {
-    height: 18vw;
-    max-width: 250px;
-    filter: drop-shadow(0.3em 0.3em 0.3em #00000090);
-  }
-}
 </style>
 
 <style lang="scss">
-// Tablet displays and larger - Make menu button font slightly bigger
-@media (min-width: 500px) {
-  .glimpse-main-nav .n-menu-item-content-header {
-    font-size: 1.2em;
-  }
+.navbar-dropdown-button {
+  width: calc(100% - 10px);
+  margin: 0 5px;
+  justify-content: start;
 }
 
-@media (max-width: 499px) {
-  .glimpse-main-nav .n-menu-item-content {
-    display: flex !important;
-    flex-direction: column;
-  }
-  .glimpse-main-nav .n-menu-item-content__icon {
-    margin-right: 0 !important;
-  }
+.navbar-dropdown-button-icon {
+  margin-right: 5px;
 }
 </style>
