@@ -20,7 +20,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.1.1",
     "@fortawesome/pro-duotone-svg-icons": "^6.1.1",
     "@fortawesome/pro-light-svg-icons": "^6.1.1",
-    "@fortawesome/pro-solid-svg-icons": "^6.1.1",
+    "@fortawesome/pro-solid-svg-icons": "^6.1.2",
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "@vue/apollo-composable": "^4.0.0-alpha.17",
     "@vue/apollo-option": "^4.0.0-alpha.17",
