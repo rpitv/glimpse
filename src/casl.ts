@@ -42,10 +42,31 @@ export function canViewDashboard(): Ref<boolean> {
   //   the user can Update any Users, it won't report true just because they can edit themselves.
   if (authStore.isLoggedIn && typeof authStore.userId === "number") {
     const builder = new AbilityBuilder(GlimpseAbility);
-    builder.rules.push(...ability.rules); // Add all rules from current ability
-    builder.cannot(GQLAbilityActions.Update, GQLAbilitySubjects.User, {
-      id: authStore.userId,
-    });
+    // Add all rules from current ability
+    for (const rule of ability.rules) {
+      // Check if this is an update rule specifically with the condition for the user's ID
+      if (
+        rule.action === GQLAbilityActions.Update &&
+        rule.conditions?.id === authStore.userId
+      ) {
+        // If so, check if it's referring to the "User" subject, and remove it if so.
+        // Easy first check is if the subject is literally just "User".
+        if (rule.subject === GQLAbilitySubjects.User) {
+          continue;
+        } else if (Array.isArray(rule.subject)) {
+          // If it's an array, remove all "User" subjects from the array.
+          let idx: number;
+          while ((idx = rule.subject.indexOf(GQLAbilitySubjects.User)) > -1) {
+            rule.subject.splice(idx, 1);
+          }
+          // If the array is now empty, remove the rule.
+          if (rule.subject.length === 0) {
+            continue;
+          }
+        }
+      }
+      builder.rules.push(rule);
+    }
     tmpAbility = builder.build();
   }
 
