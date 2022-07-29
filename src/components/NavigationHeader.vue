@@ -377,18 +377,13 @@ header {
   .nav-button {
     text-transform: uppercase;
   }
-
-  //.navbar-section {
-  //  max-width: 40vw;
-  //  overflow: hidden;
-  //}
 }
 
 // Tablet displays
 @media (min-width: 500px) and (max-width: 799px) {
-  // Move nav over to make room for logo
+  // Logo is on the left, so we can center the navbar
   .navbar {
-    padding-left: 6em;
+    justify-content: center;
   }
 }
 
