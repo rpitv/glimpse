@@ -4,6 +4,7 @@ import { createApolloProvider } from "@vue/apollo-option";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCaretDown } from "@fortawesome/pro-solid-svg-icons";
 import {
   faCircleInfo,
   faHome,
@@ -15,6 +16,8 @@ import {
   faBookHeart,
   faPeopleGroup,
   faXmark,
+  faHammer,
+  faUser,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -30,6 +33,8 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+library.add(faCaretDown);
+
 library.add(faHome);
 library.add(faCircleInfo);
 library.add(faArrowRightToArc);
@@ -40,6 +45,8 @@ library.add(faEllipsis);
 library.add(faBookHeart);
 library.add(faPeopleGroup);
 library.add(faXmark);
+library.add(faHammer);
+library.add(faUser);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
