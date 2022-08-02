@@ -332,15 +332,3 @@ header {
 }
 
 </style>
-
-<style lang="scss">
-.navbar-dropdown-button {
-  width: calc(100% - 10px);
-  margin: 0 5px;
-  justify-content: start;
-}
-
-.navbar-dropdown-button-icon {
-  margin-right: 5px;
-}
-</style>

@@ -1,3 +1,8 @@
+import type { NavButton } from "@/util/NavButton";
+import type { DropdownOption } from "naive-ui";
+import NavigationHeaderButton from "@/components/NavigationHeaderButton.vue";
+import { h } from "vue";
+
 /**
  * Check if a MouseEvent on a link is accompanied by any of the necessary conditions to open the link in a new tab.
  *   E.g., if the user clicks on a link with the ctrl key pressed, it should open in a new tab.
@@ -32,4 +37,27 @@ export function shouldOpenInNewTab(e: MouseEvent): boolean {
     }
   }
   return false;
+}
+
+/**
+ * Recursive function which converts a NavButton into the expected DropdownOption format for NaiveUI dropdowns.
+ *   This function must be written here instead of in NavigationHeaderButton because it refers to
+ *   NavigationHeaderButton, and I am not aware of any way to make Vue templates refer to themselves in their
+ *   script.
+ * @param child
+ */
+export function computeNavDropdownChildElement(
+  child: NavButton,
+  currentDepth: number
+): DropdownOption {
+  return {
+    type: "render",
+    key: child.name,
+    children:
+      child.children?.map((e) =>
+        computeNavDropdownChildElement(e, currentDepth + 1)
+      ) ?? undefined,
+    render: () =>
+      h(NavigationHeaderButton, { value: child, depth: currentDepth + 1 }),
+  };
 }
