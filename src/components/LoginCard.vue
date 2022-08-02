@@ -15,7 +15,7 @@
         @keyup="keyTyped"
       >
         <n-form-item label="Username" path="username">
-          <n-input v-model:value="formValue.username" placeholder=""/>
+          <n-input v-model:value="formValue.username" placeholder="" ref="usernameInputRef"/>
         </n-form-item>
         <n-form-item label="Password" path="password">
           <n-input v-model:value="formValue.password" type="password" placeholder=""/>
@@ -40,6 +40,7 @@ import {useAuthStore} from "@/stores/auth";
 
 // Setup references
 const formRef = ref<FormInst | null>(null)
+const usernameInputRef = ref<typeof NInput | null>(null)
 const isLoggingIn = ref<boolean>(false);
 const formValue = ref({
   username: "",
@@ -50,6 +51,7 @@ const loginErrorResponse = ref<string | null>(null);
 // Define emits & props
 const emit = defineEmits(["success", "close"]);
 const props = defineProps(["closable"]);
+defineExpose({focus})
 
 // Import composables
 const {mutate: login} = useMutation(UsernameLoginDocument, () => ({
@@ -145,6 +147,14 @@ async function submit() {
       }
     }
   )
+}
+
+/**
+ * Focus the username input of the login card. This method is exposed so parent components
+ *   can call it.
+ */
+function focus() {
+  usernameInputRef.value?.focus()
 }
 
 </script>

@@ -1,6 +1,7 @@
 <template>
 <div>
   <StaticBackground />
+  <LoginPopup v-model="showLoginPopup"/>
   <n-result
     status="403"
     title="Insufficient Permissions"
@@ -18,9 +19,15 @@
         <RouterLink to="/">
           <n-button>Go Home</n-button>
         </RouterLink>
-        <LoginLogoutPopupButton v-if="!authStore.isLoggedIn">
-          <n-button>Login</n-button>
-        </LoginLogoutPopupButton>
+
+        <RouterLink to="/login" v-if="!authStore.isLoggedIn" custom v-slot="{href, navigate}">
+          <a :href="href"
+             :aria-current="route.name === 'login' ? 'page' : null"
+             @click="loginClicked($event, navigate)"
+          >
+            <n-button>Login</n-button>
+          </a>
+        </RouterLink>
       </div>
     </template>
   </n-result>
@@ -32,9 +39,24 @@ import StaticBackground from "@/components/StaticBackground.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {NResult, NButton} from "naive-ui";
 import {useAuthStore} from "@/stores/auth";
-import LoginLogoutPopupButton from "@/components/LoginLogoutPopupButton.vue";
+import LoginPopup from "@/components/LoginPopup.vue";
+import {Ref, ref} from "vue";
+import {useRoute} from "vue-router";
+import {shouldOpenInNewTab} from "@/util/helper";
 
 const authStore = useAuthStore();
+const route = useRoute();
+
+const showLoginPopup: Ref<boolean> = ref(false);
+
+function loginClicked(event: MouseEvent, navigate: (event: MouseEvent) => void) {
+  if(shouldOpenInNewTab(event)) {
+    return navigate(event);
+  } else {
+    event.preventDefault();
+    showLoginPopup.value = true;
+  }
+}
 </script>
 
 <style scoped lang="scss">

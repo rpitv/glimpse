@@ -3,83 +3,49 @@
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
         <li v-for="button in leftButtons">
-          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
-                      :aria-current="route.name === button.route ? 'page' : null">
-            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
-              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
-                <FontAwesomeIcon :icon="['fal', button.icon]"/>
-              </template>
-              {{ button.name }}
-            </n-button>
-          </RouterLink>
-
-          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
-            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
-              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
-                <FontAwesomeIcon :icon="['fal', button.icon]"/>
-              </template>
-              {{ button.name }}
-            </n-button>
-          </LoginLogoutPopupButton>
+          <NavigationHeaderButton class="nav-button" :value="button"/>
         </li>
-        <li v-if="leftMoreButtons.length || rightMoreButtons.length">
-          <n-dropdown :options="moreButtonsOptions" placement="bottom-end">
-            <n-button class="nav-button" large quaternary>
-              <template #icon>
-                <FontAwesomeIcon :icon="windowWidth >= 500 ? ['fas', 'caret-down'] : ['fal', 'ellipsis']"/>
-              </template>
-              More
-            </n-button>
-          </n-dropdown>
+        <li v-if="moreDropdownButton.children.length">
+          <NavigationHeaderButton class="nav-button" :value="moreDropdownButton"/>
         </li>
       </ul>
 
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightButtons">
-          <RouterLink v-if="button.route !== 'login' && (button.visible?.().value ?? true)" :to="{name: button.route}"
-                      :aria-current="route.name === button.route ? 'page' : null">
-            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
-              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
-                <FontAwesomeIcon :icon="['fal', button.icon]"/>
-              </template>
-              {{ button.name }}
-            </n-button>
-          </RouterLink>
-
-          <LoginLogoutPopupButton v-else-if="button.visible?.().value ?? true">
-            <n-button class="nav-button" :type="route.name === button.route ? 'primary' : 'default'" large quaternary>
-              <template #icon v-if="button.showIconOnDesktop || windowWidth < 500">
-                <FontAwesomeIcon :icon="['fal', button.icon]"/>
-              </template>
-              {{ button.name }}
-            </n-button>
-          </LoginLogoutPopupButton>
+          <NavigationHeaderButton class="nav-button" :value="button"/>
         </li>
       </ul>
+
+      <LoginPopup v-model="showLoginPopup"/>
     </nav>
   </header>
 </template>
 
 <script setup lang="ts">
-import {DropdownOption, NButton, NDropdown} from "naive-ui";
-import {computed, h, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
-import {RouterLink, useRoute} from "vue-router";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LoginLogoutPopupButton from "./LoginLogoutPopupButton.vue";
+import {computed, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
+import {useRoute} from "vue-router";
+import LoginPopup from "./LoginPopup.vue";
 import {canViewDashboard, requirePermission} from "@/casl";
 import {useAuthStore} from "@/stores/auth";
 import {subject} from "@casl/ability";
 import {AbilityActions, AbilitySubjects} from "@/graphql/types";
+import type {NavButton} from "@/util/NavButton";
+import NavigationHeaderButton from "./NavigationHeaderButton.vue";
+import {useMessage} from "naive-ui";
+import {shouldOpenInNewTab} from "@/util/helper";
 
 // Import composables
 const route = useRoute();
 const authStore = useAuthStore();
+const message = useMessage();
 
 // Used in v-bind in <style>
+// noinspection JSUnusedGlobalSymbols
 const navbarColor = computed(() => {
   return scrollPos.value <= 0 ? "#00000000" : "#00000050";
 });
 // Used in v-bind in <style>
+// noinspection JSUnusedGlobalSymbols
 const navbarBlur = computed(() => {
   return scrollPos.value <= 0 ? "blur(0)" : "blur(0.3em)";
 });
@@ -89,6 +55,7 @@ const windowWidth = ref(window.innerWidth);
 const scrollPos = ref(0);
 const leftNav = ref<HTMLElement | null>(null);
 const rightNav = ref<HTMLElement | null>(null);
+const showLoginPopup = ref<boolean>(false);
 
 // Listen for scrolling/resizing to update navbar transparency
 onMounted(() => document.addEventListener("scroll", updateScroll));
@@ -104,52 +71,43 @@ function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
 
-type NavButton = {
-  name: string;
-  icon: string;
-  showIconOnDesktop: boolean;
-  route?: string;
-  children?: NavButton[];
-  visible?: (() => Ref<boolean>);
-}
-
 // Define the list of buttons to render on the left side of the navbar
 const leftButtons: Ref<NavButton[]> = ref([
   {
     name: "Home",
-    icon: "home",
+    icon: ['fal', 'home'],
     showIconOnDesktop: true,
     route: "home"
   },
   {
     name: "Productions",
-    icon: "film",
+    icon: ['fal', 'film'],
     showIconOnDesktop: false,
     route: "productions",
     visible: requirePermission(AbilityActions.Read, AbilitySubjects.Production)
   },
   {
     name: "About",
-    icon: "info-circle",
+    icon: ['fal', 'info-circle'],
     showIconOnDesktop: false,
     route: "about"
   },
   {
     name: "Contact Us",
-    icon: "envelope",
+    icon: ['fal', 'envelope'],
     showIconOnDesktop: false,
     route: "contact",
     visible: requirePermission(AbilityActions.Create, AbilitySubjects.ContactSubmission)
   },
   {
     name: "Join the Club",
-    icon: "people-group",
+    icon: ['fal', 'people-group'],
     showIconOnDesktop: false,
     route: "join"
   },
   {
     name: "Donate",
-    icon: "book-heart",
+    icon: ['fal', 'book-heart'],
     showIconOnDesktop: false,
     route: "donate"
   }
@@ -159,24 +117,49 @@ const rightButtons: Ref<NavButton[]> = computed(() => {
   const list: NavButton[] = [
     {
       name: "Dashboard",
-      icon: "hammer",
+      icon: ['fal', 'hammer'],
       showIconOnDesktop: true,
       route: "dashboard",
       visible: canViewDashboard
     },
     {
       name: authStore.isLoggedIn ? "Logout" : "Login",
-      icon: authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc",
+      icon: ['fal', authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc"],
       showIconOnDesktop: true,
-      route: "login"
+      route: "login",
+      onClick: async (event, value, next) => {
+        // If the click on the link should open in a new tab (e.g. ctrl held down), then trigger the
+        //   default RouterLink action.
+        if(shouldOpenInNewTab(event)) {
+          return next(event);
+        }
+
+        event.preventDefault();
+        // If the user is logged in, then log them out and display a success/failure message. Otherwise,
+        //   show the login popup.
+        if (authStore.isLoggedIn) {
+          try {
+            await authStore.logout()
+            message.success("Logged out successfully")
+          } catch(e: any) {
+            if(e instanceof Error) {
+              message.error(e.message)
+            } else {
+              message.error(e)
+            }
+          }
+        } else {
+          showLoginPopup.value = true;
+        }
+      }
     }
   ]
 
   // Insert "Account" button if user is logged in. In between the login and admin buttons.
-  if(authStore.isLoggedIn) {
+  if (authStore.isLoggedIn) {
     list.splice(1, 0, {
       name: "Account",
-      icon: "user",
+      icon: ['fal', 'user'],
       showIconOnDesktop: true,
       route: "account",
       visible: requirePermission(AbilityActions.Update, subject(AbilitySubjects.User, {id: authStore.userId})),
@@ -193,49 +176,14 @@ const leftMoreButtonWidths: Ref<number[]> = ref([]);
 const rightMoreButtons: Ref<NavButton[]> = ref([]);
 const rightMoreButtonWidths: Ref<number[]> = ref([]);
 
-// Computed list of items for the "more" dropdown, which is passed to the NaiveUI dropdown component.
-//   This essentially combines the left and right side lists of buttons into one list and then transforms them
-//   into a format that the dropdown component can understand.
-const moreButtonsOptions: Ref<DropdownOption[]> = computed(() => {
-  const options: DropdownOption[] = [];
-  // Combine left and right "more" dropdowns
-  const combinedMoreButtons = [...rightMoreButtons.value, ...leftMoreButtons.value];
-
-  // Reverse list, since updatePriorityPlus puts the first buttons last.
-  for (let i = combinedMoreButtons.length - 1; i >= 0; i--) {
-    const button = combinedMoreButtons[i];
-
-    // Skip buttons which are not currently visible.
-    if(!(button.visible?.().value ?? true)) {
-      continue;
-    }
-
-    // Push the NaiveUI configuration for the button into the options list.
-    options.push({
-      type: "render",
-      key: button.name,
-      render: () => h(button.route === "login" ? LoginLogoutPopupButton : RouterLink,
-        button.route === "login" ? {} : {
-          to: {name: button.route},
-          ariaCurrentValue: route.name === button.route ? "page" : null
-        }, () => [
-          h(NButton, {
-            class: "navbar-dropdown-button",
-            type: "default",
-            large: true,
-            quaternary: true,
-          }, () => [
-            h(FontAwesomeIcon, {
-              class: "navbar-dropdown-button-icon",
-              icon: ["fal", button.icon]
-            }),
-            button.name
-          ])
-        ])
-    });
-  }
-  return options;
-});
+const moreDropdownButton: Ref<NavButton> = computed(() => {
+  return {
+    name: "More",
+    icon: windowWidth.value >= 500 ? ['fas', 'caret-down'] : ['fal', 'ellipsis'],
+    showIconOnDesktop: true,
+    children: [...rightMoreButtons.value, ...leftMoreButtons.value],
+  };
+})
 
 // Computed maximum width of the left side of the navbar. Any buttons which overflow this width will be
 //   rendered in the "More" dropdown.
@@ -340,10 +288,6 @@ header {
   list-style: none;
 }
 
-.nav-button {
-  font-size: 1.2em;
-}
-
 @media(min-width: 500px) {
   .navbar {
     justify-content: space-between;
@@ -373,10 +317,6 @@ header {
     background-color: v-bind(navbarColor);
     backdrop-filter: v-bind(navbarBlur);
   }
-  // Uppercase buttons not on mobile
-  .nav-button {
-    text-transform: uppercase;
-  }
 }
 
 // Tablet displays
@@ -385,6 +325,10 @@ header {
   .navbar {
     justify-content: center;
   }
+}
+
+.nav-button {
+  margin-right: 3px;
 }
 
 </style>
