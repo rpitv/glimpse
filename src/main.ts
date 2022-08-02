@@ -22,6 +22,7 @@ import {
 import {
   faHexagonExclamation,
   faDoNotEnter,
+  faUserRobotXmarks,
 } from "@fortawesome/pro-duotone-svg-icons";
 import {
   faGithub,
@@ -50,6 +51,7 @@ library.add(faUser);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
+library.add(faUserRobotXmarks);
 
 library.add(faGithub);
 library.add(faYoutube);
