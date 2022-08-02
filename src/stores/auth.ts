@@ -1,8 +1,16 @@
 import { defineStore } from "pinia";
 import type { PermissionsForQuery } from "@/graphql/types";
-import { provideApolloClient, useQuery } from "@vue/apollo-composable";
+import {
+  provideApolloClient,
+  useMutation,
+  useQuery,
+} from "@vue/apollo-composable";
 import { apolloClient } from "@/apollo";
-import { PermissionsForDocument, SelfIdDocument } from "@/graphql/types";
+import {
+  LogoutDocument,
+  PermissionsForDocument,
+  SelfIdDocument,
+} from "@/graphql/types";
 import { ability } from "@/casl";
 
 provideApolloClient(apolloClient);
@@ -75,6 +83,18 @@ export const useAuthStore = defineStore("auth", {
       // If the userId is still undefined, then the user is not logged in. Shouldn't happen, since the
       //   GraphQL API would have returned null anyway if the user is not logged in.
       return this.userId ?? null;
+    },
+    async logout() {
+      const { mutate } = useMutation(LogoutDocument);
+
+      const result = await mutate();
+      if (!result?.data?.logoutSuccess) {
+        throw new Error(
+          "Logout failed. Please try again. If the problem persists, contact an administrator."
+        );
+      }
+
+      this.isLoggedIn = false;
     },
   },
 });
