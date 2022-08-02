@@ -1,29 +1,34 @@
 <template>
   <!-- Background -->
   <div class="background"/>
-  <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
-
-  <!-- Navbar -->
-  <NavigationHeader/>
-
-  <!-- Logo -->
-  <div class="main-logo-wrapper">
-    <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
-         alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+  <div v-if="topLevelError !== null">
+    <ServerErrorView :error="topLevelError" />
   </div>
+  <div v-else>
+    <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
 
-  <!-- Page content -->
-  <div :class="layoutCssName + ' layout content'">
-    <RouterView v-slot="{ Component, route }">
-      <Transition name="router">
-        <div :class="layoutCssName + ' layout router-page'" :key="route.name">
-          <div>
-            <component :is="Component"/>
+    <!-- Navbar -->
+    <NavigationHeader/>
+
+    <!-- Logo -->
+    <div class="main-logo-wrapper">
+      <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
+           alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+    </div>
+
+    <!-- Page content -->
+    <div :class="layoutCssName + ' layout content'">
+      <RouterView v-slot="{ Component, route }">
+        <Transition name="router">
+          <div :class="layoutCssName + ' layout router-page'" :key="route.name">
+            <div>
+              <component :is="Component"/>
+            </div>
+            <Footer/>
           </div>
-          <Footer/>
-        </div>
-      </Transition>
-    </RouterView>
+        </Transition>
+      </RouterView>
+    </div>
   </div>
 </template>
 
@@ -36,17 +41,30 @@ import {onMounted, onUnmounted, ref, watch} from "vue";
 import {useLoadingBar, useMessage} from "naive-ui";
 import {useRoute} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
+import ServerErrorView from "@/views/ServerErrorView.vue";
 
 const route = useRoute();
 const message = useMessage();
 const authStore = useAuthStore();
 
+const topLevelError = ref<Error | null>(null);
+
+try {
 // Fetch identity and permissions from server
-const ownId = await authStore.getOwnId();
-if (typeof ownId === "number") {
-  authStore.isLoggedIn = true;
+  const ownId = await authStore.getOwnId();
+  if (typeof ownId === "number") {
+    authStore.isLoggedIn = true;
+  }
+  await authStore.getPermissions();
+} catch(e: any) {
+  if(e instanceof Error) {
+    topLevelError.value = e;
+  } else {
+    topLevelError.value = new Error(e);
+  }
+  console.error(topLevelError.value);
 }
-await authStore.getPermissions();
+
 
 // Listen for scrolling to update the logo size
 const scrollY = ref(window.scrollY);
