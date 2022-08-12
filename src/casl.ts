@@ -186,3 +186,21 @@ export function canViewDashboard(): Ref<boolean> {
     );
   });
 }
+
+export function hasAnyActionPermissionForSubject(
+  subject: AbilitySubjects,
+  actions?: AbilityActions[]
+): boolean {
+  if (!actions) {
+    return (
+      ability.can(GQLAbilityActions.Create, subject) ||
+      ability.can(GQLAbilityActions.Read, subject) ||
+      ability.can(GQLAbilityActions.Update, subject) ||
+      ability.can(GQLAbilityActions.Delete, subject)
+    );
+  } else {
+    return actions.some((action) => {
+      return ability.can(action, subject);
+    });
+  }
+}

@@ -61,3 +61,5 @@ export function computeNavDropdownChildElement(
       h(NavigationHeaderButton, { value: child, depth: currentDepth + 1 }),
   };
 }
+
+export type FontAwesomeIconWeights = "fas" | "fal" | "fad" | "fab";

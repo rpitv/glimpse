@@ -18,6 +18,18 @@ import {
   faXmark,
   faHammer,
   faUser,
+  faUsersLine,
+  faClipboardList,
+  faBoxOpenFull,
+  faNewspaper,
+  faLayerGroup,
+  faMessageLines,
+  faImages,
+  faAddressCard,
+  faClapperboard,
+  faSignsPost,
+  faVideo,
+  faBallotCheck,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -48,6 +60,18 @@ library.add(faPeopleGroup);
 library.add(faXmark);
 library.add(faHammer);
 library.add(faUser);
+library.add(faUsersLine);
+library.add(faClipboardList);
+library.add(faBoxOpenFull);
+library.add(faNewspaper);
+library.add(faLayerGroup);
+library.add(faMessageLines);
+library.add(faImages);
+library.add(faAddressCard);
+library.add(faClapperboard);
+library.add(faSignsPost);
+library.add(faVideo);
+library.add(faBallotCheck);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
