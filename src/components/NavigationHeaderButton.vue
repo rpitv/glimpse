@@ -1,7 +1,7 @@
 <template>
   <component v-if="value.visible?.().value ?? true"
              :is="children.length > 0 ? NDropdown : 'div'"
-             placement="bottom-end"
+             :placement="props.depth > 0 ? 'right-start' : 'bottom-end'"
              :options="children"
   >
     <RouterLink v-if="value.route"
@@ -16,8 +16,9 @@
                   :type="route.name === value.route ? 'primary' : 'default'"
                   large
                   quaternary
+                  :data-depth="props.depth"
         >
-          <template #icon v-if="value.showIconOnDesktop || windowWidth < 500">
+          <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
             <FontAwesomeIcon :icon="value.icon"/>
           </template>
           {{ value.name }}
@@ -30,8 +31,9 @@
               :type="route.name === value.route ? 'primary' : 'default'"
               large
               quaternary
+              :data-depth="props.depth"
     >
-      <template #icon v-if="value.showIconOnDesktop || windowWidth < 500">
+      <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
         <FontAwesomeIcon :icon="value.icon"/>
       </template>
       {{ value.name }}
@@ -44,9 +46,9 @@ import {DropdownOption, NButton, NDropdown} from "naive-ui";
 import type {NavButton} from "@/util/NavButton";
 import type {PropType, Ref} from "vue";
 import {RouterLink, useRoute} from "vue-router";
-import {computed, h, onMounted, onUnmounted, ref} from "vue";
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import LoginPopup from "@/components/LoginPopup.vue";
+import {computeNavDropdownChildElement} from "@/util/helper";
 
 // Import composables
 const route = useRoute();
@@ -56,6 +58,10 @@ const props = defineProps({
   value: {
     type: Object as PropType<NavButton>,
     required: true
+  },
+  depth: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -74,28 +80,7 @@ const children: Ref<DropdownOption[]> = computed(() => {
 
   for (const child of props.value.children ?? []) {
     // Push the NaiveUI configuration for the button into the options list.
-    dropdownOptions.push({
-      type: "render",
-      key: child.name,
-      render: () => h(child.route === "login" ? LoginPopup : RouterLink,
-        child.route === "login" ? {} : {
-          to: {name: child.route},
-          ariaCurrentValue: route.name === child.route ? "page" : null
-        }, () => [
-          h(NButton, {
-            class: "navbar-dropdown-button",
-            type: "default",
-            large: true,
-            quaternary: true,
-          }, () => [
-            h(FontAwesomeIcon, {
-              class: "navbar-dropdown-button-icon",
-              icon: child.icon
-            }),
-            child.name
-          ])
-        ])
-    });
+    dropdownOptions.push(computeNavDropdownChildElement(child, props.depth));
   }
 
   return dropdownOptions;
@@ -104,15 +89,21 @@ const children: Ref<DropdownOption[]> = computed(() => {
 
 <style scoped lang="scss">
 
-.button-elem {
+.button-elem[data-depth="0"] {
   font-size: 1.2em;
 }
 
 // Tablets & Computers
 @media (min-width: 500px) {
   // Uppercase buttons not on mobile
-  .button-elem {
+  .button-elem[data-depth="0"] {
     text-transform: uppercase;
   }
+}
+
+.button-elem:not([data-depth="0"]) {
+  width: calc(100% - 10px);
+  justify-content: start;
+  margin: 0 5px;
 }
 </style>
