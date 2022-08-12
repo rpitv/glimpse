@@ -2,7 +2,7 @@
   <header>
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
-        <li v-for="button in leftButtons">
+        <li v-for="button in leftPriorityPlusCache.nonMoreButtons">
           <NavigationHeaderButton class="nav-button" :value="button"/>
         </li>
         <li v-if="moreDropdownButton.children.length">
@@ -11,7 +11,7 @@
       </ul>
 
       <ul ref="rightNav" class="navbar-section right">
-        <li v-for="button in rightButtons">
+        <li v-for="button in rightPriorityPlusCache.nonMoreButtons">
           <NavigationHeaderButton class="nav-button" :value="button"/>
         </li>
       </ul>
@@ -33,53 +33,36 @@ import type {NavButton} from "@/util/NavButton";
 import NavigationHeaderButton from "./NavigationHeaderButton.vue";
 import {useMessage} from "naive-ui";
 import {shouldOpenInNewTab} from "@/util/helper";
+import {storeToRefs} from "pinia";
+
+// -------------------------------------------------------------------------------------------------
+// Definitions
+// -------------------------------------------------------------------------------------------------
+
+// Define types
+type PriorityPlusCache = {
+  nonMoreButtons: NavButton[];
+  moreButtons: NavButton[];
+  moreButtonWidths: number[];
+}
 
 // Import composables
 const route = useRoute();
 const authStore = useAuthStore();
+const refAuthStore = storeToRefs(authStore);
 const message = useMessage();
 
-// Used in v-bind in <style>
-// noinspection JSUnusedGlobalSymbols
-const navbarColor = computed(() => {
-  return scrollPos.value <= 0 ? "#00000000" : "#00000050";
-});
-// Used in v-bind in <style>
-// noinspection JSUnusedGlobalSymbols
-const navbarBlur = computed(() => {
-  return scrollPos.value <= 0 ? "blur(0)" : "blur(0.3em)";
-});
-
-// Define references
-const windowWidth = ref(window.innerWidth);
-const scrollPos = ref(0);
-const leftNav = ref<HTMLElement | null>(null);
-const rightNav = ref<HTMLElement | null>(null);
-const showLoginPopup = ref<boolean>(false);
-
-// Listen for scrolling/resizing to update navbar transparency
-onMounted(() => document.addEventListener("scroll", updateScroll));
-onUnmounted(() => document.removeEventListener("scroll", updateScroll));
-onMounted(() => window.addEventListener("resize", updateWindowWidth));
-onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
-
-function updateScroll(): void {
-  scrollPos.value = window.scrollY;
-}
-
-function updateWindowWidth() {
-  windowWidth.value = window.innerWidth;
-}
-
 // Define the list of buttons to render on the left side of the navbar
-const leftButtons: Ref<NavButton[]> = ref([
+const leftButtonsSource: Ref<NavButton[]> = computed(() => [
   {
+    key: "home",
     name: "Home",
     icon: ['fal', 'home'],
     showIconOnDesktop: true,
     route: "home"
   },
   {
+    key: "productions",
     name: "Productions",
     icon: ['fal', 'film'],
     showIconOnDesktop: false,
@@ -87,12 +70,14 @@ const leftButtons: Ref<NavButton[]> = ref([
     visible: requirePermission(AbilityActions.Read, AbilitySubjects.Production)
   },
   {
+    key: "about",
     name: "About",
     icon: ['fal', 'info-circle'],
     showIconOnDesktop: false,
     route: "about"
   },
   {
+    key: "contact",
     name: "Contact Us",
     icon: ['fal', 'envelope'],
     showIconOnDesktop: false,
@@ -100,12 +85,14 @@ const leftButtons: Ref<NavButton[]> = ref([
     visible: requirePermission(AbilityActions.Create, AbilitySubjects.ContactSubmission)
   },
   {
+    key: "join",
     name: "Join the Club",
     icon: ['fal', 'people-group'],
     showIconOnDesktop: false,
     route: "join"
   },
   {
+    key: "donate",
     name: "Donate",
     icon: ['fal', 'book-heart'],
     showIconOnDesktop: false,
@@ -113,9 +100,10 @@ const leftButtons: Ref<NavButton[]> = ref([
   }
 ]);
 // Define the list of buttons to render on the right side of the navbar
-const rightButtons: Ref<NavButton[]> = computed(() => {
+const rightButtonsSource: Ref<NavButton[]> = computed(() => {
   const list: NavButton[] = [
     {
+      key: "dashboard",
       name: "Dashboard",
       icon: ['fal', 'hammer'],
       showIconOnDesktop: true,
@@ -123,8 +111,9 @@ const rightButtons: Ref<NavButton[]> = computed(() => {
       visible: canViewDashboard
     },
     {
-      name: authStore.isLoggedIn ? "Logout" : "Login",
-      icon: ['fal', authStore.isLoggedIn ? "arrow-right-from-arc" : "arrow-right-to-arc"],
+      key: refAuthStore.isLoggedIn.value ? "login" : "logout",
+      name: refAuthStore.isLoggedIn.value ? "Logout" : "Login",
+      icon: ['fal', refAuthStore.isLoggedIn.value ? "arrow-right-from-arc" : "arrow-right-to-arc"],
       showIconOnDesktop: true,
       route: "login",
       onClick: async (event, value, next) => {
@@ -158,6 +147,7 @@ const rightButtons: Ref<NavButton[]> = computed(() => {
   // Insert "Account" button if user is logged in. In between the login and admin buttons.
   if (authStore.isLoggedIn) {
     list.splice(1, 0, {
+      key: "account",
       name: "Account",
       icon: ['fal', 'user'],
       showIconOnDesktop: true,
@@ -169,19 +159,41 @@ const rightButtons: Ref<NavButton[]> = computed(() => {
   return list;
 });
 
-// List of buttons to render in the "More" dropdown, along with their widths. Separate lists are maintained
-//   here for the left and right side, however when it comes time to render, we combine them (see below).
-const leftMoreButtons: Ref<NavButton[]> = ref([]);
-const leftMoreButtonWidths: Ref<number[]> = ref([]);
-const rightMoreButtons: Ref<NavButton[]> = ref([]);
-const rightMoreButtonWidths: Ref<number[]> = ref([]);
+// Define references
+const windowWidth = ref(window.innerWidth);
+const scrollPos = ref(0);
+const leftNav = ref<HTMLElement | null>(null);
+const rightNav = ref<HTMLElement | null>(null);
+const showLoginPopup = ref<boolean>(false);
+const leftPriorityPlusCache: Ref<PriorityPlusCache> = ref({nonMoreButtons: [], moreButtons: [], moreButtonWidths: []});
+const rightPriorityPlusCache: Ref<PriorityPlusCache> = ref({nonMoreButtons: [], moreButtons: [], moreButtonWidths: []});
 
+// Used in v-bind in <style>
+// noinspection JSUnusedGlobalSymbols
+const navbarColor = computed(() => {
+  return scrollPos.value <= 0 ? "#00000000" : "#00000050";
+});
+// Used in v-bind in <style>
+// noinspection JSUnusedGlobalSymbols
+const navbarBlur = computed(() => {
+  return scrollPos.value <= 0 ? "blur(0)" : "blur(0.3em)";
+});
+
+// Computed combination of the left and right buttons which should be hidden in the "More" dropdown.
+//   We combine them because we only have one combined dropdown.
+const moreButtons: Ref<NavButton[]> = computed(() => [
+  ...leftPriorityPlusCache.value.moreButtons,
+  ...rightPriorityPlusCache.value.moreButtons
+]);
+
+// Computed "More" dropdown button in the form of a NavButton which can be passed to a NavigationHeaderButton.
 const moreDropdownButton: Ref<NavButton> = computed(() => {
   return {
+    key: "more",
     name: "More",
     icon: windowWidth.value >= 500 ? ['fas', 'caret-down'] : ['fal', 'ellipsis'],
     showIconOnDesktop: true,
-    children: [...rightMoreButtons.value, ...leftMoreButtons.value],
+    children: moreButtons.value,
   };
 })
 
@@ -207,16 +219,25 @@ const rightMaxWidth: Ref<number> = computed(() => {
   }
 });
 
-// Watch the window's width for changes, and re-compute what goes in the "More" dropdown if it changes.
-//   Also compute once initially on mount.
-watch(() => windowWidth.value, () => {
-  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
-  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
-})
-onMounted(() => {
-  updatePriorityPlus(leftButtons, leftMoreButtons, leftMoreButtonWidths, leftNav, leftMaxWidth.value);
-  updatePriorityPlus(rightButtons, rightMoreButtons, rightMoreButtonWidths, rightNav, rightMaxWidth.value);
-})
+// -------------------------------------------------------------------------------------------------
+// Functions
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Update the scroll position reference with the current window scroll position. This is used in
+ *   a document scroll event listener.
+ */
+function updateScroll(): void {
+  scrollPos.value = window.scrollY;
+}
+
+/**
+ * Update the window width reference with the current window width. This is used in
+ *   a document resize event listener.
+ */
+function updateWindowWidth(): void {
+  windowWidth.value = window.innerWidth;
+}
 
 /**
  * Compute the buttons which should be rendered in the "More" dropdown, and then update the lists of
@@ -227,47 +248,113 @@ onMounted(() => {
  *
  *   This is known as the priority plus paradigm.
  *
- * @param buttonList List of buttons which should not be rendered in the "More" dropdown. This list will be updated.
- * @param moreButtonList List of buttons which should be rendered in the "More" dropdown. This list will be updated.
- * @param moreButtonWidths List of widths required to move a button from the "More" dropdown to the main navbar. The
- *   size of this list will always be equal to the size of the moreButtonList. This is essentially a cache from
- *   previous calls to this function. This list will be updated.
+ * @param sourceButtons List of buttons which should not be rendered in the "More" dropdown. This list will not be updated.
+ *   It is used as a reference to check which buttons exist in the first place. Buttons which are in this list but not
+ *   in the "More" list will be rendered as normal. Buttons which are in the "More" list but not this list will be
+ *   removed from the "More" list.
+ * @param cache A cache used by this method to store data between calls. This cache is updated by this method, and
+ *   shouldn't ever be modified directly. You can retrieve the list of buttons which should be rendered in the "More"
+ *   dropdown from this cache.
  * @param navElement The element which contains all the buttons in the navbar.
  * @param maxWidth The maximum width that buttons should take up in navElement. Any buttons that overflow this width
  *   will be hidden in the "More" dropdown.
  */
-function updatePriorityPlus(buttonList: Ref<NavButton[]>,
-                            moreButtonList: Ref<NavButton[]>,
-                            moreButtonWidths: Ref<number[]>,
+function updatePriorityPlus(sourceButtons: Ref<NavButton[]>,
+                            cache: Ref<PriorityPlusCache>,
                             navElement: Ref<HTMLElement | null>,
-                            maxWidth: number) {
+                            maxWidth: number): void {
   const currentWidth = navElement.value?.clientWidth ?? 0;
+
+  let sourceChanged = false;
+  // Go through the list of "More" and non-"More" buttons and remove any which aren't in the button list anymore.
+  for (let i = 0; i < cache.value.moreButtons.length; i++) {
+    if (!sourceButtons.value.some(button => button.key === cache.value.moreButtons[i].key)) {
+      cache.value.moreButtons.splice(i, 1);
+      cache.value.moreButtonWidths.splice(i, 1);
+      sourceChanged = true;
+    }
+  }
+  for (let i = 0; i < cache.value.nonMoreButtons.length; i++) {
+    if (!sourceButtons.value.some(button => button.key === cache.value.nonMoreButtons[i].key)) {
+      cache.value.nonMoreButtons.splice(i, 1);
+      sourceChanged = true;
+    }
+  }
+
+  // Similarly, if there's a button in the source list which isn't in either the "More" or non-"More" list, add it
+  // to the non-"More" list.
+  for(let i = 0; i < sourceButtons.value.length; i++) {
+    if (!cache.value.moreButtons.some(button => button.key === sourceButtons.value[i].key) &&
+        !cache.value.nonMoreButtons.some(button => button.key === sourceButtons.value[i].key)) {
+      cache.value.nonMoreButtons.push(sourceButtons.value[i]);
+      sourceChanged = true;
+    }
+  }
+
+  // If the source list changed, then we need the virtual DOM to re-render to compute the new nav width.
+  if(sourceChanged) {
+    nextTick(() => {
+      updatePriorityPlus(sourceButtons, cache, navElement, maxWidth);
+    })
+    return;
+  }
+
+  // At this point, we're confident source has not changed during this execution and nav element is up to date.
   // If the screen is too small to fit the current buttons in the row, move one to the more list.
   if (currentWidth > maxWidth) {
-    const poppedButton = buttonList.value.pop();
+    const poppedButton = cache.value.nonMoreButtons.pop();
     if (!poppedButton) {
       return;
     }
-    moreButtonList.value.push(poppedButton);
-    moreButtonWidths.value.push(currentWidth);
+    cache.value.moreButtons.push(poppedButton);
+    cache.value.moreButtonWidths.push(currentWidth);
     // Keep calling until no more changes need to be made.
     nextTick(() => {
-      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+      updatePriorityPlus(sourceButtons, cache, navElement, maxWidth);
     })
-  } else if (moreButtonWidths.value.length > 0 && moreButtonWidths.value[moreButtonWidths.value.length - 1] < maxWidth) {
+  } else if (cache.value.moreButtonWidths.length > 0 && cache.value.moreButtonWidths[cache.value.moreButtonWidths.length - 1] < maxWidth) {
     // If the screen is large enough to fit the last button in the more list, move it back to the main list.
-    const poppedButton = moreButtonList.value.pop();
+    const poppedButton = cache.value.moreButtons.pop();
     if (!poppedButton) {
       return;
     }
-    buttonList.value.push(poppedButton);
-    moreButtonWidths.value.pop();
+    cache.value.nonMoreButtons.push(poppedButton);
+    cache.value.moreButtonWidths.pop();
     // Keep calling until no more changes need to be made.
     nextTick(() => {
-      updatePriorityPlus(buttonList, moreButtonList, moreButtonWidths, navElement, maxWidth);
+      updatePriorityPlus(sourceButtons, cache, navElement, maxWidth);
     })
   }
 }
+
+// -------------------------------------------------------------------------------------------------
+// Event Hooks
+// -------------------------------------------------------------------------------------------------
+
+// Listen for scrolling/resizing to update navbar transparency
+onMounted(() => document.addEventListener("scroll", updateScroll));
+onUnmounted(() => document.removeEventListener("scroll", updateScroll));
+onMounted(() => window.addEventListener("resize", updateWindowWidth));
+onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
+
+// Watch the window's width for changes, and re-compute what goes in the "More" dropdown if it changes.
+//   Also compute once initially on mount.
+watch(windowWidth, () => {
+  updatePriorityPlus(leftButtonsSource, leftPriorityPlusCache, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtonsSource, rightPriorityPlusCache, rightNav, rightMaxWidth.value);
+})
+watch(leftButtonsSource, () => {
+  updatePriorityPlus(leftButtonsSource, leftPriorityPlusCache, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtonsSource, rightPriorityPlusCache, rightNav, rightMaxWidth.value);
+})
+watch(rightButtonsSource, () => {
+  updatePriorityPlus(leftButtonsSource, leftPriorityPlusCache, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtonsSource, rightPriorityPlusCache, rightNav, rightMaxWidth.value);
+})
+onMounted(() => {
+  updatePriorityPlus(leftButtonsSource, leftPriorityPlusCache, leftNav, leftMaxWidth.value);
+  updatePriorityPlus(rightButtonsSource, rightPriorityPlusCache, rightNav, rightMaxWidth.value);
+})
 </script>
 
 <style scoped lang="scss">
@@ -331,16 +418,4 @@ header {
   margin-right: 3px;
 }
 
-</style>
-
-<style lang="scss">
-.navbar-dropdown-button {
-  width: calc(100% - 10px);
-  margin: 0 5px;
-  justify-content: start;
-}
-
-.navbar-dropdown-button-icon {
-  margin-right: 5px;
-}
 </style>
