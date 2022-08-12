@@ -1,6 +1,7 @@
 import type { Ref } from "vue";
 
 export type NavButton = {
+  key: string;
   name: string;
   icon: ["fas" | "fal" | "fad" | "fab", string];
   showIconOnDesktop: boolean;
