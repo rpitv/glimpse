@@ -27,7 +27,6 @@ import {useRoute} from "vue-router";
 import LoginPopup from "./LoginPopup.vue";
 import {canViewDashboard, requirePermission} from "@/casl";
 import {useAuthStore} from "@/stores/auth";
-import {subject} from "@casl/ability";
 import {AbilityActions, AbilitySubjects} from "@/graphql/types";
 import type {NavButton} from "@/util/NavButton";
 import NavigationHeaderButton from "./NavigationHeaderButton.vue";
@@ -152,7 +151,7 @@ const rightButtonsSource: Ref<NavButton[]> = computed(() => {
       icon: ['fal', 'user'],
       showIconOnDesktop: true,
       route: "account",
-      visible: requirePermission(AbilityActions.Update, subject(AbilitySubjects.User, {id: authStore.userId})),
+      visible: () => refAuthStore.isLoggedIn
     })
   }
 
