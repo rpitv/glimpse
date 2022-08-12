@@ -1,8 +1,10 @@
 <template>
   <div class="dashboard-breadcrumb">
     <n-breadcrumb>
-      <n-breadcrumb-item v-for="item of nBreadcrumbItems" :key="item.name" :href="item.route" separator="»">
-        {{item.name}}
+      <n-breadcrumb-item v-for="item of nBreadcrumbItems" :key="item.name" separator="»">
+        <RouterLink :to="item.route" class="breadcrumb-item-link">
+          {{item.name}}
+        </RouterLink>
       </n-breadcrumb-item>
       <span class="last-breadcrumb-item">{{route[route.length - 1].name}}</span>
     </n-breadcrumb>
@@ -14,6 +16,7 @@
 import {NBreadcrumb, NBreadcrumbItem} from "naive-ui";
 import type {PropType} from "vue";
 import {computed} from "vue";
+import {RouterLink} from "vue-router";
 
 const props = defineProps({
   route: {
@@ -41,5 +44,8 @@ const nBreadcrumbItems = computed(() => {
   font-size: 2em;
   position: relative;
   top: 0.2em;
+}
+.breadcrumb-item-link {
+  color: inherit;
 }
 </style>

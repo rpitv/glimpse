@@ -231,6 +231,9 @@ export function canViewRedirectsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "User" subject, except for
  *   the ability to update themselves. I.e., having permission to update themselves is not enough to be able to
  *   view the Users page. The user must also be able to edit other users in some way, or able to delete their own account.
+ *
+ *   Alternatively, the user can have any CRUD permission on the "UserPermission" subject besides read.
+ *   TODO: We should be more specific and allow access if you can read permissions other than your own.
  */
 export function canViewUsersDashboard(): boolean {
   const authStore = useAuthStore();
@@ -269,14 +272,21 @@ export function canViewUsersDashboard(): boolean {
     tmpAbility = builder.build();
   }
 
-  return hasAnyActionPermissionForSubject(
-    GQLAbilitySubjects.User,
-    [
+  return (
+    hasAnyActionPermissionForSubject(
+      GQLAbilitySubjects.User,
+      [
+        GQLAbilityActions.Create,
+        GQLAbilityActions.Update,
+        GQLAbilityActions.Delete,
+      ],
+      tmpAbility
+    ) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.UserPermission, [
       GQLAbilityActions.Create,
       GQLAbilityActions.Update,
       GQLAbilityActions.Delete,
-    ],
-    tmpAbility
+    ])
   );
 }
 
