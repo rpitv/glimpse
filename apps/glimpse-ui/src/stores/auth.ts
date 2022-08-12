@@ -95,6 +95,9 @@ export const useAuthStore = defineStore("auth", {
       }
 
       this.isLoggedIn = false;
+      this.permissions = null;
+      this.userId = undefined;
+      await this.getPermissions();
     },
   },
 });
