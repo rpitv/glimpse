@@ -26,8 +26,20 @@ import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import {
   ability,
+  canViewAssetsDashboard,
+  canViewBlogPostsDashboard,
+  canViewCategoriesDashboard,
+  canViewContactSubmissionsDashboard,
   canViewDashboard,
-  hasAnyActionPermissionForSubject,
+  canViewGroupsDashboard,
+  canViewImagesDashboard,
+  canViewLogsDashboard,
+  canViewPeopleDashboard,
+  canViewProductionsDashboard,
+  canViewRedirectsDashboard,
+  canViewUsersDashboard,
+  canViewVideosDashboard,
+  canViewVotesDashboard
 } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
@@ -168,7 +180,7 @@ const router = createRouter({
       path: "/dashboard/assets",
       name: "dashboardAssets",
       component: restrictedComponent(DashboardAssetsView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.Asset)
+        canViewAssetsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -178,11 +190,7 @@ const router = createRouter({
       path: "/dashboard/blog",
       name: "dashboardBlogPosts",
       component: restrictedComponent(DashboardBlogPostsView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.BlogPost, [
-          AbilityActions.Update,
-          AbilityActions.Delete,
-          AbilityActions.Create,
-        ])
+        canViewBlogPostsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -192,11 +200,7 @@ const router = createRouter({
       path: "/dashboard/categories",
       name: "dashboardCategories",
       component: restrictedComponent(DashboardCategoriesView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.Category, [
-          AbilityActions.Update,
-          AbilityActions.Delete,
-          AbilityActions.Create,
-        ])
+        canViewCategoriesDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -205,17 +209,8 @@ const router = createRouter({
     {
       path: "/dashboard/contact",
       name: "dashboardContactSubmissions",
-      component: restrictedComponent(
-        DashboardContactSubmissionsView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.ContactSubmission, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Read,
-          ]) ||
-          hasAnyActionPermissionForSubject(
-            AbilitySubjects.ContactSubmissionAssignee
-          )
+      component: restrictedComponent(DashboardContactSubmissionsView, () =>
+        canViewContactSubmissionsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -224,19 +219,8 @@ const router = createRouter({
     {
       path: "/dashboard/groups",
       name: "dashboardGroups",
-      component: restrictedComponent(
-        DashboardGroupsView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.Group, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.GroupPermission, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ])
+      component: restrictedComponent(DashboardGroupsView, () =>
+        canViewGroupsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -246,11 +230,7 @@ const router = createRouter({
       path: "/dashboard/images",
       name: "dashboardImages",
       component: restrictedComponent(DashboardImagesView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.Image, [
-          AbilityActions.Update,
-          AbilityActions.Delete,
-          AbilityActions.Create,
-        ])
+        canViewImagesDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -259,12 +239,8 @@ const router = createRouter({
     {
       path: "/dashboard/logs",
       name: "dashboardLogs",
-      component: restrictedComponent(
-        DashboardLogsView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.AccessLog) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.AuditLog) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.AlertLog)
+      component: restrictedComponent(DashboardLogsView, () =>
+        canViewLogsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -273,19 +249,8 @@ const router = createRouter({
     {
       path: "/dashboard/people",
       name: "dashboardPeople",
-      component: restrictedComponent(
-        DashboardPeopleView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.Person, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.PersonImage, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ])
+      component: restrictedComponent(DashboardPeopleView, () =>
+        canViewPeopleDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -294,30 +259,8 @@ const router = createRouter({
     {
       path: "/dashboard/productions",
       name: "dashboardProductions",
-      component: restrictedComponent(
-        DashboardProductionsView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.Production, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.ProductionImage, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.ProductionRsvp) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.ProductionVideo, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.ProductionTag, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ])
+      component: restrictedComponent(DashboardProductionsView, () =>
+        canViewProductionsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -327,11 +270,7 @@ const router = createRouter({
       path: "/dashboard/redirects",
       name: "dashboardRedirects",
       component: restrictedComponent(DashboardRedirectsView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.Redirect, [
-          AbilityActions.Update,
-          AbilityActions.Delete,
-          AbilityActions.Create,
-        ])
+        canViewRedirectsDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -340,25 +279,8 @@ const router = createRouter({
     {
       path: "/dashboard/users",
       name: "dashboardUsers",
-      component: restrictedComponent(
-        DashboardUsersView,
-        () =>
-          // FIXME check for permission to edit OTHER users
-          hasAnyActionPermissionForSubject(AbilitySubjects.User, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.UserGroup, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ]) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.UserPermission, [
-            AbilityActions.Update,
-            AbilityActions.Delete,
-            AbilityActions.Create,
-          ])
+      component: restrictedComponent(DashboardUsersView, () =>
+        canViewUsersDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -368,11 +290,7 @@ const router = createRouter({
       path: "/dashboard/videos",
       name: "dashboardVideos",
       component: restrictedComponent(DashboardVideosView, () =>
-        hasAnyActionPermissionForSubject(AbilitySubjects.Video, [
-          AbilityActions.Update,
-          AbilityActions.Delete,
-          AbilityActions.Create,
-        ])
+        canViewVideosDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
@@ -381,11 +299,8 @@ const router = createRouter({
     {
       path: "/dashboard/votes",
       name: "dashboardVotes",
-      component: restrictedComponent(
-        DashboardVotesView,
-        () =>
-          hasAnyActionPermissionForSubject(AbilitySubjects.Vote) ||
-          hasAnyActionPermissionForSubject(AbilitySubjects.VoteResponse)
+      component: restrictedComponent(DashboardVotesView, () =>
+        canViewVotesDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",
