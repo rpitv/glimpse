@@ -210,6 +210,36 @@ function generateFindManyResolver<ModelName extends ValidCrudResolvers>(
     return queryResolvers;
 }
 
+function generateCountResolver<ModelName extends ValidCrudResolvers>(
+    modelName: ModelName
+): QueryResolvers {
+    const queryResolvers: QueryResolvers = {};
+
+    // @ts-ignore FIXME - Due to the fact that not all CRUD resolvers have count, this is a workaround.
+    queryResolvers[`count${modelName}`] = async (
+        parent: unknown,
+        args: never,
+        ctx: GraphQLContext
+    ): Promise<any> => {
+        // Get the requested object count. Required casting which should be removed if possible (probably custom
+        // Prisma generator?). TypeScript doesn't know which version of findMany to use. Fine in our case since all
+        // data types have ID. Potentially relevant: https://github.com/prisma/prisma/issues/5273
+        logger.debug(
+            `Querying prisma for ${modelName} count in CRUD count resolver`
+        );
+
+        logger.debug(await ctx.prisma.group.count());
+
+        return await (<any>(
+            ctx.prisma[modelNameToPrismaDelegateMap[modelName]]
+        )).count({
+            where: getAccessibleByFilter(ctx.permissions, "read")[modelName],
+        });
+    };
+
+    return queryResolvers;
+}
+
 function generateCreateResolver<ModelName extends ValidCrudResolvers>(
     modelName: ModelName,
     options: CrudGeneratorOptions<keyof NonNullable<Resolvers[ModelName]>>
@@ -373,6 +403,10 @@ export function generateCrudResolvers<ModelName extends ValidCrudResolvers>(
     resolvers[modelName] = generateRelationResolvers(modelName, crudOptions);
     if (crudOptions.findMany) {
         resolvers.Query = generateFindManyResolver(modelName, crudOptions);
+        resolvers.Query = {
+            ...resolvers.Query,
+            ...generateCountResolver(modelName),
+        };
     }
     if (crudOptions.findOne) {
         resolvers.Query = {
