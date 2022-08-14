@@ -145,6 +145,10 @@ type Query {
     """
     findOneAccessLog(id: ID! @Auth(action: read, subject: AccessLog, field: "id")): AccessLog @Auth(action: read, subject: AccessLog)
     """
+    Count the number of access logs which the user currently has access to read.
+    """
+    countAccessLog: Int! @Auth(action: read, subject: AccessLog)
+    """
     Get a list of alert logs which the user currently has access to read.
     """
     findManyAlertLog(pagination: Pagination @Auth(action: read, subject: AlertLog, field: "id")): [AlertLog!]! @Auth(action: read, subject: AlertLog)
@@ -152,6 +156,10 @@ type Query {
     Get a single alert log, given its ID, or null if that alert log does not exist.
     """
     findOneAlertLog(id: ID! @Auth(action: read, subject: AlertLog, field: "id")): AlertLog @Auth(action: read, subject: AlertLog)
+    """
+    Count the number of alert logs which the user currently has access to read.
+    """
+    countAlertLog: Int! @Auth(action: read, subject: AlertLog)
     """
     Get a list of assets which the user currently has access to read.
     """
@@ -161,6 +169,10 @@ type Query {
     """
     findOneAsset(id: ID! @Auth(action: read, subject: Asset, field: "id")): Asset @Auth(action: read, subject: Asset)
     """
+    Count the number of assets which the user currently has access to read.
+    """
+    countAsset: Int! @Auth(action: read, subject: Asset)
+    """
     Get a list of audit logs which the user currently has access to read.
     """
     findManyAuditLog(pagination: Pagination @Auth(action: read, subject: AuditLog, field: "id")): [AuditLog!]! @Auth(action: read, subject: AuditLog)
@@ -168,6 +180,10 @@ type Query {
     Get a single audit log, given its ID, or null if that audit log does not exist.
     """
     findOneAuditLog(id: ID! @Auth(action: read, subject: AuditLog, field: "id")): AuditLog @Auth(action: read, subject: AuditLog)
+    """
+    Count the number of audit logs which the user currently has access to read.
+    """
+    countAuditLog: Int! @Auth(action: read, subject: AuditLog)
     """
     Get a list of blog posts which the user currently has access to read.
     """
@@ -177,6 +193,10 @@ type Query {
     """
     findOneBlogPost(id: ID! @Auth(action: read, subject: BlogPost, field: "id")): BlogPost @Auth(action: read, subject: BlogPost)
     """
+    Count the number of blog posts which the user currently has access to read.
+    """
+    countBlogPost: Int! @Auth(action: read, subject: BlogPost)
+    """
     Get a list of categories which the user currently has access to read.
     """
     findManyCategory(pagination: Pagination @Auth(action: read, subject: Category, field: "id")): [Category!]! @Auth(action: read, subject: Category)
@@ -184,6 +204,10 @@ type Query {
     Get a single category, given its ID, or null if that category does not exist.
     """
     findOneCategory(id: ID! @Auth(action: read, subject: Category, field: "id")): Category @Auth(action: read, subject: Category)
+    """
+    Count the number of categories which the user currently has access to read.
+    """
+    countCategory: Int! @Auth(action: read, subject: Category)
     """
     Get a list of contact submission assignees which the user currently has access to read.
     """
@@ -193,6 +217,10 @@ type Query {
     """
     findOneContactSubmissionAssignee(id: ID! @Auth(action: read, subject: ContactSubmissionAssignee, field: "id")): ContactSubmissionAssignee @Auth(action: read, subject: ContactSubmissionAssignee)
     """
+    Count the number of contact submission assignees which the user currently has access to read.
+    """
+    countContactSubmissionAssignee: Int! @Auth(action: read, subject: ContactSubmissionAssignee)
+    """
     Get a list of contact submissions which the user currently has access to read.
     """
     findManyContactSubmission(pagination: Pagination @Auth(action: read, subject: ContactSubmission, field: "id")): [ContactSubmission!]! @Auth(action: read, subject: ContactSubmission)
@@ -201,6 +229,10 @@ type Query {
     """
     findOneContactSubmission(id: ID! @Auth(action: read, subject: ContactSubmission, field: "id")): ContactSubmission @Auth(action: read, subject: ContactSubmission)
     """
+    Count the number of contact submissions which the user currently has access to read.
+    """
+    countContactSubmission: Int! @Auth(action: read, subject: ContactSubmission)
+    """
     Get a list of credits which the user currently has access to read.
     """
     findManyCredit(pagination: Pagination @Auth(action: read, subject: Credit, field: "id")): [Credit!]! @Auth(action: read, subject: Credit)
@@ -208,6 +240,10 @@ type Query {
     Get a single credit, given its ID, or null if that credit does not exist.
     """
     findOneCredit(id: ID! @Auth(action: read, subject: Credit, field: "id")): Credit @Auth(action: read, subject: Credit)
+    """
+    Count the number of credits which the user currently has access to read.
+    """
+    countCredit: Int! @Auth(action: read, subject: Credit)
     """
     Get a single group permission, given its ID, or null if that group permission does not exist.
     """
@@ -221,6 +257,10 @@ type Query {
     """
     findOneGroup(id: ID! @Auth(action: read, subject: Group, field: "id")): Group @Auth(action: read, subject: Group)
     """
+    Count the number of groups which the user currently has access to read.
+    """
+    countGroup: Int! @Auth(action: read, subject: Group)
+    """
     Get a list of images which the user currently has access to read.
     """
     findManyImage(pagination: Pagination @Auth(action: read, subject: Image, field: "id")): [Image!]! @Auth(action: read, subject: Image)
@@ -228,6 +268,10 @@ type Query {
     Get a single image, given its ID, or null if that image does not exist.
     """
     findOneImage(id: ID! @Auth(action: read, subject: Image, field: "id")): Image @Auth(action: read, subject: Image)
+    """
+    Count the number of images which the user currently has access to read.
+    """
+    countImage: Int! @Auth(action: read, subject: Image)
     """
     Get a list of people which the user currently has access to read.
     """
@@ -237,6 +281,10 @@ type Query {
     """
     findOnePerson(id: ID! @Auth(action: read, subject: Person, field: "id")): Person @Auth(action: read, subject: Person)
     """
+    Count the number of people which the user currently has access to read.
+    """
+    countPerson: Int! @Auth(action: read, subject: Person)
+    """
     Get a list of person-image pairs which the user currently has access to read.
     """
     findManyPersonImage(pagination: Pagination @Auth(action: read, subject: PersonImage, field: "id")): [PersonImage!]! @Auth(action: read, subject: PersonImage)
@@ -244,6 +292,10 @@ type Query {
     Get a single person-image pair, given its ID, or null if that person-image pair does not exist.
     """
     findOnePersonImage(id: ID! @Auth(action: read, subject: PersonImage, field: "id")): PersonImage @Auth(action: read, subject: PersonImage)
+    """
+    Count the number of person-image pairs which the user currently has access to read.
+    """
+    countPersonImage: Int! @Auth(action: read, subject: PersonImage)
     """
     Get a list of production-image pairs which the user currently has access to read.
     """
@@ -253,6 +305,10 @@ type Query {
     """
     findOneProductionImage(id: ID! @Auth(action: read, subject: ProductionImage, field: "id")): ProductionImage @Auth(action: read, subject: ProductionImage)
     """
+    Count the number of production-image pairs which the user currently has access to read.
+    """
+    countProductionImage: Int! @Auth(action: read, subject: ProductionImage)
+    """
     Get a list of production RSVPs which the user currently has access to read.
     """
     findManyProductionRSVP(pagination: Pagination @Auth(action: read, subject: ProductionRSVP, field: "id")): [ProductionRSVP!]! @Auth(action: read, subject: ProductionRSVP)
@@ -260,6 +316,10 @@ type Query {
     Get a single production RSVP, given its ID, or null if that production RSVP does not exist.
     """
     findOneProductionRSVP(id: ID! @Auth(action: read, subject: ProductionRSVP, field: "id")): ProductionRSVP @Auth(action: read, subject: ProductionRSVP)
+    """
+    Count the number of production RSVPs which the user currently has access to read.
+    """
+    countProductionRSVP: Int! @Auth(action: read, subject: ProductionRSVP)
     """
     Get a single production tag, given its ID, or null if that production tag does not exist.
     """
@@ -273,6 +333,10 @@ type Query {
     """
     findOneProductionVideo(id: ID! @Auth(action: read, subject: ProductionVideo, field: "id")): ProductionVideo @Auth(action: read, subject: ProductionVideo)
     """
+    Count the number of production-video pairs which the user currently has access to read.
+    """
+    countProductionVideo: Int! @Auth(action: read, subject: ProductionVideo)
+    """
     Get a list of productions which the user currently has access to read.
     """
     findManyProduction(pagination: Pagination @Auth(action: read, subject: Production, field: "id")): [Production!]! @Auth(action: read, subject: Production)
@@ -280,6 +344,10 @@ type Query {
     Get a single production, given its ID, or null if that production does not exist.
     """
     findOneProduction(id: ID! @Auth(action: read, subject: Production, field: "id")): Production @Auth(action: read, subject: Production)
+    """
+    Count the number of productions which the user currently has access to read.
+    """
+    countProduction: Int! @Auth(action: read, subject: Production)
     """
     Get a list of redirects which the user currently has access to read.
     """
@@ -289,6 +357,10 @@ type Query {
     """
     findOneRedirect(id: ID! @Auth(action: read, subject: Redirect, field: "id")): Redirect @Auth(action: read, subject: Redirect)
     """
+    Count the number of redirects which the user currently has access to read.
+    """
+    countRedirect: Int! @Auth(action: read, subject: Redirect)
+    """
     Get a list of roles which the user currently has access to read.
     """
     findManyRole(pagination: Pagination @Auth(action: read, subject: Role, field: "id")): [Role!]! @Auth(action: read, subject: Role)
@@ -296,6 +368,10 @@ type Query {
     Get a single role, given its ID, or null if that role does not exist.
     """
     findOneRole(id: ID! @Auth(action: read, subject: Role, field: "id")): Role @Auth(action: read, subject: Role)
+    """
+    Count the number of roles which the user currently has access to read.
+    """
+    countRole: Int! @Auth(action: read, subject: Role)
     """
     Get a single user-group pair, given its ID, or null if that user-group pair does not exist.
     """
@@ -313,6 +389,10 @@ type Query {
     """
     findOneUser(id: ID! @Auth(action: read, subject: User, field: "id")): User @Auth(action: read, subject: User)
     """
+    Count the number of users which the user currently has access to read.
+    """
+    countUser: Int! @Auth(action: read, subject: User)
+    """
     Get a list of videos which the user currently has access to read.
     """
     findManyVideo(pagination: Pagination @Auth(action: read, subject: Video, field: "id")): [Video!]! @Auth(action: read, subject: Video)
@@ -320,6 +400,10 @@ type Query {
     Get a single video, given its ID, or null if that video does not exist.
     """
     findOneVideo(id: ID! @Auth(action: read, subject: Video, field: "id")): Video @Auth(action: read, subject: Video)
+    """
+    Count the number of videos which the user currently has access to read.
+    """
+    countVideo: Int! @Auth(action: read, subject: Video)
     """
     Get a single vote response, given its ID, or null if that vote response does not exist.
     """
@@ -332,6 +416,10 @@ type Query {
     Get a single vote, given its ID, or null if that vote does not exist.
     """
     findOneVote(id: ID! @Auth(action: read, subject: Vote, field: "id")): Vote @Auth(action: read, subject: Vote)
+    """
+    Count the number of votes which the user currently has access to read.
+    """
+    countVote: Int! @Auth(action: read, subject: Vote)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Custom methods

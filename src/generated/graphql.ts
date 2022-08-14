@@ -1073,6 +1073,50 @@ export type ProductionVideoUpdateInput = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Count the number of access logs which the user currently has access to read. */
+  countAccessLog: Scalars['Int'];
+  /** Count the number of alert logs which the user currently has access to read. */
+  countAlertLog: Scalars['Int'];
+  /** Count the number of assets which the user currently has access to read. */
+  countAsset: Scalars['Int'];
+  /** Count the number of audit logs which the user currently has access to read. */
+  countAuditLog: Scalars['Int'];
+  /** Count the number of blog posts which the user currently has access to read. */
+  countBlogPost: Scalars['Int'];
+  /** Count the number of categories which the user currently has access to read. */
+  countCategory: Scalars['Int'];
+  /** Count the number of contact submissions which the user currently has access to read. */
+  countContactSubmission: Scalars['Int'];
+  /** Count the number of contact submission assignees which the user currently has access to read. */
+  countContactSubmissionAssignee: Scalars['Int'];
+  /** Count the number of credits which the user currently has access to read. */
+  countCredit: Scalars['Int'];
+  /** Count the number of groups which the user currently has access to read. */
+  countGroup: Scalars['Int'];
+  /** Count the number of images which the user currently has access to read. */
+  countImage: Scalars['Int'];
+  /** Count the number of people which the user currently has access to read. */
+  countPerson: Scalars['Int'];
+  /** Count the number of person-image pairs which the user currently has access to read. */
+  countPersonImage: Scalars['Int'];
+  /** Count the number of productions which the user currently has access to read. */
+  countProduction: Scalars['Int'];
+  /** Count the number of production-image pairs which the user currently has access to read. */
+  countProductionImage: Scalars['Int'];
+  /** Count the number of production RSVPs which the user currently has access to read. */
+  countProductionRSVP: Scalars['Int'];
+  /** Count the number of production-video pairs which the user currently has access to read. */
+  countProductionVideo: Scalars['Int'];
+  /** Count the number of redirects which the user currently has access to read. */
+  countRedirect: Scalars['Int'];
+  /** Count the number of roles which the user currently has access to read. */
+  countRole: Scalars['Int'];
+  /** Count the number of users which the user currently has access to read. */
+  countUser: Scalars['Int'];
+  /** Count the number of videos which the user currently has access to read. */
+  countVideo: Scalars['Int'];
+  /** Count the number of votes which the user currently has access to read. */
+  countVote: Scalars['Int'];
   /** Get a list of access logs which the user currently has access to read. */
   findManyAccessLog: Array<AccessLog>;
   /** Get a list of alert logs which the user currently has access to read. */
@@ -2187,6 +2231,28 @@ export type ProductionVideoResolvers<ContextType = any, ParentType extends Resol
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  countAccessLog?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countAlertLog?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countAsset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countAuditLog?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countBlogPost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countCategory?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countContactSubmission?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countContactSubmissionAssignee?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countCredit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countGroup?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countImage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countPerson?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countPersonImage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countProduction?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countProductionImage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countProductionRSVP?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countProductionVideo?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countRedirect?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countRole?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countUser?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countVideo?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  countVote?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   findManyAccessLog?: Resolver<Array<ResolversTypes['AccessLog']>, ParentType, ContextType, Partial<QueryFindManyAccessLogArgs>>;
   findManyAlertLog?: Resolver<Array<ResolversTypes['AlertLog']>, ParentType, ContextType, Partial<QueryFindManyAlertLogArgs>>;
   findManyAsset?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, Partial<QueryFindManyAssetArgs>>;
