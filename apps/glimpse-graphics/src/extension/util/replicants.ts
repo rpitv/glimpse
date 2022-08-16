@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 
-import type { ExampleReplicant } from '@nodecg-vue-ts-template/types/schemas';
 import { get as nodecg } from './nodecg';
 
 /**
@@ -10,4 +9,4 @@ import { get as nodecg } from './nodecg';
 
 // YOU CAN REMOVE THIS RULE WHEN YOU GET MULTIPLE REPLICANTS!
 // eslint-disable-next-line import/prefer-default-export
-export const exampleReplicant = nodecg().Replicant<ExampleReplicant>('exampleReplicant');
+export const scoreboardCurrentTimeRep = nodecg().Replicant('scoreboardCurrentTime');
