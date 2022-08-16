@@ -14,5 +14,5 @@ export = (nodecg: NodeCG): void => {
    * things to be loaded *after* the NodeCG context is set.
    */
   set(nodecg);
-  require('./scoreboard');
+  require('./scoreboard-clock');
 };

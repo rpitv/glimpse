@@ -60,7 +60,8 @@
         "name": "scoreboard",
         "title": "Scoreboard",
         "file": "scoreboard.html",
-        "workspace": "glimpse"
+        "workspace": "glimpse",
+        "width": "4"
       }
     ],
     "graphics": [
