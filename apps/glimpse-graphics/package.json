@@ -1,17 +1,16 @@
 {
-  "name": "nodecg-vue-ts-template",
-  "version": "2.0.0",
-  "description": "Template for NodeCG bundles that use Vue.js and TypeScript.",
-  "homepage": "https://github.com/zoton2/nodecg-vue-ts-template#readme",
+  "name": "glimpse-graphics",
+  "version": "1.0.0",
+  "description": "NodeCG Graphics bundle for RPI TV Glimpse",
+  "homepage": "https://rpi.tv/",
   "bugs": {
-    "url": "https://github.com/zoton2/nodecg-vue-ts-template/issues"
+    "url": "https://github.com/rpitv/glimpse-graphics/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zoton2/nodecg-vue-ts-template.git"
+    "url": "git+https://github.com/rpitv/glimpse-graphics.git"
   },
   "license": "MIT",
-  "author": "zoton2",
   "scripts": {
     "autofix": "run-s autofix:*",
     "autofix:browser": "eslint --fix --ext .ts,.vue src/dashboard && eslint --fix --ext .ts,.vue src/graphics",
