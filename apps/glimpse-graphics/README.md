@@ -2,6 +2,8 @@
 
 Template for NodeCG bundles that use Vue.js and TypeScript.
 
+Built using the template [nodecg-vue-ts-template](https://github.com/zoton2/nodecg-vue-ts-template). View it's license [here](./TEMPLATE_LICENSE).
+
 
 ## Technical Details
 
