@@ -7,6 +7,13 @@ import { get as nodecg } from './nodecg';
  * and to make sure they have any correct settings on startup.
  */
 
-// YOU CAN REMOVE THIS RULE WHEN YOU GET MULTIPLE REPLICANTS!
-// eslint-disable-next-line import/prefer-default-export
-export const scoreboardCurrentTimeRep = nodecg().Replicant('scoreboardCurrentTime');
+export const clockTimeRep = nodecg().Replicant<number>(
+	'clockTime',
+	'glimpse-graphics_scoreboard_clock',
+	{defaultValue: 1200 * 1000}
+);
+export const isClockRunningRep = nodecg().Replicant<boolean>(
+	'isClockRunning',
+	'glimpse-graphics_scoreboard_clock',
+	{defaultValue: false, persistent: false}
+);

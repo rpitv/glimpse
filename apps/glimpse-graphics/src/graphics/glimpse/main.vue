@@ -4,15 +4,10 @@
 
 <script setup lang="ts">
 import {useReplicant} from 'nodecg-vue-composable';
-import {ref} from 'vue';
 
-const text = ref('Example');
-
-// Helper composable to make accessing/modifying replicants easier.
-// For more information see https://github.com/Dan-Shields/nodecg-vue-composable
-const exampleReplicant = useReplicant(
-	'exampleReplicant',
-	'nodecg-vue-ts-template',
+const clockTimeRep = useReplicant<number>(
+	'clockTime',
+	'glimpse-graphics_scoreboard_clock'
 );
 </script>
 
