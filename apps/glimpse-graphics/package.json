@@ -1,0 +1,78 @@
+{
+  "name": "nodecg-vue-ts-template",
+  "version": "2.0.0",
+  "description": "Template for NodeCG bundles that use Vue.js and TypeScript.",
+  "homepage": "https://github.com/zoton2/nodecg-vue-ts-template#readme",
+  "bugs": {
+    "url": "https://github.com/zoton2/nodecg-vue-ts-template/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoton2/nodecg-vue-ts-template.git"
+  },
+  "license": "MIT",
+  "author": "zoton2",
+  "scripts": {
+    "autofix": "run-s autofix:*",
+    "autofix:browser": "eslint --fix --ext .ts,.vue src/dashboard && eslint --fix --ext .ts,.vue src/graphics",
+    "autofix:extension": "eslint --fix --ext .ts src/extension && eslint --fix --ext .d.ts src/types",
+    "build": "run-s clean build:*",
+    "build:browser": "vite build",
+    "build:extension": "tsc -b tsconfig.extension.json",
+    "clean": "trash node_modules/.cache && trash shared/dist && trash dashboard && trash graphics && trash extension",
+    "schema-types": "nodecg schema-types",
+    "start": "node ../..",
+    "watch": "run-p watch:*",
+    "watch:browser": "vite",
+    "watch:extension": "tsc -b tsconfig.extension.json -w"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.2"
+  },
+  "devDependencies": {
+    "@quasar/extras": "^1.15.1",
+    "@quasar/vite-plugin": "^1.1.1",
+    "@types/node": "^16.11.47",
+    "@typescript-eslint/eslint-plugin": "^5.32.0",
+    "@typescript-eslint/parser": "^5.32.0",
+    "@vitejs/plugin-vue": "^2.3.3",
+    "@vueuse/head": "^0.7.9",
+    "eslint": "^8.21.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-import-resolver-typescript": "^3.4.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "globby": "^13.1.2",
+    "nodecg-cli": "^8.0.1",
+    "nodecg-types": "^1.9.0",
+    "nodecg-vue-composable": "^1.1.0",
+    "npm-run-all": "^4.1.5",
+    "quasar": "^2.7.7",
+    "trash-cli": "^5.0.0",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.14",
+    "vite-plugin-checker": "^0.4.9",
+    "vite-plugin-nodecg": "^1.0.2",
+    "vue": "^3.2.37",
+    "vue-eslint-parser": "^9.0.3",
+    "vue-tsc": "^0.39.5"
+  },
+  "nodecg": {
+    "compatibleRange": "^1.9.0",
+    "dashboardPanels": [
+      {
+        "name": "example",
+        "title": "Example",
+        "file": "example.html"
+      }
+    ],
+    "graphics": [
+      {
+        "file": "example.html",
+        "width": 1920,
+        "height": 1080
+      }
+    ]
+  }
+}
