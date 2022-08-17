@@ -40,6 +40,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-vue": "^9.3.0",
     "globby": "^13.1.2",
+    "naive-ui": "^2.32.1",
     "nodecg-cli": "^8.0.1",
     "nodecg-types": "^1.9.0",
     "nodecg-vue-composable": "^1.1.0",
