@@ -11,7 +11,6 @@ nodecg().listenFor('glimpse-graphics_scoreboard_clock_startClock', (): void => {
 	scoreboardTimer = setInterval(() => {
 		// Stop the clock once it hits zero.
 		if(clockTimeRep.value <= 0) {
-			clockTimeRep.value = 0;
 			nodecg().sendMessage('glimpse-graphics_scoreboard_clock_stopClock');
 			return;
 		}
@@ -20,6 +19,9 @@ nodecg().listenFor('glimpse-graphics_scoreboard_clock_startClock', (): void => {
 		const now = Date.now();
 		if(scoreboardTimerLastModified !== null) {
 			clockTimeRep.value -= now - scoreboardTimerLastModified;
+			if(clockTimeRep.value < 0) {
+				clockTimeRep.value = 0;
+			}
 		}
 		scoreboardTimerLastModified = now;
 	}, 100);
@@ -38,5 +40,5 @@ nodecg().listenFor('glimpse-graphics_scoreboard_clock_stopClock', (): void => {
 });
 
 nodecg().listenFor('glimpse-graphics_scoreboard_clock_setClock', (newClockValue): void => {
-
+	clockTimeRep.value = Math.max(newClockValue, 0);
 });
