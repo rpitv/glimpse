@@ -58,10 +58,17 @@
     "compatibleRange": "^1.9.0",
     "dashboardPanels": [
       {
-        "name": "scoreboard",
-        "title": "Scoreboard",
-        "file": "scoreboard.html",
-        "workspace": "glimpse",
+        "name": "scoreboard-settings",
+        "title": "Scoreboard Settings",
+        "file": "scoreboard-settings.html",
+        "workspace": "Scoreboard",
+        "width": "2"
+      },
+      {
+        "name": "clock",
+        "title": "Clock",
+        "file": "clock.html",
+        "workspace": "Scoreboard",
         "width": "4"
       }
     ],
