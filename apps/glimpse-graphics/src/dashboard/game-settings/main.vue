@@ -1,11 +1,12 @@
 <template>
 	<n-config-provider :theme="darkTheme">
-		<div>Testing!</div>
+		<GameSettingsControl />
 	</n-config-provider>
 </template>
 
 <script setup lang="ts">
 import {NConfigProvider, darkTheme} from "naive-ui";
+import GameSettingsControl from "./GameSettingsControl.vue";
 </script>
 
 <style scoped lang="scss">
