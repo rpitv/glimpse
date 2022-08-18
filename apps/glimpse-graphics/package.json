@@ -26,10 +26,12 @@
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
-    "module-alias": "^2.2.2"
+    "module-alias": "^2.2.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.47",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",
     "@vitejs/plugin-vue": "^2.3.3",
@@ -58,11 +60,11 @@
     "compatibleRange": "^1.9.0",
     "dashboardPanels": [
       {
-        "name": "scoreboard-settings",
-        "title": "Scoreboard Settings",
-        "file": "scoreboard-settings.html",
-        "workspace": "Scoreboard",
-        "width": "2"
+        "name": "game-settings",
+        "title": "Game Settings",
+        "file": "game-settings.html",
+        "workspace": "General",
+        "width": "8"
       },
       {
         "name": "clock",
