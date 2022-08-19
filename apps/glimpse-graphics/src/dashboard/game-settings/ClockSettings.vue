@@ -8,7 +8,7 @@
 		</div>
 		<div class="mt-10">
 			<label :for="periodCountId">Period Count</label>
-			<n-input-number :id="periodCountId" min="1" v-model="periodCountValue"/>
+			<n-input-number :id="periodCountId" min="1" v-model:value="periodCountValue"/>
 		</div>
 		<div class="mt-10">
 			<label :for="overtimeEnabledId">Overtime?</label>
@@ -21,7 +21,7 @@
 			</div>
 			<div class="mt-10">
 				<label :for="overtimeCountId">Overtime Count (0 = infinite)</label>
-				<n-input-number :id="overtimeCountId" min="0" v-model="overtimeCountValue"/>
+				<n-input-number :id="overtimeCountId" min="0" v-model:value="overtimeCountValue"/>
 			</div>
 		</div>
 	</div>
@@ -49,6 +49,7 @@ import {replicant} from "../../browser-common/replicant";
 	const overtimeEnabledValue = await replicant<boolean>('overtimeEnabled', 'glimpse-graphics.game-settings.clock');
 	const overtimeLengthValue = await replicant<string>('overtimeLength', 'glimpse-graphics.game-settings.clock');
 	const overtimeCountValue = await replicant<number>('overtimeCount', 'glimpse-graphics.game-settings.clock');
+
 </script>
 
 <style scoped lang="scss">
