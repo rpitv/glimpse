@@ -1,6 +1,6 @@
 <template>
 	<h1>Clock</h1>
-	<SyncableToggle class="mt-10" name="Clock" v-model:enabled="clockEnabledValue" v-model:synced="clockSyncedValue"/>
+	<SyncableToggle name="Clock" replicant-namespace="glimpse-graphics.game-settings.clock" class="mt-10" @update-enabled="$val => clockEnabledValue = $val" @update-synced="$val => clockSyncedValue = $val" />
 	<div v-if="clockEnabledValue && !clockSyncedValue">
 		<div class="mt-10">
 			<label :for="periodLengthId">Period Length</label>
@@ -32,6 +32,7 @@ import {NInput, NInputNumber, NSwitch} from "naive-ui";
 	import SyncableToggle from "./SyncableToggle.vue";
 	import {v4} from "uuid";
 	import {ref} from "vue";
+import {replicant} from "../../browser-common/replicant";
 
 	// Generate unique IDs for each input element, so they can have a corresponding label.
 	const periodLengthId = v4();
@@ -42,11 +43,12 @@ import {NInput, NInputNumber, NSwitch} from "naive-ui";
 
 	const clockEnabledValue = ref<boolean>(false);
 	const clockSyncedValue = ref<boolean>(false);
-	const periodLengthValue = ref<string>('');
-	const periodCountValue = ref<number>(1);
-	const overtimeEnabledValue = ref<boolean>(false);
-	const overtimeLengthValue = ref<string>('');
-	const overtimeCountValue = ref<number>(0);
+
+	const periodLengthValue = await replicant<string>('periodLength', 'glimpse-graphics.game-settings.clock');
+	const periodCountValue = await replicant<number>('periodCount', 'glimpse-graphics.game-settings.clock');
+	const overtimeEnabledValue = await replicant<boolean>('overtimeEnabled', 'glimpse-graphics.game-settings.clock');
+	const overtimeLengthValue = await replicant<string>('overtimeLength', 'glimpse-graphics.game-settings.clock');
+	const overtimeCountValue = await replicant<number>('overtimeCount', 'glimpse-graphics.game-settings.clock');
 </script>
 
 <style scoped lang="scss">

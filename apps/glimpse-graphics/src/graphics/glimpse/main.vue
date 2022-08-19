@@ -5,23 +5,24 @@
 </template>
 
 <script setup lang="ts">
-import {useReplicant} from 'nodecg-vue-composable';
 import {computed} from "vue";
+import {replicant} from "../../browser-common/replicant";
 
-const clockTimeRep = useReplicant<number>(
+const clockTimeRep = await replicant<number>(
 	'clockTime',
-	'glimpse-graphics_scoreboard_clock'
+	'glimpse-graphics_scoreboard_clock',
+	1200 * 1000
 );
 
 const formattedClockTime = computed(() => {
-	const clockTime = clockTimeRep?.data;
+	const clockTime = clockTimeRep.value;
 	if (clockTime === undefined) {
 		return '0:00.0';
 	}
 
-	const minutes = Math.floor((clockTimeRep?.data ?? 0) / 60000).toString();
-	let seconds = Math.floor(((clockTimeRep?.data ?? 0) % 60000) / 1000).toString();
-	const millis = Math.floor(((clockTimeRep?.data ?? 0) % 1000) / 100).toString();
+	const minutes = Math.floor(clockTimeRep.value / 60000).toString();
+	let seconds = Math.floor((clockTimeRep.value % 60000) / 1000).toString();
+	const millis = Math.floor((clockTimeRep.value % 1000) / 100).toString();
 	if (minutes === '0') {
 		return `${seconds}.${millis}`;
 	} else {

@@ -1,6 +1,11 @@
 <template>
 	<n-config-provider :theme="darkTheme">
-		<GameSettingsControl />
+		<Suspense>
+			<GameSettingsControl />
+			<template #fallback>
+				Loading...
+			</template>
+		</Suspense>
 	</n-config-provider>
 </template>
 

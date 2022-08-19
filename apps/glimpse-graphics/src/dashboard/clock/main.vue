@@ -1,6 +1,11 @@
 <template>
 	<n-config-provider :theme="darkTheme">
-		<ClockControl />
+		<Suspense>
+			<ClockControl />
+			<template #fallback>
+				Loading...
+			</template>
+		</Suspense>
 	</n-config-provider>
 </template>
 
