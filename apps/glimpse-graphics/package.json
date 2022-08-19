@@ -55,6 +55,13 @@
         "width": "8"
       },
       {
+        "name": "score",
+        "title": "Score",
+        "file": "score.html",
+        "workspace": "Scoreboard",
+        "width": "6"
+      },
+      {
         "name": "clock",
         "title": "Clock",
         "file": "clock.html",
