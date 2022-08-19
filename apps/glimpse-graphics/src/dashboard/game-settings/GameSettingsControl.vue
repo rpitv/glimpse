@@ -16,10 +16,10 @@
 			</n-grid-item>
 
 			<n-grid-item>
-				<h1>Home Team</h1>
+				<TeamSettings :id="1" name="Home" />
 			</n-grid-item>
 			<n-grid-item>
-				<h1>Away Team</h1>
+				<TeamSettings :id="2" name="Away" />
 			</n-grid-item>
 		</n-grid>
 	</div>
@@ -31,6 +31,7 @@ import {NSelect, NButton, NGrid, NGridItem} from "naive-ui";
 import ClockSettings from "./ClockSettings.vue";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
+import TeamSettings from "./TeamSettings.vue";
 
 const selectedSportPreset = ref(null);
 const sportsPresetList = ref([

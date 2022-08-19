@@ -112,6 +112,6 @@
   },
   "include": [
     "src/extension/**/*.ts",
-    "src/types/**/*.d.ts"
+	  "src/common/**/*.d.ts"
   ],
 }
