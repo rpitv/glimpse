@@ -1,5 +1,5 @@
 <template>
-	<div class="clock-section">
+	<div class="clock-section" v-if="clockEnabledRep">
 		<div class="clock-time">
 			{{ scoreboardMinutes }}:{{ scoreboardSeconds }}.{{ scoreboardMillis }}
 		</div>
@@ -35,16 +35,36 @@
 				</n-button>
 			</div>
 		</div>
+
+		<div class="period-section">
+			<div class="current-period">Current Period: {{formattedCurrentPeriod}}</div>
+			<n-input-group class="mt-10">
+				<n-input-number v-model:value="setPeriodInput"
+								@keydown="setPeriodInputKeypressed"
+								:min="1"
+								:max="maxPeriod"
+				/>
+				<n-button @click="currentPeriodRep = setPeriodInput">Set Period</n-button>
+				<n-button :disabled="currentPeriodRep <= 1" @click="currentPeriodRep--">Decrement Period</n-button>
+				<n-button :disabled="currentPeriodRep >= maxPeriod" @click="currentPeriodRep++">Increment Period</n-button>
+			</n-input-group>
+		</div>
+	</div>
+	<div v-else>
+		<p class="clock-disabled-message">Clock is currently disabled.</p>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {computed, ref} from "vue";
-import {NButton, NInput, NInputGroup} from "naive-ui";
+import {NButton, NInput, NInputGroup, NInputNumber} from "naive-ui";
 import {replicant} from "../../browser-common/replicant";
 import {MessageComposable} from "../../common/MessageComposable";
 
 const setClockInput = ref('');
+const setPeriodInput = ref(1);
+
+const clockEnabledRep = await replicant("enabled", "glimpse-graphics.game-settings.clock");
 
 const clockTimeRep = await replicant<number>(
 	'clockTime',
@@ -57,6 +77,36 @@ const isClockRunningRep = await replicant<boolean>(
 	'glimpse-graphics.scoreboard.clock',
 	false
 );
+
+const currentPeriodRep = await replicant<number>(
+	'currentPeriod',
+	'glimpse-graphics.scoreboard.clock',
+	1
+);
+
+const periodCountRep = await replicant<number>('periodCount', 'glimpse-graphics.game-settings.clock');
+const periodLengthRep = await replicant<number>('periodLength', 'glimpse-graphics.game-settings.clock');
+const overtimeEnabledRep = await replicant<boolean>('overtimeEnabled', 'glimpse-graphics.game-settings.clock');
+const overtimeLengthRep = await replicant<string>('overtimeLength', 'glimpse-graphics.game-settings.clock');
+const overtimeCountRep = await replicant<number>('overtimeCount', 'glimpse-graphics.game-settings.clock');
+
+const maxPeriod = computed<number>(() => {
+	return overtimeEnabledRep ? periodCountRep.value + overtimeCountRep.value : periodCountRep.value;
+})
+
+
+const formattedCurrentPeriod = computed<string>(() => {
+	if(currentPeriodRep.value <= periodCountRep.value) {
+		return currentPeriodRep.value.toString();
+	} else {
+		const overtimePeriod = currentPeriodRep.value - periodCountRep.value;
+		if(overtimePeriod === 1) {
+			return "OT";
+		} else {
+			return "OT" + overtimePeriod.toString();
+		}
+	}
+});
 
 function toggleClock() {
 	if (isClockRunningRep.value) {
@@ -105,6 +155,11 @@ function setClockInputKeypressed(event: KeyboardEvent) {
 		setClock(setClockInput.value);
 	}
 }
+function setPeriodInputKeypressed(event: KeyboardEvent) {
+	if (event.key === 'Enter') {
+		currentPeriodRep.value = setPeriodInput.value;
+	}
+}
 
 const scoreboardMinutes = computed<string>(() => {
 	// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
@@ -122,6 +177,9 @@ const scoreboardMillis = computed<string>(() => {
 </script>
 
 <style scoped lang="scss">
+.mt-10 {
+	margin-top: 10px;
+}
 .clock-start-stop-control {
 	display: flex;
 	justify-content: center;
@@ -141,5 +199,17 @@ const scoreboardMillis = computed<string>(() => {
 }
 .clock-offset-btn {
 	margin-right: 0.5em;
+}
+
+.period-section {
+	margin-top: 30px;
+}
+.current-period {
+	text-align: center;
+	font-size: 2em;
+}
+
+.clock-disabled-message {
+	text-align: center;
 }
 </style>
