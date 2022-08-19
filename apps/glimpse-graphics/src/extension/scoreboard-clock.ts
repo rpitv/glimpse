@@ -4,14 +4,19 @@ import {clockTimeRep, isClockRunningRep} from './util/replicants';
 let scoreboardTimer: NodeJS.Timer | null = null;
 let scoreboardTimerLastModified: number | null = null;
 
-nodecg().listenFor('glimpse-graphics_scoreboard_clock_startClock', (): void => {
+nodecg().listenFor('glimpse-graphics.scoreboard.clock.startClock', (): void => {
 	isClockRunningRep.value = true;
+
+	if (scoreboardTimer) {
+		return; // Clock is already running
+	}
+
 	scoreboardTimerLastModified = Date.now();
 
 	scoreboardTimer = setInterval(() => {
 		// Stop the clock once it hits zero.
 		if(clockTimeRep.value <= 0) {
-			nodecg().sendMessage('glimpse-graphics_scoreboard_clock_stopClock');
+			nodecg().sendMessage('glimpse-graphics.scoreboard.clock.stopClock');
 			return;
 		}
 
@@ -27,7 +32,7 @@ nodecg().listenFor('glimpse-graphics_scoreboard_clock_startClock', (): void => {
 	}, 100);
 });
 
-nodecg().listenFor('glimpse-graphics_scoreboard_clock_stopClock', (): void => {
+nodecg().listenFor('glimpse-graphics.scoreboard.clock.stopClock', (): void => {
 	// Stop the clock if it's running.
 	if(isClockRunningRep.value) {
 		isClockRunningRep.value = false;
@@ -37,8 +42,4 @@ nodecg().listenFor('glimpse-graphics_scoreboard_clock_stopClock', (): void => {
 		scoreboardTimer = null;
 	}
 	scoreboardTimerLastModified = null;
-});
-
-nodecg().listenFor('glimpse-graphics_scoreboard_clock_setClock', (newClockValue): void => {
-	clockTimeRep.value = Math.max(newClockValue, 0);
 });

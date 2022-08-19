@@ -97,7 +97,7 @@ function setClock(newValue: string | number) {
 		newValueAsNumber = newValue;
 	}
 
-	new MessageComposable('setClock', 'glimpse-graphics.scoreboard.clock').send(newValueAsNumber);
+	clockTimeRep.value = newValueAsNumber;
 }
 
 function setClockInputKeypressed(event: KeyboardEvent) {
