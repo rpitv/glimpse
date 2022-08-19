@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 
 import { get as nodecg } from './nodecg';
 

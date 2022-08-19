@@ -120,7 +120,8 @@
     "src/dashboard/**/*.vue",
     "src/graphics/**/*.ts",
     "src/graphics/**/*.vue",
-    "src/types/**/*.d.ts",
+	  "src/common/**/*.d.ts",
+	"src/browser-common/**/*.ts",
     "node_modules/nodecg-types/types/browser.d.ts"
   ],
 }

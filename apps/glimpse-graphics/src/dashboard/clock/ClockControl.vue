@@ -4,8 +4,8 @@
 			{{ scoreboardMinutes }}:{{ scoreboardSeconds }}.{{ scoreboardMillis }}
 		</div>
 		<div class="clock-start-stop-control">
-			<n-button @click="toggleClock()" large :type="isClockRunningRep?.data ? 'error' : 'primary'">
-				{{ isClockRunningRep?.data ? "Stop" : "Start" }} Clock
+			<n-button @click="toggleClock()" large :type="isClockRunningRep ? 'error' : 'primary'">
+				{{ isClockRunningRep ? "Stop" : "Start" }} Clock
 			</n-button>
 		</div>
 		<n-input-group class="clock-set-controls">
@@ -15,22 +15,22 @@
 
 		<div class="clock-offset-buttons">
 			<div>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) - 5000)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep - 5000)">
 					-5s
 				</n-button>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) - 1000)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep - 1000)">
 					-1s
 				</n-button>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) - 100)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep - 100)">
 					-0.1s
 				</n-button>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) + 100)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep + 100)">
 					+0.1s
 				</n-button>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) + 1000)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep + 1000)">
 					+1s
 				</n-button>
-				<n-button class="clock-offset-btn" type="info" @click="setClock((clockTimeRep?.data ?? 0) + 5000)">
+				<n-button class="clock-offset-btn" type="info" @click="setClock(clockTimeRep + 5000)">
 					+5s
 				</n-button>
 			</div>
@@ -39,27 +39,30 @@
 </template>
 
 <script setup lang="ts">
-import {useReplicant} from 'nodecg-vue-composable';
 import {computed, ref} from "vue";
 import {NButton, NInput, NInputGroup} from "naive-ui";
+import {replicant} from "../../browser-common/replicant";
+import {MessageComposable} from "../../common/MessageComposable";
 
 const setClockInput = ref('');
 
-const clockTimeRep = useReplicant<number>(
+const clockTimeRep = await replicant<number>(
 	'clockTime',
-	'glimpse-graphics_scoreboard_clock'
+	'glimpse-graphics.scoreboard.clock',
+	1200 * 1000
 );
 
-const isClockRunningRep = useReplicant<boolean>(
+const isClockRunningRep = await replicant<boolean>(
 	'isClockRunning',
-	'glimpse-graphics_scoreboard_clock'
+	'glimpse-graphics.scoreboard.clock',
+	false
 );
 
 function toggleClock() {
-	if (isClockRunningRep?.data) {
-		nodecg.sendMessage('glimpse-graphics_scoreboard_clock_stopClock');
+	if (isClockRunningRep.value) {
+		new MessageComposable('stopClock', 'glimpse-graphics.scoreboard.clock').send();
 	} else {
-		nodecg.sendMessage('glimpse-graphics_scoreboard_clock_startClock');
+		new MessageComposable('startClock', 'glimpse-graphics.scoreboard.clock').send();
 	}
 }
 
@@ -94,7 +97,7 @@ function setClock(newValue: string | number) {
 		newValueAsNumber = newValue;
 	}
 
-	nodecg.sendMessage('glimpse-graphics_scoreboard_clock_setClock', newValueAsNumber);
+	new MessageComposable('setClock', 'glimpse-graphics.scoreboard.clock').send(newValueAsNumber);
 }
 
 function setClockInputKeypressed(event: KeyboardEvent) {
@@ -105,16 +108,16 @@ function setClockInputKeypressed(event: KeyboardEvent) {
 
 const scoreboardMinutes = computed<string>(() => {
 	// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
-	return Math.floor((clockTimeRep?.data ?? 0) / 60000).toString().padStart(2, '0');
+	return Math.floor(clockTimeRep.value / 60000).toString().padStart(2, '0');
 })
 
 const scoreboardSeconds = computed<string>(() => {
 	// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
-	return Math.floor(((clockTimeRep?.data ?? 0) % 60000) / 1000).toString().padStart(2, '0');
+	return Math.floor((clockTimeRep.value % 60000) / 1000).toString().padStart(2, '0');
 })
 
 const scoreboardMillis = computed<string>(() => {
-	return Math.floor(((clockTimeRep?.data ?? 0) % 1000) / 100).toString();
+	return Math.floor((clockTimeRep.value % 1000) / 100).toString();
 })
 </script>
 
