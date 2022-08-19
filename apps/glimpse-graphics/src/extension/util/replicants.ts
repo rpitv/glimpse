@@ -8,11 +8,11 @@ import { get as nodecg } from './nodecg';
 
 export const clockTimeRep = nodecg().Replicant<number>(
 	'clockTime',
-	'glimpse-graphics_scoreboard_clock',
+	'glimpse-graphics.scoreboard.clock',
 	{defaultValue: 1200 * 1000}
 );
 export const isClockRunningRep = nodecg().Replicant<boolean>(
 	'isClockRunning',
-	'glimpse-graphics_scoreboard_clock',
+	'glimpse-graphics.scoreboard.clock',
 	{defaultValue: false, persistent: false}
 );

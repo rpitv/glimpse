@@ -10,6 +10,6 @@ export class MessageComposable {
 
 	public async send(argument?: any): Promise<void> {
 		// @ts-ignore
-		await nodecg.sendMessage(this.namespace + this.channel, argument)
+		await nodecg.sendMessage(this.namespace + '.' + this.channel, argument)
 	}
 }
