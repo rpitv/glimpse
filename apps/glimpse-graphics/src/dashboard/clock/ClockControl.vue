@@ -91,7 +91,7 @@ const overtimeLengthRep = await replicant<string>('overtimeLength', 'glimpse-gra
 const overtimeCountRep = await replicant<number>('overtimeCount', 'glimpse-graphics.game-settings.clock');
 
 const maxPeriod = computed<number>(() => {
-	return overtimeEnabledRep ? periodCountRep.value + overtimeCountRep.value : periodCountRep.value;
+	return overtimeEnabledRep.value ? periodCountRep.value + overtimeCountRep.value : periodCountRep.value;
 })
 
 
