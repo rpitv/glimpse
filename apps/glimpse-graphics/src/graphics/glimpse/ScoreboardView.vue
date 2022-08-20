@@ -5,7 +5,7 @@
 			<svg viewBox='0 0 100 100' preserveAspectRatio='none'>
 				<path d='M0,50 L50,0 100,50 50,100 0,50z' />
 			</svg>
-			<div v-if="isClockEnabledRep">
+			<div v-if="isClockEnabledRep" class="clock-section">
 				<div :class="'time ' + (clockTimeRep < 10000 ? 'low-time' : '')">{{ formattedClockTime }}</div>
 				<div class="period">{{ formattedPeriod }}</div>
 			</div>
@@ -88,7 +88,7 @@ const requiredWidth = computed<number>(() => {
 	.scoreboard {
 		position: relative;
 		top: 2em;
-		left: 5em;
+		left: 3em;
 
 		display: flex;
 		align-items: center;
@@ -99,8 +99,8 @@ const requiredWidth = computed<number>(() => {
 		flex-direction: column;
 		justify-content: center;
 
-		width: 5em;
-		height: 5em;
+		width: 7em;
+		height: 7em;
 		text-align: center;
 		z-index: 10;
 		* {
@@ -117,20 +117,25 @@ const requiredWidth = computed<number>(() => {
 
 		font-family: Biryani, sans-serif;
 		font-weight: 700;
-		line-height: 1.1em;
+		line-height: 1.65em;
 
 		.time {
 			color: white;
 			transition: color 1s, font-size 0.5s;
+			font-size: 1.5em;
 
 			&.low-time {
 				color: rgb(255, 175, 175);
-				font-size: 1.2em;
+				font-size: 1.8em;
 			}
 		}
 		.period {
 			color: #ccc;
-			font-size: 0.9em;
+			font-size: 1.2em;
 		}
+	}
+
+	.clock-section {
+		margin-top: 0.8em;
 	}
 </style>
