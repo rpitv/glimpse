@@ -1,36 +1,26 @@
 <template>
-	<div class="scoreboard">
-		<div class="time">{{ formattedClockTime }}</div>
-	</div>
+	<Suspense>
+		<ScoreboardView />
+		<template #fallback>
+			{{ scoreboardLoadingText }}
+		</template>
+	</Suspense>
 </template>
 
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {replicant} from "../../browser-common/replicant";
+import ScoreboardView from "./ScoreboardView.vue";
 
-const clockTimeRep = await replicant<number>(
-	'clockTime',
-	'glimpse-graphics_scoreboard_clock',
-	1200 * 1000
-);
+// We don't want to immediately display loading text, as 99.9% of the time it isn't even necessary.
+//  We only display it if the browser hasn't heard from the server in 5 seconds.
+const scoreboardLoadingText = ref<string>("");
+onMounted(() => {
+	setTimeout(() => {
+		scoreboardLoadingText.value = "Loading...";
+	}, 5000);
+});
 
-const formattedClockTime = computed(() => {
-	const clockTime = clockTimeRep.value;
-	if (clockTime === undefined) {
-		return '0:00.0';
-	}
-
-	const minutes = Math.floor(clockTimeRep.value / 60000).toString();
-	let seconds = Math.floor((clockTimeRep.value % 60000) / 1000).toString();
-	const millis = Math.floor((clockTimeRep.value % 1000) / 100).toString();
-	if (minutes === '0') {
-		return `${seconds}.${millis}`;
-	} else {
-		// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
-		seconds = seconds.padStart(2, '0');
-		return `${minutes}:${seconds}`;
-	}
-})
 </script>
 
 
