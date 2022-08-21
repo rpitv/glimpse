@@ -33,6 +33,7 @@ const currentPeriodRep = await replicant<number>(
 	'glimpse-graphics.scoreboard.clock',
 	1
 );
+const periodCountValue = await replicant<number>('periodCount', 'glimpse-graphics.game-settings.clock');
 
 const formattedClockTime = computed<string>(() => {
 	const clockTime = clockTimeRep.value;
@@ -53,6 +54,16 @@ const formattedClockTime = computed<string>(() => {
 })
 
 const formattedPeriod = computed<string>(() => {
+
+	if(currentPeriodRep.value > periodCountValue.value) {
+		const overtimePeriod = currentPeriodRep.value - periodCountValue.value;
+		if(overtimePeriod === 1) {
+			return 'OT';
+		} else {
+			return `OT${overtimePeriod}`;
+		}
+	}
+
 	if(currentPeriodRep.value === undefined) {
 		return '1st';
 	}
@@ -131,7 +142,7 @@ const requiredWidth = computed<number>(() => {
 		}
 		.period {
 			color: #ccc;
-			font-size: 1.2em;
+			font-size: 1.5em;
 		}
 	}
 
