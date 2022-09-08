@@ -1,49 +1,36 @@
 <template>
 	<div class="scoreboard">
-		<TeamView v-if="isTeamOneEnabledRep" ref="teamOneElem" :team-id="1" side="left" :background-width="requiredWidth" />
+		<TeamView v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" side="left" :background-width="requiredWidth" />
 		<div class="diamond">
 			<svg viewBox='0 0 100 100' preserveAspectRatio='none'>
 				<path d='M0,50 L50,0 100,50 50,100 0,50z' />
 			</svg>
-			<div v-if="isClockEnabledRep" class="clock-section">
-				<div :class="'time ' + (clockTimeRep < 10000 ? 'low-time' : '')">{{ formattedClockTime }}</div>
-				<div class="period">{{ formattedPeriod }}</div>
+			<div v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
+				<div :class="'time ' + (clock.time.value < 10000 ? 'low-time' : '')">{{ formattedClockTime }}</div>
 			</div>
+			<div v-if="replicants.gameSettings.periods.enabled.value"  class="period">{{ formattedPeriod }}</div>
 		</div>
-		<TeamView v-if="isTeamTwoEnabledRep" ref="teamTwoElem" :team-id="2" side="right" :background-width="requiredWidth" />
+		<TeamView v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="1" side="right" :background-width="requiredWidth" />
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import {replicant} from "../../browser-common/replicant";
 import {computed, ref} from "vue";
 import TeamView from "./TeamView.vue";
+import {loadReplicants} from "../../browser-common/replicants";
 
-const isTeamOneEnabledRep = await replicant<boolean>("teamEnabled", `glimpse-graphics.game-settings.team1`);
-const isTeamTwoEnabledRep = await replicant<boolean>("teamEnabled", `glimpse-graphics.game-settings.team2`);
-const isClockEnabledRep = await replicant<boolean>("enabled", `glimpse-graphics.game-settings.clock`);
-const clockTimeRep = await replicant<number>(
-	'clockTime',
-	'glimpse-graphics.scoreboard.clock',
-	1200 * 1000
-);
-const currentPeriodRep = await replicant<number>(
-	'currentPeriod',
-	'glimpse-graphics.scoreboard.clock',
-	1
-);
-const periodCountValue = await replicant<number>('periodCount', 'glimpse-graphics.game-settings.clock');
+const replicants = await loadReplicants();
+const teamOne = replicants.teams[0];
+const teamTwo = replicants.teams[1];
+
+const clock = replicants.scoreboard.clock;
+const period = replicants.scoreboard.period;
 
 const formattedClockTime = computed<string>(() => {
-	const clockTime = clockTimeRep.value;
-	if (clockTime === undefined) {
-		return '0:00.0';
-	}
-
-	const minutes = Math.floor(clockTimeRep.value / 60000).toString();
-	let seconds = Math.floor((clockTimeRep.value % 60000) / 1000).toString();
-	const millis = Math.floor((clockTimeRep.value % 1000) / 100).toString();
+	const minutes = Math.floor(clock.time.value / 60000).toString();
+	let seconds = Math.floor((clock.time.value % 60000) / 1000).toString();
+	const millis = Math.floor((clock.time.value % 1000) / 100).toString();
 	if (minutes === '0') {
 		return `${seconds}.${millis}`;
 	} else {
@@ -55,8 +42,8 @@ const formattedClockTime = computed<string>(() => {
 
 const formattedPeriod = computed<string>(() => {
 
-	if(currentPeriodRep.value > periodCountValue.value) {
-		const overtimePeriod = currentPeriodRep.value - periodCountValue.value;
+	if(period.value > replicants.gameSettings.periods.count.value) {
+		const overtimePeriod = period.value - replicants.gameSettings.periods.count.value;
 		if(overtimePeriod === 1) {
 			return 'OT';
 		} else {
@@ -64,25 +51,25 @@ const formattedPeriod = computed<string>(() => {
 		}
 	}
 
-	if(currentPeriodRep.value === undefined) {
+	if(period.value === undefined) {
 		return '1st';
 	}
 
 	// Teens for some reason all end in "th" in English.
-	if(currentPeriodRep.value > 10 && currentPeriodRep.value < 20) {
-		return currentPeriodRep.value + 'th';
+	if(period.value > 10 && period.value < 20) {
+		return period.value + 'th';
 	}
 
 	// For all other numbers, we need to figure out the suffix.
-	const lastNumberOfPeriod = currentPeriodRep.value % 10;
+	const lastNumberOfPeriod = period.value % 10;
 	if(lastNumberOfPeriod === 1) {
-		return `${currentPeriodRep.value}st`;
+		return `${period.value}st`;
 	} else if(lastNumberOfPeriod === 2) {
-		return `${currentPeriodRep.value}nd`;
+		return `${period.value}nd`;
 	} else if(lastNumberOfPeriod === 3) {
-		return `${currentPeriodRep.value}rd`;
+		return `${period.value}rd`;
 	} else {
-		return `${currentPeriodRep.value}th`;
+		return `${period.value}th`;
 	}
 });
 
