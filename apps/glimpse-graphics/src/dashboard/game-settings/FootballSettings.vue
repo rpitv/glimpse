@@ -1,27 +1,22 @@
 <template>
 	<h1>Football Settings</h1>
 
-	<SyncableToggle name="Play Clock" @update-enabled="$val => playClockEnabledValue = $val" replicant-namespace="glimpse-graphics.game-settings.football.playClock" />
-	<div class="mt-10" v-if="playClockEnabledValue">
-		<label :for="playClockLengthId">Play Clock Length</label>
-		<n-input :id="playClockLengthId" placeholder="0:40.0" v-model="playClockLengthValue"/>
-	</div>
-	<SyncableToggle name="Downs" replicant-namespace="glimpse-graphics.game-settings.football.downs" class="mt-10" />
-	<SyncableToggle name="Possession" replicant-namespace="glimpse-graphics.game-settings.football.possession" class="mt-10" />
+	<SyncableToggle name="Play Clock"
+					v-model:enabled="replicants.gameSettings.football.playClock.enabled.value"
+					v-model:synced="replicants.gameSettings.football.playClock.synced.value" />
+	<SyncableToggle name="Downs" class="mt-10"
+					v-model:enabled="replicants.gameSettings.football.downs.enabled.value"
+					v-model:synced="replicants.gameSettings.football.downs.synced.value" />
+	<SyncableToggle name="Possession" class="mt-10"
+					v-model:enabled="replicants.gameSettings.football.possession.enabled.value"
+					v-model:synced="replicants.gameSettings.football.possession.synced.value" />
 </template>
 
 <script setup lang="ts">
 	import SyncableToggle from "./SyncableToggle.vue";
-	import {ref} from "vue";
-	import {v4} from "uuid";
-	import {NInput} from "naive-ui";
-	import {replicant} from "../../browser-common/replicant";
+	import {loadReplicants} from "../../browser-common/replicants";
 
-	const playClockLengthId = v4();
-
-	const playClockEnabledValue = ref<boolean>(false);
-
-	const playClockLengthValue = replicant<string>('playClockLength', 'glimpse-graphics.game-settings.football');
+	const replicants = await loadReplicants();
 </script>
 
 <style scoped lang="scss">

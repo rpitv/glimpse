@@ -3,13 +3,13 @@
 		<div class="score-section" :style="'width: ' + backgroundWidth + 'px'">
 			<div class="score-section-text" ref="scoreSectionTextElem">
 				<div class="team-score" v-if="side === 'right'" ref="teamScoreElem">
-					{{ teamScoreRep }}
+					{{ team.score.value }}
 				</div>
 				<div class="team-abbr" :style="'width:' + teamAbbrWidth">
-					{{ teamAbbrRep }}
+					{{ team.abbreviation.value }}
 				</div>
 				<div class="team-score" v-if="side === 'left'" ref="teamScoreElem">
-					{{ teamScoreRep }}
+					{{ team.score.value }}
 				</div>
 			</div>
 		</div>
@@ -18,9 +18,8 @@
 
 <script setup lang="ts">
 
-import {replicant} from "../../browser-common/replicant";
 import {computed, defineProps, nextTick, PropType, ref, watch} from "vue";
-import {NGrid, NGridItem} from "naive-ui";
+import {loadReplicants} from "../../browser-common/replicants";
 
 const props = defineProps({
 	teamId: {
@@ -39,15 +38,12 @@ const props = defineProps({
 	}
 })
 
-const teamScoreRep = await replicant<number>("score", `glimpse-graphics.scoreboard.team${props.teamId}`, 0);
-const teamAbbrRep = await replicant<string>("abbr", `glimpse-graphics.game-settings.team${props.teamId}`);
-const teamPrimaryColorRep = await replicant<string>("primaryColor", `glimpse-graphics.game-settings.team${props.teamId}`);
-const teamSecondaryColorRep = await replicant<string>("secondaryColor", `glimpse-graphics.game-settings.team${props.teamId}`);
-const teamLogoRep = await replicant<string>("logoUrl", `glimpse-graphics.game-settings.team${props.teamId}`);
+const replicants = await loadReplicants();
+const team = replicants.teams[props.teamId];
 
 const backgroundGradient = computed(() => {
 	const deg = props.side === "left" ? "-20deg" : "20deg";
-	return 'background-image: linear-gradient(' + deg + ', ' + teamPrimaryColorRep.value + ',' + teamSecondaryColorRep.value + ');';
+	return 'background-image: linear-gradient(' + deg + ', ' + team.primaryColor.value + ',' + team.secondaryColor.value + ');';
 })
 
 const scoreSectionTextElem = ref<HTMLElement|null>(null);
@@ -59,7 +55,7 @@ const teamAbbrWidth = ref<string>("initial");
 //   the size of the team name and the size of the score. We compute this and then the parent can take it, compare it with
 //   the other side (if it exists), and then feed back to us the size we need to be in order for both sides to have the
 //   same width.
-watch(() => [teamAbbrRep.value, teamScoreRep.value, scoreSectionTextElem.value], () => {
+watch(() => [team.abbreviation.value, team.score.value, scoreSectionTextElem.value], () => {
 	// Clear the team abbreviation width so we can get an accurate measurement of maximum _required_ width.
 	const tmp = teamAbbrWidth.value;
 	teamAbbrWidth.value = 'initial';
@@ -72,7 +68,7 @@ watch(() => [teamAbbrRep.value, teamScoreRep.value, scoreSectionTextElem.value],
 })
 
 // Calculate the width of the team abbreviation area so that it can be centered in the available space.
-watch(() => [teamScoreRep.value, props.backgroundWidth], () => {
+watch(() => [team.score.value, props.backgroundWidth], () => {
 	nextTick(() => {
 		teamAbbrWidth.value = `calc(${props.backgroundWidth}px - 1em - ${teamScoreElem.value?.offsetWidth ?? 0}px)`;
 	})
