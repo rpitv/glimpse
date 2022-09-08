@@ -15,7 +15,6 @@
 import {v4} from "uuid";
 import {computed, defineProps} from "vue";
 import {NSwitch} from "naive-ui";
-import {replicant} from "../../browser-common/replicant";
 
 const enabledId = v4();
 const syncedId = v4();
@@ -25,42 +24,32 @@ const props = defineProps({
 		type: String,
 		required: true
 	},
-	replicantNamespace: {
-		type: String
-	},
-	enabledDefault: {
+	enabled: {
 		type: Boolean,
-		default: false
+		required: true
 	},
-	syncedDefault: {
+	synced: {
 		type: Boolean,
-		default: false
+		required: true
 	}
 })
 
-const emit = defineEmits(['updateEnabled', 'updateSynced']);
-
-const enabled = await replicant<boolean>("enabled", props.replicantNamespace, props.enabledDefault);
-const synced = await replicant<boolean>("synced", props.replicantNamespace, props.syncedDefault);
-emit('updateEnabled', enabled.value);
-emit('updateSynced', synced.value);
+const emit = defineEmits(['update:enabled', 'update:synced']);
 
 const dummyEnabledValue = computed<boolean>({
 	get() {
-		return enabled.value;
+		return props.enabled;
 	},
 	set(newValue) {
-		enabled.value = newValue;
-		emit('updateEnabled', newValue);
+		emit('update:enabled', newValue);
 	}
 })
 const dummySyncedValue = computed<boolean>({
 	get() {
-		return synced.value
+		return props.synced
 	},
 	set(newValue) {
-		synced.value = newValue;
-		emit('updateSynced', newValue);
+		emit('update:synced', newValue);
 	}
 })
 </script>

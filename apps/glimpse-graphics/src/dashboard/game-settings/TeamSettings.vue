@@ -3,44 +3,39 @@
 
 	<div>
 		<label :for="teamEnabledId">Enabled?</label>
-		<n-switch class="ml-10" :id="teamEnabledId" v-model:value="teamEnabledRep"/>
+		<n-switch class="ml-10" :id="teamEnabledId" v-model:value="team.enabled.value"/>
 
-		<div v-if="teamEnabledRep">
+		<div v-if="team.enabled.value">
 			<div class="mt-10">
 				<label :for="teamNameId">Team Name</label>
-				<n-input :id="teamNameId" v-model:value="teamNameRep"/>
+				<n-input :id="teamNameId" v-model:value="team.name.value"/>
 			</div>
 
-
-			<n-alert v-if="teamAbbrRep.length > 3" title="Danger!" type="warning" class="mt-10">
-				The scoreboard is designed for team abbreviations to be 3 characters or less in length. Check the
-				scoreboard to make sure it looks okay before going live.
-			</n-alert>
 			<div class="mt-10">
 				<label :for="teamAbbrId">Team Abbreviation</label>
-				<n-input :id="teamAbbrId" v-model:value="teamAbbrRep"/>
+				<n-input :id="teamAbbrId" v-model:value="team.abbreviation.value"/>
 			</div>
 
 			<div class="mt-10">
 				<label :for="schoolNameId">School Name</label>
-				<n-input :id="schoolNameId" v-model:value="schoolNameRep"/>
+				<n-input :id="schoolNameId" v-model:value="team.schoolName.value"/>
 			</div>
 
 			<div class="mt-10">
 				<label :for="teamColorsId">Team Colors</label>
 				<n-input-group :id="teamColorsId">
-					<n-color-picker :show-alpha="false" :show-preview="true" :modes="['hex']" v-model:value="teamPrimaryColorRep" />
-					<n-color-picker :show-alpha="false" :show-preview="true" :modes="['hex']" v-model:value="teamSecondaryColorRep" />
+					<n-color-picker :show-alpha="false" :show-preview="true" :modes="['hex']" v-model:value="team.primaryColor.value" />
+					<n-color-picker :show-alpha="false" :show-preview="true" :modes="['hex']" v-model:value="team.secondaryColor.value" />
 				</n-input-group>
 			</div>
 
 			<div class="mt-10">
 				<label :for="teamLogoId">Team Logo <small>(Only input trusted URLs.)</small></label>
-				<n-input :id="teamLogoId" v-model:value="teamLogoRep"/>
+				<n-input :id="teamLogoId" v-model:value="team.logo.value"/>
 			</div>
 
 			<div class="team-logo-container">
-				<img class="team-logo mt-10" v-if="teamLogoRep?.length > 0" :src="teamLogoRep" alt="Team Logo" />
+				<img class="team-logo mt-10" v-if="team.logo.value?.length > 0" :src="team.logo.value" alt="Team Logo" />
 			</div>
 		</div>
 
@@ -50,8 +45,8 @@
 <script setup lang="ts">
 import {defineProps} from "vue";
 import {v4} from "uuid";
-import {NSwitch, NInput, NInputGroup, NColorPicker, NAlert} from "naive-ui";
-import {replicant} from "../../browser-common/replicant";
+import {NSwitch, NInput, NInputGroup, NColorPicker} from "naive-ui";
+import {loadReplicants} from "../../browser-common/replicants";
 
 
 const teamEnabledId = v4();
@@ -72,13 +67,9 @@ const props = defineProps({
 	}
 })
 
-const teamEnabledRep = await replicant<boolean>("teamEnabled", `glimpse-graphics.game-settings.team${props.id}`);
-const teamNameRep = await replicant<string>("name", `glimpse-graphics.game-settings.team${props.id}`);
-const teamAbbrRep = await replicant<string>("abbr", `glimpse-graphics.game-settings.team${props.id}`);
-const teamPrimaryColorRep = await replicant<string>("primaryColor", `glimpse-graphics.game-settings.team${props.id}`);
-const teamSecondaryColorRep = await replicant<string>("secondaryColor", `glimpse-graphics.game-settings.team${props.id}`);
-const schoolNameRep = await replicant<string>("schoolName", `glimpse-graphics.game-settings.team${props.id}`);
-const teamLogoRep = await replicant<string>("logoUrl", `glimpse-graphics.game-settings.team${props.id}`);
+const replicants = await loadReplicants();
+const team = replicants.teams[props.id];
+
 </script>
 
 <style scoped lang="scss">

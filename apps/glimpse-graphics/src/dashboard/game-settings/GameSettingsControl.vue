@@ -16,10 +16,10 @@
 			</n-grid-item>
 
 			<n-grid-item>
-				<TeamSettings :id="1" name="Home" />
+				<TeamSettings :id="0" name="Home" />
 			</n-grid-item>
 			<n-grid-item>
-				<TeamSettings :id="2" name="Away" />
+				<TeamSettings :id="1" name="Away" />
 			</n-grid-item>
 		</n-grid>
 	</div>

@@ -1,8 +1,8 @@
 import {computed, ref, Ref} from "vue";
+import {ReplicantOptions} from "nodecg-types/types/lib/replicant";
 
-export async function replicant<T = any>(name: string, namespace?: string, defaultValue?: T): Promise<Ref<T>> {
-	// @ts-ignore
-	const realReplicant = nodecg.Replicant<T>(name, namespace, {defaultValue});
+export async function replicant<T = any>(name: string, namespace?: string, options?: ReplicantOptions<T>): Promise<Ref<T>> {	// @ts-ignore
+	const realReplicant = nodecg.Replicant<T>(name, namespace, options);
 
 	let value: Ref<T|undefined> = ref(undefined);
 	realReplicant.on('change', () => {
