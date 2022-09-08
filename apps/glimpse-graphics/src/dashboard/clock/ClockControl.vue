@@ -94,7 +94,15 @@ const isClockRunning = replicants.scoreboard.clock.isRunning;
 const currentTime = replicants.scoreboard.clock.time;
 
 const maxPeriod = computed<number>(() => {
-	return isOvertimeEnabled.value ? periodCount.value + overtimeCount.value : periodCount.value;
+	if(isOvertimeEnabled.value) {
+		if(overtimeCount.value === 0) {
+			return Number.MAX_VALUE;
+		} else {
+			return periodCount.value + overtimeCount.value;
+		}
+	} else {
+		return periodCount.value;
+	}
 })
 
 const formattedCurrentTime = computed<string>(() => {
