@@ -1,4 +1,5 @@
 import { get as nodecg } from './nodecg';
+import {DisplayableMessage} from "./DisplayableMessage";
 
 export const replicants = {
 	gameSettings: {
@@ -74,5 +75,10 @@ export const replicants = {
 			logo: nodecg().Replicant<string>("logo", `glimpse-graphics.game-settings.team1`, {defaultValue: ''}),
 			schoolName: nodecg().Replicant<string>("schoolName", `glimpse-graphics.game-settings.team1`, {defaultValue: 'School Two'})
 		}
-	]
+	],
+	messages: {
+		global: nodecg().Replicant<DisplayableMessage[]>("global", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
+		team1: nodecg().Replicant<DisplayableMessage[]>("team1", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
+		team2: nodecg().Replicant<DisplayableMessage[]>("team2", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
+	}
 }
