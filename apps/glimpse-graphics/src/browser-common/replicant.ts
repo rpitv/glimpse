@@ -6,10 +6,15 @@ export async function replicant<T = any>(name: string, namespace?: string, optio
 
 	let value: Ref<T|undefined> = ref(undefined);
 	realReplicant.on('change', () => {
-		value.value = <T>realReplicant.value; // Will not be undefined
+		// FIXME updating the value directly does not trigger the computed property to recompute for some reason.
+		if(Array.isArray(realReplicant.value)) {
+			value.value = <T><unknown>[...realReplicant.value];
+		} else {
+			value.value = <T>realReplicant.value; // Will not be undefined
+		}
 	});
 
-	await new Promise<void>((resolve) => realReplicant.on('change', () => resolve())); // Wait for replicant to be received from server
+	await new Promise<void>((resolve) => realReplicant.once('change', () => resolve())); // Wait for replicant to be received from server
 
 	return computed<T>({
 		get() {

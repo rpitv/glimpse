@@ -29,7 +29,8 @@
 			</n-button>
 		</div>
 
-		<MessageCreator class="mt-10" />
+		<MessageCreator class="mt-10" @add="addMessage" />
+		<MessageList v-model:messages="messages" />
 	</div>
 </template>
 
@@ -39,6 +40,8 @@ import {defineProps, PropType, ref} from "vue";
 import {NInputGroup, NInputNumber, NButton} from "naive-ui";
 import MessageCreator from "./MessageCreator.vue";
 import {loadReplicants} from "../../browser-common/replicants";
+import {DisplayableMessage} from "../../common/DisplayableMessage";
+import MessageList from "./MessageList.vue";
 
 const props = defineProps({
 	teamId: {
@@ -55,6 +58,12 @@ const setScoreInput = ref<number>(0);
 const replicants = await loadReplicants();
 
 const team = replicants.teams[props.teamId];
+const messages = replicants.messages[<'team1'|'team2'>('team' + (props.teamId + 1))];
+
+function addMessage(message: DisplayableMessage) {
+	// FIXME non-reactive if you just push to the array. Vue 3 should handle this automatically...
+	messages.value = [...messages.value, message];
+}
 
 function setScoreInputKeypressed(event: KeyboardEvent) {
 	if (event.key === "Enter") {
@@ -110,5 +119,4 @@ function setScoreInputKeypressed(event: KeyboardEvent) {
 	.increment-btn {
 		margin-right: 0.5em;
 	}
-
 </style>
