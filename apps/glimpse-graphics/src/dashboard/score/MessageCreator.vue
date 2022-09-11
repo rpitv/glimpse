@@ -5,8 +5,8 @@
 				<n-radio-button value="info">Info</n-radio-button>
 				<n-radio-button value="status">Status</n-radio-button>
 			</n-radio-group>
-			<n-input v-model:value="messageInput"/>
-			<n-button>Add Message</n-button>
+			<n-input v-model:value="messageInput" @keydown="onKeypressed"/>
+			<n-button @click="addMessage">Add Message</n-button>
 		</n-input-group>
 	</div>
 </template>
@@ -15,9 +15,28 @@
 
 import {ref} from "vue";
 import {NInput, NRadioGroup, NRadioButton, NButton, NInputGroup} from "naive-ui";
+import {DisplayableMessage} from "../../common/DisplayableMessage";
 
 const messageInput = ref<string>("");
-const messageType = ref<string>("info");
+const messageType = ref<"info"|"status">("info");
+
+const emit = defineEmits(['add'])
+
+function addMessage() {
+	if(messageInput.value.length === 0) {
+		return;
+	}
+
+	const message = new DisplayableMessage(messageInput.value, messageType.value);
+	messageInput.value = '';
+	emit('add', message);
+}
+
+function onKeypressed(event: KeyboardEvent) {
+	if(event.key === "Enter") {
+		addMessage();
+	}
+}
 
 </script>
 
