@@ -4,7 +4,7 @@
 			{{ formattedCurrentTime }}
 		</div>
 		<div class="clock-start-stop-control">
-			<n-button @click="toggleClock()" large :type="isClockRunning ? 'error' : 'primary'">
+			<n-button @click="isClockRunning = !isClockRunning" large :type="isClockRunning ? 'error' : 'primary'">
 				{{ isClockRunning ? "Stop" : "Start" }} Clock
 			</n-button>
 		</div>
@@ -70,7 +70,6 @@
 <script setup lang="ts">
 import {computed, ref} from "vue";
 import {NButton, NInput, NInputGroup, NInputNumber} from "naive-ui";
-import {MessageComposable} from "../../common/MessageComposable";
 import {loadReplicants} from "../../browser-common/replicants";
 import {millisToString, parseTimeString} from "../util";
 
@@ -121,14 +120,6 @@ const formattedCurrentPeriod = computed<string>(() => {
 		}
 	}
 });
-
-function toggleClock() {
-	if (isClockRunning.value) {
-		new MessageComposable('stopClock', 'glimpse-graphics.scoreboard.clock').send();
-	} else {
-		new MessageComposable('startClock', 'glimpse-graphics.scoreboard.clock').send();
-	}
-}
 
 function setClock(newValue: string | number) {
 	let newValueAsNumber;
