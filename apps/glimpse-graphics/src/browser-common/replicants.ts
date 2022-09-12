@@ -49,6 +49,7 @@ export async function loadReplicants() {
 			}
 		},
 		scoreboard: {
+			visible: await replicant<boolean>('visible', 'glimpse-graphics.scoreboard', {defaultValue: true}),
 			clock: {
 				time: await replicant<number>('time', 'glimpse-graphics.scoreboard.clock', {defaultValue: 1200_000}),
 				isRunning: await replicant<boolean>('isRunning', 'glimpse-graphics.scoreboard.clock', {defaultValue: false, persistent: false}),

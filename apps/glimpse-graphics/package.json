@@ -24,6 +24,7 @@
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
+    "animejs": "^3.2.1",
     "module-alias": "^2.2.2",
     "uuid": "^8.3.2"
   },
@@ -53,6 +54,13 @@
         "file": "game-settings.html",
         "workspace": "General",
         "width": "8"
+      },
+      {
+        "name": "command-palette",
+        "title": "Command Palette",
+        "file": "command-palette.html",
+        "workspace": "Scoreboard",
+        "width": "2"
       },
       {
         "name": "score",
