@@ -1,22 +1,22 @@
 <template>
 	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
-		<TeamView v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" side="left" :background-width="requiredWidth" />
-		<div class="diamond">
-			<svg viewBox='0 0 100 100' preserveAspectRatio='none'>
-				<path d='M0,50 L50,0 100,50 50,100 0,50z' />
-			</svg>
-			<div v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
-				<div :class="'time ' + (clock.time.value < 10000 ? 'low-time' : '')">{{ formattedClockTime }}</div>
-			</div>
-			<div v-if="replicants.gameSettings.periods.enabled.value"  class="period">{{ formattedPeriod }}</div>
+		<TeamView class="bordered" v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" />
+		<TeamView class="bordered no-left-border" v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="1" />
+		<div class="bordered no-left-border time-section">
+			<p v-if="replicants.gameSettings.periods.enabled.value"  class="period-section">
+				{{ formattedPeriod }}
+			</p>
+			<hr>
+			<p v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
+				{{ formattedClockTime }}
+			</p>
 		</div>
-		<TeamView v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="1" side="right" :background-width="requiredWidth" />
 	</div>
 </template>
 
 <script setup lang="ts">
 
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import TeamView from "./TeamView.vue";
 import {loadReplicants} from "../../browser-common/replicants";
 
@@ -72,73 +72,53 @@ const formattedPeriod = computed<string>(() => {
 		return `${period.value}th`;
 	}
 });
-
-// Take the required width of each individual team element, take the max of the two, and send that width for both of
-//   them to use via their background-width prop.
-const teamOneElem = ref<typeof TeamView| null>(null);
-const teamTwoElem = ref<typeof TeamView| null>(null);
-const requiredWidth = computed<number>(() => {
-	return Math.max(teamOneElem.value?.requiredWidth ?? 0, teamTwoElem.value?.requiredWidth ?? 0);
-});
 </script>
 
 <style scoped lang="scss">
 	.hidden {
 		opacity: 0;
 	}
-	.scoreboard {
-		position: relative;
-		top: 2em;
-		left: 3em;
 
-		display: flex;
-		align-items: center;
+	.bordered {
+		border: rgb(157,154,136) 2px solid;
 
-		transition: opacity 1s;
+		&.no-left-border {
+			border-left: none;
+		}
 	}
-	.diamond {
-		position: relative;
+
+	.scoreboard {
 		display: flex;
-		flex-direction: column;
 		justify-content: center;
 
-		width: 7em;
-		height: 7em;
-		text-align: center;
-		z-index: 10;
-		* {
-			z-index: 10;
-		}
+		position: relative;
+		top: 6vh;
 
-		svg {
-			position: absolute;
-			fill: rgb(35, 36, 40);
-			z-index: 9;
-			width: 100%;
-			height: 100%;
-		}
-
-		font-family: Biryani, sans-serif;
-		font-weight: 700;
-		line-height: 1.65em;
-
-		.time {
-			color: white;
-			transition: color 1s, font-size 0.5s;
-			font-size: 1.5em;
-
-			&.low-time {
-				color: rgb(255, 175, 175);
-				font-size: 1.8em;
-			}
-		}
-		.period {
-			color: #ccc;
-			font-size: 1.5em;
-		}
+		max-height: 4.2vh;
 	}
 
-	.clock-section {
-		margin-top: 0.8em;
+	.time-section {
+		display: flex;
+		align-items: center;
+		font-family: 'Roboto', sans-serif;
+		background-color: rgb(220, 220, 220);
+
+		hr {
+			height: 50%;
+			transform: translateY(50%);
+			border: 0;
+			border-right: rgb(157,154,136) 1px solid;
+		}
+
+		.period-section, .clock-section {
+			text-align: center;
+		}
+
+		.period-section {
+			width: 4vw;
+		}
+		.clock-section {
+			width: 5.8vw;
+		}
 	}
 </style>
