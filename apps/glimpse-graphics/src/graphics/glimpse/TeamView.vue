@@ -37,12 +37,13 @@ const logoBgColor = team.primaryColor.value;
 </script>
 
 <style scoped lang="scss">
-	.team-section {
-		display: flex;
-		font-family: 'Roboto', sans-serif;
-	}
 
-	.logo-section {
+.team-section {
+	display: flex;
+	font-family: 'Roboto', sans-serif;
+	height: calc(100% - 0.3vw);
+}
+.logo-section {
 		display: inline-flex;
 		justify-content: center;
 		align-items: center;
@@ -71,7 +72,7 @@ const logoBgColor = team.primaryColor.value;
 		background-color: rgb(240,240,240);
 		color: rgb(73,73,68);
 		font-weight: 700;
-		font-size: 1.4em;
+		font-size: 1.7vw;
 	}
 
 	.score-section {
@@ -89,6 +90,6 @@ const logoBgColor = team.primaryColor.value;
 		background-color: rgb(240,240,240);
 		color: rgb(73,73,68);
 		font-weight: 900;
-		font-size: 1.7em;
+		font-size: 2vw;
 	}
 </style>
