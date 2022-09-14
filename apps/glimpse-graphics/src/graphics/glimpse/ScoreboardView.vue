@@ -93,6 +93,8 @@ const requiredWidth = computed<number>(() => {
 
 		display: flex;
 		align-items: center;
+
+		transition: opacity 1s;
 	}
 	.diamond {
 		position: relative;
