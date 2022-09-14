@@ -4,7 +4,7 @@
 			<TeamView class="bordered" v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" />
 
 			<p v-if="replicants.messages.team1.value.length > 0" class="announcement-section team1">
-				{{replicants.messages.team1.value[0].message}}
+				{{computedMessage(replicants.messages.team1.value[0]).value}}
 			</p>
 		</div>
 
@@ -12,7 +12,7 @@
 			<TeamView class="bordered no-left-border" v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="1" />
 
 			<p v-if="replicants.messages.team2.value.length > 0" class="announcement-section team2">
-				{{replicants.messages.team2.value[0].message}}
+				{{computedMessage(replicants.messages.team2.value[0]).value}}
 			</p>
 		</div>
 
@@ -25,7 +25,7 @@
 				{{ formattedClockTime }}
 			</p>
 			<p v-if="replicants.messages.global.value.length > 0" class="announcement-section global">
-				{{replicants.messages.global.value[0].message}}
+				{{computedMessage(replicants.messages.global.value[0]).value}}
 			</p>
 		</div>
 	</div>
@@ -36,6 +36,7 @@
 import {computed} from "vue";
 import TeamView from "./TeamView.vue";
 import {loadReplicants} from "../../browser-common/replicants";
+import {DisplayableMessage} from "../../common/DisplayableMessage";
 
 const replicants = await loadReplicants();
 const teamOne = replicants.teams[0];
@@ -107,6 +108,27 @@ const team1Color = replicants.teams[0].primaryColor;
 const team2Color = replicants.teams[1].primaryColor;
 const team1TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team1Color.value, '#ffffff', '#000000'))
 const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Color.value, '#ffffff', '#000000'))
+
+
+function computedMessage(message: DisplayableMessage) {
+	return computed(() => {
+		if(!message.timer || !message.timer.visible) {
+			return message.message;
+		} else {
+			const timeRemaining = message.timer.length - (message.timer.startedAt - replicants.scoreboard.clock.time.value);
+
+			const minutes = Math.floor(timeRemaining / 60000).toString();
+			// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
+			let seconds = Math.floor((timeRemaining % 60000) / 1000).toString().padStart(2, '0');
+
+			if(minutes === '0') {
+				return message.message + ' :' + seconds
+			} else {
+				return message.message + ' ' + minutes + ':' + seconds
+			}
+		}
+	})
+}
 </script>
 
 <style scoped lang="scss">
