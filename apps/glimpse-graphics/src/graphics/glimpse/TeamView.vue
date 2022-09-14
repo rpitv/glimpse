@@ -66,7 +66,7 @@ const logoBgColor = team.primaryColor.value;
 			margin-left: 0.6vw;
 		}
 
-		width: 11vw;
+		width: 13.5vw;
 		height: 100%;
 
 		background-color: rgb(240,240,240);

@@ -127,7 +127,7 @@ const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Col
 		justify-content: center;
 
 		position: relative;
-		top: 4vh;
+		top: 5vh;
 
 		max-height: 4.2vh;
 	}
@@ -151,11 +151,11 @@ const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Col
 
 		.period-section {
 			font-size: 1.4vw;
-			width: 4vw;
+			width: 4.1vw;
 		}
 		.clock-section {
 			font-size: 1.4vw;
-			width: 5.8vw;
+			width: 5.9vw;
 		}
 	}
 
@@ -170,7 +170,7 @@ const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Col
 			text-align: center;
 			background-color: rgb(241,229,76);
 			color: rgb(99,87,24);
-			width: calc(9.9vw);
+			width: calc(10.1vw);
 			transform: translateX(-0.15vw);
 		}
 
@@ -179,7 +179,7 @@ const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Col
 			padding-left: 1em;
 			background-color: v-bind(team1Color);
 			color: v-bind(team1TextColor);
-			width: calc(19vw - 1em);
+			width: calc(21.5vw - 1em);
 		}
 
 		&.team2 {
@@ -187,7 +187,7 @@ const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Col
 			padding-left: 1em;
 			background-color: v-bind(team2Color);
 			color: v-bind(team2TextColor);
-			width: calc(19vw - 1em);
+			width: calc(21.5vw - 1em);
 			transform: translateX(-0.075vw);
 		}
 	}
