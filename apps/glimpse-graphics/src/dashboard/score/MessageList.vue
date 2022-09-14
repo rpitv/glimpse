@@ -1,7 +1,7 @@
 <template>
 	<ul>
 		<li v-for="msg in messages" :class="'message message-' + msg.type">
-			<p :class="'message-' + msg.type">{{msg.message}}</p>
+			<p :class="'message-' + msg.type">{{computedMessage(msg).value}}</p>
 			<n-button class="message-remove-btn" type="error" circle quaternary @click="removeMessage(msg)">&#x2716;</n-button>
 		</li>
 	</ul>
@@ -9,9 +9,13 @@
 
 <script setup lang="ts">
 
-import {defineProps, PropType} from "vue";
+import {computed, defineProps, PropType} from "vue";
 import {DisplayableMessage} from "../../common/DisplayableMessage";
 import {NButton} from "naive-ui";
+import {loadReplicants} from "../../browser-common/replicants";
+import {millisToString} from "../util";
+
+const replicants = await loadReplicants();
 
 const props = defineProps({
 	messages: {
@@ -31,6 +35,21 @@ function removeMessage(message: DisplayableMessage) {
 	const messagesCopy = [...props.messages];
 	messagesCopy.splice(messageIndex, 1);
 	emit('update:messages', messagesCopy);
+}
+
+function computedMessage(message: DisplayableMessage) {
+	return computed(() => {
+		if(!message.timer || !message.timer.visible) {
+			return message.message;
+		} else {
+			const timeRemaining = message.timer.length - (message.timer.startedAt - replicants.scoreboard.clock.time.value);
+			if(timeRemaining <= 0) {
+				removeMessage(message);
+				return message.message;
+			}
+			return message.message + ' ' + millisToString(timeRemaining);
+		}
+	})
 }
 </script>
 
