@@ -88,9 +88,9 @@ function computedMessage(message: DisplayableMessage) {
 		} else {
 			const timeRemaining = message.timer.length - (message.timer.startedAt - replicants.scoreboard.clock.time.value);
 
-			const minutes = Math.floor(timeRemaining / 60000).toString();
+			const minutes = Math.max(0, Math.floor(timeRemaining / 60000)).toString();
 			// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
-			let seconds = Math.floor((timeRemaining % 60000) / 1000).toString().padStart(2, '0');
+			let seconds = Math.max(0, Math.floor((timeRemaining % 60000) / 1000)).toString().padStart(2, '0');
 
 			if(minutes === '0') {
 				return message.message + ' :' + seconds
