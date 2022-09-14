@@ -152,6 +152,8 @@ function computedMessage(message: DisplayableMessage) {
 		top: 5vh;
 
 		max-height: 4.2vh;
+
+		transition: opacity 1s;
 	}
 
 	.time-section {
