@@ -14,7 +14,7 @@
 			</div>
 		</div>
 		<div v-for="msg in messages" :class="'message message-' + msg.type">
-			{{ msg.message }}
+			{{ computedMessage(msg).value }}
 		</div>
 	</div>
 </template>
@@ -23,6 +23,7 @@
 
 import {computed, defineProps, nextTick, PropType, ref, watch} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
+import {DisplayableMessage} from "../../common/DisplayableMessage";
 
 const props = defineProps({
 	teamId: {
@@ -79,6 +80,26 @@ watch(() => [team.score.value, props.backgroundWidth], () => {
 })
 
 defineExpose({requiredWidth});
+
+function computedMessage(message: DisplayableMessage) {
+	return computed(() => {
+		if(!message.timer || !message.timer.visible) {
+			return message.message;
+		} else {
+			const timeRemaining = message.timer.length - (message.timer.startedAt - replicants.scoreboard.clock.time.value);
+
+			const minutes = Math.floor(timeRemaining / 60000).toString();
+			// noinspection TypeScriptUnresolvedFunction - Not sure why this is happening in my IDE
+			let seconds = Math.floor((timeRemaining % 60000) / 1000).toString().padStart(2, '0');
+
+			if(minutes === '0') {
+				return message.message + ' :' + seconds
+			} else {
+				return message.message + ' ' + minutes + ':' + seconds
+			}
+		}
+	})
+}
 </script>
 
 <style scoped lang="scss">
