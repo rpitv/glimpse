@@ -75,6 +75,20 @@
         "file": "clock.html",
         "workspace": "Scoreboard",
         "width": "4"
+      },
+      {
+        "name": "image-selection",
+        "title": "Image Selection",
+        "file": "image-selection.html",
+        "workspace": "Images",
+        "width": "4"
+      },
+      {
+        "name": "image-editor",
+        "title": "Image Editor",
+        "file": "image-editor.html",
+        "workspace": "Images",
+        "width": "4"
       }
     ],
     "graphics": [
@@ -82,6 +96,13 @@
         "file": "glimpse.html",
         "width": 3840,
         "height": 2160
+      }
+    ],
+    "assetCategories": [
+      {
+        "name": "images",
+        "title": "Images",
+        "allowedTypes": ["jpg", "jpeg", "gif", "png"]
       }
     ]
   }
