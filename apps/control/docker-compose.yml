@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  video:
+    build: .
+    ports:
+      - "1935:1935"
+    restart: unless-stopped
+    networks:
+      - glimpse_network
+  video_control:
+    build: ./control
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    name: glimpse_network
