@@ -1,0 +1,31 @@
+{
+  "name": "glimpse-video-control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse-video.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse-video/issues"
+  },
+  "homepage": "https://github.com/rpitv/glimpse-video#readme",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.8.2",
+    "@types/node": "^18.7.18",
+    "@types/uuid": "^8.3.4",
+    "typescript": "^4.8.3"
+  }
+}
