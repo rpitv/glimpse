@@ -4,6 +4,7 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
     build: .
     ports:
       - "4000:4000"
@@ -43,6 +44,16 @@ services:
       - .redis-data:/data
     networks:
       - glimpse_network
+
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - glimpse_network
+
   search:
     image: getmeili/meilisearch:v0.27.1
     restart: unless-stopped
@@ -54,6 +65,7 @@ services:
       - .meili-data:/meili_data
     networks:
       - glimpse_network
+
 networks:
   glimpse_network:
     name: glimpse_network
