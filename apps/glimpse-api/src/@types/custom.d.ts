@@ -7,6 +7,7 @@ import {
     PermissionResolvers,
     QueryResolvers,
     Resolvers,
+    StreamResolvers,
 } from "../generated/graphql";
 import { GraphQLScalarType } from "graphql";
 
@@ -48,7 +49,11 @@ type OmitChildType<Type, OmittedChild> = {
 
 type ValidCrudResolvers = keyof OmitChildType<
     Resolvers<GraphQLContext>,
-    GraphQLScalarType | MutationResolvers | QueryResolvers | PermissionResolvers
+    | GraphQLScalarType
+    | MutationResolvers
+    | QueryResolvers
+    | PermissionResolvers
+    | StreamResolvers
 >;
 
 type PrismaDelegateName =

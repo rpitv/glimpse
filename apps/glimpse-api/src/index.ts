@@ -574,6 +574,11 @@ async function main(): Promise<void> {
             "REDIS_URL environment variable not set. This is required."
         );
     }
+    if (!process.env.RABBITMQ_URL) {
+        throw new Error(
+            "RABBITMQ_URL environment variable not set. This is required."
+        );
+    }
     if (!process.env.NODE_ENV) {
         console.warn("NODE_ENV not set. Defaulting to production.");
         process.env.NODE_ENV = "production";
