@@ -1,0 +1,8 @@
+query ListStreams {
+  streams {
+    id
+    to
+    from
+    message
+  }
+}
