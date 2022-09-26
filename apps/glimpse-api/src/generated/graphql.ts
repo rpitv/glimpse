@@ -50,6 +50,7 @@ export enum AbilitySubjects {
   ProductionVideo = 'ProductionVideo',
   Redirect = 'Redirect',
   Role = 'Role',
+  Stream = 'Stream',
   User = 'User',
   UserGroup = 'UserGroup',
   UserPermission = 'UserPermission',
@@ -374,6 +375,7 @@ export type Mutation = {
   createRedirect: Redirect;
   /** Create a new Role with the given input values. */
   createRole: Role;
+  createStream: Scalars['Boolean'];
   /** Create a new User with the given input values. */
   createUser: User;
   /** Create a new user-group pair with the given input values. */
@@ -422,6 +424,7 @@ export type Mutation = {
   deleteRedirect?: Maybe<Redirect>;
   /** Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object. */
   deleteRole?: Maybe<Role>;
+  deleteStream: Scalars['Boolean'];
   /** Delete the User with the provided ID, if it exists. Returns null if the User does not exist, otherwise returns the deleted object. */
   deleteUser?: Maybe<User>;
   /** Delete the UserGroup with the provided ID, if it exists. Returns null if the UserGroup does not exist, otherwise returns the deleted object. */
@@ -578,6 +581,11 @@ export type MutationCreateRoleArgs = {
 };
 
 
+export type MutationCreateStreamArgs = {
+  input: StreamCreateInput;
+};
+
+
 export type MutationCreateUserArgs = {
   input: UserCreateInput;
 };
@@ -694,6 +702,11 @@ export type MutationDeleteRedirectArgs = {
 
 
 export type MutationDeleteRoleArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteStreamArgs = {
   id: Scalars['ID'];
 };
 
@@ -1219,6 +1232,8 @@ export type Query = {
   permissionsFor: Array<Permission>;
   /** Get the currently signed in User. Null if the user is not signed in. */
   self?: Maybe<User>;
+  /** Get the list of currently running RTMP streams. */
+  streams: Array<Stream>;
 };
 
 
@@ -1518,6 +1533,19 @@ export type RoleUpdateInput = {
   startTime?: InputMaybe<Scalars['DateTime']>;
 };
 
+export type Stream = {
+  __typename?: 'Stream';
+  from: Scalars['String'];
+  id: Scalars['ID'];
+  message?: Maybe<Scalars['String']>;
+  to: Scalars['String'];
+};
+
+export type StreamCreateInput = {
+  from: Scalars['String'];
+  to: Scalars['String'];
+};
+
 export type User = {
   __typename?: 'User';
   accessLogs?: Maybe<Array<AccessLog>>;
@@ -1805,6 +1833,8 @@ export type ResolversTypes = {
   Role: ResolverTypeWrapper<RoleModel>;
   RoleCreateInput: RoleCreateInput;
   RoleUpdateInput: RoleUpdateInput;
+  Stream: ResolverTypeWrapper<Stream>;
+  StreamCreateInput: StreamCreateInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<UserModel>;
   UserCreateInput: UserCreateInput;
@@ -1895,6 +1925,8 @@ export type ResolversParentTypes = {
   Role: RoleModel;
   RoleCreateInput: RoleCreateInput;
   RoleUpdateInput: RoleUpdateInput;
+  Stream: Stream;
+  StreamCreateInput: StreamCreateInput;
   String: Scalars['String'];
   User: UserModel;
   UserCreateInput: UserCreateInput;
@@ -2093,6 +2125,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createProductionVideo?: Resolver<ResolversTypes['ProductionVideo'], ParentType, ContextType, RequireFields<MutationCreateProductionVideoArgs, 'input'>>;
   createRedirect?: Resolver<ResolversTypes['Redirect'], ParentType, ContextType, RequireFields<MutationCreateRedirectArgs, 'input'>>;
   createRole?: Resolver<ResolversTypes['Role'], ParentType, ContextType, RequireFields<MutationCreateRoleArgs, 'input'>>;
+  createStream?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationCreateStreamArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createUserGroup?: Resolver<ResolversTypes['UserGroup'], ParentType, ContextType, RequireFields<MutationCreateUserGroupArgs, 'input'>>;
   createUserPermission?: Resolver<ResolversTypes['UserPermission'], ParentType, ContextType, RequireFields<MutationCreateUserPermissionArgs, 'input'>>;
@@ -2117,6 +2150,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteProductionVideo?: Resolver<Maybe<ResolversTypes['ProductionVideo']>, ParentType, ContextType, RequireFields<MutationDeleteProductionVideoArgs, 'id'>>;
   deleteRedirect?: Resolver<Maybe<ResolversTypes['Redirect']>, ParentType, ContextType, RequireFields<MutationDeleteRedirectArgs, 'id'>>;
   deleteRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationDeleteRoleArgs, 'id'>>;
+  deleteStream?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStreamArgs, 'id'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteUserGroup?: Resolver<Maybe<ResolversTypes['UserGroup']>, ParentType, ContextType, RequireFields<MutationDeleteUserGroupArgs, 'id'>>;
   deleteUserPermission?: Resolver<Maybe<ResolversTypes['UserPermission']>, ParentType, ContextType, RequireFields<MutationDeleteUserPermissionArgs, 'id'>>;
@@ -2304,6 +2338,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   findOneVoteResponse?: Resolver<Maybe<ResolversTypes['VoteResponse']>, ParentType, ContextType, RequireFields<QueryFindOneVoteResponseArgs, 'id'>>;
   permissionsFor?: Resolver<Array<ResolversTypes['Permission']>, ParentType, ContextType, Partial<QueryPermissionsForArgs>>;
   self?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  streams?: Resolver<Array<ResolversTypes['Stream']>, ParentType, ContextType>;
 };
 
 export type RedirectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Redirect'] = ResolversParentTypes['Redirect']> = {
@@ -2321,6 +2356,14 @@ export type RoleResolvers<ContextType = any, ParentType extends ResolversParentT
   person?: Resolver<ResolversTypes['Person'], ParentType, ContextType>;
   priority?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   startTime?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type StreamResolvers<ContextType = any, ParentType extends ResolversParentTypes['Stream'] = ResolversParentTypes['Stream']> = {
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -2418,6 +2461,7 @@ export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>;
   Redirect?: RedirectResolvers<ContextType>;
   Role?: RoleResolvers<ContextType>;
+  Stream?: StreamResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserGroup?: UserGroupResolvers<ContextType>;
   UserPermission?: UserPermissionResolvers<ContextType>;
