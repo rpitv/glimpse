@@ -1,0 +1,3 @@
+mutation StartStream($to: String!, $from: String!) {
+  success: createStream(input: {to: $to, from: $from})
+}
