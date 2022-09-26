@@ -17,6 +17,7 @@
       <DashboardCard v-if="canViewUsersDashboard()" :icon="['fal', 'user']" name="Users" route="dashboardUsers"/>
       <DashboardCard v-if="canViewVideosDashboard()" :icon="['fal', 'video']" name="Videos" route="dashboardVideos"/>
       <DashboardCard v-if="canViewVotesDashboard()" :icon="['fal', 'ballot-check']" name="Votes" route="dashboardVotes"/>
+      <DashboardCard v-if="canViewStreamDashboard()" :icon="['fal', 'signal-stream']" name="Stream" route="dashboardStream"/>
     </div>
   </div>
 </template>
@@ -35,6 +36,7 @@ import {
   canViewPeopleDashboard,
   canViewProductionsDashboard,
   canViewRedirectsDashboard,
+  canViewStreamDashboard,
   canViewUsersDashboard,
   canViewVideosDashboard,
   canViewVotesDashboard

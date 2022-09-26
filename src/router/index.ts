@@ -18,6 +18,7 @@ import DashboardLogsView from "../views/dashboard/DashboardLogsView.vue";
 import DashboardPeopleView from "../views/dashboard/DashboardPeopleView.vue";
 import DashboardProductionsView from "../views/dashboard/DashboardProductionsView.vue";
 import DashboardRedirectsView from "../views/dashboard/DashboardRedirectsView.vue";
+import DashboardStreamView from "../views/dashboard/DashboardStreamView.vue";
 import DashboardUsersView from "../views/dashboard/DashboardUsersView.vue";
 import DashboardVideosView from "../views/dashboard/DashboardVideosView.vue";
 import DashboardVotesView from "../views/dashboard/DashboardVotesView.vue";
@@ -37,9 +38,10 @@ import {
   canViewPeopleDashboard,
   canViewProductionsDashboard,
   canViewRedirectsDashboard,
+  canViewStreamDashboard,
   canViewUsersDashboard,
   canViewVideosDashboard,
-  canViewVotesDashboard
+  canViewVotesDashboard,
 } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
@@ -271,6 +273,16 @@ const router = createRouter({
       name: "dashboardRedirects",
       component: restrictedComponent(DashboardRedirectsView, () =>
         canViewRedirectsDashboard()
+      ),
+      meta: {
+        layoutCssName: "plain-layout",
+      },
+    },
+    {
+      path: "/dashboard/stream",
+      name: "dashboardStream",
+      component: restrictedComponent(DashboardStreamView, () =>
+        canViewStreamDashboard()
       ),
       meta: {
         layoutCssName: "plain-layout",

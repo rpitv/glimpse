@@ -31,6 +31,7 @@ import {
   faVideo,
   faBallotCheck,
   faPlus,
+  faSignalStream,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -74,6 +75,7 @@ library.add(faSignsPost);
 library.add(faVideo);
 library.add(faBallotCheck);
 library.add(faPlus);
+library.add(faSignalStream);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);

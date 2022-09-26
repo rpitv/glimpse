@@ -227,6 +227,19 @@ export function canViewRedirectsDashboard(): boolean {
 }
 
 /**
+ * Check whether the currently logged-in user has permission to open the "Stream" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission on the "Stream" subject.
+ */
+export function canViewStreamDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Stream, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Read,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
  * Check whether the currently logged-in user has permission to open the "Users" page on the dashboard. At the
  *   moment, the requirement for this is to have any CRUD permission besides read on the "User" subject, except for
  *   the ability to update themselves. I.e., having permission to update themselves is not enough to be able to
