@@ -1,9 +1,10 @@
 import type { Ref } from "vue";
+import type { FontAwesomeIconWeights } from "@/util/helper";
 
 export type NavButton = {
   key: string;
   name: string;
-  icon: ["fas" | "fal" | "fad" | "fab", string];
+  icon: [FontAwesomeIconWeights, string];
   showIconOnDesktop: boolean;
   route?: string;
   children?: NavButton[];

@@ -1,5 +1,5 @@
-import { Ability, AbilityBuilder } from "@casl/ability";
 import type { AbilityClass } from "@casl/ability";
+import { Ability, AbilityBuilder } from "@casl/ability";
 import { ABILITY_TOKEN, useAbility } from "@casl/vue";
 import type { InjectionKey, Ref } from "vue";
 import { computed } from "vue";
@@ -33,7 +33,222 @@ export function requirePermission(
   };
 }
 
-export function canViewDashboard(): Ref<boolean> {
+/**
+ * Shorthand for requiring the user to have at least one action permission for a subject.
+ * @param subject The subject to check permissions for.
+ * @param actions Optionally, the list of actions to check. If not provided, all actions are checked (CRUD).
+ * @param glimpseAbility Custom ability to check against if desired. If omitted, then the default ability with the
+ *   current user's permissions is used.
+ * @returns true if the use has permission on the subject for at least one of the provided actions, false otherwise.
+ */
+export function hasAnyActionPermissionForSubject(
+  subject: AbilitySubjects,
+  actions?: AbilityActions[],
+  glimpseAbility?: GlimpseAbility
+): boolean {
+  if (!actions) {
+    actions = [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Read,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ];
+  }
+  if (!glimpseAbility) {
+    glimpseAbility = ability;
+  }
+  return actions.some((action) => {
+    // No longer possibly undefined
+    return (<GlimpseAbility>glimpseAbility).can(action, subject);
+  });
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Assets" page on the dashboard. At the moment,
+ *   the requirement for this is to have any CRUD permission on the "Asset" subject.
+ */
+export function canViewAssetsDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Asset);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Blog Posts" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "BlogPost" subject.
+ */
+export function canViewBlogPostsDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.BlogPost, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Categories" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Category" subject.
+ */
+export function canViewCategoriesDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Category, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Contact Submissions" page on the dashboard.
+ *   At the moment, the requirement for this is to be able to read, update, or delete ContactSubmissions, or to
+ *   have any CRUD permission on the "ContactSubmissionAssignee" subject.
+ */
+export function canViewContactSubmissionsDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ContactSubmission, [
+      GQLAbilityActions.Read,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(
+      GQLAbilitySubjects.ContactSubmissionAssignee
+    )
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Groups" page on the dashboard.
+ *   At the moment, the requirement for this is to have any CRUD permission for the "Group" subject, or to have any CRUD
+ *   permission on the "GroupPermission" subject besides read.
+ *   TODO: We should be more specific and allow access if you can read permissions for groups which you don't belong to.
+ */
+export function canViewGroupsDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Group) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.GroupPermission, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ])
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Images" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Image" subject.
+ */
+export function canViewImagesDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Image, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Logs" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission on the "AccessLog", "AuditLog", or "AlertLog"
+ *   subjects.
+ */
+export function canViewLogsDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AlertLog) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AccessLog) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AuditLog)
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "People" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Person" subject, or to have
+ *   any CRUD permission besides read on the "PersonImage" subject.
+ *   TODO: Users in the future should be able to edit their own Person profile(s). This would be outside of the
+ *     dashboard, and a separate check needs to be made to exclude their own Persons from this check.
+ */
+export function canViewPeopleDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Person, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.PersonImage, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ])
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Productions" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on one of the subjects "Production",
+ *   "ProductionImage", "ProductionTag", "ProductionVideo", or "Credit". Alternatively, the user may have any CRUD
+ *   permission on the "ProductionRsvp" subject.
+ */
+export function canViewProductionsDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Production, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionImage, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionTag, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionVideo, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Credit, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionRsvp)
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Redirects" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Redirect" subject.
+ */
+export function canViewRedirectsDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Redirect, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Stream" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission on the "Stream" subject.
+ */
+export function canViewStreamDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Stream, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Read,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Users" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "User" subject, except for
+ *   the ability to update themselves. I.e., having permission to update themselves is not enough to be able to
+ *   view the Users page. The user must also be able to edit other users in some way, or able to delete their own account.
+ *
+ *   Alternatively, the user can have any CRUD permission on the "UserPermission" subject besides read.
+ *   TODO: We should be more specific and allow access if you can read permissions other than your own.
+ */
+export function canViewUsersDashboard(): boolean {
   const authStore = useAuthStore();
   // Create temporary variable storing a copy of ability
   let tmpAbility = ability;
@@ -70,119 +285,63 @@ export function canViewDashboard(): Ref<boolean> {
     tmpAbility = builder.build();
   }
 
+  return (
+    hasAnyActionPermissionForSubject(
+      GQLAbilitySubjects.User,
+      [
+        GQLAbilityActions.Create,
+        GQLAbilityActions.Update,
+        GQLAbilityActions.Delete,
+      ],
+      tmpAbility
+    ) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.UserPermission, [
+      GQLAbilityActions.Create,
+      GQLAbilityActions.Update,
+      GQLAbilityActions.Delete,
+    ])
+  );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Videos" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Video" subject.
+ */
+export function canViewVideosDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Video, [
+    GQLAbilityActions.Create,
+    GQLAbilityActions.Update,
+    GQLAbilityActions.Delete,
+  ]);
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Votes" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission either on the "Vote" or "VoteResponse" subjects.
+ */
+export function canViewVotesDashboard(): boolean {
+  return (
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Vote) ||
+    hasAnyActionPermissionForSubject(GQLAbilitySubjects.VoteResponse)
+  );
+}
+
+export function canViewDashboard(): Ref<boolean> {
   return computed(() => {
-    // prettier-ignore
     return (
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.AccessLog) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.AccessLog) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.AccessLog) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.AccessLog) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.AlertLog) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.AlertLog) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.AlertLog) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.AlertLog) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.AuditLog) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.AuditLog) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.AuditLog) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.AuditLog) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.BlogPost) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.BlogPost) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.BlogPost) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Category) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Category) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Category) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.ContactSubmissionAssignee) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.ContactSubmissionAssignee) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ContactSubmissionAssignee) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ContactSubmissionAssignee) ||
-
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.ContactSubmission) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ContactSubmission) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ContactSubmission) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Credit) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Credit) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Credit) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.GroupPermission) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.GroupPermission) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.GroupPermission) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Group) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Group) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Group) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Image) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Image) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Image) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Person) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Person) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Person) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.PersonImage) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.PersonImage) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.PersonImage) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.ProductionImage) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ProductionImage) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ProductionImage) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.ProductionRsvp) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.ProductionRsvp) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ProductionRsvp) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ProductionRsvp) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.ProductionTag) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ProductionTag) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ProductionTag) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.ProductionVideo) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.ProductionVideo) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.ProductionVideo) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Production) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Production) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Production) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Redirect) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Redirect) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Redirect) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Role) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Role) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Role) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.UserGroup) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.UserGroup) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.UserGroup) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.UserPermission) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.UserPermission) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.UserPermission) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.User) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.User) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.User) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Video) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Video) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Video) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.Vote) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.Vote) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.Vote) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.Vote) ||
-
-      tmpAbility.can(GQLAbilityActions.Create, GQLAbilitySubjects.VoteResponse) ||
-      tmpAbility.can(GQLAbilityActions.Read, GQLAbilitySubjects.VoteResponse) ||
-      tmpAbility.can(GQLAbilityActions.Update, GQLAbilitySubjects.VoteResponse) ||
-      tmpAbility.can(GQLAbilityActions.Delete, GQLAbilitySubjects.VoteResponse)
+      canViewAssetsDashboard() ||
+      canViewBlogPostsDashboard() ||
+      canViewCategoriesDashboard() ||
+      canViewContactSubmissionsDashboard() ||
+      canViewGroupsDashboard() ||
+      canViewImagesDashboard() ||
+      canViewLogsDashboard() ||
+      canViewProductionsDashboard() ||
+      canViewRedirectsDashboard() ||
+      canViewVideosDashboard() ||
+      canViewVotesDashboard() ||
+      canViewUsersDashboard() || // Perform these last due to computation order
+      canViewPeopleDashboard()
     );
   });
 }

@@ -50,6 +50,7 @@ export enum AbilitySubjects {
   ProductionVideo = 'ProductionVideo',
   Redirect = 'Redirect',
   Role = 'Role',
+  Stream = 'Stream',
   User = 'User',
   UserGroup = 'UserGroup',
   UserPermission = 'UserPermission',
@@ -374,6 +375,7 @@ export type Mutation = {
   createRedirect: Redirect;
   /** Create a new Role with the given input values. */
   createRole: Role;
+  createStream: Scalars['Boolean'];
   /** Create a new User with the given input values. */
   createUser: User;
   /** Create a new user-group pair with the given input values. */
@@ -422,6 +424,7 @@ export type Mutation = {
   deleteRedirect?: Maybe<Redirect>;
   /** Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object. */
   deleteRole?: Maybe<Role>;
+  deleteStream: Scalars['Boolean'];
   /** Delete the User with the provided ID, if it exists. Returns null if the User does not exist, otherwise returns the deleted object. */
   deleteUser?: Maybe<User>;
   /** Delete the UserGroup with the provided ID, if it exists. Returns null if the UserGroup does not exist, otherwise returns the deleted object. */
@@ -578,6 +581,11 @@ export type MutationCreateRoleArgs = {
 };
 
 
+export type MutationCreateStreamArgs = {
+  input: StreamCreateInput;
+};
+
+
 export type MutationCreateUserArgs = {
   input: UserCreateInput;
 };
@@ -694,6 +702,11 @@ export type MutationDeleteRedirectArgs = {
 
 
 export type MutationDeleteRoleArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteStreamArgs = {
   id: Scalars['ID'];
 };
 
@@ -1073,6 +1086,50 @@ export type ProductionVideoUpdateInput = {
 
 export type Query = {
   __typename?: 'Query';
+  /** Count the number of access logs which the user currently has access to read. */
+  countAccessLog: Scalars['Int'];
+  /** Count the number of alert logs which the user currently has access to read. */
+  countAlertLog: Scalars['Int'];
+  /** Count the number of assets which the user currently has access to read. */
+  countAsset: Scalars['Int'];
+  /** Count the number of audit logs which the user currently has access to read. */
+  countAuditLog: Scalars['Int'];
+  /** Count the number of blog posts which the user currently has access to read. */
+  countBlogPost: Scalars['Int'];
+  /** Count the number of categories which the user currently has access to read. */
+  countCategory: Scalars['Int'];
+  /** Count the number of contact submissions which the user currently has access to read. */
+  countContactSubmission: Scalars['Int'];
+  /** Count the number of contact submission assignees which the user currently has access to read. */
+  countContactSubmissionAssignee: Scalars['Int'];
+  /** Count the number of credits which the user currently has access to read. */
+  countCredit: Scalars['Int'];
+  /** Count the number of groups which the user currently has access to read. */
+  countGroup: Scalars['Int'];
+  /** Count the number of images which the user currently has access to read. */
+  countImage: Scalars['Int'];
+  /** Count the number of people which the user currently has access to read. */
+  countPerson: Scalars['Int'];
+  /** Count the number of person-image pairs which the user currently has access to read. */
+  countPersonImage: Scalars['Int'];
+  /** Count the number of productions which the user currently has access to read. */
+  countProduction: Scalars['Int'];
+  /** Count the number of production-image pairs which the user currently has access to read. */
+  countProductionImage: Scalars['Int'];
+  /** Count the number of production RSVPs which the user currently has access to read. */
+  countProductionRSVP: Scalars['Int'];
+  /** Count the number of production-video pairs which the user currently has access to read. */
+  countProductionVideo: Scalars['Int'];
+  /** Count the number of redirects which the user currently has access to read. */
+  countRedirect: Scalars['Int'];
+  /** Count the number of roles which the user currently has access to read. */
+  countRole: Scalars['Int'];
+  /** Count the number of users which the user currently has access to read. */
+  countUser: Scalars['Int'];
+  /** Count the number of videos which the user currently has access to read. */
+  countVideo: Scalars['Int'];
+  /** Count the number of votes which the user currently has access to read. */
+  countVote: Scalars['Int'];
   /** Get a list of access logs which the user currently has access to read. */
   findManyAccessLog: Array<AccessLog>;
   /** Get a list of alert logs which the user currently has access to read. */
@@ -1175,6 +1232,8 @@ export type Query = {
   permissionsFor: Array<Permission>;
   /** Get the currently signed in User. Null if the user is not signed in. */
   self?: Maybe<User>;
+  /** Get the list of currently running RTMP streams. */
+  streams: Array<Stream>;
 };
 
 
@@ -1474,6 +1533,19 @@ export type RoleUpdateInput = {
   startTime?: InputMaybe<Scalars['DateTime']>;
 };
 
+export type Stream = {
+  __typename?: 'Stream';
+  from: Scalars['String'];
+  id: Scalars['ID'];
+  message?: Maybe<Scalars['String']>;
+  to: Scalars['String'];
+};
+
+export type StreamCreateInput = {
+  from: Scalars['String'];
+  to: Scalars['String'];
+};
+
 export type User = {
   __typename?: 'User';
   accessLogs?: Maybe<Array<AccessLog>>;
@@ -1628,6 +1700,11 @@ export type FindAllProductionsQueryVariables = Exact<{
 
 export type FindAllProductionsQuery = { __typename?: 'Query', productions: Array<{ __typename?: 'Production', id: string, name: string, startTime?: any | null, description?: string | null, thumbnail?: { __typename?: 'Image', path: string } | null }> };
 
+export type ListStreamsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListStreamsQuery = { __typename?: 'Query', streams: Array<{ __typename?: 'Stream', id: string, to: string, from: string, message?: string | null }> };
+
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1645,6 +1722,21 @@ export type SelfIdQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type SelfIdQuery = { __typename?: 'Query', self?: { __typename?: 'User', id: string } | null };
 
+export type StartStreamMutationVariables = Exact<{
+  to: Scalars['String'];
+  from: Scalars['String'];
+}>;
+
+
+export type StartStreamMutation = { __typename?: 'Mutation', success: boolean };
+
+export type StopStreamMutationVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type StopStreamMutation = { __typename?: 'Mutation', success: boolean };
+
 export type UsernameLoginMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
@@ -1655,7 +1747,10 @@ export type UsernameLoginMutation = { __typename?: 'Mutation', loginSuccess: boo
 
 
 export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
+export const ListStreamsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListStreams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"streams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"to"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ListStreamsQuery, ListStreamsQueryVariables>;
 export const LogoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Logout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"logoutSuccess"},"name":{"kind":"Name","value":"logout"}}]}}]} as unknown as DocumentNode<LogoutMutation, LogoutMutationVariables>;
 export const PermissionsForDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PermissionsFor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"user"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"permissions"},"name":{"kind":"Name","value":"permissionsFor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"user"},"value":{"kind":"Variable","name":{"kind":"Name","value":"user"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]} as unknown as DocumentNode<PermissionsForQuery, PermissionsForQueryVariables>;
 export const SelfIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SelfId"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"self"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<SelfIdQuery, SelfIdQueryVariables>;
+export const StartStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StartStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"to"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"from"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"success"},"name":{"kind":"Name","value":"createStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"to"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"from"},"value":{"kind":"Variable","name":{"kind":"Name","value":"from"}}}]}}]}]}}]} as unknown as DocumentNode<StartStreamMutation, StartStreamMutationVariables>;
+export const StopStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StopStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"success"},"name":{"kind":"Name","value":"deleteStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<StopStreamMutation, StopStreamMutationVariables>;
 export const UsernameLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UsernameLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"loginSuccess"},"name":{"kind":"Name","value":"usernameLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}]}]}}]} as unknown as DocumentNode<UsernameLoginMutation, UsernameLoginMutationVariables>;
