@@ -96,6 +96,7 @@ enum AbilitySubjects {
     Production
     Redirect
     Role
+    Stream
     UserGroup
     UserPermission
     User
@@ -433,6 +434,10 @@ type Query {
     Get the currently signed in User. Null if the user is not signed in.
     """
     self: User @Auth(action: read, subject: User)
+    """
+    Get the list of currently running RTMP streams.
+    """
+    streams: [Stream!]! @Auth(action: read, subject: Stream)
 }
 
 type Mutation {
@@ -761,6 +766,9 @@ type Mutation {
     Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise.
     """
     logout: Boolean!
+
+    createStream(input: StreamCreateInput!): Boolean! @Auth(action: create, subject: Stream)
+    deleteStream(id: ID!): Boolean! @Auth(action: delete, subject: Stream)
 }
 
 type AccessLog {
@@ -1240,6 +1248,18 @@ input RoleUpdateInput {
     startTime: DateTime @NonNull @Auth(action: update, subject: Role, field: "startTime")
     endTime: DateTime @Auth(action: update, subject: Role, field: "endTime")
     priority: Int @NonNull @Auth(action: update, subject: Role, field: "priority")
+}
+
+type Stream {
+    id: ID! @Auth(action: read, subject: Stream, field: "id")
+    from: String! @Auth(action: read, subject: Stream, field: "from")
+    to: String! @Auth(action: read, subject: Stream, field: "to")
+    message: String @Auth(action: read, subject: Stream, field: "message")
+}
+
+input StreamCreateInput {
+    from: String! @NonNull @Auth(action: create, subject: Stream, field: "from")
+    to: String! @NonNull @Auth(action: create, subject: Stream, field: "to")
 }
 
 type UserGroup {
