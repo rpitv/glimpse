@@ -3,8 +3,8 @@ CMD [ "npm", "start" ]
 
 WORKDIR /usr/src/app
 
-RUN apt update
-RUN apt install -y ffmpeg
+RUN apt-get update
+RUN apt-get install -y ffmpeg
 
 COPY ./package.json .
 COPY ./package-lock.json .
