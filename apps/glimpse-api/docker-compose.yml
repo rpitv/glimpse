@@ -17,7 +17,6 @@ services:
     command: npm run dev.debug
     volumes:
       - .:/usr/src/app
-      - ../glimpse-ui/dist:/usr/src/app/public
       - /usr/src/app/node_modules
       - ./cert:/etc/cert
     networks:
