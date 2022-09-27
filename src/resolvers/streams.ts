@@ -55,7 +55,6 @@ setInterval(() => {
 export const resolver: Resolvers = {
     Query: {
         streams: async (): Promise<Stream[]> => {
-            console.log("reading streams", streams);
             const streamArray: Stream[] = [];
             for (const key in streams) {
                 streamArray.push(streams[key]);
