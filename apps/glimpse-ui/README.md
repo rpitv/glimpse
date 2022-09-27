@@ -45,3 +45,9 @@ npm run test:e2e # or `npm run test:e2e:ci` for headless testing
 ```sh
 npm run lint
 ```
+
+### Build Docker Image
+
+```sh
+docker build --tag rpitv/glimpse-ui --secret id=npmrc,src=.npmrc .
+```
