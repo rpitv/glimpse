@@ -1,17 +1,34 @@
 import { Resolvers, Stream } from "../generated/graphql";
-import { connect } from "amqplib";
+import {connect, ConsumeMessage, Connection} from "amqplib";
 
 const streams: { [key: string]: Stream } = {};
 const streamLastSeen: { [key: string]: number } = {};
 
-connect(<string>process.env.RABBITMQ_URL).then(async (client) => {
+async function connectRetry(url: string, retries: number): Promise<Connection> {
+    let client;
+    for (let i = 0; i < retries; i++) {
+        try {
+            client = await connect(url);
+            break;
+        } catch (err) {
+            console.log("Error connecting to RabbitMQ, retrying in 5 seconds");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+    }
+    if (!client) {
+        throw new Error("Could not connect to RabbitMQ");
+    }
+    return client;
+}
+
+connectRetry(<string>process.env.RABBITMQ_URL, 10).then(async (client) => {
     const channel = await client.createChannel();
     // Create exclusive queue to be bound to the state exchange
     const queue = await channel.assertQueue("", { exclusive: true });
     await channel.assertExchange("video:state", "fanout", { durable: true });
     await channel.bindQueue(queue.queue, "video:state", "");
 
-    await channel.consume(queue.queue, async (rmqMessage) => {
+    await channel.consume(queue.queue, async (rmqMessage: ConsumeMessage|null) => {
         if (!rmqMessage) {
             return; // TODO throw error
         }
