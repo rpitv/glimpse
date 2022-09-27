@@ -52,7 +52,7 @@ async function startStream(from: string, to: string): Promise<void> {
 ffmpeg -re -i <source> \
 -c:v libx264 -preset veryfast -maxrate 6000k \
 -bufsize 12000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 160k -ac 2 \
--ar 44100 -f flv <destination>
+-ar 44100 -f flv -flvflags no_duration_filesize <destination>
  */
   const proc = spawn("ffmpeg", [
     "-re",
@@ -80,6 +80,8 @@ ffmpeg -re -i <source> \
     "44100",
     "-f",
     "flv",
+    "-flvflags",
+    "no_duration_filesize",
     to,
   ]);
 
