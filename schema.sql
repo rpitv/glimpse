@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 14.2 (Debian 14.2-1.pgdg110+1)
--- Dumped by pg_dump version 14.2
+-- Dumped by pg_dump version 14.5 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -357,10 +357,10 @@ COMMENT ON COLUMN public.audit_logs.metadata IS 'Any additional information abou
 CREATE TABLE public.blog_posts (
     id integer NOT NULL,
     posted_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    content text DEFAULT ''::text NOT NULL,
+    content text NOT NULL,
     author integer NOT NULL,
     author_display_name character varying(100),
-    title character varying(150) DEFAULT ''::character varying NOT NULL
+    title character varying(150) NOT NULL
 );
 
 
@@ -971,7 +971,7 @@ CREATE TABLE public.people (
     pronouns character varying(20),
     graduation date,
     start date NOT NULL,
-    "end" date GENERATED ALWAYS AS (graduation) STORED,
+    "end" date,
     description text
 );
 
@@ -1655,7 +1655,8 @@ ALTER TABLE public.roles ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.user_groups (
     id integer NOT NULL,
     "user" integer NOT NULL,
-    "group" integer NOT NULL
+    "group" integer NOT NULL,
+    "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -1687,6 +1688,13 @@ COMMENT ON COLUMN public.user_groups."user" IS 'FK - ID of the user which this c
 --
 
 COMMENT ON COLUMN public.user_groups."group" IS 'FK - ID of the group which this user is a part of.';
+
+
+--
+-- Name: COLUMN user_groups."timestamp"; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.user_groups."timestamp" IS 'Timestamp at which this relation was created.';
 
 
 --
@@ -1807,7 +1815,7 @@ CREATE TABLE public.users (
     username character varying(8) NOT NULL,
     mail character varying(300) NOT NULL,
     person integer,
-    discord integer,
+    discord character(18),
     password character varying(300),
     joined timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -2121,6 +2129,11 @@ COPY public.blog_posts (id, posted_at, content, author, author_display_name, tit
 --
 
 COPY public.categories (id, name, priority, parent) FROM stdin;
+1	Sports	0	\N
+3	Sports	0	\N
+5	Sports	5	\N
+6	Sports	5	\N
+2	Football	0	\N
 \.
 
 
@@ -2153,6 +2166,9 @@ COPY public.credits (production, person, title, priority, id) FROM stdin;
 --
 
 COPY public.group_permissions (id, "group", action, subject, fields, conditions, inverted, reason) FROM stdin;
+4	1	read	{GroupPermission}	\N	\N	f	\N
+1	1	read	{Production}	\N	\N	f	\N
+5	1	read	{Group,User}	\N	\N	f	\N
 \.
 
 
@@ -2161,6 +2177,9 @@ COPY public.group_permissions (id, "group", action, subject, fields, conditions,
 --
 
 COPY public.groups (id, name, parent, priority) FROM stdin;
+1	Guest	\N	0
+2	Officers	\N	0
+3	Members	\N	0
 \.
 
 
@@ -2169,6 +2188,7 @@ COPY public.groups (id, name, parent, priority) FROM stdin;
 --
 
 COPY public.images (id, name, description, path) FROM stdin;
+1	HFH Night 1	Picture of the front of the Houston Field House at night	http://rpitv.org/sys_i/wide/820.jpg
 \.
 
 
@@ -2176,7 +2196,8 @@ COPY public.images (id, name, description, path) FROM stdin;
 -- Data for Name: people; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.people (id, name, pronouns, graduation, start, description) FROM stdin;
+COPY public.people (id, name, pronouns, graduation, start, "end", description) FROM stdin;
+2	Erik Roberts	he/him	2022-12-31	2022-07-05	\N	\N
 \.
 
 
@@ -2225,6 +2246,10 @@ COPY public.production_videos (production, video, priority, id) FROM stdin;
 --
 
 COPY public.productions (id, name, description, start_time, end_time, is_live, category, closet_location, event_location, team_notes, discord_server, discord_channel, thumbnail, closet_time) FROM stdin;
+1	RPI Women's Hockey vs. Brown University	Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY.	2022-08-16 14:01:18	2022-08-16 14:03:26	t	\N	Houston Field House	Houston Field House	\N	\N	\N	1	\N
+3	RPI Women's Hockey vs. Brown University	Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY.	2022-08-16 14:01:18	2022-08-16 14:03:26	t	\N	Houston Field House	Houston Field House	\N	\N	\N	1	\N
+4	RPI Women's Hockey vs. Brown University	Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY.	2022-08-16 14:01:18	2022-08-16 14:03:26	t	\N	Houston Field House	Houston Field House	\N	\N	\N	1	\N
+2	RPI Women's Hockey vs. Brown University	Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY. Watch the RPI Women's Hockey team play Brown University at the Houston Field House in Troy, NY.	2022-08-16 14:01:18	2022-08-16 14:03:26	t	\N	Houston Field House	Houston Field House	\N	\N	\N	\N	\N
 \.
 
 
@@ -2248,7 +2273,7 @@ COPY public.roles (id, person, name, start_time, end_time, priority) FROM stdin;
 -- Data for Name: user_groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.user_groups (id, "user", "group") FROM stdin;
+COPY public.user_groups (id, "user", "group", "timestamp") FROM stdin;
 \.
 
 
@@ -2257,6 +2282,10 @@ COPY public.user_groups (id, "user", "group") FROM stdin;
 --
 
 COPY public.user_permissions (id, "user", action, subject, fields, conditions, inverted, reason) FROM stdin;
+1	1	read	{User}	\N	{"id":  1}	f	\N
+4	1	delete	{Group}	\N	{"id":  2}	f	\N
+6	1	read	{Group}	\N	\N	f	\N
+3	1	manage	{UserPermission,GroupPermission,Stream}	\N	\N	f	\N
 \.
 
 
@@ -2265,9 +2294,9 @@ COPY public.user_permissions (id, "user", action, subject, fields, conditions, i
 --
 
 COPY public.users (id, username, mail, person, discord, password, joined) FROM stdin;
-1	robere2	robere2@rpi.edu	\N	\N	\N	2022-06-07 17:31:34.122
 3	sachid	sachid@rpi.edu	\N	\N	\N	2022-06-10 13:44:37.285712
 4	bowerj5	bowerj5@rpi.edu	\N	\N	\N	2022-06-10 13:44:37.285712
+1	robere2	robere2@rpi.edu	2	\N	$argon2id$v=19$m=32768,t=4,p=1$yDeMyEuVE2IwtEbC9ciJmQ$0eY3sApVF40RSly2v85iXQAKgg7uKwQY2ieY30yqr10	2022-06-07 17:31:34.122
 \.
 
 
@@ -2313,7 +2342,7 @@ SELECT pg_catalog.setval('public.blog_id_seq', 1, false);
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.categories_id_seq', 1, false);
+SELECT pg_catalog.setval('public.categories_id_seq', 6, true);
 
 
 --
@@ -2341,21 +2370,21 @@ SELECT pg_catalog.setval('public.credits_id_seq', 1, false);
 -- Name: group_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.group_permissions_id_seq', 1, false);
+SELECT pg_catalog.setval('public.group_permissions_id_seq', 7, true);
 
 
 --
 -- Name: groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.groups_id_seq', 1, false);
+SELECT pg_catalog.setval('public.groups_id_seq', 3, true);
 
 
 --
 -- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.images_id_seq', 1, false);
+SELECT pg_catalog.setval('public.images_id_seq', 1, true);
 
 
 --
@@ -2383,7 +2412,7 @@ SELECT pg_catalog.setval('public.logs_audit_id_seq', 1, false);
 -- Name: people_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.people_id_seq', 1, false);
+SELECT pg_catalog.setval('public.people_id_seq', 2, true);
 
 
 --
@@ -2425,7 +2454,7 @@ SELECT pg_catalog.setval('public.production_videos_id_seq', 1, false);
 -- Name: productions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.productions_id_seq', 1, false);
+SELECT pg_catalog.setval('public.productions_id_seq', 4, true);
 
 
 --
@@ -2453,7 +2482,7 @@ SELECT pg_catalog.setval('public.user_groups_id_seq', 1, false);
 -- Name: user_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_permissions_id_seq', 1, false);
+SELECT pg_catalog.setval('public.user_permissions_id_seq', 6, true);
 
 
 --
@@ -3159,7 +3188,7 @@ ALTER TABLE ONLY public.credits
 --
 
 ALTER TABLE ONLY public.group_permissions
-    ADD CONSTRAINT group_permissions_groups_id_fk FOREIGN KEY (id) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT group_permissions_groups_id_fk FOREIGN KEY ("group") REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
