@@ -193,7 +193,11 @@ async function createGraphQLServer(): Promise<
     let schema = makeExecutableSchema({
         typeDefs: await loadGraphQLSchema(),
         resolvers: [
-            ...(await loadFiles("src/resolvers/**/*.ts")),
+            ...(await loadFiles(
+                process.env.NODE_ENV === "production"
+                    ? "dist/resolvers/**/*.js"
+                    : "src/resolvers/**/*.ts"
+            )),
             { JSONObject: JSONObjectResolver },
             { DateTime: DateTimeResolver },
             { EmailAddress: EmailAddressResolver },
