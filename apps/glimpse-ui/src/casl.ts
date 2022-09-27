@@ -338,6 +338,7 @@ export function canViewDashboard(): Ref<boolean> {
       canViewLogsDashboard() ||
       canViewProductionsDashboard() ||
       canViewRedirectsDashboard() ||
+      canViewStreamDashboard() ||
       canViewVideosDashboard() ||
       canViewVotesDashboard() ||
       canViewUsersDashboard() || // Perform these last due to computation order
