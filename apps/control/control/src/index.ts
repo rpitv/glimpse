@@ -34,6 +34,10 @@ async function startStream(from: string, to: string): Promise<void> {
   // Unique ID for this stream
   const id = v4();
 
+  if(process.env.DEBUG) {
+    console.log(`Starting stream ${id} from ${from} to ${to}`);
+  }
+
   // Create a new rabbitMQ connection so that when the stream ends, we can close the connection and delete
   //   exclusive queues.
   const exclusiveQueueName = "video:control:" + id;
@@ -85,6 +89,11 @@ ffmpeg -re -i <source> \
     }
 
     const message = rmqMessage.content.toString();
+
+    if(process.env.DEBUG) {
+      console.log(`Received message ${message} for stream ${id}`);
+    }
+
     if (message === "stop") {
       channel.publish(
         STATE_EXCHANGE_NAME,
@@ -103,6 +112,9 @@ ffmpeg -re -i <source> \
   });
 
   proc.stderr.on("data", (data) => {
+    if(process.env.DEBUG) {
+      console.log("[", id, "] ", data.toString());
+    }
     channel.publish(
       STATE_EXCHANGE_NAME,
       "",
@@ -118,6 +130,9 @@ ffmpeg -re -i <source> \
   });
 
   proc.on("close", async () => {
+    if(process.env.DEBUG) {
+        console.log('[' + id + '] Stream closed');
+    }
     await channel.close();
     await client.close();
   });
@@ -137,6 +152,10 @@ async function start(): Promise<void> {
       }
 
       const message = JSON.parse(rmqMessage.content.toString());
+
+      if(process.env.DEBUG) {
+        console.log('Received message', message);
+      }
 
       if (!message.from || !message.to) {
         channel.ack(rmqMessage);
