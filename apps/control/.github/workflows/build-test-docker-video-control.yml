@@ -20,11 +20,11 @@ env:
   IMAGE_NAME: rpitv/glimpse-video-control
 
 jobs:
-  build-image:
+  build-and-test-image:
+    name: Build and Test Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - name: Checkout repository
@@ -53,17 +53,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Build Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: ./control
           push: false
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/rpitv/glimpse-video-control:${{ github.sha }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ghcr.io/rpitv/glimpse-video-control:${{ github.run_id }}
