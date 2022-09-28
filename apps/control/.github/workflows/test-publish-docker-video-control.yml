@@ -7,18 +7,20 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Create and publish "glimpse-video" Docker image
+name: Test "glimpse-video-control" Docker image
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [release, dev]
+  pull_request:
+    branches: [release, dev]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: rpitv/glimpse-video-control
 
 jobs:
-  build-and-push-image:
+  build-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,6 +29,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Install dependencies locally
+        run: |
+          cd control
+          npm ci
+
+      - name: Lint
+        run: |
+          cd control
+          npm run lint
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -47,11 +59,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: .
-          push: true
+          context: ./control
+          push: false
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }},ghcr.io/rpitv/glimpse-video:latest
+          tags: ghcr.io/rpitv/glimpse-video-control:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
