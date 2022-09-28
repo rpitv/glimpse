@@ -10,8 +10,8 @@
 name: Create and publish "glimpse-video-control" Docker image
 
 on:
-  push:
-    branches: ['release']
+  release:
+    types: [created]
 
 env:
   REGISTRY: ghcr.io

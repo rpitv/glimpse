@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { spawn } from "child_process";
 
 if (!process.env.RABBITMQ_URL) {
-  throw new Error("RABBITMQ_URL environment variable not set");
+    throw new Error("RABBITMQ_URL environment variable not set");
 }
 
 /*
@@ -31,149 +31,149 @@ const STATE_EXCHANGE_NAME = "video:state";
  * @param to RTMP destination
  */
 async function startStream(from: string, to: string): Promise<void> {
-  // Unique ID for this stream
-  const id = v4();
+    // Unique ID for this stream
+    const id = v4();
 
-  if(process.env.DEBUG) {
-    console.log(`Starting stream ${id} from ${from} to ${to}`);
-  }
+    if (process.env.DEBUG) {
+        console.log(`Starting stream ${id} from ${from} to ${to}`);
+    }
 
-  // Create a new rabbitMQ connection so that when the stream ends, we can close the connection and delete
-  //   exclusive queues.
-  const exclusiveQueueName = "video:control:" + id;
-  const client = await connect(<string>process.env.RABBITMQ_URL);
-  const channel = await client.createChannel();
-  await channel.assertExchange(STATE_EXCHANGE_NAME, "fanout", {
-    durable: true,
-  });
-  await channel.assertQueue(exclusiveQueueName, { exclusive: true });
+    // Create a new rabbitMQ connection so that when the stream ends, we can close the connection and delete
+    //   exclusive queues.
+    const exclusiveQueueName = "video:control:" + id;
+    const client = await connect(<string>process.env.RABBITMQ_URL);
+    const channel = await client.createChannel();
+    await channel.assertExchange(STATE_EXCHANGE_NAME, "fanout", {
+        durable: true,
+    });
+    await channel.assertQueue(exclusiveQueueName, { exclusive: true });
 
-  /*
+    /*
 ffmpeg -re -i <source> \
 -c:v libx264 -preset veryfast -maxrate 6000k \
 -bufsize 12000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 160k -ac 2 \
 -ar 44100 -f flv -flvflags no_duration_filesize <destination>
  */
-  const proc = spawn("ffmpeg", [
-    "-re",
-    "-i",
-    from,
-    "-c:v",
-    "libx264",
-    "-preset",
-    "veryfast",
-    "-maxrate",
-    "6000k",
-    "-bufsize",
-    "12000k",
-    "-pix_fmt",
-    "yuv420p",
-    "-g",
-    "50",
-    "-c:a",
-    "aac",
-    "-b:a",
-    "160k",
-    "-ac",
-    "2",
-    "-ar",
-    "44100",
-    "-f",
-    "flv",
-    "-flvflags",
-    "no_duration_filesize",
-    to,
-  ]);
+    const proc = spawn("ffmpeg", [
+        "-re",
+        "-i",
+        from,
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-maxrate",
+        "6000k",
+        "-bufsize",
+        "12000k",
+        "-pix_fmt",
+        "yuv420p",
+        "-g",
+        "50",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "160k",
+        "-ac",
+        "2",
+        "-ar",
+        "44100",
+        "-f",
+        "flv",
+        "-flvflags",
+        "no_duration_filesize",
+        to,
+    ]);
 
-  await channel.consume(exclusiveQueueName, async (rmqMessage) => {
-    if (!rmqMessage) {
-      return; // TODO throw error
-    }
+    await channel.consume(exclusiveQueueName, async (rmqMessage) => {
+        if (!rmqMessage) {
+            return; // TODO throw error
+        }
 
-    const message = rmqMessage.content.toString();
+        const message = rmqMessage.content.toString();
 
-    if(process.env.DEBUG) {
-      console.log(`Received message ${message} for stream ${id}`);
-    }
+        if (process.env.DEBUG) {
+            console.log(`Received message ${message} for stream ${id}`);
+        }
 
-    if (message === "stop") {
-      channel.publish(
-        STATE_EXCHANGE_NAME,
-        "",
-        Buffer.from(
-          JSON.stringify({
-            id,
-            to,
-            from,
-            message: "Stream stopping peacefully",
-          })
-        )
-      );
-      proc.kill();
-    }
-  });
+        if (message === "stop") {
+            channel.publish(
+                STATE_EXCHANGE_NAME,
+                "",
+                Buffer.from(
+                    JSON.stringify({
+                        id,
+                        to,
+                        from,
+                        message: "Stream stopping peacefully",
+                    })
+                )
+            );
+            proc.kill();
+        }
+    });
 
-  proc.stderr.on("data", (data) => {
-    if(process.env.DEBUG) {
-      console.log("[", id, "] ", data.toString());
-    }
-    channel.publish(
-      STATE_EXCHANGE_NAME,
-      "",
-      Buffer.from(
-        JSON.stringify({
-          id,
-          to,
-          from,
-          message: data.toString(),
-        })
-      )
-    );
-  });
+    proc.stderr.on("data", (data) => {
+        if (process.env.DEBUG) {
+            console.log("[", id, "] ", data.toString());
+        }
+        channel.publish(
+            STATE_EXCHANGE_NAME,
+            "",
+            Buffer.from(
+                JSON.stringify({
+                    id,
+                    to,
+                    from,
+                    message: data.toString(),
+                })
+            )
+        );
+    });
 
-  proc.on("close", async () => {
-    if(process.env.DEBUG) {
-        console.log('[' + id + '] Stream closed');
-    }
-    await channel.close();
-    await client.close();
-  });
+    proc.on("close", async () => {
+        if (process.env.DEBUG) {
+            console.log("[" + id + "] Stream closed");
+        }
+        await channel.close();
+        await client.close();
+    });
 }
 
 async function start(): Promise<void> {
-  // Listen for requests to start a stream
-  const client = await connect(<string>process.env.RABBITMQ_URL);
-  const channel = await client.createChannel();
-  await channel.assertQueue(START_QUEUE_NAME, { durable: true });
+    // Listen for requests to start a stream
+    const client = await connect(<string>process.env.RABBITMQ_URL);
+    const channel = await client.createChannel();
+    await channel.assertQueue(START_QUEUE_NAME, { durable: true });
 
-  await channel.consume(
-    START_QUEUE_NAME,
-    async (rmqMessage) => {
-      if (!rmqMessage) {
-        return; // TODO throw error
-      }
+    await channel.consume(
+        START_QUEUE_NAME,
+        async (rmqMessage) => {
+            if (!rmqMessage) {
+                return; // TODO throw error
+            }
 
-      const message = JSON.parse(rmqMessage.content.toString());
+            const message = JSON.parse(rmqMessage.content.toString());
 
-      if(process.env.DEBUG) {
-        console.log('Received message', message);
-      }
+            if (process.env.DEBUG) {
+                console.log("Received message", message);
+            }
 
-      if (!message.from || !message.to) {
-        channel.ack(rmqMessage);
-        return; // TODO throw error
-      }
+            if (!message.from || !message.to) {
+                channel.ack(rmqMessage);
+                return; // TODO throw error
+            }
 
-      await startStream(message.from, message.to);
-      channel.ack(rmqMessage);
-    },
-    {
-      noAck: false, // Manual acknowledgement
-    }
-  );
+            await startStream(message.from, message.to);
+            channel.ack(rmqMessage);
+        },
+        {
+            noAck: false, // Manual acknowledgement
+        }
+    );
 }
 
 start().catch((err) => {
-  console.error(err);
-  process.exit(1);
+    console.error(err);
+    process.exit(1);
 });
