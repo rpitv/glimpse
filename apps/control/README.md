@@ -58,6 +58,7 @@ Run the following commands to set up your project.
 git clone git@github.com:rpitv/glimpse-video.git
 cd glimpse-video/control
 npm install
+npm run prepare
 ```
 
 ### Building
@@ -69,7 +70,7 @@ npm run build
 
 The ingestion server is nothing but an Nginx configuration file, so there's no need to build anything but the Nginx server + module, or just use a Docker container.
 
-To build a Docker container image, run:
+To build the Docker container images, run:
 ```shell
 docker build -t ghcr.io/rpitv/glimpse-video .
 cd control
@@ -108,7 +109,7 @@ npm run fix
 
 This command will automatically run in a pre-commit Git hook.
 
-## Api Reference
+## API Reference
 
 TODO
 
