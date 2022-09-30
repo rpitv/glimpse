@@ -1,6 +1,6 @@
 <template>
 	<Suspense>
-		<div>
+		<div class="scoreboard">
 			<ImageView />
 			<ScoreboardView />
 		</div>
@@ -29,5 +29,9 @@ onMounted(() => {
 
 <style scoped lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Biryani:wght@400;600;700;900&display=swap');
+
+.scoreboard {
+	overflow: hidden;
+}
 </style>
 
