@@ -81,14 +81,14 @@
         "title": "Image Selection",
         "file": "image-selection.html",
         "workspace": "Images",
-        "width": "4"
+        "width": "8"
       },
       {
         "name": "image-editor",
         "title": "Image Editor",
         "file": "image-editor.html",
         "workspace": "Images",
-        "width": "4"
+        "width": "8"
       }
     ],
     "graphics": [
