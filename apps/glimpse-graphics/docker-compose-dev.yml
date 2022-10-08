@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  graphics:
+    build: .
+    ports:
+      - "9090:80"
+      - "3000:3000"
+    volumes:
+      - ./.nodecg/cfg:/usr/src/app/cfg
+      - ./.nodecg/db:/usr/src/app/db
+      - ./.nodecg/assets:/usr/src/app/assets
+      - .:/usr/src/app/bundles/glimpse-graphics
+      - /usr/src/app/bundles/glimpse-graphics/node_modules
+    command:
+      - cd bundles/glimpse-graphics && npm run dev
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    name: glimpse_network

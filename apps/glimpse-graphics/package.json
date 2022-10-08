@@ -12,16 +12,14 @@
   },
   "license": "MIT",
   "scripts": {
-    "autofix": "run-s autofix:*",
+    "start": "node ../..",
+    "clean": "rm -rf node_modules/.cache && rm -rf shared/dist && rm -rf dashboard && rm -rf graphics && rm -rf extension",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
-    "clean": "rm -rf node_modules/.cache && rm -rf shared/dist && rm -rf dashboard && rm -rf graphics && rm -rf extension",
-    "schema-types": "nodecg schema-types",
-    "start": "node ../..",
-    "watch": "run-p watch:*",
-    "watch:browser": "vite",
-    "watch:extension": "tsc -b tsconfig.extension.json -w"
+    "dev": "run-p dev:*",
+    "dev:browser": "vite",
+    "dev:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
     "animejs": "^3.2.1",
