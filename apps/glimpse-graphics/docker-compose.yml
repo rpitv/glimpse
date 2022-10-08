@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  graphics:
+    build: .
+    ports:
+      - "9090:80"
+    volumes:
+      - ./.nodecg/cfg:/usr/src/app/cfg
+      - ./.nodecg/db:/usr/src/app/db
+      - ./.nodecg/assets:/usr/src/app/assets
+    networks:
+      - glimpse_network
+networks:
+  glimpse_network:
+    name: glimpse_network
