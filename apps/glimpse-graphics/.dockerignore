@@ -1,0 +1,14 @@
+.idea
+.git
+.nodecg
+dashboard
+extension
+graphics
+node_modules
+shared
+.gitattributes
+.gitignore
+docker-compose.yml
+Dockerfile
+README.md
+.DS_Store
