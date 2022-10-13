@@ -33,7 +33,7 @@ const team = replicants.teams[props.teamId];
 const messages = replicants.messages[<'team1' | 'team2'>`team${props.teamId + 1}`];
 
 // noinspection JSUnusedGlobalSymbols -- used in vbind
-const logoBgColor = team.primaryColor.value;
+const logoBgColor = team.primaryColor;
 </script>
 
 <style scoped lang="scss">
