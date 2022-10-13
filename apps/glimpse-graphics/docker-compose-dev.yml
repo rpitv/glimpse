@@ -11,8 +11,7 @@ services:
       - ./.nodecg/assets:/usr/src/app/assets
       - .:/usr/src/app/bundles/glimpse-graphics
       - /usr/src/app/bundles/glimpse-graphics/node_modules
-    command:
-      - cd bundles/glimpse-graphics && npm run dev
+    command: npm --prefix "./bundles/glimpse-graphics" run dev
     networks:
       - glimpse_network
 networks:

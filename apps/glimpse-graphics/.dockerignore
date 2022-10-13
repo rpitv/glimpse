@@ -9,6 +9,7 @@ shared
 .gitattributes
 .gitignore
 docker-compose.yml
+docker-compose-dev.yml
 Dockerfile
 README.md
 .DS_Store

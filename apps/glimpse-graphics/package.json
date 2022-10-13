@@ -18,7 +18,7 @@
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
     "dev": "run-p dev:*",
-    "dev:browser": "vite",
+    "dev:browser": "vite --host=0.0.0.0",
     "dev:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
