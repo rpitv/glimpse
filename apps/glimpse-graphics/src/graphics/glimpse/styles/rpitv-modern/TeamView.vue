@@ -22,8 +22,8 @@
 <script setup lang="ts">
 
 import {computed, defineProps, nextTick, PropType, ref, watch} from "vue";
-import {loadReplicants} from "../../browser-common/replicants";
-import {DisplayableMessage} from "../../common/DisplayableMessage";
+import {loadReplicants} from "../../../../browser-common/replicants";
+import {DisplayableMessage} from "../../../../common/DisplayableMessage";
 
 const props = defineProps({
 	teamId: {

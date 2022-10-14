@@ -3,6 +3,7 @@ import {DisplayableMessage} from "./DisplayableMessage";
 
 export const replicants = {
 	gameSettings: {
+		style: nodecg().Replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', "glimpse-graphics.game-settings.style", {defaultValue: 'rpitv-modern'}),
 		clock: {
 			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
 			synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.clock", {defaultValue: false})

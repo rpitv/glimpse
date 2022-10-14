@@ -18,7 +18,7 @@
 
 import {computed, ref} from "vue";
 import TeamView from "./TeamView.vue";
-import {loadReplicants} from "../../browser-common/replicants";
+import {loadReplicants} from "../../../../browser-common/replicants";
 
 const replicants = await loadReplicants();
 const teamOne = replicants.teams[0];
@@ -83,62 +83,62 @@ const requiredWidth = computed<number>(() => {
 </script>
 
 <style scoped lang="scss">
-	.hidden {
-		opacity: 0;
-	}
-	.scoreboard {
-		position: relative;
-		top: 2em;
-		left: 3em;
+.hidden {
+	opacity: 0;
+}
+.scoreboard {
+	position: relative;
+	top: 2em;
+	left: 3em;
 
-		display: flex;
-		align-items: center;
+	display: flex;
+	align-items: center;
 
-		transition: opacity 1s;
-	}
-	.diamond {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
+	transition: opacity 1s;
+}
+.diamond {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 
-		width: 7em;
-		height: 7em;
-		text-align: center;
+	width: 7em;
+	height: 7em;
+	text-align: center;
+	z-index: 10;
+	* {
 		z-index: 10;
-		* {
-			z-index: 10;
-		}
-
-		svg {
-			position: absolute;
-			fill: rgb(35, 36, 40);
-			z-index: 9;
-			width: 100%;
-			height: 100%;
-		}
-
-		font-family: Biryani, sans-serif;
-		font-weight: 700;
-		line-height: 1.65em;
-
-		.time {
-			color: white;
-			transition: color 1s, font-size 0.5s;
-			font-size: 1.5em;
-
-			&.low-time {
-				color: rgb(255, 175, 175);
-				font-size: 1.8em;
-			}
-		}
-		.period {
-			color: #ccc;
-			font-size: 1.5em;
-		}
 	}
 
-	.clock-section {
-		margin-top: 0.8em;
+	svg {
+		position: absolute;
+		fill: rgb(35, 36, 40);
+		z-index: 9;
+		width: 100%;
+		height: 100%;
 	}
+
+	font-family: Biryani, sans-serif;
+	font-weight: 700;
+	line-height: 1.65em;
+
+	.time {
+		color: white;
+		transition: color 1s, font-size 0.5s;
+		font-size: 1.5em;
+
+		&.low-time {
+			color: rgb(255, 175, 175);
+			font-size: 1.8em;
+		}
+	}
+	.period {
+		color: #ccc;
+		font-size: 1.5em;
+	}
+}
+
+.clock-section {
+	margin-top: 0.8em;
+}
 </style>
