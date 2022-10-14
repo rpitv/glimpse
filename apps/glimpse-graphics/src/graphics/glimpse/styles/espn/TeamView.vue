@@ -19,7 +19,7 @@
 <script setup lang="ts">
 
 import {defineProps} from "vue";
-import {loadReplicants} from "../../browser-common/replicants";
+import {loadReplicants} from "../../../../browser-common/replicants";
 
 const props = defineProps({
 	teamId: {

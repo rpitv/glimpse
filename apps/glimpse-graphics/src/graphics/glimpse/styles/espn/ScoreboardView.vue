@@ -35,8 +35,8 @@
 
 import {computed} from "vue";
 import TeamView from "./TeamView.vue";
-import {loadReplicants} from "../../browser-common/replicants";
-import {DisplayableMessage} from "../../common/DisplayableMessage";
+import {loadReplicants} from "../../../../browser-common/replicants";
+import {DisplayableMessage} from "../../../../common/DisplayableMessage";
 
 const replicants = await loadReplicants();
 const teamOne = replicants.teams[0];

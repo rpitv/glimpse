@@ -1,9 +1,6 @@
 <template>
 	<Suspense>
-		<div>
-			<ImageView />
-			<ScoreboardView />
-		</div>
+		<StyledView />
 		<template #fallback>
 			{{ scoreboardLoadingText }}
 		</template>
@@ -12,8 +9,7 @@
 
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import ScoreboardView from "./ScoreboardView.vue";
-import ImageView from "./ImageView.vue";
+import StyledView from "./StyledView.vue";
 
 // We don't want to immediately display loading text, as 99.9% of the time it isn't even necessary.
 //  We only display it if the browser hasn't heard from the server in 5 seconds.
