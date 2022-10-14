@@ -2,6 +2,8 @@
 	<div class="game-settings">
 		<n-grid x-gap="12" :cols="4">
 			<n-grid-item>
+				<h1>Style</h1>
+				<n-select :options="styles" v-model:value="replicants.gameSettings.style.value" />
 				<h1>Presets</h1>
 				<n-select disabled title="Coming Soon" filterable :options="sportsPresetList"
 						  v-model:value="selectedSportPreset"/>
@@ -27,12 +29,29 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
+import {loadReplicants} from "../../browser-common/replicants";
 import {NSelect, NButton, NGrid, NGridItem} from "naive-ui";
 import ClockSettings from "./ClockSettings.vue";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
 import TeamSettings from "./TeamSettings.vue";
 
+const replicants = await loadReplicants();
+
+const styles = ref([
+	{
+		label: 'ESPN',
+		value: 'espn'
+	},
+	{
+		label: 'RPI TV (Modern)',
+		value: 'rpitv-modern'
+	},
+	{
+		label: 'RPI TV (Classic)',
+		value: 'rpitv-classic'
+	}
+]);
 const selectedSportPreset = ref(null);
 const sportsPresetList = ref([
 	{

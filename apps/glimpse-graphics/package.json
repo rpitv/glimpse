@@ -17,9 +17,9 @@
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
-    "dev": "run-p dev:*",
-    "dev:browser": "vite",
-    "dev:extension": "tsc -b tsconfig.extension.json -w"
+    "dev": "run-p start watch:*",
+    "watch:browser": "vite --host=0.0.0.0",
+    "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
     "animejs": "^3.2.1",
