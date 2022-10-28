@@ -3,6 +3,10 @@ import {DisplayableMessage} from "../common/DisplayableMessage";
 
 export async function loadReplicants() {
 	return {
+		sync: {
+			settings: await replicant<{path: string, baudRate: number, mock: boolean }|null>("settings", "glimpse-graphics.sync-settings", {defaultValue: null}),
+			status: await replicant<{connected: boolean, bitrate: number}>("status", "glimpse-graphics.sync-settings", {defaultValue: {connected: false, bitrate: 0}, persistent: false}),
+		},
 		gameSettings: {
 			style: await replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
 			clock: {

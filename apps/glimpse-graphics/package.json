@@ -24,6 +24,7 @@
   "dependencies": {
     "animejs": "^3.2.1",
     "module-alias": "^2.2.2",
+    "serialport": "^10.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -52,6 +53,13 @@
         "file": "game-settings.html",
         "workspace": "General",
         "width": "8"
+      },
+      {
+        "name": "sync-settings",
+        "title": "Sync Settings",
+        "file": "sync-settings.html",
+        "workspace": "Settings",
+        "width": "4"
       },
       {
         "name": "command-palette",

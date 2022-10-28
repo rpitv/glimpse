@@ -7,8 +7,12 @@ export async function replicant<T = any>(name: string, namespace?: string, optio
 	let value: Ref<T|undefined> = ref(undefined);
 	realReplicant.on('change', () => {
 		// FIXME updating the value directly does not trigger the computed property to recompute for some reason.
-		if(Array.isArray(realReplicant.value)) {
-			value.value = <T><unknown>[...realReplicant.value];
+		if(typeof realReplicant.value === "object") {
+			if(Array.isArray(realReplicant.value)) {
+				value.value = <T><unknown>[...realReplicant.value];
+			} else {
+				value.value = <T><unknown>{...realReplicant.value};
+			}
 		} else {
 			value.value = <T>realReplicant.value; // Will not be undefined
 		}

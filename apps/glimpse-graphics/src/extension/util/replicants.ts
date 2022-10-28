@@ -2,6 +2,10 @@ import { get as nodecg } from './nodecg';
 import {DisplayableMessage} from "./DisplayableMessage";
 
 export const replicants = {
+	sync: {
+		settings: nodecg().Replicant<{path: string, baudRate: number, mock: boolean }|null>("settings", "glimpse-graphics.sync-settings", {defaultValue: null}),
+		status: nodecg().Replicant<{connected: boolean, bitrate: number}>("status", "glimpse-graphics.sync-settings", {defaultValue: {connected: false, bitrate: 0}, persistent: false}),
+	},
 	gameSettings: {
 		style: nodecg().Replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', "glimpse-graphics.game-settings.style", {defaultValue: 'rpitv-modern'}),
 		clock: {
