@@ -1,17 +1,10 @@
 const dotenv = require('dotenv');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
+const commandFiles = require('./commands/index');
+const customIdFiles = require('./customIds/index');
+const eventFiles = require('./events/index');
 
 dotenv.config();
-
-const commandsPath = path.join(__dirname, 'commands');
-const eventsPath = path.join(__dirname, 'events');
-const customIdsPath = path.join(__dirname, 'customIds');
-
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-const customIdFiles = fs.readdirSync(customIdsPath).filter(file => file.endsWith('.js'));
 
 const client = new Client({
     intents: [
@@ -26,16 +19,12 @@ client.commands = new Collection();
 client.customIds = new Collection();
 
 // Command handler
-for (const commandFile of commandFiles) {
-    const commandPath = path.join(commandsPath, commandFile);
-    const command = require(commandPath);
+for (const command of commandFiles) {
     client.commands.set(command.data.name, command);
 }
 
 // Event handler
-for (const eventFile of eventFiles) {
-	const filePath = path.join(eventsPath, eventFile);
-	const event = require(filePath);
+for (const event of eventFiles) {
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	} else {
@@ -44,9 +33,7 @@ for (const eventFile of eventFiles) {
 }
 
 // CustomId handler
-for (const customIdFile of customIdFiles) {
-	const customIdPath = path.join(customIdsPath, customIdFile);
-	const customId = require(customIdPath);
+for (const customId of customIdFiles) {
 	client.customIds.set(customId.name, customId);
 }
 

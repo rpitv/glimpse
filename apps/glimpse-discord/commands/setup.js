@@ -10,28 +10,40 @@ module.exports = {
     async execute(interaction) { 
         const setupRef = db.collection('rpi-tv').doc('setup')
         const setupData = await setupRef.get()
-        let { proCategory, proChannel, active } = setupData.data();
-        if (active === true) return interaction.reply({ content: 'Command currently active', ephemeral: true });
+        let proCategory, proChannel, archive;
+        if (setupData.data()) {
+            proCategory = setupData.data().proCategory;
+            proChannel = setupData.data().proChannel;
+            archive = setupData.data().archive
+        };
+        
         setupRef.set({ active: true }, { merge: true })
-        const checkFields = (embed) => {
+        const checkFields = async (embed) => {
             if (proChannel)
                 embed.data.fields[0] = { name: '1️⃣ Productions Channel', value: `<#${proChannel}>` }
-            if (proCategory)
-                embed.data.fields[1] = { name: '2️⃣ Productions Category', value: proCategory }
+            if (proCategory) {
+                const category = await interaction.guild.channels.cache.find((category) => category.id === proCategory);
+                embed.data.fields[1] = { name: '2️⃣ Productions Category', value: category.name }
+            }
+            if (archive) {
+                const category = await interaction.guild.channels.cache.find((category) => category.id === archive);
+                embed.data.fields[2] = { name: '3️⃣ Archive Category', value: category.name }
+            }
         }
 
-        let setupEmbed = new EmbedBuilder()
+        const setupEmbed = new EmbedBuilder()
             .setColor('Red')
-            .setTitle('Current Setup (Time limit before the message expires is 2 minutes)')
+            .setTitle('Setup Dashboard')
             .setDescription('Basic overview of the setup for this server')
             .setFooter({ text: 'Click on a button to setup'})
             .addFields(
                 {name: '1️⃣ Productions Channel', value: `DNE`},
-                {name: '2️⃣ Productions Category', value: `DNE`}
+                {name: '2️⃣ Productions Category', value: `DNE`},
+                {name: '3️⃣ Archive', value: 'DNE'}
             );
         checkFields(setupEmbed);
         
-        let setupRow = new ActionRowBuilder()
+        const setupRow = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('proChannel')
@@ -42,80 +54,11 @@ module.exports = {
                     .setLabel('2️⃣')
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
-                    .setCustomId('delete')
-                    .setLabel('🗑')
-                    .setStyle(ButtonStyle.Danger)
+                    .setCustomId('archive')
+                    .setLabel('3️⃣')
+                    .setStyle(ButtonStyle.Primary),
             );
-        
-        const filter = (i) => i.user.id === interaction.user.id;
-        const buttonCollector = interaction.channel.createMessageComponentCollector({ filter: filter });
-        buttonCollector.on('collect', i => {
-            if (i.customId === 'delete'){
-                buttonCollector.stop();
-                return;
-            }
-            for (let j = 0; j < setupRow.components.length; j++){
-                setupRow.components[j].setDisabled(true);
-                interaction.editReply({ components: [setupRow]});
-            }
-            i.reply({
-                content: "Tag or copy the id of what ever you're trying to get and submit it here (Do not delete this ephemeral)",
-                ephemeral: true,
-            })
-            
-            const msgFilter = (m) => m.author.id === interaction.user.id;
-            const messageCollector = interaction.channel.createMessageCollector({ filter: msgFilter, time: 120000, max: 1 });
-            messageCollector.on('collect', m => {
-                let id = m.content
-                m.delete();
-                
-                id = id.replace('<', '').replace('>', '').replace('#', '').replace('@', '').replace('&', '');
-                if (i.customId === 'proChannel') {
-                    if (!i.guild.channels.cache.get(id)) {
-                        i.editReply('Invalid channel');
-                    }else{
-                    setupRef.set({proChannel: id}, { merge: true })
-                        .then(() => {
-                            proChannel = id;
-                            i.editReply('Successfully set!');
-                            checkFields(setupEmbed);
-                            interaction.editReply({ embeds: [setupEmbed] })
-                        })
-                        .catch(() => i.editReply('Could not set'))
-                    }
-                }
-                if (i.customId === 'proCategory'){
-                    // Make sure that it exists in the server
-                    if (!interaction.guild.channels.cache.find(cat => cat.id === id)){
-                        i.editReply('Could not find the category');
-                    // Make sure that it is a category
-                    }else if (interaction.guild.channels.cache.find(cat => cat.id === id).type !== 4) {
-                        i.editReply('Not a category');
-                    }else {
-                    setupRef.set({proCategory: id}, { merge: true })
-                        .then(() => {
-                            proCategory = id;
-                            i.editReply('Successfully set!');
-                            checkFields(setupEmbed);
-                            interaction.editReply({ embeds: [setupEmbed] })
-                        })
-                        .catch(() => i.editReply('Could not set'))
-                    }
-                }
 
-                for (let j = 0; j < setupRow.components.length; j++){
-                    setupRow.components[j].setDisabled(false);
-                    interaction.editReply({ components: [setupRow] });
-                }
-            })
-        })
-        buttonCollector.on('end', async (c) => {
-            if (c.message)
-                c.message.delete();
-            setupRef.set({ active: false }, { merge: true })
-        })
-        
-
-        interaction.reply({ embeds: [setupEmbed], components: [setupRow] });
+        interaction.reply({ embeds: [setupEmbed], components: [setupRow], ephemeral: true });
     }
 }

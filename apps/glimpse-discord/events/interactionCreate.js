@@ -1,5 +1,7 @@
+const { Events } = require('discord.js');
+
 module.exports = {
-    name: 'interactionCreate',
+    name: Events.InteractionCreate,
     async execute(interaction) {
         if (interaction.isChatInputCommand()) {
             const command = interaction.client.commands.get(interaction.commandName);
@@ -14,6 +16,7 @@ module.exports = {
         }
         if (interaction.customId) {
             const customId = interaction.client.customIds.get(interaction.customId);
+            if (!customId) return;
             try {
                 await customId.execute(interaction);
             } catch (error) {

@@ -25,7 +25,7 @@ module.exports = {
             await productionsRef.update({
                 productions: FieldValue.arrayUnion(currentProduction)
             }).catch(() => interaction.reply({content: 'Could not update user', ephemeral: true}));
-            let volunteerMsg = await interaction.guild.channels.cache.find(ch => ch.id === proChannel)
+            const volunteerMsg = await interaction.guild.channels.cache.find(proChannel)
                 .messages.fetch(currentProduction.volunteerMsgId);
             let volunteers = ``
             for (let i = 0; i < currentProduction.volunteers.length; i++)
@@ -35,7 +35,7 @@ module.exports = {
                 name: 'Volunteers',
                 value: volunteers
             }
-            let unVolunteerMsg = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
+            const unVolunteerMsg = await interaction.guild.channels.cache.get(currentProduction.channelId)
                 .messages.fetch(currentProduction.unVolunteerMsgId);
             let updatedProduction = EmbedBuilder.from(volunteerMsg.embeds[0]).setFields(field);
             volunteerMsg.edit({embeds: [updatedProduction]});
