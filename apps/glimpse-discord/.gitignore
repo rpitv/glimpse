@@ -104,4 +104,4 @@ dist
 .tern-port
 
 # service account key
-.serviceAccountKey.js
+serviceAccountKey.json

@@ -18,7 +18,7 @@ module.exports = {
         const startEndTime = interaction.fields.getTextInputValue('startEndTime').split(' ');
 
         const closetTime = moment(closetTimeAndDate[0], 'HHmm').format('HH:mm') + ` ${closetTimeAndDate[1]}`;
-        const date = `${closetTimeAndDate[2]} ${closetTimeAndDate[3]} ${closetTimeAndDate[4]}`;
+        const date = moment(closetTimeAndDate[2], 'YYYYMMDD').format('dddd MMMM DD YYYY');
         const startTime = moment(startEndTime[0], "HHmm").format('HH:mm') + ` ${startEndTime[1]}`;
         const endTime = moment(startEndTime[2], "HHmm").format('HH:mm') + ` ${startEndTime[3]}`;
         
@@ -66,16 +66,38 @@ module.exports = {
                 embeds: [production], 
                 components: [unVolunteerBtn]
             });
-            productionsRef.update({ productions: FieldValue.arrayUnion({
-                channelId: channel.id,
-                volunteerMsgId: volunteerMsg.id,
-                unVolunteerMsgId: unVolunteerMsg.id,
-                closetTime: closetTime,
-                date: date,
-                startTime: startTime,
-                endTime: endTime,
-                volunteers: []
-            })})
+            if (!await productionsRef.get().then((snapshot) => snapshot.data()))
+                productionsRef.set({ productions: [{
+                    channelName: channelName,
+                    eventName: eventName,
+                    channelId: channel.id,
+                    volunteerMsgId: volunteerMsg.id,
+                    unVolunteerMsgId: unVolunteerMsg.id,
+                    closetLocation: closetLocation,
+                    closetTime: closetTime,
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    volunteers: [],
+                    inputValueClosetTime: interaction.fields.getTextInputValue('closetTime'),
+                    inputValueStartEndTime: interaction.fields.getTextInputValue('startEndTime')
+            }]})
+            else
+                productionsRef.update({ productions: FieldValue.arrayUnion({
+                    channelName: channelName,
+                    eventName: eventName,
+                    channelId: channel.id,
+                    volunteerMsgId: volunteerMsg.id,
+                    unVolunteerMsgId: unVolunteerMsg.id,
+                    closetLocation: closetLocation,
+                    closetTime: closetTime,
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    volunteers: [],
+                    inputValueClosetTime: interaction.fields.getTextInputValue('closetTime'),
+                    inputValueStartEndTime: interaction.fields.getTextInputValue('startEndTime')
+                })})
         })
         
         await interaction.reply({ content: 'Production succesfully created!', ephemeral: true });
