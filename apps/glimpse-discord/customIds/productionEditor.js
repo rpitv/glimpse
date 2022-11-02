@@ -24,13 +24,13 @@ module.exports = {
         const channelName = interaction.fields.getTextInputValue('productionChannelName');
         const eventName = interaction.fields.getTextInputValue('eventName');
         const closetLocation = interaction.fields.getTextInputValue('closetLocation');
-        const closetTimeAndDate = interaction.fields.getTextInputValue('closetTime').split(' ');
-        const startEndTime = interaction.fields.getTextInputValue('startEndTime').split(' ');
+        const closetDate = interaction.fields.getTextInputValue('closetDate')
+        const closetStartEndTime = interaction.fields.getTextInputValue('times').split(' ');
 
-        const closetTime = moment(closetTimeAndDate[0], 'HHmm').format('HH:mm') + ` ${closetTimeAndDate[1]}`;
-        const date = moment(closetTimeAndDate[2], 'YYYYMMDD').format('dddd MMMM DD YYYY');
-        const startTime = moment(startEndTime[0], "HHmm").format('HH:mm') + ` ${startEndTime[1]}`;
-        const endTime = moment(startEndTime[2], "HHmm").format('HH:mm') + ` ${startEndTime[3]}`;
+        const date = moment(closetDate, 'YYYYMMDD').format('dddd MMMM DD YYYY');
+        const closetTime = moment(closetStartEndTime[0], 'HHmm').format('HH:mm') + ` ${closetStartEndTime[1]}`;
+        const startTime = moment(closetStartEndTime[2], "HHmm").format('HH:mm') + ` ${closetStartEndTime[3]}`;
+        const endTime = moment(closetStartEndTime[4], "HHmm").format('HH:mm') + ` ${closetStartEndTime[5]}`;
         
         let volunteers = ``
         for (const volunteer of currentProduction.volunteers)
@@ -68,8 +68,8 @@ module.exports = {
             startTime: startTime,
             endTime: endTime,
             volunteers: currentProduction.volunteers,
-            inputValueClosetTime: interaction.fields.getTextInputValue('closetTime'),
-            inputValueStartEndTime: interaction.fields.getTextInputValue('startEndTime')
+            inputValueClosetDate: interaction.fields.getTextInputValue('closetDate'),
+            inputValueTime: interaction.fields.getTextInputValue('times')
         }
         productionsRef.update({
             productions: FieldValue.arrayUnion(currentProduction)

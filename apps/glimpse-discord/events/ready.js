@@ -11,6 +11,7 @@ module.exports = {
 		// Checks if productions have past their closet date
 		setInterval(async () => {
 			await db.collection('rpi-tv').doc('productions').get().then(async (snapshot) => {
+				if (!snapshot.data()) return;
 				const { productions } = snapshot.data();
 				if (!productions) return;
 				for (const production of productions) {
