@@ -11,6 +11,17 @@ module.exports = {
         const productionsRef = db.collection('rpi-tv').doc('productions')
         await productionsRef.get().then(async (production) => {
             let currentProduction = production.data().productions.find(prod => prod.volunteerMsgId === interaction.message.id);
+            if (!currentProduction) {
+                /* 
+                    To update users, we have to copy the data, delete the data, update the data, and place the data.
+                    Because of this, simultaneous button presses cannot occur or they will cause an error.
+                */
+                interaction.reply({
+                    content: 'The bot cannot handle multiple button presses at once, please click again shortly',
+                    ephemeral: true
+                })
+                return;
+            }
             if (currentProduction.volunteers.find(volunteer => volunteer === interaction.user.id)) {
                 interaction.reply({
                     content: 'You have already applied to volunteer for this event',
@@ -25,7 +36,7 @@ module.exports = {
             await productionsRef.update({
                 productions: FieldValue.arrayUnion(currentProduction)
             }).catch(() => interaction.reply({content: 'Could not update user', ephemeral: true}));
-            const volunteerMsg = await interaction.guild.channels.cache.find(proChannel)
+            const volunteerMsg = await interaction.guild.channels.cache.get(proChannel)
                 .messages.fetch(currentProduction.volunteerMsgId);
             let volunteers = ``
             for (let i = 0; i < currentProduction.volunteers.length; i++)

@@ -17,7 +17,6 @@ module.exports = {
             archive = setupData.data().archive
         };
         
-        setupRef.set({ active: true }, { merge: true })
         const checkFields = async (embed) => {
             if (proChannel)
                 embed.data.fields[0] = { name: '1️⃣ Productions Channel', value: `<#${proChannel}>` }
@@ -59,6 +58,6 @@ module.exports = {
                     .setStyle(ButtonStyle.Primary),
             );
 
-        interaction.reply({ embeds: [setupEmbed], components: [setupRow], ephemeral: true });
+        interaction.reply({ embeds: [setupEmbed], components: [setupRow] });
     }
 }

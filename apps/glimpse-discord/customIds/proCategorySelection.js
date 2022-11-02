@@ -19,7 +19,7 @@ module.exports = {
         }
         
         const newSetupDashboard = EmbedBuilder.from(setupDashboard.embeds[0]).setFields(setupField);
-        await setupDashboard.edit({ embeds: [newSetupDashboard] });
+        await setupDashboard.edit({ embeds: [newSetupDashboard], ephemeral: true });
         await interaction.reply({ content: 'Sucessfully set!', ephemeral: true })
     }
 }

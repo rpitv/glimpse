@@ -14,6 +14,7 @@ module.exports = {
                 await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
             }
         }
+
         if (interaction.customId) {
             const customId = interaction.client.customIds.get(interaction.customId);
             if (!customId) return;

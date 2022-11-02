@@ -1,8 +1,10 @@
-const { ActionRowBuilder, SelectMenuBuilder } = require('discord.js')
+const { ActionRowBuilder, SelectMenuBuilder, PermissionsBitField } = require('discord.js')
 
 module.exports = { 
     name: 'proChannel',
     async execute(interaction) {
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
+            return interaction.reply({content: 'You are not an officer!', ephemeral: true});
         const selectMenu = new SelectMenuBuilder()
             .setCustomId('proChannelSelection')
             .setPlaceholder('Select a channel')
