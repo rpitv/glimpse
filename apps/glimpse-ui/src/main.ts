@@ -37,6 +37,7 @@ import {
   faHexagonExclamation,
   faDoNotEnter,
   faUserRobotXmarks,
+  faUserHelmetSafety,
 } from "@fortawesome/pro-duotone-svg-icons";
 import {
   faGithub,
@@ -80,6 +81,7 @@ library.add(faSignalStream);
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
 library.add(faUserRobotXmarks);
+library.add(faUserHelmetSafety);
 
 library.add(faGithub);
 library.add(faYoutube);

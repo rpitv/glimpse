@@ -21,7 +21,10 @@
       <RouterView v-slot="{ Component, route }">
         <Transition name="router">
           <div :class="layoutCssName + ' layout router-page'" :key="route.name">
-            <div>
+            <div v-if="maintenanceMode && !authStore.isLoggedIn">
+              <MaintenanceView />
+            </div>
+            <div v-else>
               <component :is="Component"/>
             </div>
             <Footer/>
@@ -42,12 +45,14 @@ import {useLoadingBar, useMessage} from "naive-ui";
 import {useRoute} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
 import ServerErrorView from "@/views/ServerErrorView.vue";
+import MaintenanceView from "@/views/MaintenanceView.vue";
 
 const route = useRoute();
 const message = useMessage();
 const authStore = useAuthStore();
 
 const topLevelError = ref<Error | null>(null);
+const maintenanceMode = ref<boolean>(true);
 
 try {
 // Fetch identity and permissions from server
