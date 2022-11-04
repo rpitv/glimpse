@@ -33,6 +33,9 @@ export const sports: { [key: string]: SportDefinition } = {
 			"length": 5,
 			"title": "Main Clock Time (mm:ss/ss.t )",
 			handler: (value: string) => {
+				if(!replicants.gameSettings.clock.synced.value) {
+					return;
+				}
 				// Less than a minute left
 				if(value.includes('.')) {
 					replicants.scoreboard.clock.time.value = parseFloat(value) * 1000
