@@ -3,7 +3,9 @@ import {DisplayableMessage} from "./DisplayableMessage";
 
 export const replicants = {
 	sync: {
-		settings: nodecg().Replicant<{path: string, baudRate: number, mock: boolean }|null>("settings", "glimpse-graphics.sync-settings", {defaultValue: null}),
+		availablePorts: nodecg().Replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {defaultValue: [], persistent: false}),
+		selectedPort: nodecg().Replicant<string|null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
+		selectedSport: nodecg().Replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
 		status: nodecg().Replicant<{connected: boolean, bitrate: number}>("status", "glimpse-graphics.sync-settings", {defaultValue: {connected: false, bitrate: 0}, persistent: false}),
 	},
 	gameSettings: {

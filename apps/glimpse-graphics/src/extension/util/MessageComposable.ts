@@ -1,6 +1,6 @@
 import { get } from './nodecg';
 
-type ListenerFn = (argument?: any, ack?: (returnVal: any) => void) => void;
+type ListenerFn = (argument: any, ack: (error?: Error|null, returnVal?: any) => void) => void;
 
 export class MessageComposable {
 
@@ -27,7 +27,7 @@ export class MessageComposable {
 
 	public destroy(): void {
 		for(const listener of this.listeners) {
-			get().unlisten(this.namespace + '.' + this.channel, listener);
+			get().unlisten(this.namespace + '.' + this.channel, <any>listener);
 		}
 		this.listeners = [];
 	}

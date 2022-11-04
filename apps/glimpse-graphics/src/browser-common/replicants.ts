@@ -4,7 +4,9 @@ import {DisplayableMessage} from "../common/DisplayableMessage";
 export async function loadReplicants() {
 	return {
 		sync: {
-			settings: await replicant<{path: string, baudRate: number, mock: boolean }|null>("settings", "glimpse-graphics.sync-settings", {defaultValue: null}),
+			availablePorts: await replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {defaultValue: [], persistent: false}),
+			selectedPort: await replicant<string|null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
+			selectedSport: await replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
 			status: await replicant<{connected: boolean, bitrate: number}>("status", "glimpse-graphics.sync-settings", {defaultValue: {connected: false, bitrate: 0}, persistent: false}),
 		},
 		gameSettings: {

@@ -12,6 +12,6 @@ export = (nodecg: NodeCG): void => {
 	 * things to be loaded *after* the NodeCG context is set.
 	 */
 	set(nodecg);
-	require('./daktronics-rtd-sync-controller');
+	require('./daktronics-rtd/sync-controller');
 	require('./scoreboard-clock');
 };
