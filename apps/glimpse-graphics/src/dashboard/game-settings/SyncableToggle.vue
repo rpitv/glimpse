@@ -6,7 +6,7 @@
 		</div>
 		<div v-if="enabled" class="synced-section">
 			<label :for="syncedId">Sync {{ name }}?</label>
-			<n-switch disabled title="Coming Soon" class="switch" :id="syncedId" v-model:value="dummySyncedValue"/>
+			<n-switch class="switch" :id="syncedId" v-model:value="dummySyncedValue"/>
 		</div>
 	</div>
 </template>

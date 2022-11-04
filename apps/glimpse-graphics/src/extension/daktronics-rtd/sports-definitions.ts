@@ -33,14 +33,19 @@ export const sports: { [key: string]: SportDefinition } = {
 			"length": 5,
 			"title": "Main Clock Time (mm:ss/ss.t )",
 			handler: (value: string) => {
+				console.log('received', value)
 				if(!replicants.gameSettings.clock.synced.value) {
 					return;
 				}
 				// Less than a minute left
 				if(value.includes('.')) {
+					console.log('less')
 					replicants.scoreboard.clock.time.value = parseFloat(value) * 1000
 				} else {
+					console.log('more')
 					const [minutes, seconds] = value.split(':');
+					console.log(new TextEncoder().encode(minutes))
+					console.log(minutes, seconds, parseInt(minutes), parseInt(seconds), (parseInt(minutes, 10) * 60 + parseInt(seconds, 10)) * 1000);
 					replicants.scoreboard.clock.time.value = (parseInt(minutes, 10) * 60 + parseInt(seconds, 10)) * 1000;
 				}
 			}

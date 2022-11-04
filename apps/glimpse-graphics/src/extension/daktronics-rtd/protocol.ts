@@ -109,7 +109,7 @@ function handlePacket(packet: Buffer): void {
 	const dataLength = sports[replicants.sync.selectedSport.value][id].length
 
 	// Pull the relevant data out of the packet.
-	const data = paddingStrippedData.slice(10, 10 + dataLength + 1).toString('ascii');
+	const data = paddingStrippedData.slice(11, 11 + dataLength).toString('ascii');
 
 	// Call the handler for the packet, if it is defined.
 	const handler = sports[replicants.sync.selectedSport.value][id].handler;
