@@ -32,14 +32,6 @@ export const sports: { [key: string]: SportDefinition } = {
 		1: {
 			"length": 5,
 			"title": "Main Clock Time (mm:ss/ss.t )",
-		},
-		6: {
-			"length": 8,
-			"title": "Main Clock Time (mm:ss.t )"
-		},
-		14: {
-			"length": 5,
-			"title": "Main Clock/Time Out/TOD (mm:ss/ss.t )",
 			handler: (value: string) => {
 				// Less than a minute left
 				if(value.includes('.')) {
@@ -49,6 +41,14 @@ export const sports: { [key: string]: SportDefinition } = {
 					replicants.scoreboard.clock.time.value = (parseInt(minutes, 10) * 60 + parseInt(seconds, 10)) * 1000;
 				}
 			}
+		},
+		6: {
+			"length": 8,
+			"title": "Main Clock Time (mm:ss.t )"
+		},
+		14: {
+			"length": 5,
+			"title": "Main Clock/Time Out/TOD (mm:ss/ss.t )"
 		},
 		19: {
 			"length": 8,
