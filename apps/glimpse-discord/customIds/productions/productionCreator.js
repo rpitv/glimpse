@@ -1,7 +1,7 @@
 const moment = require('moment');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionsBitField } = require('discord.js')
-const { db } = require('../firebase');
 const { FieldValue } = require('firebase-admin/firestore');
+const { db } = require('../../firebase');
 
 module.exports = { 
     name: 'productionCreator',
@@ -65,7 +65,7 @@ module.exports = {
             const unVolunteerMsg = await channel.send({
                 embeds: [production], 
                 components: [unVolunteerBtn]
-            });
+            }).then(async (msg) => await msg.pin());
             if (!await productionsRef.get().then((snapshot) => snapshot.data()))
                 productionsRef.set({ productions: [{
                     channelName: channelName,

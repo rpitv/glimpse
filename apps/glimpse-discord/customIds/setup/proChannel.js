@@ -1,20 +1,22 @@
 const { ActionRowBuilder, SelectMenuBuilder, PermissionsBitField } = require('discord.js')
 
-module.exports = {
-    name: 'proCategory',
+module.exports = { 
+    name: 'proChannel',
     async execute(interaction) {
         if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) 
             return interaction.reply({content: 'You are not an officer!', ephemeral: true});
         const selectMenu = new SelectMenuBuilder()
-            .setCustomId('proCategorySelection')
-            .setPlaceholder('Select a category')
+            .setCustomId('proChannelSelection')
+            .setPlaceholder('Select a channel for productions')
         const options = [];
-        const categories = await interaction.guild.channels.cache.filter((category) => category.type === 4);
-        for (const category of categories) {
+        const channels = await interaction.guild.channels.cache.filter((channel) => channel.type === 0);
+        for  (const channel of channels) {
             const option = {
-                label: category[1].name,
-                value: category[0]
+                label: channel[1].name,
+                value: channel[0]
             }
+            if (channel[1].topic)
+                option.description = channel[1].topic;
             options.push(option)
         }
         selectMenu.setOptions(options);

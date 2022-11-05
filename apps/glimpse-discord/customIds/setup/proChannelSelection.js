@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { db } = require('../firebase');
+const { db } = require('../../firebase');
 
 module.exports = { 
     name: 'proChannelSelection',

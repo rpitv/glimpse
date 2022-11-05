@@ -1,14 +1,14 @@
 const moment = require('moment');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionsBitField } = require('discord.js')
-const { db } = require('../firebase');
+const { EmbedBuilder } = require('discord.js')
 const { FieldValue } = require('firebase-admin/firestore');
+const { db } = require('../../firebase');
 
 module.exports = { 
     name: 'productionEditor',
     async execute(interaction) {
         const setupRef = db.collection('rpi-tv').doc('setup');
         const setupData = await setupRef.get();
-        const { proCategory, proChannel } = setupData.data();
+        const { proChannel } = setupData.data();
         const productionsRef = db.collection('rpi-tv').doc('productions');
         const productionsData = await productionsRef.get();
         let currentProduction = productionsData.data().productions.find((production) => production.channelId === interaction.channelId);
@@ -74,7 +74,7 @@ module.exports = {
         productionsRef.update({
             productions: FieldValue.arrayUnion(currentProduction)
         })
-        interaction.guild.channels.cache.find((channel) => channel.id === interaction.channelId).setName(channelName);
+        await interaction.guild.channels.cache.get(interaction.channelId).setName(channelName);
         volunteerMsg.edit({ embeds: [production] })
         unVolunteerMsg.edit({ embeds: [production] })
         interaction.reply({
