@@ -4,7 +4,7 @@ const { db } = require('../firebase');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('editproduction')
-        .setDescription('Edits the production in the channel you\' ran this command in.')
+        .setDescription('Edits the production in the channel you ran this command in.')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {

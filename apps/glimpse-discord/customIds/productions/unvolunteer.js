@@ -1,6 +1,6 @@
-const { db } = require('../firebase');
-const { FieldValue } = require('firebase-admin/firestore');
 const { EmbedBuilder } = require('discord.js')
+const { FieldValue } = require('firebase-admin/firestore');
+const { db } = require('../../firebase');
 
 module.exports = {
     name: 'unvolunteer',
@@ -36,7 +36,7 @@ module.exports = {
             await productionsRef.update({
                 productions: FieldValue.arrayUnion(currentProduction)
             }).catch(() => interaction.reply({ content: 'Could not update user', ephemeral: true}));
-            let volunteerMsg = await interaction.guild.channels.cache.find(ch => ch.id === proChannel)
+            let volunteerMsg = await interaction.guild.channels.cache.get(proChannel)
                 .messages.fetch(currentProduction.volunteerMsgId);
             let volunteers = ``;
             for (let i = 0; i < currentProduction.volunteers.length; i++)

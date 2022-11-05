@@ -1,14 +1,13 @@
-const { db } = require('../firebase');
-const { FieldValue } = require('firebase-admin/firestore');
 const { EmbedBuilder } = require('discord.js')
-
+const { FieldValue } = require('firebase-admin/firestore');
+const { db } = require('../../firebase');
 
 module.exports = {
     name: 'volunteer',
     async execute(interaction) {
         const setupRef = await db.collection('rpi-tv').doc('setup').get();
         const { proChannel } = setupRef.data();
-        const productionsRef = db.collection('rpi-tv').doc('productions')
+        const productionsRef = db.collection('rpi-tv').doc('productions');
         await productionsRef.get().then(async (production) => {
             let currentProduction = production.data().productions.find(prod => prod.volunteerMsgId === interaction.message.id);
             if (!currentProduction) {

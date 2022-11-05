@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, TextInputBuilder
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('createproduction')
-        .setDescription('Creates a production embed in the channel it was designated to that lists the details.')
+        .setDescription('Creates a production in the channel it was designated to that lists the details.')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
