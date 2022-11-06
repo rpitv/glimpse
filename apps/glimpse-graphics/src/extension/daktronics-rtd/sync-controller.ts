@@ -5,6 +5,7 @@ import {MockBinding, MockPortBinding} from "@serialport/binding-mock";
 import {SerialPort} from "serialport";
 import {daktronicsRtdListener} from "./protocol";
 import {sports} from "./sports-definitions";
+import {logger} from "../util/logger";
 
 // Serial port instance that is currently open.
 let port: SerialPortStream| null = null;
@@ -110,7 +111,7 @@ replicants.sync.selectedPort.on('change', async (newSelectedPort) => {
 	try {
 		await openSerialPort(newSelectedPort);
 	} catch(e) {
-		console.error(e);
+		logger.error(e, 'Failed to open serial port.');
 	}
 });
 

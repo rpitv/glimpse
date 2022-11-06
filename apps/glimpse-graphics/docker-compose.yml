@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "9090:80"
+    environment:
+      - NODE_ENV=production
     volumes:
       - ./.nodecg/cfg:/usr/src/app/cfg
       - ./.nodecg/db:/usr/src/app/db
