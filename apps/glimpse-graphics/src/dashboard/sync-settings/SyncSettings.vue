@@ -24,8 +24,28 @@
 		<h1>Mock Data Submission</h1>
 
 		<h2>Packet Upload</h2>
+		<n-alert title="Packet Information" type="info">
+			<p>
+				If the data you input is less than the expected length, it will be padded with spaces according
+				to its justification. If the data you input is greater than the expected length, it will all be
+				sent, however the backend will likely trim it to the expected length.
+			</p>
+			<div v-if="selectedMockPacketInfo">
+				<h3>Properties</h3>
+				<ul>
+					<li>Justification: {{selectedMockPacketInfo.justification === 'L' ? 'Left' : 'Right'}}</li>
+					<li>Expected Length: {{selectedMockPacketInfo.length}} bytes</li>
+				</ul>
+
+				<h3>Data to be submitted</h3>
+				<ul>
+					<li>ASCII: "<kbd>{{ mockPacketPaddedDataInputAscii }}</kbd>"</li>
+					<li>Hexadecimal: <kbd>{{mockPacketPaddedDataInputHex}}</kbd></li>
+				</ul>
+			</div>
+		</n-alert>
 		<div class="mt-10">
-			<label :for="mockPacketId">Mock Packet</label>
+			<label :for="mockPacketId">Packet</label>
 			<n-select :id="mockPacketId" v-model:value="mockPacketSelection" :options="mockPacketOptions" />
 		</div>
 		<div class="mt-10">
@@ -36,27 +56,64 @@
 
 		<h2>Bulk Upload</h2>
 		<n-alert type="warning" v-if="mockBulkErrorMsg">{{ mockBulkErrorMsg }}</n-alert>
-		<n-upload ref="mockBulkUploadElem" @change="dataFileUploaded" :max="1" class="mt-10">
+		<n-upload ref="mockBulkUploadElem" @change="uploadChangedEvent" :max="1" class="mt-10">
 			<n-upload-dragger>
 				<p>Click or drag a file to this area to upload.</p>
 			</n-upload-dragger>
 		</n-upload>
-		<n-button class="mt-10" @click="submitMockBulk" :disabled="mockBulkData === null">Submit</n-button>
-		<n-progress :percentage="mockBulkData ? mockBulkUploadProgress / mockBulkData.byteLength : 0"  />
+		<label>Bitrate (approximate)</label>
+		<n-slider :min="100" :max="100000" v-model:value="mockBulkDataSliderValue" :step="100" :format-tooltip="(val) => `${val / 1000} Kbps`" />
+		<n-input-number
+			class="mt-10"
+			min="0"
+			v-model:value="mockBulkDataSliderValue"
+			size="small"
+			:step="100"
+			:format="(val) => `${(val || 0) / 1000} Kbps`"
+			:parse="(val) => parseFloat(val) * 1000"
+		/>
+
+		<n-alert v-if="mockBulkDataSliderValue > 19200" class="mt-10" title="Impossible Bitrate" type="info">
+			<p>In real-world scenarios, bitrate will never exceed 19.2 Kbps (i.e., the baud rate).</p>
+		</n-alert>
+
+		<n-button
+			class="mt-10"
+			@click="mockBulkButtonClicked"
+			:disabled="mockBulkData === null"
+			:type="mockBulkCurrentlyUploading ? 'error' : 'success'">
+			{{ mockBulkCurrentlyUploading ? "Stop" : "Start" }}
+		</n-button>
+		<p>Upload Progress</p>
+		<n-progress :color="themeVars.successColor" :percentage="mockBulkData ? (Math.round(mockBulkUploadProgress / mockBulkData.byteLength * 1000) / 1000) * 100 : 0"  />
 	</div>
 </div>
 </template>
 
 <script setup lang="ts">
-import {NInput, NSelect, NCheckbox, NButton, NUpload, NUploadDragger, NAlert, NProgress} from "naive-ui";
+import {
+	NSlider,
+	NInputNumber,
+	NInput,
+	NSelect,
+	NCheckbox,
+	NButton,
+	NUpload,
+	NUploadDragger,
+	NAlert,
+	NProgress,
+	useThemeVars
+} from "naive-ui";
 import {v4} from "uuid";
 import {MessageComposable} from "../../common/MessageComposable";
 import {computed, ref} from "vue";
 import { loadReplicants } from "../../browser-common/replicants";
 import {SettledFileInfo} from "naive-ui/es/upload/src/interface";
 
+const themeVars = useThemeVars();
 const replicants = await loadReplicants();
 
+// Unique IDs for pairing labels with inputs
 const syncPathId = v4();
 const sportId = v4();
 const mockPacketId = v4();
@@ -64,10 +121,11 @@ const mockPacketDataId = v4();
 
 const showAdvancedSettings = ref<boolean>(false);
 
+type PacketDefinition = {title: string, justification: 'L'|'R', length: number}
 // List of sports to choose from, along with their packet definitions. Sport selection is to tell the
 //  backend which packet definitions to use when parsing the data. Individual names and lengths of packets
 //  are used by the frontend exclusively for mock data submission.
-const sports = ref<{[key: string]: {[key: number]: {title: string, length: number}}}|null>(null);
+const sports = ref<{[key: string]: {[key: number]: PacketDefinition}}|null>(null);
 new MessageComposable("sports-request", "glimpse-graphics.daktronics")
 	.send('feed me') // Data can be anything here, server is only listening for a message.
 	.then((sportsData: any) => {
@@ -77,8 +135,20 @@ new MessageComposable("sports-request", "glimpse-graphics.daktronics")
 // Mock data packet upload values
 const mockPacketSelection = ref<string | null>('');
 const mockPacketDataInput = ref<string>('');
-const mockPacketOptions = computed(() => {
+
+// Mock data bulk upload values
+const mockBulkUploadElem = ref<typeof NUpload|null>(null);
+const mockBulkErrorMsg = ref<string|null>();
+const mockBulkData = ref<Uint8Array|null>(null);
+const mockBulkDataSliderValue = ref<number>(1500);
+const mockBulkUploadProgress = ref<number>(0);
+const mockBulkCurrentlyUploading = ref<boolean>(false);
+
+// Options for the dropdown to select which packet ID to mock data for.
+const mockPacketOptions = computed<{label: string, value: string}[]>(() => {
 	const selectedSport = replicants.sync.selectedSport.value;
+	// If we don't have the list of sports (yet), or the selected sport isn't in the list, or no sport is selected,
+	//   return an empty array as we can't provide a list of packets to mock.
 	if(!sports.value || !selectedSport || !sports.value[selectedSport]) {
 		return [];
 	}
@@ -87,7 +157,7 @@ const mockPacketOptions = computed(() => {
 	const options = [];
 	for(const packetId of packetIds) {
 		options.push({
-			// @ts-ignore
+			// @ts-ignore - FIXME Not sure why this is producing a TypeScript error.
 			label: `${sports.value[selectedSport][packetId].title} (ID: ${packetId})`,
 			value: packetId
 		});
@@ -95,12 +165,7 @@ const mockPacketOptions = computed(() => {
 	return options;
 });
 
-// Mock data bulk upload values
-const mockBulkUploadElem = ref<typeof NUpload|null>(null);
-const mockBulkErrorMsg = ref<string|null>();
-const mockBulkData = ref<Uint8Array|null>(null);
-const mockBulkUploadProgress = ref<number>(0);
-
+// Options for the dropdown to select which serial port to connect to.
 const availablePortsOptions = computed<{label: string, value: string}[]>(() => {
 	// Map the available ports to the options that the NSelect component expects.
 	const arr = replicants.sync.availablePorts.value.map((port) => {
@@ -124,7 +189,9 @@ const availablePortsOptions = computed<{label: string, value: string}[]>(() => {
 	return arr;
 });
 
-const availableSportsOptions = computed(() => {
+// Options for the dropdown to select which sport the Daktronics connection is sending data for. This tells the
+//   backend which packet definitions to use when parsing the data.
+const availableSportsOptions = computed<{label: string, value: string}[]>(() => {
 	if(!sports.value) {
 		return [];
 	}
@@ -134,6 +201,7 @@ const availableSportsOptions = computed(() => {
 	});
 });
 
+// The color of the "light" on the serial port connection status indicator.
 const connLightColor = computed<string>(() => {
 	if (replicants.sync.status.value.connected) {
 		return "#93db4f";
@@ -142,6 +210,7 @@ const connLightColor = computed<string>(() => {
 	}
 });
 
+// The text to display on the serial port connection status indicator.
 const connectedText = computed<string>(() => {
 	if(replicants.sync.status.value.connected) {
 		return 'Connected';
@@ -152,9 +221,60 @@ const connectedText = computed<string>(() => {
 	}
 });
 
+const selectedMockPacketInfo = computed<PacketDefinition|null>(() => {
+	const selectedSport = replicants.sync.selectedSport.value;
+	const selectedPacket = mockPacketSelection.value;
+	// @ts-ignore - FIXME Not sure why this is producing a TypeScript error.
+	if(!sports.value || !selectedSport || !selectedPacket || !sports.value[selectedSport][selectedPacket]) {
+		return null;
+	}
+	// @ts-ignore - FIXME Not sure why this is producing a TypeScript error.
+	return sports.value[selectedSport][selectedPacket];
+});
+
+const mockPacketPaddedDataInputAscii = computed<string>(() => {
+	const selectedPacketInfo = selectedMockPacketInfo.value;
+	if(!selectedPacketInfo) {
+		return '""';
+	}
+
+	const input = mockPacketDataInput.value;
+	const length = selectedPacketInfo.length;
+	const justification = selectedPacketInfo.justification;
+
+	if(input.length >= length) {
+		return input;
+	}
+
+	// \u00a0 is a non-breaking space (&nbsp;)
+	if(justification === 'L') {
+		return input.padEnd(length, '\u00a0');
+	} else {
+		return input.padStart(length, '\u00a0');
+	}
+});
+
+const mockPacketPaddedDataInputHex = computed<string>(() => {
+	const asciiText = mockPacketPaddedDataInputAscii.value;
+	let hexText = '';
+	for(let i = 0; i < asciiText.length; i++) {
+		if(asciiText.charCodeAt(i) === 160) {
+			hexText += '20 ';
+		} else {
+			hexText += asciiText.charCodeAt(i).toString(16) + ' ';
+		}
+	}
+	return hexText;
+});
+
+// When the open serial port is set to "MOCK", data can be sent to this channel for it to be echoed back on
+//   the backend as if it were coming from a real serial port. Useful for testing and development.
 const mockChannel = new MessageComposable("mock", "glimpse-graphics.daktronics");
 
-function confirmShowAdvanced() {
+/**
+ * Confirm that the user wants to show advanced settings, and if so, set the showAdvancedSettings flag to true.
+ */
+function confirmShowAdvanced(): void {
 	if(
 		showAdvancedSettings.value &&
 		!confirm("Do not modify these settings unless you know what you are doing. Are you sure you want to continue?")
@@ -163,22 +283,44 @@ function confirmShowAdvanced() {
 	}
 }
 
-async function submitMockBulk() {
+/**
+ * If there is no mock bulk upload currently happening, then this submits the file which the user has selected to be
+ *   uploaded as mock data. Useful for rapid testing of many types of packets split across multiple incoming data
+ *   chunks, much like a real-world scenario. If there is already a mock bulk upload happening, then this cancels it.
+ */
+async function mockBulkButtonClicked(): Promise<void> {
+	if(mockBulkCurrentlyUploading.value) {
+		mockBulkCurrentlyUploading.value = false;
+		return;
+	}
+
+	mockBulkCurrentlyUploading.value = true;
 	let bytes: number[] = [];
+	let lastSentByteNumber = 0;
 	for(mockBulkUploadProgress.value = 0; mockBulkUploadProgress.value < (mockBulkData.value?.length || 0); mockBulkUploadProgress.value++) {
+		const selectedBitsPerSecond = mockBulkDataSliderValue.value / 8
+		if(!mockBulkCurrentlyUploading.value) {
+			return;
+		}
 		if(!mockBulkData.value || mockBulkData.value.at(mockBulkUploadProgress.value) === undefined) {
 			continue;
 		}
 		bytes.push(<number>mockBulkData.value.at(mockBulkUploadProgress.value));
-		if((mockBulkUploadProgress.value+1) % 100 === 0) {
+		if(mockBulkUploadProgress.value - lastSentByteNumber >= selectedBitsPerSecond / 10) {
 			mockChannel.send(bytes);
+			lastSentByteNumber = mockBulkUploadProgress.value;
 			bytes = [];
 			await new Promise(resolve => setTimeout(resolve, 100));
 		}
 	}
+	mockBulkCurrentlyUploading.value = false;
 }
 
-async function submitMockPacket() {
+/**
+ * Submit a single packet of mock data which the user has entered into the input field. Useful for testing
+ *   a single type of packet during development or testing.
+ */
+async function submitMockPacket(): Promise<void> {
 	// Get packet ID, convert to string, pad with leading zeroes, and then convert to bytes.
 	const packetId = mockPacketSelection.value;
 	if(!packetId) {
@@ -210,7 +352,14 @@ async function submitMockPacket() {
 	mockChannel.send(fullPacket);
 }
 
-function dataFileUploaded(uploadEvent:{file: SettledFileInfo, event?: Event}) {
+/**
+ * Callback for when the user selects a file to upload as mock data. The data is not actually uploaded to the
+ *   mock channel until the user clicks the "Submit" button. This is also the callback for when the user removes
+ *   a file from the input field.
+ * @param uploadEvent Event containing the file data, and the native DOM event. If the user is removing a file,
+ *   then `uploadEvent.file` will contain the file that was removed, but `uploadEvent.event` will be undefined.
+ */
+function uploadChangedEvent(uploadEvent:{file: SettledFileInfo, event?: Event}): void {
 	// If there is no browser attached to the NaiveUI event, then the file is being removed, not uploaded.
 	if(!uploadEvent.event) {
 		mockBulkData.value = null;
