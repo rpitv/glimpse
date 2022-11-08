@@ -81,7 +81,9 @@ export function daktronicsRtdListener(data: Buffer) {
 
 			// Last two bytes are the checksum in hexadecimal encoded as ASCII characters. E.g., if the checksum
 			//   is 0xEC, then the value of the last two bytes will be 0x4543.
-			logger.trace('Verifying checksum');
+			logger.trace({
+				checksumBytes
+			},'Verifying checksum');
 			const checksumBuffer = Buffer.from(Buffer.from(checksumBytes).toString('ascii'), 'hex');
 			if((computedChecksum % 256) !== checksumBuffer.readUInt8()) {
 				logger.warn(
@@ -134,13 +136,15 @@ function handlePacket(packet: Buffer): void {
 	// Pull the relevant data out of the packet.
 	logger.trace('Packet ID %d has an expected length of %d bytes. Pulling data from packet.', id, dataLength);
 	const data = paddingStrippedData.slice(11, 11 + dataLength).toString('ascii');
+	const trimmedData = data.trim();
 
 	if(logger.isLevelEnabled("debug")) {
 		logger.debug({
 			id,
 			fullMessageBlock: paddingStrippedData.toString('ascii'),
 			messageLength: dataLength,
-			messageBlock: data
+			messageBlock: data,
+			trimmedMessageBlock: trimmedData
 		},'Packet parsed, being passed to handler');
 	}
 
@@ -150,5 +154,5 @@ function handlePacket(packet: Buffer): void {
 		logger.trace('No handler defined for packet ID %d. Ignoring packet.', id);
 		return;
 	}
-	handler(data);
+	handler(trimmedData);
 }

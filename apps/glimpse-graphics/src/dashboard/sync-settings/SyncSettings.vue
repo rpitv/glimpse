@@ -39,8 +39,8 @@
 
 				<h3>Data to be submitted</h3>
 				<ul>
-					<li>ASCII: "<kbd>{{ mockPacketPaddedDataInputAscii }}</kbd>"</li>
-					<li>Hexadecimal: <kbd>{{mockPacketPaddedDataInputHex}}</kbd></li>
+					<li>ASCII: "<kbd>{{ mockPacketPaddedDataInputAsciiDisplay }}</kbd>"</li>
+					<li>Hexadecimal: <kbd>{{ mockPacketPaddedDataInputHexDisplay }}</kbd></li>
 				</ul>
 			</div>
 		</n-alert>
@@ -232,10 +232,10 @@ const selectedMockPacketInfo = computed<PacketDefinition|null>(() => {
 	return sports.value[selectedSport][selectedPacket];
 });
 
-const mockPacketPaddedDataInputAscii = computed<string>(() => {
+const mockPacketPaddedDataInput = computed<string>(() => {
 	const selectedPacketInfo = selectedMockPacketInfo.value;
 	if(!selectedPacketInfo) {
-		return '""';
+		return '';
 	}
 
 	const input = mockPacketDataInput.value;
@@ -246,25 +246,31 @@ const mockPacketPaddedDataInputAscii = computed<string>(() => {
 		return input;
 	}
 
-	// \u00a0 is a non-breaking space (&nbsp;)
 	if(justification === 'L') {
-		return input.padEnd(length, '\u00a0');
+		return input.padEnd(length, ' ');
 	} else {
-		return input.padStart(length, '\u00a0');
+		return input.padStart(length, ' ');
 	}
 });
 
-const mockPacketPaddedDataInputHex = computed<string>(() => {
-	const asciiText = mockPacketPaddedDataInputAscii.value;
-	let hexText = '';
-	for(let i = 0; i < asciiText.length; i++) {
-		if(asciiText.charCodeAt(i) === 160) {
-			hexText += '20 ';
+const mockPacketPaddedDataInputAsciiDisplay = computed<string>(() => {
+	const paddedInput = mockPacketPaddedDataInput.value;
+	// Replace all spaces with &nbsp;. Could use replaceAll, but that's still a relatively young feature.
+	return paddedInput.split('').map((char) => {
+		if(char === ' ') {
+			return '\u00A0'; // &nbsp;
 		} else {
-			hexText += asciiText.charCodeAt(i).toString(16) + ' ';
+			return char;
 		}
-	}
-	return hexText;
+	}).join('');
+});
+
+const mockPacketPaddedDataInputHexDisplay = computed<string>(() => {
+	const paddedInput = mockPacketPaddedDataInput.value;
+	// Convert all characters to hexadecimal then add spaces between each one.
+	return paddedInput.split('').map((char) => {
+		return char.charCodeAt(0).toString(16).padStart(2, '0');
+	}).join(' ');
 });
 
 // When the open serial port is set to "MOCK", data can be sent to this channel for it to be echoed back on
@@ -335,7 +341,7 @@ async function submitMockPacket(): Promise<void> {
 		0x30, 0x30, 0x34, 0x32, 0x31, // 00421 in ASCII
 		...packetIdBytes,// 5-digit packet ID
 		0x02, // Message start byte?
-		...new TextEncoder().encode(mockPacketDataInput.value), // Message data
+		...new TextEncoder().encode(mockPacketPaddedDataInput.value), // Message data
 		0x04 // End byte?
     ];
 
