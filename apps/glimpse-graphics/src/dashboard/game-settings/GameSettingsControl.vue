@@ -8,8 +8,6 @@
 				<n-select disabled title="Coming Soon" filterable :options="sportsPresetList"
 						  v-model:value="selectedSportPreset"/>
 				<n-button class="mt-10" :disabled="selectedSportPreset === null">Load Preset</n-button>
-
-				<ClockSettings />
 			</n-grid-item>
 
 			<n-grid-item>
@@ -31,7 +29,6 @@
 import {ref} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
 import {NSelect, NButton, NGrid, NGridItem} from "naive-ui";
-import ClockSettings from "./ClockSettings.vue";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
 import TeamSettings from "./TeamSettings.vue";

@@ -346,7 +346,7 @@ async function submitMockPacket(): Promise<void> {
     ];
 
 	const checksum = payload.reduce((a, b) => a + b, 0) % 256;
-	const checksumAscii = new TextEncoder().encode(checksum.toString(16));
+	const checksumAscii = new TextEncoder().encode(checksum.toString(16).padStart(2, '0'));
 
 	const fullPacket = [
 		0x16, // Packet start

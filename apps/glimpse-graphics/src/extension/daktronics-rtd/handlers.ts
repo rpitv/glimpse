@@ -8,6 +8,11 @@ export function mainClockHandler(value: string): void {
 		return;
 	}
 
+	if(replicants.scoreboard.clock.isRunning.value) {
+		logger.trace('Clock is manually running but score sync data was received. Stopping manual clock.');
+		replicants.scoreboard.clock.isRunning.value = false;
+	}
+
 	// Clock is considered disabled whenever a blank value is sent. Conversely, it is considered enabled whenever a
 	//   non-blank value is sent.
 	if(value.length === 0 && replicants.gameSettings.clock.enabled.value) {

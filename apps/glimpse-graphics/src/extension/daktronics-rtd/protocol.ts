@@ -85,6 +85,11 @@ export function daktronicsRtdListener(data: Buffer) {
 				checksumBytes
 			},'Verifying checksum');
 			const checksumBuffer = Buffer.from(Buffer.from(checksumBytes).toString('ascii'), 'hex');
+			if(checksumBuffer.length !== 1) {
+				logger.warn('Computed checksum buffer has a length of %d. Expected length is 1. Packet ignored.', checksumBuffer.length);
+				continue;
+			}
+
 			if((computedChecksum % 256) !== checksumBuffer.readUInt8()) {
 				logger.warn(
 					{
