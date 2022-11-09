@@ -10,6 +10,16 @@ export const replicants = {
 		values: {
 			clock: nodecg().Replicant<boolean>("clock", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
 			period: nodecg().Replicant<boolean>("period", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+			team1: {
+				score: nodecg().Replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+				name: nodecg().Replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+				abbreviation: nodecg().Replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+			},
+			team2: {
+				score: nodecg().Replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+				name: nodecg().Replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+				abbreviation: nodecg().Replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+			},
 			baseball: {
 				bottomTop: nodecg().Replicant<boolean>("bottomTop", "glimpse-graphics.sync-settings.values.baseball", {defaultValue: false}),
 				outsStrikesBalls: nodecg().Replicant<boolean>("outsStrikesBall", "glimpse-graphics.sync-settings.values.baseball", {defaultValue: false}),
@@ -26,11 +36,9 @@ export const replicants = {
 		style: nodecg().Replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', "glimpse-graphics.game-settings.style", {defaultValue: 'rpitv-modern'}),
 		clock: {
 			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
-			synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.clock", {defaultValue: false})
 		},
 		periods: {
 			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.periods", {defaultValue: true}),
-			synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.periods", {defaultValue: false}),
 			count: nodecg().Replicant<number>('count', 'glimpse-graphics.game-settings.periods', {defaultValue: 3}),
 			length: nodecg().Replicant<number>('length', 'glimpse-graphics.game-settings.periods', {defaultValue: 1200_000}),
 			overtime: {
@@ -40,32 +48,15 @@ export const replicants = {
 			}
 		},
 		baseball: {
-			bases: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.bases", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.bases", {defaultValue: false}),
-			},
-			bottomTop: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.bottomTop", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.bottomTop", {defaultValue: false}),
-			},
-			outsStrikesBalls: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.outsStrikesBalls", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.outsStrikesBalls", {defaultValue: false}),
-			}
+			bases: nodecg().Replicant<boolean>("bases", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
+			bottomTop: nodecg().Replicant<boolean>("bottomTop", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
+			outsStrikesBalls: nodecg().Replicant<boolean>("outsStrikesBalls", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
 		},
 		football: {
-			downs: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.downs", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.football.downs", {defaultValue: false}),
-			},
-			possession: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.possession", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.football.possession", {defaultValue: false}),
-			},
-			playClock: {
-				enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.playClock", {defaultValue: false}),
-				synced: nodecg().Replicant<boolean>("synced", "glimpse-graphics.game-settings.football.playClock", {defaultValue: false}),
-			}
+			downs: nodecg().Replicant<boolean>("downs", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+			possession: nodecg().Replicant<boolean>("possession", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+			yardsToGo: nodecg().Replicant<boolean>("yardsToGo", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+			playClock: nodecg().Replicant<boolean>("playClock", "glimpse-graphics.game-settings.football", {defaultValue: false}),
 		}
 	},
 	scoreboard: {

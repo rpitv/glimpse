@@ -2,11 +2,11 @@
 	<h1>Clock</h1>
 	<SyncableToggle name="Clock" class="mt-10"
 					v-model:enabled="replicants.gameSettings.clock.enabled.value"
-					v-model:synced="replicants.gameSettings.clock.synced.value"/>
+					v-model:synced="replicants.sync.values.clock.value"/>
 
 	<SyncableToggle name="Periods" class="mt-10"
 					v-model:enabled="replicants.gameSettings.periods.enabled.value"
-					v-model:synced="replicants.gameSettings.periods.synced.value"/>
+					v-model:synced="replicants.sync.values.period.value"/>
 
 	<div v-if="arePeriodsEnabled && !arePeriodsSynced">
 		<div class="mt-10">
@@ -50,7 +50,7 @@ const overtimeLengthId = v4();
 const overtimeCountId = v4();
 
 const arePeriodsEnabled = replicants.gameSettings.periods.enabled;
-const arePeriodsSynced = replicants.gameSettings.periods.synced;
+const arePeriodsSynced = replicants.sync.values.period.value;
 const periodLength = replicants.gameSettings.periods.length;
 const periodCount = replicants.gameSettings.periods.count;
 

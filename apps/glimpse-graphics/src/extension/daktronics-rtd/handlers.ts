@@ -3,7 +3,7 @@ import {logger} from "../util/logger";
 
 export function mainClockHandler(value: string): void {
 	logger.trace({value}, 'mainClockHandler called');
-	if(!replicants.gameSettings.clock.synced.value) {
+	if(!replicants.sync.values.clock.value) {
 		logger.trace('Clock sync is disabled, ignoring clock update');
 		return;
 	}
@@ -31,16 +31,33 @@ export function mainClockHandler(value: string): void {
 
 export function homeScoreHandler(value: string): void {
 	logger.trace({value}, 'homeScoreHandler called');
+
+	if(!replicants.sync.values.team1.score.value) {
+		logger.trace('Home score sync is disabled, ignoring home score update');
+		return;
+	}
+
 	replicants.teams[0].score.value = parseInt(value, 10) || 0;
 }
 
 export function awayScoreHandler(value: string): void {
 	logger.trace({value}, 'awayScoreHandler called');
+
+	if(!replicants.sync.values.team2.score.value) {
+		logger.trace('Away score sync is disabled, ignoring away score update');
+		return;
+	}
+
 	replicants.teams[1].score.value = parseInt(value, 10) || 0;
 }
 
 export function periodHandler(value: string): void {
 	logger.trace({value}, 'periodHandler called');
+
+	if(!replicants.sync.values.period.value) {
+		logger.trace('Period sync is disabled, ignoring period update');
+		return;
+	}
 
 	// Periods are considered disabled whenever a blank value is sent. Conversely, they are considered enabled whenever
 	//   a non-blank value is sent.

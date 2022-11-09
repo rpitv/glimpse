@@ -79,14 +79,14 @@ const setClockInput = ref('');
 const setPeriodInput = ref(1);
 
 const arePeriodsEnabled = replicants.gameSettings.periods.enabled;
-const arePeriodsSynced = replicants.gameSettings.periods.synced; // TODO warn when modifying period manually
+const arePeriodsSynced = replicants.sync.values.period.value; // TODO warn when modifying period manually
 const periodCount = replicants.gameSettings.periods.count;
 
 const isOvertimeEnabled = replicants.gameSettings.periods.overtime.enabled;
 const overtimeCount = replicants.gameSettings.periods.overtime.count;
 
 const isClockEnabled = replicants.gameSettings.clock.enabled;
-const isClockSynced = replicants.gameSettings.clock.synced; // TODO warn when modifying period manually
+const isClockSynced = replicants.sync.values.clock.value; // TODO warn when modifying period manually
 
 const currentPeriod = replicants.scoreboard.period;
 const isClockRunning = replicants.scoreboard.clock.isRunning;
