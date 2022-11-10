@@ -56,3 +56,61 @@ export function millisToString(time: number) {
 		return `${minutes}:${seconds}.${millis}`;
 	}
 }
+
+export function formatNumber(num: number) {
+	// Teens for some reason all end in "th" in English.
+	if(num > 10 && num < 20) {
+		return `${num}th`;
+	} else {
+		// For all other numbers, we need to figure out the suffix.
+		const lastDigit = num % 10;
+		switch(lastDigit) {
+			case 1:
+				return `${num}st`;
+			case 2:
+				return `${num}nd`;
+			case 3:
+				return `${num}rd`;
+			default:
+				return `${num}th`;
+		}
+	}
+}
+
+export function formatPeriod(period: number, periodCount: number, overtimeCount: number, shootoutsEnabled: boolean) {
+	const isOvertime = period > periodCount;
+	const isShootout = shootoutsEnabled && period > periodCount + overtimeCount;
+
+	if(isShootout) {
+		return 'Shootout';
+	}
+
+	if(isOvertime) {
+		period = period - periodCount;
+	}
+
+	if(isOvertime) {
+		return formatNumber(period) + ' Overtime';
+	} else {
+		return formatNumber(period) + ' Period';
+	}
+}
+
+export function formatPeriodShorthand(period: number, periodCount: number, overtimeCount: number, shootoutsEnabled: boolean) {
+	const isOvertime = period > periodCount;
+	const isShootout = shootoutsEnabled && period > periodCount + overtimeCount;
+
+	if(isShootout) {
+		return 'S/O';
+	}
+
+	if(isOvertime) {
+		period = period - periodCount;
+	}
+
+	if(isOvertime) {
+		return period + 'OT'
+	} else {
+		return formatNumber(period);
+	}
+}
