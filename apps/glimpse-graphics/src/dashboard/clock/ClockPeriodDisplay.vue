@@ -28,6 +28,7 @@ const arePeriodsEnabled = replicants.gameSettings.periods.enabled;
 const currentPeriod = replicants.scoreboard.period;
 const periodCount = replicants.gameSettings.periods.count;
 const overtimeCount = replicants.gameSettings.periods.overtime.count;
+const isOvertimeInfinite = replicants.gameSettings.periods.overtime.isInfinite;
 const areShootoutsEnabled = replicants.gameSettings.periods.shootouts;
 
 
@@ -43,7 +44,8 @@ const formattedPeriod = computed<string>(() => {
 	if (!arePeriodsEnabled.value) {
 		return "Periods Disabled";
 	}
-	return formatPeriod(currentPeriod.value || 1, periodCount.value, overtimeCount.value, areShootoutsEnabled.value);
+	const realOvertimeCount = isOvertimeInfinite.value ? Number.MAX_SAFE_INTEGER : overtimeCount.value;
+	return formatPeriod(currentPeriod.value || 1, periodCount.value, realOvertimeCount, areShootoutsEnabled.value);
 });
 </script>
 

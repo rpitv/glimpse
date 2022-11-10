@@ -27,25 +27,32 @@
 			<div class="period-slider">
 				<n-button
 					:disabled="currentPeriod <= 1"
-					@click="currentPeriod = currentPeriod > 1 ? currentPeriod - 1 : 1"
+					@click="currentPeriod = ((currentPeriod > 1) ? currentPeriod - 1 : 1)"
 				>
 					-1
 				</n-button>
 				<n-slider
 					:min="1"
-					:max="isOvertimeInfinite ? periodCount + 5 : maxPeriod"
+					:max="sliderMaxValue"
 					v-model:value="currentPeriod"
-					:format-tooltip="formatPeriod"
+					:format-tooltip="(val) => formatPeriod(val, periodCount, overtimeCount, areShootoutsEnabled)"
 					:marks="sliderMarks"
 				/>
 				<n-button
 					:disabled="currentPeriod >= maxPeriod"
-					@click="currentPeriod = currentPeriod < maxPeriod ? currentPeriod + 1 : maxPeriod"
+					@click="currentPeriod = ((currentPeriod < maxPeriod) ? currentPeriod + 1 : maxPeriod)"
 				>
 					+1
 				</n-button>
 			</div>
 		</div>
+
+		<n-alert v-if="!arePeriodsSynced && arePeriodsEnabled && (overtimeCount > 3 || isOvertimeInfinite)"
+				 type="info"
+				 class="control-alert"
+		>
+			The period slider is only capable of supporting up to 3 overtime periods.
+		</n-alert>
 
 		<n-input-group class="clock-period-text-input">
 			<n-input v-if="isClockEnabled && !isClockSynced"
@@ -68,11 +75,16 @@
 				Set Period
 			</n-button>
 		</n-input-group>
+
+
+		<n-alert v-if="syncedFeatures" type="info" class="control-alert">
+			{{ syncedFeatures }} cannot be manually controlled while Daktronics RTD sync is enabled.
+		</n-alert>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {NButton, NInput, NInputGroup, NInputNumber, NSlider} from "naive-ui";
+import {NButton, NInput, NInputGroup, NInputNumber, NSlider, NAlert} from "naive-ui";
 import {formatPeriod, formatPeriodShorthand, parseTimeString} from "../util";
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed, ref} from "vue";
@@ -108,7 +120,7 @@ function setClock(newValue: string | number) {
 
 const maxPeriod = computed<number>(() => {
 	if (isOvertimeInfinite.value) {
-		return 100;
+		return Number.MAX_SAFE_INTEGER;
 	} else {
 		if (areShootoutsEnabled.value) {
 			return periodCount.value + overtimeCount.value + 1;
@@ -119,12 +131,56 @@ const maxPeriod = computed<number>(() => {
 })
 
 const sliderMarks = computed(() => {
+	const realOvertimeCount = isOvertimeInfinite.value ? Number.MAX_SAFE_INTEGER : overtimeCount.value;
 	const marks: Record<number, string> = {};
 	for (let i = 1; i <= maxPeriod.value; i++) {
-		marks[i] = formatPeriodShorthand(i, periodCount.value, overtimeCount.value, areShootoutsEnabled.value);
+		marks[i] = formatPeriodShorthand(i, periodCount.value, realOvertimeCount, areShootoutsEnabled.value);
+		if(i >= periodCount.value + 3) {
+			break
+		}
 	}
 	return marks;
 });
+
+const sliderMaxValue = computed<number>(() => {
+	let overtimesToDisplay = Math.min(overtimeCount.value, 3);
+	if(isOvertimeInfinite.value) {
+		overtimesToDisplay = 3;
+	}
+	if(areShootoutsEnabled.value && overtimesToDisplay < 3) {
+		overtimesToDisplay++;
+	}
+	return periodCount.value + overtimesToDisplay;
+});
+
+const syncedFeatures = computed<string>(() => {
+	if(isClockSynced.value && arePeriodsSynced.value) {
+		return 'Clock and Period';
+	} else if(isClockSynced.value) {
+		return 'Clock';
+	} else if(arePeriodsSynced.value) {
+		return 'Period';
+	} else {
+		return '';
+	}
+});
+
+function formatPeriodNumberInput(value: number|null): string {
+	if(value === null) {
+		return '';
+	}
+	const realOvertimeCount = isOvertimeInfinite.value ? Number.MAX_SAFE_INTEGER : overtimeCount.value;
+	return formatPeriodShorthand(value, periodCount.value, realOvertimeCount, areShootoutsEnabled.value);
+}
+
+function parsePeriodNumberInput(value: string) {
+	if(value === "S/O") {
+		return periodCount.value + overtimeCount.value + 1;
+	} else if(value.includes('OT')) {
+		return parseInt(value) + periodCount.value;
+	}
+	return parseInt(value);
+}
 
 function setClockInputKeyPressed(event: KeyboardEvent) {
 	if (event.key === 'Enter') {
@@ -171,6 +227,9 @@ h2 {
 	* {
 		margin-right: 0.5em;
 	}
+}
+.control-alert {
+	margin-bottom: 20px;
 }
 .period-slider {
 	display: flex;
