@@ -25,8 +25,8 @@
 				<n-input-number :min="0" v-model:value="overtimeCount" :disabled="isOvertimeInfinite" />
 
 				<div class="overtime-checkboxes">
-					<n-checkbox v-model:checked="isOvertimeInfinite">Infinite Overtime</n-checkbox>
-					<n-checkbox v-model:checked="areShootoutsEnabled">Shootouts</n-checkbox>
+					<n-checkbox :disabled="areShootoutsEnabled" v-model:checked="isOvertimeInfinite">Infinite Overtime</n-checkbox>
+					<n-checkbox :disabled="isOvertimeInfinite" v-model:checked="areShootoutsEnabled">Shootouts</n-checkbox>
 				</div>
 			</n-grid-item>
 		</n-grid>

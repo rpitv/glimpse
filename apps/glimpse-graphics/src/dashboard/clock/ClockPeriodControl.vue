@@ -174,7 +174,8 @@ function formatPeriodNumberInput(value: number|null): string {
 }
 
 function parsePeriodNumberInput(value: string) {
-	if(value === "S/O") {
+	value = value.toUpperCase()
+	if(value === "S/O" || value === "SO") {
 		return periodCount.value + overtimeCount.value + 1;
 	} else if(value.includes('OT')) {
 		return parseInt(value) + periodCount.value;
@@ -190,7 +191,7 @@ function setClockInputKeyPressed(event: KeyboardEvent) {
 
 function setPeriodInputKeypressed(event: KeyboardEvent) {
 	if (event.key === 'Enter') {
-		periodCount.value = setPeriodInput.value;
+		currentPeriod.value = setPeriodInput.value;
 	}
 }
 
