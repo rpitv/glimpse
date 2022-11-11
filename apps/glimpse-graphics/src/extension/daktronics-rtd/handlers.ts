@@ -37,7 +37,7 @@ export function mainClockHandler(value: string): void {
 export function homeScoreHandler(value: string): void {
 	logger.trace({value}, 'homeScoreHandler called');
 
-	if(!replicants.sync.values.team1.score.value) {
+	if(!replicants.sync.values.teams[0].score.value) {
 		logger.trace('Home score sync is disabled, ignoring home score update');
 		return;
 	}
@@ -48,7 +48,7 @@ export function homeScoreHandler(value: string): void {
 export function awayScoreHandler(value: string): void {
 	logger.trace({value}, 'awayScoreHandler called');
 
-	if(!replicants.sync.values.team2.score.value) {
+	if(!replicants.sync.values.teams[1].score.value) {
 		logger.trace('Away score sync is disabled, ignoring away score update');
 		return;
 	}

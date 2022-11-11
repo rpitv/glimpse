@@ -101,27 +101,6 @@
         "file": "image-editor.html",
         "workspace": "Images",
         "width": "8"
-      },
-      {
-        "name": "tv-timeout",
-        "title": "TV Timeout",
-        "file": "tv-timeout.html",
-        "workspace": "Ads",
-        "width": "2"
-      },
-      {
-        "name": "ad-selection",
-        "title": "Selection",
-        "file": "ad-selection.html",
-        "workspace": "Ads",
-        "width": "8"
-      },
-      {
-        "name": "ad-playout",
-        "title": "Playout",
-        "file": "ad-playout.html",
-        "workspace": "Ads",
-        "width": "4"
       }
     ],
     "graphics": [
@@ -140,16 +119,6 @@
           "jpeg",
           "gif",
           "png"
-        ]
-      },
-      {
-        "name": "ads",
-        "title": "Advertisements",
-        "allowedTypes": [
-          "mp4",
-          "m4v",
-          "webm",
-          "ogg"
         ]
       }
     ]
