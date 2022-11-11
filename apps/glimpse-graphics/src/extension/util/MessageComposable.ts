@@ -1,4 +1,6 @@
-type ListenerFn = (argument?: any, ack?: (error: Error, returnVal: any) => void) => void;
+import { get } from './nodecg';
+
+type ListenerFn = (argument: any, ack: (error?: Error|null, returnVal?: any) => void) => void;
 
 export class MessageComposable {
 
@@ -14,19 +16,18 @@ export class MessageComposable {
 
 	public async send(argument?: any): Promise<any> {
 		// @ts-ignore
-		return await nodecg.sendMessage(this.namespace + '.' + this.channel, argument);
+		return get().sendMessage(this.namespace + '.' + this.channel, argument);
 	}
 
 	public listen(callback: ListenerFn): void {
 		this.listeners.push(callback);
 		// @ts-ignore
-		nodecg.listenFor(this.namespace + '.' + this.channel, callback)
+		get().listenFor(this.namespace + '.' + this.channel, callback)
 	}
 
 	public destroy(): void {
 		for(const listener of this.listeners) {
-			// @ts-ignore
-			nodecg.unlisten(this.namespace + '.' + this.channel, listener);
+			get().unlisten(this.namespace + '.' + this.channel, <any>listener);
 		}
 		this.listeners = [];
 	}

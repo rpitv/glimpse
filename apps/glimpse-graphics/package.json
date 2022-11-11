@@ -13,17 +13,22 @@
   "license": "MIT",
   "scripts": {
     "start": "node ../..",
+    "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
     "clean": "rm -rf node_modules/.cache && rm -rf shared/dist && rm -rf dashboard && rm -rf graphics && rm -rf extension",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
-    "dev": "run-p start watch:*",
+    "dev": "run-p watch:* start-dev",
     "watch:browser": "vite --host=0.0.0.0",
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
+    "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
     "module-alias": "^2.2.2",
+    "pinia": "^2.0.23",
+    "pino": "^8.7.0",
+    "serialport": "^10.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -34,7 +39,9 @@
     "naive-ui": "^2.32.1",
     "nodecg-cli": "^8.0.1",
     "nodecg-types": "^1.9.0",
+    "nodemon": "^2.0.20",
     "npm-run-all": "^4.1.5",
+    "pino-pretty": "^9.1.1",
     "sass": "^1.54.4",
     "typescript": "^4.7.4",
     "vite": "^2.9.14",
@@ -50,8 +57,15 @@
         "name": "game-settings",
         "title": "Game Settings",
         "file": "game-settings.html",
-        "workspace": "General",
+        "workspace": "Settings",
         "width": "8"
+      },
+      {
+        "name": "sync-settings",
+        "title": "Sync Settings",
+        "file": "sync-settings.html",
+        "workspace": "Settings",
+        "width": "4"
       },
       {
         "name": "command-palette",
@@ -61,9 +75,9 @@
         "width": "2"
       },
       {
-        "name": "score",
-        "title": "Score",
-        "file": "score.html",
+        "name": "teams",
+        "title": "Teams",
+        "file": "teams.html",
         "workspace": "Scoreboard",
         "width": "6"
       },
@@ -100,7 +114,12 @@
       {
         "name": "images",
         "title": "Images",
-        "allowedTypes": ["jpg", "jpeg", "gif", "png"]
+        "allowedTypes": [
+          "jpg",
+          "jpeg",
+          "gif",
+          "png"
+        ]
       }
     ]
   }

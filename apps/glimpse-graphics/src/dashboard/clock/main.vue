@@ -1,7 +1,18 @@
 <template>
 	<n-config-provider :theme="darkTheme">
 		<Suspense>
-			<ClockControl />
+			<div>
+				<ClockPeriodDisplay />
+				<hr />
+				<ClockPeriodControl />
+				<hr />
+
+				<n-collapse>
+					<n-collapse-item title="Settings">
+						<ClockPeriodSettings />
+					</n-collapse-item>
+				</n-collapse>
+			</div>
 			<template #fallback>
 				Loading...
 			</template>
@@ -10,8 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import ClockControl from "./ClockControl.vue";
-import {NConfigProvider, darkTheme} from "naive-ui";
+import {NConfigProvider, darkTheme, NCollapse, NCollapseItem} from "naive-ui";
+import ClockPeriodDisplay from "./ClockPeriodDisplay.vue";
+import ClockPeriodSettings from "./ClockPeriodSettings.vue";
+import ClockPeriodControl from "./ClockPeriodControl.vue";
 </script>
 
 <style scoped lang="scss">

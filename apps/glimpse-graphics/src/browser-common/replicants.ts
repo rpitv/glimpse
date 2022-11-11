@@ -3,57 +3,82 @@ import {DisplayableMessage} from "../common/DisplayableMessage";
 
 export async function loadReplicants() {
 	return {
+		sync: {
+			availablePorts: await replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {
+				defaultValue: [],
+				persistent: false
+			}),
+			selectedPort: await replicant<string | null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
+			selectedSport: await replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
+			status: await replicant<{ connected: boolean, bitrate: number }>("status", "glimpse-graphics.sync-settings", {
+				defaultValue: {
+					connected: false,
+					bitrate: 0
+				}, persistent: false
+			}),
+			values: {
+				clock: await replicant<boolean>("clock", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+				period: await replicant<boolean>("period", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+				teams: [
+					{
+						score: await replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+						name: await replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+						abbreviation: await replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+					}, {
+						score: await replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+						name: await replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+						abbreviation: await replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+					}
+				],
+				baseball: {
+					bottomTop: await replicant<boolean>("bottomTop", "glimpse-graphics.sync-settings.values.baseball", {defaultValue: false}),
+					outsStrikesBalls: await replicant<boolean>("outsStrikesBall", "glimpse-graphics.sync-settings.values.baseball", {defaultValue: false}),
+				},
+				football: {
+					downs: await replicant<boolean>("downs", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+					possession: await replicant<boolean>("possession", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+					yardsToGo: await replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+					playClock: await replicant<boolean>("playClock", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+				}
+			}
+		},
 		gameSettings: {
-			style: await replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
+			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-classic'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
 			clock: {
 				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
-				synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.clock", {defaultValue: false})
 			},
 			periods: {
 				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.periods", {defaultValue: true}),
-				synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.periods", {defaultValue: false}),
 				count: await replicant<number>('count', 'glimpse-graphics.game-settings.periods', {defaultValue: 3}),
 				length: await replicant<number>('length', 'glimpse-graphics.game-settings.periods', {defaultValue: 1200_000}),
 				overtime: {
-					enabled: await replicant<boolean>('enabled', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: false}),
 					count: await replicant<number>('count', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: 0}),
+					isInfinite: await replicant<boolean>('isInfinite', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: false}),
 					length: await replicant<number>('length', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: 300_000}),
-				}
+				},
+				shootouts: await replicant<boolean>('shootouts', 'glimpse-graphics.game-settings.periods', {defaultValue: false}),
 			},
+
 			baseball: {
-				bases: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.bases", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.bases", {defaultValue: false}),
-				},
-				bottomTop: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.bottomTop", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.bottomTop", {defaultValue: false}),
-				},
-				outsStrikesBalls: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.baseball.outsStrikesBalls", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.baseball.outsStrikesBalls", {defaultValue: false}),
-				}
+				bases: await replicant<boolean>("bases", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
+				bottomTop: await replicant<boolean>("bottomTop", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
+				outsStrikesBalls: await replicant<boolean>("outsStrikesBalls", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
 			},
 			football: {
-				downs: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.downs", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.football.downs", {defaultValue: false}),
-				},
-				possession: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.possession", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.football.possession", {defaultValue: false}),
-				},
-				playClock: {
-					enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.football.playClock", {defaultValue: false}),
-					synced: await replicant<boolean>("synced", "glimpse-graphics.game-settings.football.playClock", {defaultValue: false}),
-				}
+				downs: await replicant<boolean>("downs", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+				possession: await replicant<boolean>("possession", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+				yardsToGo: await replicant<boolean>("yardsToGo", "glimpse-graphics.game-settings.football", {defaultValue: false}),
+				playClock: await replicant<boolean>("playClock", "glimpse-graphics.game-settings.football", {defaultValue: false}),
 			}
 		},
 		scoreboard: {
 			visible: await replicant<boolean>('visible', 'glimpse-graphics.scoreboard', {defaultValue: true}),
 			clock: {
 				time: await replicant<number>('time', 'glimpse-graphics.scoreboard.clock', {defaultValue: 1200_000}),
-				isRunning: await replicant<boolean>('isRunning', 'glimpse-graphics.scoreboard.clock', {defaultValue: false, persistent: false}),
+				isRunning: await replicant<boolean>('isRunning', 'glimpse-graphics.scoreboard.clock', {
+					defaultValue: false,
+					persistent: false
+				}),
 			},
 			period: await replicant<number>('period', 'glimpse-graphics.scoreboard', {defaultValue: 1})
 		},

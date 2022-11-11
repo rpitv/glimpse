@@ -5,6 +5,9 @@ services:
     ports:
       - "9090:80"
       - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=trace
     volumes:
       - ./.nodecg/cfg:/usr/src/app/cfg
       - ./.nodecg/db:/usr/src/app/db
