@@ -8,20 +8,14 @@
 				<n-select disabled title="Coming Soon" filterable :options="sportsPresetList"
 						  v-model:value="selectedSportPreset"/>
 				<n-button class="mt-10" :disabled="selectedSportPreset === null">Load Preset</n-button>
-
-				<ClockSettings />
 			</n-grid-item>
 
 			<n-grid-item>
 				<FootballSettings />
-				<BaseballSettings />
 			</n-grid-item>
 
 			<n-grid-item>
-				<TeamSettings :id="0" name="Home" />
-			</n-grid-item>
-			<n-grid-item>
-				<TeamSettings :id="1" name="Away" />
+				<BaseballSettings />
 			</n-grid-item>
 		</n-grid>
 	</div>
@@ -31,10 +25,8 @@
 import {ref} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
 import {NSelect, NButton, NGrid, NGridItem} from "naive-ui";
-import ClockSettings from "./ClockSettings.vue";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
-import TeamSettings from "./TeamSettings.vue";
 
 const replicants = await loadReplicants();
 

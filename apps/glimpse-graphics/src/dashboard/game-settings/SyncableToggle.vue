@@ -4,9 +4,9 @@
 			<label :for="enabledId">Enable {{ name }}?</label>
 			<n-switch class="switch" :id="enabledId" v-model:value="dummyEnabledValue"/>
 		</div>
-		<div v-if="enabled" class="synced-section">
+		<div v-if="enabled && synced !== undefined" class="synced-section">
 			<label :for="syncedId">Sync {{ name }}?</label>
-			<n-switch disabled title="Coming Soon" class="switch" :id="syncedId" v-model:value="dummySyncedValue"/>
+			<n-switch class="switch" :id="syncedId" v-model:value="dummySyncedValue"/>
 		</div>
 	</div>
 </template>
@@ -30,7 +30,7 @@ const props = defineProps({
 	},
 	synced: {
 		type: Boolean,
-		required: true
+		required: false
 	}
 })
 

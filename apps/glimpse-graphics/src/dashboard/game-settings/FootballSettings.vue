@@ -2,14 +2,17 @@
 	<h1>Football Settings</h1>
 
 	<SyncableToggle name="Play Clock"
-					v-model:enabled="replicants.gameSettings.football.playClock.enabled.value"
-					v-model:synced="replicants.gameSettings.football.playClock.synced.value" />
+					v-model:enabled="replicants.gameSettings.football.playClock.value"
+					v-model:synced="replicants.sync.values.football.playClock.value" />
 	<SyncableToggle name="Downs" class="mt-10"
-					v-model:enabled="replicants.gameSettings.football.downs.enabled.value"
-					v-model:synced="replicants.gameSettings.football.downs.synced.value" />
+					v-model:enabled="replicants.gameSettings.football.downs.value"
+					v-model:synced="replicants.sync.values.football.downs.value" />
+	<SyncableToggle name="Yards To Go" class="mt-10"
+					v-model:enabled="replicants.gameSettings.football.yardsToGo.value"
+					v-model:synced="replicants.sync.values.football.yardsToGo.value" />
 	<SyncableToggle name="Possession" class="mt-10"
-					v-model:enabled="replicants.gameSettings.football.possession.enabled.value"
-					v-model:synced="replicants.gameSettings.football.possession.synced.value" />
+					v-model:enabled="replicants.gameSettings.football.possession.value"
+					v-model:synced="replicants.sync.values.football.possession.value" />
 </template>
 
 <script setup lang="ts">
