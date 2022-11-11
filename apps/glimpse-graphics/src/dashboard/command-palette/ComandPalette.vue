@@ -1,5 +1,14 @@
 <template>
 	<div>
+		<n-button
+			size="large"
+			class="show-scoreboard-button"
+			:type="isScoreboardShown ? 'error' : 'success'"
+			@click="isScoreboardShown = !isScoreboardShown"
+		>
+			{{ isScoreboardShown ? 'Hide' : 'Show' }} Scoreboard
+		</n-button>
+		<hr>
 		<textarea class="palette" ref="palette" :placeholder="paletteText" @keydown="paletteKeyPressed" />
 		<n-collapse class="command-key">
 			<n-collapse-item title="Key" name="Key">
@@ -26,11 +35,13 @@
 
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed, ref, watchEffect} from "vue";
-import {NTable, NCollapse, NCollapseItem} from "naive-ui";
+import {NTable, NCollapse, NCollapseItem, NButton} from "naive-ui";
 
 const replicants = await loadReplicants();
 
 const palette = ref<HTMLElement|null>(null);
+
+const isScoreboardShown = replicants.scoreboard.visible;
 
 type Command = {
 	displayedChar: string,
@@ -149,6 +160,9 @@ function paletteKeyPressed(event: KeyboardEvent) {
 </script>
 
 <style scoped lang="scss">
+.show-scoreboard-button {
+	width: 100%;
+}
 .palette {
 	display: flex;
 	align-items: center;
@@ -157,7 +171,7 @@ function paletteKeyPressed(event: KeyboardEvent) {
 	padding: 1em;
 
 	height: 8em;
-	max-width: 100%;
+	width: 88%;
 
 	background-color: v-bind(paletteBgColor);
 	color: black;
