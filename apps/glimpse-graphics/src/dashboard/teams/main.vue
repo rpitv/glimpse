@@ -1,7 +1,12 @@
 <template>
 	<n-config-provider :theme="darkTheme">
 		<Suspense>
-			<ScoreControl />
+			<div>
+				<TeamsDisplay />
+				<TeamsControl />
+				<hr />
+				<TeamsSettings />
+			</div>
 			<template #fallback>
 				Loading...
 			</template>
@@ -10,8 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import ScoreControl from "./ScoreControl.vue";
 import {NConfigProvider, darkTheme} from "naive-ui";
+import TeamsDisplay from "./TeamsDisplay.vue";
+import TeamsControl from "./TeamsControl.vue";
+import TeamsSettings from "./TeamsSettings.vue";
 </script>
 
 <style scoped lang="scss">

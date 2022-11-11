@@ -12,14 +12,10 @@
 
 			<n-grid-item>
 				<FootballSettings />
-				<BaseballSettings />
 			</n-grid-item>
 
 			<n-grid-item>
-				<TeamSettings :id="0" name="Home" />
-			</n-grid-item>
-			<n-grid-item>
-				<TeamSettings :id="1" name="Away" />
+				<BaseballSettings />
 			</n-grid-item>
 		</n-grid>
 	</div>
@@ -31,7 +27,6 @@ import {loadReplicants} from "../../browser-common/replicants";
 import {NSelect, NButton, NGrid, NGridItem} from "naive-ui";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
-import TeamSettings from "./TeamSettings.vue";
 
 const replicants = await loadReplicants();
 

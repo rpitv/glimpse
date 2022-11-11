@@ -23,8 +23,10 @@
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
+    "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
     "module-alias": "^2.2.2",
+    "pinia": "^2.0.23",
     "pino": "^8.7.0",
     "serialport": "^10.4.0",
     "uuid": "^8.3.2"
@@ -73,9 +75,9 @@
         "width": "2"
       },
       {
-        "name": "score",
-        "title": "Score",
-        "file": "score.html",
+        "name": "teams",
+        "title": "Teams",
+        "file": "teams.html",
         "workspace": "Scoreboard",
         "width": "6"
       },
