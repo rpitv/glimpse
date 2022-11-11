@@ -89,6 +89,13 @@
         "width": "4"
       },
       {
+        "name": "Announcements",
+        "title": "Announcements",
+        "file": "announcements.html",
+        "workspace": "Scoreboard",
+        "width": "6"
+      },
+      {
         "name": "image-selection",
         "title": "Image Selection",
         "file": "image-selection.html",

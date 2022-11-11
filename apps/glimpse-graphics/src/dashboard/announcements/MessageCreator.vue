@@ -57,7 +57,6 @@ function addMessage(type: 'info'|'status') {
 	}
 
 	const message = new DisplayableMessage(messageInput.value, type, timerValue);
-	messageInput.value = '';
 	emit('add', message);
 }
 

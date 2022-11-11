@@ -1,18 +1,18 @@
 <template>
 	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
-		<div class="team1-section">
-			<TeamView class="bordered" v-if="teamTwo.enabled.value" :team-id="1" />
-
-			<p v-if="replicants.messages.team1.value.length > 0" class="announcement-section team1">
-				{{computedMessage(replicants.messages.team1.value[0]).value}}
-			</p>
-		</div>
-
 		<div class="team2-section">
 			<TeamView class="bordered no-left-border" v-if="teamOne.enabled.value" :team-id="0" />
 
 			<p v-if="replicants.messages.team2.value.length > 0" class="announcement-section team2">
 				{{computedMessage(replicants.messages.team2.value[0]).value}}
+			</p>
+		</div>
+
+		<div class="team1-section">
+			<TeamView class="bordered" v-if="teamTwo.enabled.value" :team-id="1" />
+
+			<p v-if="replicants.messages.team1.value.length > 0" class="announcement-section team1">
+				{{computedMessage(replicants.messages.team1.value[0]).value}}
 			</p>
 		</div>
 
