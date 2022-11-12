@@ -23,8 +23,14 @@ export function mainClockHandler(value: string): void {
 		replicants.gameSettings.clock.enabled.value = true;
 	}
 
-	const [minsAndSecs, tenths] = value.split('.');
-	const [mins, secs] = minsAndSecs.split(':')
+	let mins, secs, tenths, minsAndSecs;
+	[minsAndSecs, tenths] = value.split('.');
+	if(minsAndSecs.indexOf(':') > -1) {
+		[mins, secs] = minsAndSecs.split(':')
+	} else {
+		secs = minsAndSecs;
+		mins = '0';
+	}
 	logger.trace({mins, secs, tenths}, 'Parsed string clock values');
 
 	const [minsInt, secsInt, tenthsInt] = [parseInt(mins) || 0, parseInt(secs) || 0, parseInt(tenths) || 0];
