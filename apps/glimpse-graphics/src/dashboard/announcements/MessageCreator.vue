@@ -13,9 +13,9 @@
 
 import {ref, watchEffect} from "vue";
 import {NInput, NButton, NInputGroup} from "naive-ui";
-import {DisplayableMessage} from "../../common/DisplayableMessage";
+import {Announcement} from "../../common/Announcement";
 import {parseTimeString} from "../util";
-import {MessageTimer} from "../../common/DisplayableMessage";
+import {MessageTimer} from "../../common/Announcement";
 import {loadReplicants} from "../../browser-common/replicants";
 
 const replicants = await loadReplicants()
@@ -56,7 +56,7 @@ function addMessage(type: 'info'|'status') {
 		}
 	}
 
-	const message = new DisplayableMessage(messageInput.value, type, timerValue);
+	const message = new Announcement(messageInput.value, type, timerValue);
 	emit('add', message);
 }
 

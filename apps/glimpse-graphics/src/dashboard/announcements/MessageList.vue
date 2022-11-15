@@ -1,6 +1,6 @@
 <template>
 	<ul>
-		<li v-for="msg in messages" :class="'message message-' + msg.type">
+		<li v-for="msg in announcements" :class="'message message-' + msg.type">
 			<p :class="'message-' + msg.type">{{computedMessage(msg).value}}</p>
 			<n-button class="message-remove-btn" type="error" circle quaternary @click="removeMessage(msg)">&#x2716;</n-button>
 		</li>
@@ -10,7 +10,7 @@
 <script setup lang="ts">
 
 import {computed, defineProps, PropType} from "vue";
-import {DisplayableMessage} from "../../common/DisplayableMessage";
+import {Announcement} from "../../common/Announcement";
 import {NButton} from "naive-ui";
 import {loadReplicants} from "../../browser-common/replicants";
 import {millisToString} from "../util";
@@ -18,26 +18,26 @@ import {millisToString} from "../util";
 const replicants = await loadReplicants();
 
 const props = defineProps({
-	messages: {
-		type: Object as PropType<DisplayableMessage[]>,
+	announcements: {
+		type: Object as PropType<Announcement[]>,
 		required: true
 	}
 });
 
 const emit = defineEmits(['update:messages']);
 
-function removeMessage(message: DisplayableMessage) {
-	const messageIndex = props.messages.indexOf(message);
+function removeMessage(message: Announcement) {
+	const messageIndex = props.announcements.indexOf(message);
 	if(messageIndex < 0) {
 		return;
 	}
 
-	const messagesCopy = [...props.messages];
+	const messagesCopy = [...props.announcements];
 	messagesCopy.splice(messageIndex, 1);
 	emit('update:messages', messagesCopy);
 }
 
-function computedMessage(message: DisplayableMessage) {
+function computedMessage(message: Announcement) {
 	return computed(() => {
 		if(!message.timer || !message.timer.visible) {
 			return message.message;

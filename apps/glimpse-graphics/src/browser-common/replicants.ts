@@ -1,5 +1,5 @@
 import {replicant} from "./replicant";
-import {DisplayableMessage} from "../common/DisplayableMessage";
+import {Announcement} from "../common/Announcement";
 
 export async function loadReplicants() {
 	return {
@@ -104,10 +104,10 @@ export async function loadReplicants() {
 				schoolName: await replicant<string>("schoolName", `glimpse-graphics.game-settings.team1`, {defaultValue: 'School Two'})
 			}
 		],
-		messages: {
-			global: await replicant<DisplayableMessage[]>("global", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
-			team1: await replicant<DisplayableMessage[]>("team1", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
-			team2: await replicant<DisplayableMessage[]>("team2", `glimpse-graphics.game-settings.messages`, {defaultValue: []}),
+		announcements: {
+			global: await replicant<Announcement[]>("global", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
+			team1: await replicant<Announcement[]>("team1", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
+			team2: await replicant<Announcement[]>("team2", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 		}
 	}
 }

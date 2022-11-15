@@ -1,7 +1,13 @@
 <template>
 	<n-config-provider :theme="darkTheme">
 		<Suspense>
-			<MessageControl />
+			<div>
+				<AllAnnouncementsDisplay />
+				<hr />
+				<AllAnnouncementsControl />
+				<hr />
+				<AllAnnouncementsSettings />
+			</div>
 			<template #fallback>
 				Loading...
 			</template>
@@ -12,7 +18,9 @@
 <script setup lang="ts">
 
 import {NConfigProvider, darkTheme} from "naive-ui";
-import MessageControl from "./MessageControl.vue";
+import AllAnnouncementsDisplay from "./AllAnnouncementsDisplay.vue";
+import AllAnnouncementsControl from "./AllAnnouncementsControl.vue";
+import AllAnnouncementsSettings from "./AllAnnouncementsSettings.vue";
 
 </script>
 

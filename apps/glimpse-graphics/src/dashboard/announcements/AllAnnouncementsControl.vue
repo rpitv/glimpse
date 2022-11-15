@@ -4,21 +4,21 @@
 			<n-grid-item>
 				<div>
 					<h1>Away</h1>
-					<MessageList v-model:messages="awayMessages" />
+					<MessageList v-model:announcements="awayMessages" />
 					<MessageCreator @add="msg => awayMessages = [...awayMessages, msg]" />
 				</div>
 			</n-grid-item>
 			<n-grid-item>
 				<div>
 					<h1>Home</h1>
-					<MessageList v-model:messages="homeMessages" />
+					<MessageList v-model:announcements="homeMessages" />
 					<MessageCreator @add="msg => homeMessages = [...homeMessages, msg]" />
 				</div>
 			</n-grid-item>
 		</n-grid>
 		<div>
 			<h1>Global</h1>
-			<MessageList v-model:messages="globalMessages" />
+			<MessageList v-model:announcements="globalMessages" />
 			<MessageCreator @add="msg => globalMessages = [...globalMessages, msg]" />
 		</div>
 	</div>
@@ -32,9 +32,9 @@ import {loadReplicants} from "../../browser-common/replicants";
 
 const replicants = await loadReplicants();
 
-const homeMessages = replicants.messages.team1;
-const awayMessages = replicants.messages.team2;
-const globalMessages = replicants.messages.global;
+const homeMessages = replicants.announcements.team1;
+const awayMessages = replicants.announcements.team2;
+const globalMessages = replicants.announcements.global;
 </script>
 
 <style scoped lang="scss">
