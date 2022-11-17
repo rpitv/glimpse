@@ -1,6 +1,6 @@
 import {v4} from "uuid";
 
-export type MessageTimer = {
+export interface AnnouncementTimer {
 	visible: boolean;
 	startedAt: number;
 	length: number;
@@ -11,9 +11,9 @@ export class Announcement {
 	public readonly id: string;
 	public message: string;
 	public type: string;
-	public timer: MessageTimer|null;
+	public timer: AnnouncementTimer|null;
 
-	public constructor(message: string, type: string, timer?: MessageTimer) {
+	public constructor(message: string, type: string, timer?: AnnouncementTimer) {
 		this.id = v4();
 		this.message = message;
 		this.type = type;
