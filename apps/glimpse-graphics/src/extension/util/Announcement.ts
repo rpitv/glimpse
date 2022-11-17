@@ -4,6 +4,7 @@ export type MessageTimer = {
 	visible: boolean;
 	startedAt: number;
 	length: number;
+	timerEndsAction: "removeAnnouncement" | "removeTimer" | "nothing";
 }
 
 export class Announcement {

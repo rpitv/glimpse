@@ -1,26 +1,22 @@
 <template>
 	<n-config-provider :theme="darkTheme">
-		<Suspense>
-			<div>
-				<AllAnnouncementsDisplay />
-				<hr />
-				<AllAnnouncementsControl />
-				<hr />
-				<AllAnnouncementsSettings />
-			</div>
-			<template #fallback>
-				Loading...
-			</template>
-		</Suspense>
+		<n-message-provider>
+			<Suspense>
+				<div>
+					<AllAnnouncementsSections/>
+				</div>
+				<template #fallback>
+					Loading...
+				</template>
+			</Suspense>
+		</n-message-provider>
 	</n-config-provider>
 </template>
 
 <script setup lang="ts">
 
-import {NConfigProvider, darkTheme} from "naive-ui";
-import AllAnnouncementsDisplay from "./AllAnnouncementsDisplay.vue";
-import AllAnnouncementsControl from "./AllAnnouncementsControl.vue";
-import AllAnnouncementsSettings from "./AllAnnouncementsSettings.vue";
+import {NConfigProvider, darkTheme, NMessageProvider} from "naive-ui";
+import AllAnnouncementsSections from "./AllAnnouncementsSections.vue";
 
 </script>
 

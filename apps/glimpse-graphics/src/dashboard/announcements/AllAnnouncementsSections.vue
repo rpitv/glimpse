@@ -1,20 +1,28 @@
 <template>
 <div>
-	<n-grid :cols="2" :x-gap="10">
+	<n-grid :cols="2" :x-gap="10" :y-gap="10">
 		<n-grid-item>
-			<AnnouncementsDisplay v-model:announcements="awayMessages" />
+			<h2>Away Team</h2>
+			<AnnouncementsSection v-model:announcements="awayMessages" />
 		</n-grid-item>
 		<n-grid-item>
-			<AnnouncementsDisplay v-model:announcements="homeMessages" />
+			<h2>Home Team</h2>
+			<AnnouncementsSection v-model:announcements="homeMessages" />
+		</n-grid-item>
+		<n-grid-item>
+			<h2>Global</h2>
+			<AnnouncementsSection v-model:announcements="globalMessages" />
+		</n-grid-item>
+		<n-grid-item>
+			<h2>Settings</h2>
 		</n-grid-item>
 	</n-grid>
-	<AnnouncementsDisplay v-model:announcements="globalMessages" />
 </div>
 </template>
 
 <script setup lang="ts">
 import {NGrid, NGridItem} from "naive-ui";
-import AnnouncementsDisplay from "./AnnouncementsDisplay.vue";
+import AnnouncementsSection from "./AnnouncementsSection.vue";
 import {loadReplicants} from "../../browser-common/replicants";
 
 const replicants = await loadReplicants();
@@ -25,5 +33,7 @@ const globalMessages = replicants.announcements.global;
 </script>
 
 <style scoped lang="scss">
-
+h2 {
+	margin: 5px;
+}
 </style>
