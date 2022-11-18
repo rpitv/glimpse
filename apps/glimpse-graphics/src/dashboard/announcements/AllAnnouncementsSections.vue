@@ -13,9 +13,6 @@
 			<h2>Global</h2>
 			<AnnouncementsSection v-model:announcements="globalMessages" />
 		</n-grid-item>
-		<n-grid-item>
-			<h2>Settings</h2>
-		</n-grid-item>
 	</n-grid>
 </div>
 </template>
