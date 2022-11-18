@@ -1,11 +1,15 @@
 <template>
-<div>
-	<n-data-table
-		:columns="tableCols"
-		:data="tableData"
-		:row-key="(row) => row.id"
-		@update:checked-row-keys="checkedRowsUpdate" />
-</div>
+	<div>
+		<div v-if="selectedRows.length > 0 && tableData.filter(row => row.id !== 'empty').length > 0" class="remove-selected-section">
+			<n-button type="error" round secondary @click="removeSelectedAnnouncements">Remove Selected</n-button>
+		</div>
+		<n-data-table
+			:columns="tableCols"
+			:data="tableData"
+			:row-key="(row) => row.id"
+			:summary="createFooter"
+			@update:checked-row-keys="(newSelectedRows) => selectedRows = newSelectedRows"/>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -38,23 +42,25 @@ const emit = defineEmits(["update:announcements"])
  */
 type AnnouncementRow = {
 	id: string, // ID is used not to display, but to identify the row
-	message: VNode|string,
-	timer: VNode|string,
+	message: VNode | string,
+	timer: VNode | string,
 	actions?: VNode
 }
 
+const selectedRows = ref<RowKey[]>([]);
+
 // When the user inputs a new message, it shouldn't be applied until after they click out of the input
 //   To do this we need to store the input value in
-const messageEditInputs = ref<{[id: string]: string}>({});
+const messageEditInputs = ref<{ [id: string]: string }>({});
 // Casting because the type for the expand column seems to break things for me.
-const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<AnnouncementRow>> [
+const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<AnnouncementRow>>[
 	{
 		type: "selection",
-		disabled: (row: AnnouncementRow) => row.id === "new",
+		disabled: (row: AnnouncementRow) => row.id === "empty",
 	},
 	{
 		type: "expand",
-		expandable: (row: AnnouncementRow) => row.timer !== '-' && row.id !== "new",
+		expandable: (row: AnnouncementRow) => row.timer !== '-' && row.id !== "empty",
 		renderExpand: (row: AnnouncementRow) => {
 			return h(AnnouncementTimerControl, {
 				announcementId: row.id
@@ -64,16 +70,17 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 	{
 		title: "Message",
 		key: "message",
+		colSpan: (row: AnnouncementRow) => row.id === "empty" ? 3 : 1,
 		render: (row: AnnouncementRow) => {
 			// If message isn't just a string (i.e., it's a VNode), just return that VNode.
 			//   Otherwise, we can overwrite that string with our own NInput VNode which allows
 			//   the user to edit the string.
-			if(typeof row.message !== 'string') {
+			if (typeof row.message !== 'string') {
 				return row.message;
 			}
 
 			// Apply the current value to the input if it's not already set
-			if(!messageEditInputs.value[row.id]) {
+			if (!messageEditInputs.value[row.id]) {
 				messageEditInputs.value[row.id] = row.message;
 			}
 
@@ -87,7 +94,7 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 					// Once blurred, find the announcement with the matching ID and update its
 					//  message to the value stored in the input
 					const announcement = props.announcements.find(a => a.id === row.id);
-					if(announcement) {
+					if (announcement) {
 						// We can edit the message directly since it's a property, instead of
 						// having to create a copy and then emit the new array
 						announcement.message = messageEditInputs.value[row.id];
@@ -106,7 +113,7 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 		render: (row: AnnouncementRow) => {
 			// If this row already has it's own actions, just return those actions
 			//   This is the case only for the "Add Announcement" row
-			if(row.actions) {
+			if (row.actions) {
 				return row.actions;
 			}
 
@@ -118,7 +125,7 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 				{
 					onClick: () => removeAnnouncement(row.id),
 					type: "error",
-					secondary:true,
+					secondary: true,
 					circle: true
 				},
 				{default: () => "✕"},
@@ -128,10 +135,20 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 ];
 
 const tableData = computed<AnnouncementRow[]>(() => {
+	if(props.announcements.length === 0) {
+		return [{
+			id: "empty",
+			message: h("div", {"class": "no-announcements-text"}, {default: () => "No announcements"}),
+			timer: "-",
+			actions: h("div", {
+			}, {default: () => ""})
+		}];
+	}
+
 	// Create a row for each announcement
 	const currentAnnouncements: AnnouncementRow[] = props.announcements.map((announcement: Announcement): AnnouncementRow => {
 		let timerToDisplay = null;
-		if(announcement.timer) {
+		if (announcement.timer) {
 			const timeRemaining = announcement.timer.length - (announcement.timer.startedAt - replicants.scoreboard.clock.time.value);
 			timerToDisplay = millisToString(timeRemaining);
 		}
@@ -141,43 +158,6 @@ const tableData = computed<AnnouncementRow[]>(() => {
 			timer: timerToDisplay ?? '-'
 		}
 	});
-
-	// Add a final row that allows the user to add a new announcement
-	let newAnnouncementMessageInput = "";
-	let newAnnouncementTimerInput = "";
-	// noinspection TypeScriptValidateTypes - Incorrect typing?
-	currentAnnouncements.push({
-		id: "new",
-		message: h(
-			NInput,
-			{
-				placeholder: "Message",
-				onUpdateValue: (value) => {
-					newAnnouncementMessageInput = value;
-				},
-			}, {}
-		),
-		timer: h(
-			NInput,
-			{
-				placeholder: "mm:ss.S",
-				onUpdateValue: (value) => {
-					newAnnouncementTimerInput = value;
-				},
-			}, {}
-		),
-		actions: h(
-			NButton,
-			{
-				onClick: () => addAnnouncement(newAnnouncementMessageInput, newAnnouncementTimerInput),
-				circle: true,
-				type: "success",
-				secondary:true,
-				class: "add-announcement-button"
-			},
-			{default: () => "+"}
-		),
-	})
 
 	return currentAnnouncements;
 })
@@ -197,15 +177,24 @@ function addAnnouncement(message: string, timer: string) {
 		}
 
 		emit("update:announcements", [...props.announcements, newAnnouncement]);
-	} catch(e) {
+	} catch (e) {
 		// Failed to parse timer string
 		console.error(e);
 	}
 }
 
+function removeSelectedAnnouncements() {
+	const selectedAnnouncementIds: string[] = tableData.value
+		.filter((row: AnnouncementRow) => selectedRows.value.includes(row.id))
+		.map((row: AnnouncementRow) => row.id);
+	const newAnnouncements = props.announcements.filter(announcement => !(selectedAnnouncementIds).includes(announcement.id));
+	emit("update:announcements", newAnnouncements);
+	selectedRows.value = [];
+}
+
 function removeAnnouncement(removeId: string) {
 	const annIndex = props.announcements.findIndex((ann) => ann.id === removeId);
-	if(annIndex < 0) {
+	if (annIndex < 0) {
 		return;
 	}
 
@@ -214,13 +203,62 @@ function removeAnnouncement(removeId: string) {
 	emit('update:announcements', announcementsCopy);
 }
 
-function checkedRowsUpdate(checkedRows: RowKey[]) {
-	console.log(checkedRows);
+let newAnnouncementMessageInput = "";
+let newAnnouncementTimerInput = "";
+function createFooter() {
+	// noinspection TypeScriptValidateTypes - Incorrect typing?
+	return {
+		message: {
+			value: h(
+				NInput,
+				{
+					placeholder: "Message",
+					onUpdateValue: (value) => {
+						newAnnouncementMessageInput = value;
+					},
+				}, {}
+			)
+		},
+		timer: {
+			value: h(
+				NInput,
+				{
+					placeholder: "mm:ss.S",
+					onUpdateValue: (value) => {
+						newAnnouncementTimerInput = value;
+					},
+				}, {}
+			)
+		},
+		actions: {
+			value: h(
+				NButton,
+				{
+					onClick: () => addAnnouncement(newAnnouncementMessageInput, newAnnouncementTimerInput),
+					circle: true,
+					type: "success",
+					secondary: true,
+					class: "add-announcement-button"
+				},
+				{default: () => "+"}
+			)
+		}
+	}
 }
 </script>
 
 <style scoped lang="scss">
+.remove-selected-section {
+	margin-bottom: 0.5em;
+}
 .add-announcement-button {
 	font-size: 1.5em;
+}
+.no-announcements-text {
+	text-align: center;
+	// Since we can't overwrite the checkbox, we have to offset the text in order to center it.
+	transform: translateX(-35px);
+	font-style: italic;
+	opacity: 0.8;
 }
 </style>
