@@ -30,7 +30,7 @@ const props = defineProps({
 
 const replicants = await loadReplicants();
 const team = replicants.teams[props.teamId];
-const messages = replicants.messages[<'team1' | 'team2'>`team${props.teamId + 1}`];
+const messages = replicants.announcements[<'team1' | 'team2'>`team${props.teamId + 1}`];
 
 // noinspection JSUnusedGlobalSymbols -- used in vbind
 const logoBgColor = team.primaryColor;

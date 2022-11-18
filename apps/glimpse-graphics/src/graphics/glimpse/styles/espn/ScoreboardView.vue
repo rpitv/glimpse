@@ -1,18 +1,18 @@
 <template>
 	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
-		<div class="team1-section">
+		<div class="team2-section">
 			<TeamView class="bordered" v-if="teamTwo.enabled.value" :team-id="1" />
 
-			<p v-if="replicants.messages.team1.value.length > 0" class="announcement-section team1">
-				{{computedMessage(replicants.messages.team1.value[0]).value}}
+			<p v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
+				{{ computedMessage(replicants.announcements.team2.value[0]).value }}
 			</p>
 		</div>
 
-		<div class="team2-section">
+		<div class="team1-section">
 			<TeamView class="bordered no-left-border" v-if="teamOne.enabled.value" :team-id="0" />
 
-			<p v-if="replicants.messages.team2.value.length > 0" class="announcement-section team2">
-				{{computedMessage(replicants.messages.team2.value[0]).value}}
+			<p v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
+				{{ computedMessage(replicants.announcements.team1.value[0]).value }}
 			</p>
 		</div>
 
@@ -24,8 +24,8 @@
 			<p v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
 				{{ formattedClockTime }}
 			</p>
-			<p v-if="replicants.messages.global.value.length > 0" class="announcement-section global">
-				{{computedMessage(replicants.messages.global.value[0]).value}}
+			<p v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
+				{{ computedMessage(replicants.announcements.global.value[0]).value }}
 			</p>
 		</div>
 	</div>
@@ -36,7 +36,7 @@
 import {computed} from "vue";
 import TeamView from "./TeamView.vue";
 import {loadReplicants} from "../../../../browser-common/replicants";
-import {DisplayableMessage} from "../../../../common/DisplayableMessage";
+import {Announcement} from "../../../../common/Announcement";
 
 const replicants = await loadReplicants();
 const teamOne = replicants.teams[0];
@@ -110,7 +110,7 @@ const team1TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team1Col
 const team2TextColor = computed(() => pickTextColorBasedOnBgColorSimple(team2Color.value, '#ffffff', '#000000'))
 
 
-function computedMessage(message: DisplayableMessage) {
+function computedMessage(message: Announcement) {
 	return computed(() => {
 		if(!message.timer || !message.timer.visible) {
 			return message.message;
