@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import {DataTableColumns, NButton, NDataTable, NInput} from "naive-ui";
+import {DataTableColumns, NButton, NDataTable, NInput, useMessage} from "naive-ui";
 import {computed, defineEmits, defineProps, h, PropType, ref, VNode} from "vue";
 import {Announcement} from "../../common/Announcement";
 import {v4} from "uuid";
@@ -23,6 +23,7 @@ import {RowKey} from "naive-ui/lib/data-table/src/interface";
 import AnnouncementTimerControl from "./AnnouncementTimerControl.vue";
 
 const replicants = await loadReplicants();
+const message = useMessage();
 
 const props = defineProps({
 	announcements: {
@@ -54,10 +55,12 @@ const selectedRows = ref<RowKey[]>([]);
 const messageEditInputs = ref<{ [id: string]: string }>({});
 // Casting because the type for the expand column seems to break things for me.
 const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<AnnouncementRow>>[
+	// Announcements can be selected and then deleted in bulk
 	{
 		type: "selection",
 		disabled: (row: AnnouncementRow) => row.id === "empty",
 	},
+	// Announcements with timers can be expanded to show timer controls
 	{
 		type: "expand",
 		expandable: (row: AnnouncementRow) => row.timer !== '-' && row.id !== "empty",
@@ -70,6 +73,7 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 	{
 		title: "Message",
 		key: "message",
+		// If this is the empty row, timer and actions columns should be hidden
 		colSpan: (row: AnnouncementRow) => row.id === "empty" ? 3 : 1,
 		render: (row: AnnouncementRow) => {
 			// If message isn't just a string (i.e., it's a VNode), just return that VNode.
@@ -111,7 +115,7 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 		title: "Actions",
 		key: "actions",
 		render: (row: AnnouncementRow) => {
-			// If this row already has it's own actions, just return those actions
+			// If this row already has its own actions, just return those actions
 			//   This is the case only for the "Add Announcement" row
 			if (row.actions) {
 				return row.actions;
@@ -135,6 +139,10 @@ const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<Announcem
 ];
 
 const tableData = computed<AnnouncementRow[]>(() => {
+	// If there are no announcements, we add a special row that tells the user
+	//   there are no announcements. This is better than the default empty table look, and
+	//   also allows us to use the "Summary" tool of <n-data-table> to be used as a footer which
+	//   contains the add message controls.
 	if(props.announcements.length === 0) {
 		return [{
 			id: "empty",
@@ -146,11 +154,16 @@ const tableData = computed<AnnouncementRow[]>(() => {
 	}
 
 	// Create a row for each announcement
-	const currentAnnouncements: AnnouncementRow[] = props.announcements.map((announcement: Announcement): AnnouncementRow => {
+	return props.announcements.map((announcement: Announcement): AnnouncementRow => {
 		let timerToDisplay = null;
-		if (announcement.timer) {
-			const timeRemaining = announcement.timer.length - (announcement.timer.startedAt - replicants.scoreboard.clock.time.value);
-			timerToDisplay = millisToString(timeRemaining);
+		try {
+			if (announcement.timer) {
+				const timeRemaining = announcement.timer.length - (announcement.timer.startedAt - replicants.scoreboard.clock.time.value);
+				timerToDisplay = millisToString(timeRemaining);
+			}
+		} catch(e) {
+			console.warn(e);
+			message.error('Invalid timer input');
 		}
 		return {
 			id: announcement.id,
@@ -158,20 +171,25 @@ const tableData = computed<AnnouncementRow[]>(() => {
 			timer: timerToDisplay ?? '-'
 		}
 	});
-
-	return currentAnnouncements;
 })
 
-function addAnnouncement(message: string, timer: string) {
+/**
+ * Add a new announcement to the list of announcements. Emits an update to the parent.
+ * @param messageInput Message of the announcement to add
+ * @param timerInput Timer text input of the announcement to add. Should be in the form "mm.ss.S". Any other forms
+ *   are not guaranteed to successfully be parsed and may result in undesired output or errors being displayed to
+ *   the user.
+ */
+function addAnnouncement(messageInput: string, timerInput: string) {
 	try {
 		const newAnnouncement: Announcement = {
 			id: v4(),
-			message: message,
+			message: messageInput,
 			type: "info", // TODO allow user to select type
-			timer: timer ? {
+			timer: timerInput ? {
 				visible: true,
 				startedAt: replicants.scoreboard.clock.time.value,
-				length: parseTimeString(timer),
+				length: parseTimeString(timerInput),
 				timerEndsAction: "removeAnnouncement"
 			} : null,
 		}
@@ -180,9 +198,14 @@ function addAnnouncement(message: string, timer: string) {
 	} catch (e) {
 		// Failed to parse timer string
 		console.error(e);
+		message.error('Invalid timer input');
 	}
 }
 
+/**
+ * Remove all the announcements that are currently selected in the checkboxes along the left side of the table.
+ *   Emits an update to the parent. If no announcements are selected, does nothing.
+ */
 function removeSelectedAnnouncements() {
 	const selectedAnnouncementIds: string[] = tableData.value
 		.filter((row: AnnouncementRow) => selectedRows.value.includes(row.id))
@@ -192,6 +215,10 @@ function removeSelectedAnnouncements() {
 	selectedRows.value = [];
 }
 
+/**
+ * Remove a specific announcement with the given ID. Emits an update to the parent.
+ * @param removeId ID of the announcement to remove. If no announcement with this ID exists, does nothing.
+ */
 function removeAnnouncement(removeId: string) {
 	const annIndex = props.announcements.findIndex((ann) => ann.id === removeId);
 	if (annIndex < 0) {
@@ -205,6 +232,13 @@ function removeAnnouncement(removeId: string) {
 
 let newAnnouncementMessageInput = "";
 let newAnnouncementTimerInput = "";
+
+/**
+ * Creates the add announcement section within the "Summary" section of n-data-table. This is intended to be used
+ *   as an area to summarize the data in the table, but we're using it as a normal footer by always displaying
+ *   a row, even if the table is empty (the row just says "Empty").
+ *   @returns A row-like definition explaining what to display in each column.
+ */
 function createFooter() {
 	// noinspection TypeScriptValidateTypes - Incorrect typing?
 	return {

@@ -53,8 +53,11 @@ const props = defineProps({
 	}
 });
 
+// Placeholder variable for the value input by the user, which is applied when they blur the input.
 const newLengthInput = ref<string>('');
 
+// Find the announcement that this control is for by looking at all announcements and finding the one
+//  with the matching ID.
 const announcement = computed(() => {
 	const allAnnouncements = [
 		...replicants.announcements.team1.value,
@@ -64,6 +67,10 @@ const announcement = computed(() => {
 	return allAnnouncements.find(a => a.id === props.announcementId);
 })
 
+/**
+ * Decrement this announcement's timer by one second. This is accomplished by decreasing the length
+ *   by 1000ms.
+ */
 function decrementSecond() {
 	if (!announcement.value?.timer) {
 		return;
@@ -71,6 +78,10 @@ function decrementSecond() {
 	announcement.value.timer.length -= 1000;
 }
 
+/**
+ * Increment this announcement's timer by one second. This is accomplished by increasing the length
+ *   by 1000ms.
+ */
 function incrementSecond() {
 	if (!announcement.value?.timer) {
 		return;
@@ -78,6 +89,11 @@ function incrementSecond() {
 	announcement.value.timer.length += 1000;
 }
 
+/**
+ * Set the length of this announcement's timer to the value in the input field. This is accomplished
+ *   by parsing the input field's value, setting the start time to the current time, and setting the
+ *   length to the parsed value.
+ */
 function setNewLength() {
 	if (!announcement.value?.timer) {
 		return;
@@ -94,6 +110,11 @@ function setNewLength() {
 	}
 }
 
+/**
+ * Callback for when the user changes the "When timer ends..." radio button. Simply updates the value
+ *   stored in the replicant.
+ * @param event Event that triggered this method call.
+ */
 function timerEndsActionChanged(event: Event) {
 	if(!announcement.value || !announcement.value.timer) {
 		return;
