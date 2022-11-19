@@ -44,7 +44,7 @@ function clockTick() {
 	scoreboardTimerLastModified = now;
 }
 
-function announcementTimersTick() {
+export function announcementTimersTick() {
 	const allAnnouncements = [
 		...replicants.announcements.global.value,
 		...replicants.announcements.team1.value,

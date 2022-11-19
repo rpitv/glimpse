@@ -1,5 +1,6 @@
 import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
+import {announcementTimersTick} from "../scoreboard-clock";
 
 export function mainClockHandler(value: string): void {
 	logger.trace({value}, 'mainClockHandler called');
@@ -38,6 +39,9 @@ export function mainClockHandler(value: string): void {
 
 	replicants.scoreboard.clock.time.value = minsInt * 60000 + secsInt * 1000 + tenthsInt * 100;
 	logger.trace({time: replicants.scoreboard.clock.time.value}, 'Updated clock time');
+
+	logger.trace('Running announcement timers tick')
+	announcementTimersTick();
 }
 
 export function homeScoreHandler(value: string): void {
