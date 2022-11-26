@@ -137,6 +137,3 @@ dist
 # NodeCG files, except the config
 ./.nodecg/
 !./.nodecg/cfg
-
-.idea
-.vscode
