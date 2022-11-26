@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import {DataTableColumns, NButton, NDataTable, NInput, useMessage} from "naive-ui";
 import {computed, defineEmits, defineProps, h, PropType, ref, VNode} from "vue";
-import {Announcement} from "../../common/Announcement";
+import {Announcement, AnnouncementTimer} from "../../common/Announcement";
 import {v4} from "uuid";
 import {loadReplicants} from "../../browser-common/replicants";
 import {millisToString, parseTimeString} from "../util";
@@ -45,7 +45,8 @@ type AnnouncementRow = {
 	id: string, // ID is used not to display, but to identify the row
 	message: VNode | string,
 	timer: VNode | string,
-	actions?: VNode
+	actions?: VNode,
+	top?: VNode
 }
 
 const selectedRows = ref<RowKey[]>([]);
@@ -55,6 +56,42 @@ const selectedRows = ref<RowKey[]>([]);
 const messageEditInputs = ref<{ [id: string]: string }>({});
 // Casting because the type for the expand column seems to break things for me.
 const tableCols: DataTableColumns<AnnouncementRow> = <DataTableColumns<AnnouncementRow>>[
+	// An announcement can be sent to the top of the array.
+	{
+		title: "Top",
+		key: "top",
+		render: (row: AnnouncementRow) => {
+			return h(
+				NButton,
+				{
+					onClick: () => {
+						// do nothing if there are no announcements
+						if (row.id === "empty")
+							return;
+
+						// find the current announcement and save it for reinsertion
+						let selectedAnnouncement: Announcement;
+						const newAnnouncements = props.announcements.filter(announcement => {
+							if (row.id == announcement.id) {
+								selectedAnnouncement = announcement;
+								return false;
+							}
+							return true;
+						});
+
+						// reinsert the selected announcement to first and let the program know of the change
+						if (selectedAnnouncement != undefined)
+							newAnnouncements.unshift(selectedAnnouncement);
+						emit("update:announcements", newAnnouncements);
+					},
+					type: "info",
+					secondary: true,
+					circle: true
+				},
+				{default: () => "↑"}
+			)
+		}
+	},
 	// Announcements can be selected and then deleted in bulk
 	{
 		type: "selection",
@@ -149,7 +186,8 @@ const tableData = computed<AnnouncementRow[]>(() => {
 			message: h("div", {"class": "no-announcements-text"}, {default: () => "No announcements"}),
 			timer: "-",
 			actions: h("div", {
-			}, {default: () => ""})
+			}, {default: () => ""}),
+			top: h("div")
 		}];
 	}
 
@@ -276,6 +314,9 @@ function createFooter() {
 				},
 				{default: () => "+"}
 			)
+		},
+		top: {
+			value: h("div"	)
 		}
 	}
 }
