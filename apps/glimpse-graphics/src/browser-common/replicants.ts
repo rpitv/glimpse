@@ -10,10 +10,12 @@ export async function loadReplicants() {
 			}),
 			selectedPort: await replicant<string | null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
 			selectedSport: await replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
-			status: await replicant<{ connected: boolean, bitrate: number }>("status", "glimpse-graphics.sync-settings", {
+			status: await replicant<{ connected: boolean, bitrate: number, error: boolean, errorMsg: string }>("status", "glimpse-graphics.sync-settings", {
 				defaultValue: {
 					connected: false,
-					bitrate: 0
+					bitrate: 0,
+					error: false,
+					errorMsg: "Error"
 				}, persistent: false
 			}),
 			values: {

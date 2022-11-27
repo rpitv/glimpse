@@ -53,6 +53,8 @@ function bufferToHexString(data: Buffer) {
  *   {@link handlePacket}.
  */
 export function daktronicsRtdListener(data: Buffer) {
+	replicants.sync.status.value.error = false;
+
 	if(logger.isLevelEnabled("trace")) {
 		logger.trace({rawBytes: bufferToHexString(data)},'Received data from serial port');
 	}

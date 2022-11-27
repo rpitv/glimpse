@@ -27,6 +27,7 @@ async function closeSerialPort(): Promise<void> {
 		await new Promise(resolve => port?.close(resolve));
 	}
 	port = null;
+	replicants.sync.status.value.error = false;
 	replicants.sync.status.value.connected = false;
 }
 
@@ -54,11 +55,19 @@ async function openSerialPort(path: string, baudRate: number = 19200): Promise<v
 		if(!(await SerialPort.list()).some(port => port.path === path)) {
 			throw new Error("Serial port does not exist.");
 		}
-		port = new SerialPort({path, baudRate});
+		port = new SerialPort({path, baudRate, endOnClose: true});
 	}
+
+	port.on("error", (err)=> {
+		logger.trace("openSerialPort() error");
+		logger.error(err);
+		replicants.sync.status.value.error = true;
+		replicants.sync.status.value.errorMsg = `${err.name}: ${err.message}`;
+	})
 
 	// Whenever data is received by the port, send it out as a message so users can monitor the connection status.
 	port.on('data', async (data) => {
+		replicants.sync.status.value.error = false;
 		bitrateCalculationCache.push({timestamp: Date.now(), byteCount: data.length});
 		await new MessageComposable("data", "glimpse-graphics.daktronics").send(data);
 	});
@@ -66,13 +75,19 @@ async function openSerialPort(path: string, baudRate: number = 19200): Promise<v
 	// Set up the Daktronics RTD listener on the port.
 	port.on('data', daktronicsRtdListener);
 
-	port.on('open', () => replicants.sync.status.value.connected = true);
-	port.on('close', () => replicants.sync.status.value.connected = false);
+	port.on('open', () => {
+		replicants.sync.status.value.error = false;
+		replicants.sync.status.value.connected = true;
+	});
+	port.on('close', () => {
+		replicants.sync.status.value.error = false;
+		replicants.sync.status.value.connected = false;
+	});
 }
 
 // Calculate connection bitrate every second. This loop occurs even if the port is closed.
 let bitrateCalculationCache: {timestamp: number, byteCount: number}[] = [];
-replicants.sync.status.value = { connected: false, bitrate: 0 }
+replicants.sync.status.value = { connected: false, bitrate: 0, error: false, errorMsg: "" }
 setInterval(() => {
 	// Remove data older than 5 seconds.
 	bitrateCalculationCache = bitrateCalculationCache.filter(c => c.timestamp > Date.now() - 5000);
