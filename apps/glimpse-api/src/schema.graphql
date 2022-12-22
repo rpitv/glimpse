@@ -1170,6 +1170,7 @@ type Production {
     rsvps: [ProductionRSVP!] @Auth(action: read, subject: Production ,field: "rsvps") @Auth(action: read, subject: ProductionRSVP)
     tags: [ProductionTag!] @Auth(action: read, subject: Production, field: "tags") @Auth(action: read, subject: ProductionTag)
     videos: [ProductionVideo!] @Auth(action: read, subject: Production, field: "videos") @Auth(action: read, subject: ProductionVideo)
+    credits: [Credit!] @Auth(action: read, subject: Production, field: "credits") @Auth(action: read, subject: Credit)
 }
 
 input ProductionCreateInput {
