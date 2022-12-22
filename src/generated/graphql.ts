@@ -958,6 +958,7 @@ export type Production = {
   category?: Maybe<Category>;
   closetLocation?: Maybe<Scalars['String']>;
   closetTime?: Maybe<Scalars['DateTime']>;
+  credits?: Maybe<Array<Credit>>;
   description?: Maybe<Scalars['String']>;
   discordChannel?: Maybe<Scalars['String']>;
   discordServer?: Maybe<Scalars['String']>;
@@ -2214,6 +2215,7 @@ export type ProductionResolvers<ContextType = any, ParentType extends ResolversP
   category?: Resolver<Maybe<ResolversTypes['Category']>, ParentType, ContextType>;
   closetLocation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   closetTime?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  credits?: Resolver<Maybe<Array<ResolversTypes['Credit']>>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discordChannel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discordServer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

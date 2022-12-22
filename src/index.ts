@@ -432,6 +432,7 @@ async function createGraphQLServer(): Promise<
                     "rsvps",
                     "tags",
                     "videos",
+                    "credits",
                     "category",
                     "thumbnail",
                 ],
