@@ -9,8 +9,8 @@ module.exports = {
 	async execute(client) {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 		client.user.setActivity({
-			name: "Why not change the world?",
-			type: ActivityType.Competing,
+			name: "Tetris",
+			type: ActivityType.Playing,
 		});
 		// Checks if productions have past their closet date
 		setInterval(async () => {
