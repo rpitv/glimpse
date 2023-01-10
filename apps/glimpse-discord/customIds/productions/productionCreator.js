@@ -2,6 +2,9 @@ const moment = require('moment');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionsBitField } = require('discord.js')
 const { FieldValue } = require('firebase-admin/firestore');
 const { db } = require('../../firebase');
+const dotenv = require('dotenv');
+
+dotenv.config()
 
 module.exports = { 
     name: 'productionCreator',
@@ -48,14 +51,19 @@ module.exports = {
                     .setLabel('Unvolunteer')
                     .setStyle(ButtonStyle.Danger)
             )
-
         interaction.guild.channels.create({
             name: channelName,
             type: ChannelType.GuildText,
-            permissionOverwrites: [{
-                id: interaction.guild.roles.everyone,
-                deny: [PermissionsBitField.Flags.ViewChannel]
-            }],
+            permissionOverwrites: [
+                {
+                    id: interaction.guild.roles.everyone,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: process.env.RPITV_ID,
+                    allow: [PermissionsBitField.Flags.ViewChannel]
+                }
+            ],
             parent: proCategory
         }).then(async channel => {
             const volunteerMsg = await interaction.guild.channels.cache.get(proChannel).send({ 
@@ -67,7 +75,7 @@ module.exports = {
                 components: [unVolunteerBtn]
             }).then(async (msg) => await msg.pin());
             if (!await productionsRef.get().then((snapshot) => snapshot.data()))
-                productionsRef.set({ productions: [{
+                await productionsRef.set({ productions: [{
                     channelName: channelName,
                     eventName: eventName,
                     channelId: channel.id,
@@ -83,7 +91,7 @@ module.exports = {
                     inputValueTime: interaction.fields.getTextInputValue('times')
             }]})
             else
-                productionsRef.update({ productions: FieldValue.arrayUnion({
+                await productionsRef.update({ productions: FieldValue.arrayUnion({
                     channelName: channelName,
                     eventName: eventName,
                     channelId: channel.id,
@@ -100,6 +108,6 @@ module.exports = {
                 })})
         })
         
-        await interaction.reply({ content: 'Production succesfully created!', ephemeral: true });
+        await interaction.reply({ content: 'Production successfully created!', ephemeral: true });
     }
 }

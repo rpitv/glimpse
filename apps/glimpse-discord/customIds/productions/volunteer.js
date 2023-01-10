@@ -16,7 +16,8 @@ module.exports = {
                     Because of this, simultaneous button presses cannot occur or they will cause an error.
                 */
                 interaction.reply({
-                    content: 'The bot cannot handle multiple button presses at once, please click again shortly',
+                    content: 'The bot cannot handle multiple button presses at once, please click again shortly.\n' +
+                        'Either that or this production doesn\'t exist...',
                     ephemeral: true
                 })
                 return;
@@ -48,10 +49,10 @@ module.exports = {
             const unVolunteerMsg = await interaction.guild.channels.cache.get(currentProduction.channelId)
                 .messages.fetch(currentProduction.unVolunteerMsgId);
             let updatedProduction = EmbedBuilder.from(volunteerMsg.embeds[0]).setFields(field);
-            volunteerMsg.edit({embeds: [updatedProduction]});
-            unVolunteerMsg.edit({embeds: [updatedProduction]});
+            await volunteerMsg.edit({embeds: [updatedProduction]});
+            await unVolunteerMsg.edit({embeds: [updatedProduction]});
             let currProChannel = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
-            await currProChannel.permissionOverwrites.edit(interaction.user.id, { ViewChannel: true} );
+            await currProChannel.permissionOverwrites.edit(interaction.user.id, { ViewChannel: true } );
             interaction.reply({
                 content: 'Successfully volunteered!',
                 ephemeral: true

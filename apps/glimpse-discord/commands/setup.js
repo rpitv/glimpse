@@ -10,11 +10,10 @@ module.exports = {
     async execute(interaction) { 
         const setupRef = db.collection('rpi-tv').doc('setup')
         const setupData = await setupRef.get()
-        let proCategory, proChannel, archive;
+        let proCategory, proChannel;
         if (setupData.data()) {
             proCategory = setupData.data().proCategory;
             proChannel = setupData.data().proChannel;
-            archive = setupData.data().archive
         };
         
         const checkFields = async (embed) => {
@@ -23,10 +22,6 @@ module.exports = {
             if (proCategory) {
                 const category = await interaction.guild.channels.cache.find((category) => category.id === proCategory);
                 embed.data.fields[1] = { name: '2️⃣ Productions Category', value: category.name }
-            }
-            if (archive) {
-                const category = await interaction.guild.channels.cache.find((category) => category.id === archive);
-                embed.data.fields[2] = { name: '3️⃣ Archive Category', value: category.name }
             }
         }
 
@@ -38,7 +33,6 @@ module.exports = {
             .addFields(
                 {name: '1️⃣ Productions Channel', value: `DNE`},
                 {name: '2️⃣ Productions Category', value: `DNE`},
-                {name: '3️⃣ Archive', value: 'DNE'}
             );
         checkFields(setupEmbed);
         
@@ -51,11 +45,7 @@ module.exports = {
                 new ButtonBuilder()
                     .setCustomId('proCategory')
                     .setLabel('2️⃣')
-                    .setStyle(ButtonStyle.Primary),
-                new ButtonBuilder()
-                    .setCustomId('archive')
-                    .setLabel('3️⃣')
-                    .setStyle(ButtonStyle.Primary),
+                    .setStyle(ButtonStyle.Primary)
             );
 
         interaction.reply({ embeds: [setupEmbed], components: [setupRow] });
