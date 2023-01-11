@@ -1,27 +1,5 @@
 version: '3.9'
 services:
-  api:
-    depends_on:
-      - db
-      - redis
-      - rabbitmq
-    build: .
-    ports:
-      - "4000:4000"
-      - "5858:5858"
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=development
-    command: npm run dev.debug
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-      - ./cert:/etc/cert
-    networks:
-      - glimpse_network
-
   db:
     image: postgres:14
     restart: unless-stopped
