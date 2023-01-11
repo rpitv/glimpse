@@ -86,6 +86,7 @@ export function periodHandler(value: string): void {
 
 	replicants.scoreboard.period.value = parseInt(value, 10) || 1;
 }
+
 export function homeShotHandler(value: string): void {
 	logger.trace({value}, 'homeShotHandler called');
 	if(!replicants.sync.values.teams[0].shots.value) {

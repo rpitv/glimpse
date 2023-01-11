@@ -24,7 +24,9 @@ while((match = regex.exec(str))) {
 console.log(matches);
  */
 
+
 import {awayScoreHandler, homeScoreHandler, homeShotHandler, mainClockHandler, periodHandler, awayShotHandler} from "./handlers";
+
 
 type PacketDefinition = { length: number, title: string, justification: 'L'|'R', handler?: (value: string) => void };
 type SportDefinition = { [key: number]: PacketDefinition };
@@ -543,8 +545,7 @@ export const sports: { [key: string]: SportDefinition } = {
 		"422": {
 			"length": 3,
 			"justification": "R",
-			"title": "Home Shots On Goal - Total",
-			handler: homeShotHandler
+			"title": "Home Shots On Goal - Total"
 		},
 		"425": {
 			"length": 2,
@@ -654,8 +655,7 @@ export const sports: { [key: string]: SportDefinition } = {
 		"468": {
 			"length": 3,
 			"justification": "R",
-			"title": "Guest Shots On Goal - Total",
-			handler: awayShotHandler
+			"title": "Guest Shots On Goal - Total"
 		},
 		"471": {
 			"length": 2,
