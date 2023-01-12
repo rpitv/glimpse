@@ -7,6 +7,7 @@ import * as path from "path";
 import {APP_FILTER} from "@nestjs/core";
 import {GraphQLExceptionFilter} from "./graphql.filter";
 import {loggerMiddleware} from "./graphql-permissions.middleware";
+import { AuthModule } from './auth/auth.module';
 
 /*
 
@@ -40,6 +41,7 @@ import {loggerMiddleware} from "./graphql-permissions.middleware";
           }
       }),
       UserModule,
+      AuthModule,
   ],
   controllers: [],
   providers: [PrismaService, {
