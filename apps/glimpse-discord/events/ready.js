@@ -19,9 +19,10 @@ module.exports = {
 				const { productions } = snapshot.data();
 				if (!productions) return;
 				for (const production of productions) {
-					const expiryDate = moment(production.inputValueClosetTime.split(' ')[2], 'YYYYMMDD').endOf('day').fromNow();
+					const expiryDate = moment(production.inputValueClosetDate, 'YYYYMMDD').endOf('day').fromNow();
 					if (expiryDate.includes('ago')){
 						await db.collection('rpi-tv').doc('setup').get().then(async (setup) => {
+							const proChannel = setup.data().proChannel;
 							if (!proChannel) return;
 							const currentGuild = await client.guilds.cache.get(process.env.GUILD_ID)
 							const volunteerMsg = await currentGuild.channels.cache.get(proChannel)

@@ -3,6 +3,7 @@ const { Client, Collection, GatewayIntentBits, ActivityType } = require('discord
 const commandFiles = require('./commands/index');
 const customIdFiles = require('./customIds/index');
 const eventFiles = require('./events/index');
+const moment = require("moment");
 
 dotenv.config();
 
@@ -33,6 +34,14 @@ for (const event of eventFiles)
 // CustomId handler
 for (const customId of customIdFiles)
 	client.customIds.set(customId.name, customId);
+
+
+// Error handler
+process.on('unhandledRejection', error => {
+	console.error("At", moment().utcOffset("300").format("MM/DD/YYYY HH:mm:ss"), 'Unhandled promise rejection:', error);
+	process.exit();
+});
+console.log();
 
 
 client.login(process.env.TOKEN);

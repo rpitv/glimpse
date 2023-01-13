@@ -51,10 +51,10 @@ module.exports = {
             let unVolunteerMsg = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
                 .messages.fetch(currentProduction.unVolunteerMsgId);
             let updatedProduction = EmbedBuilder.from(volunteerMsg.embeds[0]).setFields(field);
-            volunteerMsg.edit({embeds: [updatedProduction]});
-            unVolunteerMsg.edit({embeds: [updatedProduction]});
+            await volunteerMsg.edit({embeds: [updatedProduction]});
+            await unVolunteerMsg.edit({embeds: [updatedProduction]});
             let currProChannel = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
-            await currProChannel.permissionOverwrites.delete(interaction.user.id);
+            currProChannel.permissionOverwrites.delete(interaction.user.id);
         })
     }
 }
