@@ -53,7 +53,7 @@ module.exports = {
             await unVolunteerMsg.edit({embeds: [updatedProduction]});
             let currProChannel = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
             await currProChannel.permissionOverwrites.edit(interaction.user.id, { ViewChannel: true } );
-            interaction.reply({
+            await interaction.reply({
                 content: 'Successfully volunteered!',
                 ephemeral: true
             })

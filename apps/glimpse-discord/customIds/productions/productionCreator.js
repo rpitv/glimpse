@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionsBitField } = require('discord.js')
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, EmbedBuilder, PermissionsBitField, channelMention} = require('discord.js')
 const { FieldValue } = require('firebase-admin/firestore');
 const { db } = require('../../firebase');
 const dotenv = require('dotenv');
@@ -24,18 +24,17 @@ module.exports = {
         const closetTime = moment(closetStartEndTime[0], 'HHmm').format('HH:mm') + ` ${closetStartEndTime[1]}`;
         const startTime = moment(closetStartEndTime[2], "HHmm").format('HH:mm') + ` ${closetStartEndTime[3]}`;
         const endTime = moment(closetStartEndTime[4], "HHmm").format('HH:mm') + ` ${closetStartEndTime[5]}`;
-        
+
         const production = new EmbedBuilder()
             .setColor('Red')
-            .setTitle(eventName)
+            .setTitle(eventName, "@", )
             .setDescription(date)
             .addFields(
                 { name: 'Closet', value: `${closetLocation} @ ${closetTime}` },
                 { name: 'Start', value: `${startTime}` },
                 { name: 'End', value: `${endTime}` },
-                { name: 'Volunteers', value: '🦗'}
-            ) 
-        
+            )
+
         const volunteerBtn = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
@@ -43,7 +42,7 @@ module.exports = {
                     .setLabel('Volunteer')
                     .setStyle(ButtonStyle.Success)
             )
-        
+
         const unVolunteerBtn = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
@@ -66,6 +65,9 @@ module.exports = {
             ],
             parent: proCategory
         }).then(async channel => {
+            production.addFields(
+                { name: "Channel", value: `${channelMention(channel.id)}`},
+                { name: 'Volunteers', value: '🦗'})
             const volunteerMsg = await interaction.guild.channels.cache.get(proChannel).send({ 
                 embeds: [production], 
                 components: [volunteerBtn] 
@@ -107,7 +109,7 @@ module.exports = {
                     inputValueTime: interaction.fields.getTextInputValue('times')
                 })})
         })
-        
+
         await interaction.reply({ content: 'Production successfully created!', ephemeral: true });
     }
 }
