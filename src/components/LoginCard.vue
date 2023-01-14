@@ -25,6 +25,13 @@
             Login
           </n-button>
         </n-form-item>
+        <n-divider />
+        <n-button color="#5865F2" text-color="#ffffff" round @click="redirectToDiscordLogin">
+          <template #icon>
+            <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
+          </template>
+          Log in with Discord
+        </n-button>
       </n-form>
     </n-card>
   </n-spin>
@@ -32,11 +39,12 @@
 
 <script setup lang="ts">
 import type {FormInst, FormItemRule, FormValidationError} from "naive-ui";
-import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin} from "naive-ui";
+import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin, NDivider} from "naive-ui";
 import {ref} from "vue";
 import {useMutation} from "@vue/apollo-composable";
 import {UsernameLoginDocument} from "@/graphql/types";
 import {useAuthStore} from "@/stores/auth";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 // Setup references
 const formRef = ref<FormInst | null>(null)
@@ -157,17 +165,25 @@ function focus() {
   usernameInputRef.value?.focus()
 }
 
+function redirectToDiscordLogin() {
+  return window.location.href = window.location.protocol + '//' + window.location.host + import.meta.env.BASE_URL + 'api/auth/discord';
+}
+
 </script>
 
 <style scoped lang="scss">
 .login-card {
-  @media(min-width: 800px) {
-    width: 60%;
-    margin-left: 20%;
+  @media(min-width: 440px) {
+    width: 350px;
+    margin-left: calc(50% - 350px / 2)
   }
 }
 
 .login-error {
   margin-bottom: 20px;
+}
+
+.oauth-button-icon {
+  margin-right: 5px;
 }
 </style>
