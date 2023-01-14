@@ -33,4 +33,11 @@ export class DiscordAuthGuard extends AuthGuard('discord') {
     }
     return user;
   }
+
+  getAuthenticateOptions(context: ExecutionContext): any {
+    const ctx = context.switchToHttp();
+    const { redirect } = ctx.getRequest().query;
+    return { state: { redirect } }
+  }
+
 }
