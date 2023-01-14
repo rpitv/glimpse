@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import {GraphQLModule} from "@nestjs/graphql";
-import {ApolloDriver, ApolloDriverConfig} from "@nestjs/apollo";
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { PrismaService } from './prisma/prisma.service';
-import * as path from "path";
-import {APP_FILTER} from "@nestjs/core";
-import {GraphQLExceptionFilter} from "./graphql.filter";
-import {loggerMiddleware} from "./graphql-permissions.middleware";
+import * as path from 'path';
+import { APP_FILTER } from '@nestjs/core';
+import { MainExceptionFilter } from './main.filter';
+import { loggerMiddleware } from './graphql-permissions.middleware';
 import { AuthModule } from './auth/auth.module';
 
 /*
@@ -28,25 +28,27 @@ import { AuthModule } from './auth/auth.module';
 
  */
 
-
 @Module({
   imports: [
-      GraphQLModule.forRoot<ApolloDriverConfig>({
-          driver: ApolloDriver,
-          autoSchemaFile: path.join(process.cwd(), 'generated/schema.gql'),
-          sortSchema: true,
-          playground: true,
-          buildSchemaOptions: {
-              fieldMiddleware: [loggerMiddleware]
-          }
-      }),
-      UserModule,
-      AuthModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: path.join(process.cwd(), 'generated/schema.gql'),
+      sortSchema: true,
+      playground: true,
+      buildSchemaOptions: {
+        fieldMiddleware: [loggerMiddleware],
+      },
+    }),
+    UserModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [PrismaService, {
+  providers: [
+    PrismaService,
+    {
       provide: APP_FILTER,
-      useClass: GraphQLExceptionFilter
-  }],
+      useClass: MainExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
