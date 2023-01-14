@@ -60,7 +60,7 @@ try {
   if (typeof ownId === "number") {
     authStore.isLoggedIn = true;
   }
-  await authStore.getPermissions();
+  // await authStore.getPermissions();
 } catch(e: any) {
   if(e instanceof Error) {
     topLevelError.value = e;

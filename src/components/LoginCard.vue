@@ -3,7 +3,7 @@
     <template #description>
       Logging you in...
     </template>
-    <n-card title="Login" size="large" class="login-card" :closable="closable" @close="cardClosed">
+    <n-card title="Log in" size="large" class="login-card" :closable="closable" @close="cardClosed">
       <n-alert v-if="loginErrorResponse" title="Login Error" type="error" class="login-error">
         {{ loginErrorResponse }}
       </n-alert>
@@ -21,12 +21,14 @@
           <n-input v-model:value="formValue.password" type="password" placeholder=""/>
         </n-form-item>
         <n-form-item>
-          <n-button @click="submit">
-            Login
+          <n-button @click="submit" round>
+            Log in
           </n-button>
         </n-form-item>
-        <n-divider />
-        <n-button color="#5865F2" text-color="#ffffff" round @click="redirectToDiscordLogin">
+        <n-divider>
+          OR
+        </n-divider>
+        <n-button color="#5865F2" text-color="#ffffff" round @click="redirectToDiscordLogin" class="oauth-button">
           <template #icon>
             <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
           </template>
@@ -185,5 +187,9 @@ function redirectToDiscordLogin() {
 
 .oauth-button-icon {
   margin-right: 5px;
+}
+
+button {
+  width: 100%;
 }
 </style>
