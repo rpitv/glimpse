@@ -22,8 +22,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(req: Request, accessToken: string, refreshToken: string, profile: Profile): Promise<User> {
-        req.session.discordAccessToken = accessToken;
-        req.session.discordRefreshToken = refreshToken;
         const user = this.authService.verifyDiscordCallback(profile.id, accessToken, refreshToken);
         if (!user) {
             throw new UnauthorizedException();
