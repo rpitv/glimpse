@@ -12,6 +12,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
             clientSecret: process.env.DISCORD_CLIENT_SECRET,
             callbackURL: process.env.DISCORD_CALLBACK_URL,
             scope: ['identify'],
+            state: true
         });
     }
 
