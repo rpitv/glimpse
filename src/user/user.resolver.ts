@@ -1,11 +1,11 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {Resolver, Query, Mutation, Args, Int, Context} from '@nestjs/graphql';
 import { User } from './user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import {PrismaService} from "../prisma/prisma.service";
 import {validate} from "class-validator";
 import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
+import {BadRequestException, Logger, Session} from "@nestjs/common";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -24,6 +24,11 @@ export class UserResolver {
         id
       }
     })
+  }
+
+  @Query(() => User, { nullable: true })
+  async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User|null> {
+    return ctx.req.user || null;
   }
 
   @Mutation(() => User)
