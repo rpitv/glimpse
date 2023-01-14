@@ -9,7 +9,7 @@ export class AuthResolver {
 
     @UseGuards(GraphqlLocalAuthGuard)
     @Mutation(() => User)
-    async login(@Args('username') username: string, @Args('password') password: string, @CurrentUser() user: User): Promise<User> {
+    async loginLocal(@Args('username') username: string, @Args('password') password: string, @CurrentUser() user: User): Promise<User> {
         return user;
     }
 
