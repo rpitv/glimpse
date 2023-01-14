@@ -18,7 +18,7 @@ export class AuthService {
         return await this.attemptLogin(username, pass) !== null;
     }
 
-    async attemptLogin(username: string, pass: string): Promise<User> {
+    async attemptLogin(username: string, pass: string): Promise<User|null> {
         const user = await this.prisma.user.findFirst({
             where: {
                 username: username
@@ -33,5 +33,9 @@ export class AuthService {
             return user;
         }
         return null;
+    }
+
+    async verifyDiscordCallback(userId: string, accessToken: string, refreshToken: string): Promise<User|null> {
+
     }
 }
