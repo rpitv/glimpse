@@ -10,6 +10,6 @@ export class AuthController {
   discordAuth(@Req() req: Request): { url: string } {
     // If user does not provide a code in the request, passport-discord will redirect them to Discord login page.
     req.session.loginMethod = 'discord';
-    return { url: '/' };
+    return { url: req.authInfo?.state?.redirect || '/' };
   }
 }
