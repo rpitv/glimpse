@@ -1,8 +1,8 @@
 import {AuthService} from "./auth.service";
 import {PassportSerializer} from "@nestjs/passport";
 import {Injectable} from "@nestjs/common";
-import {User} from "@prisma/client";
 import {PrismaService} from "../prisma/prisma.service";
+import {User} from "../user/user.entity";
 
 @Injectable()
 export class AuthSerializer extends PassportSerializer {
