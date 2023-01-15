@@ -5,9 +5,9 @@ import {
   IsEmail,
   IsInt,
   IsNumberString,
-  IsOptional,
+  IsOptional, IsString,
   Length,
-  Min
+  Min, MinLength
 } from "class-validator";
 import {User as PrismaUser} from "@prisma/client";
 
@@ -68,5 +68,8 @@ export class User implements PrismaUser {
    * The user's password hash
    */
   @HideField()
+  @IsString()
+  @MinLength(8)
+  @IsOptional()
   password: string | null;
 }
