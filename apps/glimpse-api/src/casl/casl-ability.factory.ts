@@ -37,48 +37,36 @@ export class CaslAbilityFactory {
     async getPermissions(
         user?: User
     ): Promise<(UserPermission | GroupPermission)[]> {
+        // Raw queries are used here due to a quirk in Prisma which converts null arrays to empty arrays, which
+        //  CASL does not like. See: https://github.com/prisma/prisma/issues/847
         if (user) {
-            const userPermissions = await this.prisma.userPermission.findMany({
-                where: {
-                    userId: user.id
-                }
-            });
+            const userPermissions = await this.prisma.$queryRaw<
+                UserPermission[]
+            >`SELECT id, "user" AS "userId", action, subject, fields, conditions, inverted, reason
+                        FROM user_permissions WHERE "user" = ${user.id}`;
 
-            const groupPermissions = await this.prisma.groupPermission.findMany({
-                where: {
-                    groupId: {
-                        in: (await this.prisma.userGroup.findMany({
-                            where: {
-                                userId: user.id
-                            }
-                        })).map((userGroup) => userGroup.groupId)
-                    }
-                }
-            })
+            const groupPermissions = await this.prisma.$queryRaw<
+                GroupPermission[]
+            >`SELECT  id, "group" AS "groupId", action, subject, fields, conditions, inverted, reason
+                        FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
+                        "user" = ${user.id})`;
 
             const permissions = [...userPermissions, ...groupPermissions];
             delete (<any>user).password; // Hide password from logs
-            this.logger.debug(
-                { user, permissions },
-                `Retrieved permissions for user ${user.id} from database`
-            );
+            this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
 
-            return permissions;
+            // Must make an assumption that the database has correct values due to raw query.
+            return <(UserPermission | GroupPermission)[]>permissions;
         } else {
-            const guestPermissions = await this.prisma.groupPermission.findMany({
-                where: {
-                    group: {
-                        name: 'Guest'
-                    }
-                }
-            })
+            const guestPermissions =
+                await this.prisma.$queryRaw`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
+                                        FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
+                                                              name = 'Guest' LIMIT 1)`;
 
-            this.logger.debug(
-                guestPermissions,
-                "Retrieved guest permissions from database"
-            );
+            this.logger.debug("Retrieved guest permissions from database", guestPermissions);
 
-            return guestPermissions;
+            // Must make an assumption that the database has correct values due to raw query.
+            return <GroupPermission[]>guestPermissions;
         }
     }
 
@@ -201,6 +189,7 @@ export class CaslAbilityFactory {
     // }
 
     async createForUser(user: User): Promise<GlimpseAbility> {
+        this.logger.verbose(`Fetching rules for the current user (user ID: ${user?.id || null})`)
         const rawPermissions = <RawRuleOf<GlimpseAbility>[]>(
             await this.getPermissions(user)
         );
