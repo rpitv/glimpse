@@ -2,8 +2,8 @@ import { Strategy, Profile } from 'passport-discord';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import {User} from "@prisma/client";
 import {Request} from "express";
+import {User} from "../user/user.entity";
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy) {

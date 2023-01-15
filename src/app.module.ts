@@ -8,6 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { MainExceptionFilter } from './main.filter';
 import { loggerMiddleware } from './graphql-permissions.middleware';
 import { AuthModule } from './auth/auth.module';
+import { CaslModule } from './casl/casl.module';
 
 /*
 
@@ -41,6 +42,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    CaslModule,
   ],
   controllers: [],
   providers: [
