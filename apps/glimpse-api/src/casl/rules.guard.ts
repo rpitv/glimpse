@@ -31,7 +31,7 @@ export class RulesGuard implements CanActivate {
         const ability = await this.caslAbilityFactory.createForUser(req.user);
         const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
-        if(rules.length === 0) {
+        if(!rules || rules.length === 0) {
             this.logger.verbose('No rules applied for the given resource. Can activate.');
             return true;
         }
