@@ -17,9 +17,6 @@ export const caslMiddleware: FieldMiddleware = async (
         }
     }
 
-    // TODO permission checks
-    const value = await next();
-    // TODO permission checks
-
-    return value;
+    // Post-method value checks are checked within the interceptor.
+    return await next();
 };

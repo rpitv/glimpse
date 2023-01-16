@@ -1,4 +1,4 @@
-import {ExtractSubjectType, InferSubjects, RawRuleOf} from "@casl/ability";
+import {InferSubjects, RawRuleOf} from "@casl/ability";
 import {User} from "../user/user.entity";
 import {createPrismaAbility, PrismaAbility} from "@casl/prisma";
 import {Injectable, Logger} from "@nestjs/common";
@@ -193,8 +193,6 @@ export class CaslAbilityFactory {
         const rawPermissions = <RawRuleOf<GlimpseAbility>[]>(
             await this.getPermissions(user)
         );
-        return createPrismaAbility<GlimpseAbility>(rawPermissions, {
-            detectSubjectType: (obj) => obj.constructor as ExtractSubjectType<AbilitySubjects>
-        });
+        return createPrismaAbility<GlimpseAbility>(rawPermissions);
     }
 }

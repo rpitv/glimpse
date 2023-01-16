@@ -8,6 +8,7 @@ import {plainToClass} from "class-transformer";
 import {BadRequestException, Logger, Session} from "@nestjs/common";
 import {Rules} from "../casl/rules.decorator";
 import {AbilityAction} from "../casl/casl-ability.factory";
+import {accessibleBy} from "@casl/prisma";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -15,15 +16,22 @@ export class UserResolver {
   constructor(private readonly prisma: PrismaService) {}
 
   @Query(() => [User])
-  async findManyUser(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  @Rules("Read users", AbilityAction.Read, User)
+  async findManyUser(@Context() ctx: any): Promise<User[]> {
+    return this.prisma.user.findMany({
+      where: accessibleBy(ctx.req.permissions).User
+    });
   }
 
   @Query(() => User, { nullable: true })
-  async findOneUser(@Args('id', { type: () => Int}) id: number): Promise<User> {
+  @Rules("Read user", AbilityAction.Read, User)
+  async findOneUser(@Args('id', { type: () => Int}) id: number, @Context() ctx: any): Promise<User> {
     return this.prisma.user.findFirst({
       where: {
-        id
+        AND: [
+          { id },
+          accessibleBy(ctx.req.permissions).User
+        ]
       }
     })
   }
@@ -35,6 +43,7 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
+  @Rules("Create user", AbilityAction.Create, User)
   async createUser(@Args('input', {type: () => CreateUserInput}) input: CreateUserInput): Promise<User> {
     // TODO
     input = plainToClass(CreateUserInput, input);
@@ -49,7 +58,15 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
+  @Rules("Update user", AbilityAction.Update, User)
   async updateUser(@Args('id', {type: () => Int}) id: number, @Args('input', {type: () => UpdateUserInput}) input: UpdateUserInput): Promise<User> {
+    // TODO
+    return new User();
+  }
+
+  @Mutation(() => User)
+  @Rules("Delete user", AbilityAction.Delete, User)
+  async deleteUser(@Args('id', {type: () => Int}) id: number): Promise<User> {
     // TODO
     return new User();
   }
