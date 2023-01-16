@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable, Logger} from "@nestjs/common";
 import {Reflector} from "@nestjs/core";
-import {CaslAbilityFactory} from "./casl-ability.factory";
-import {RULE_DECORATOR_KEY, RuleFn} from "./rule.decorator";
+import {AbilityAction, AbilitySubjects, CaslAbilityFactory} from "./casl-ability.factory";
+import {RULES_METADATA_KEY, Rule} from "./rules.decorator";
 import {GqlContextType, GqlExecutionContext} from "@nestjs/graphql";
 
 @Injectable()
@@ -15,16 +15,6 @@ export class RulesGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         this.logger.verbose('Rules guard activated...')
-        const ruleFns =
-            this.reflector.get<RuleFn[]>(
-                RULE_DECORATOR_KEY,
-                context.getHandler(),
-            ) || [];
-
-        if(ruleFns.length === 0) {
-            this.logger.verbose('No rules applied for the given resource. Can activate.');
-            return true;
-        }
 
         let req;
         if(context.getType<GqlContextType>() === 'graphql') {
@@ -39,18 +29,33 @@ export class RulesGuard implements CanActivate {
         }
 
         const ability = await this.caslAbilityFactory.createForUser(req.user);
-        const canActivate = ruleFns.every((handler) => {
-            this.logger.verbose(`Testing rule ${handler}`)
-            const result = handler(ability)
-            this.logger.debug(`Rule ${handler} returned: ${result}`)
-            return result;
-        });
+        const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
-        if(canActivate) {
-            this.logger.verbose(`Rules guard passed all rule checks. Can activate.`)
-        } else {
-            this.logger.verbose(`Rules guard failed at least one rule check. Cannot activate.`);
+        if(rules.length === 0) {
+            this.logger.verbose('No rules applied for the given resource. Can activate.');
+            return true;
         }
-        return canActivate;
+
+        for(const rule of rules) {
+            this.logger.verbose(`Testing ${rule.name ? `rule "${rule.name}"` : 'unnamed rule'}.`)
+            // RuleFn
+            if(typeof rule.rule === "function") {
+                if(!rule.rule(ability)) {
+                    this.logger.verbose(`${rule.name ? `Rule "${rule.name}"` : 'Unnamed rule'} function returned false. Cannot activate.`);
+                    return false;
+                }
+            } else
+            // [AbilityAction, AbilitySubjects, string]
+             {
+                 const castedRule = <[AbilityAction, AbilitySubjects, string]> rule.rule;
+                 if(!ability.can(castedRule[0],castedRule[1], castedRule[2])) {
+                     this.logger.verbose(`${rule.name ? `Rule "${rule.name}"` : 'Unnamed rule'} condition failed. Cannot activate.`);
+                     return false;
+                 }
+             }
+        }
+
+        this.logger.verbose(`Rules guard passed all rule checks. Can activate.`)
+        return true;
     }
 }
