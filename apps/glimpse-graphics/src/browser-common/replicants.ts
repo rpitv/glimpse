@@ -118,7 +118,7 @@ export async function loadReplicants() {
 				show: await replicant<boolean>("commentators", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
 				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"})
-			}
+			},
 		}
 	}
 }

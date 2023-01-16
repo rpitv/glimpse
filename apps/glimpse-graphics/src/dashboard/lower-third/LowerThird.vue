@@ -5,13 +5,19 @@
 			{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
 		</n-button>
 		<h2>Display Commentators/Interviewer and Interviewee</h2>
-		<input placeholder="Left Person" style="max-width: 40%"
-			   v-model="replicants.lowerThird.commentators.leftPerson.value"/>
-		<input placeholder="Right Person" :style="{'max-width': '40%', 'margin-left': '20px'}"
-			   v-model="replicants.lowerThird.commentators.rightPerson.value"/>
+		<n-input :on-update:value="(string) => replicants.lowerThird.commentators.leftPerson.value = string"
+				 :default-value="replicants.lowerThird.commentators.leftPerson.value"
+				 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="Left Person"/>
+		<n-input :on-update:value="(string) => replicants.lowerThird.commentators.rightPerson.value = string"
+				 :default-value="replicants.lowerThird.commentators.rightPerson.value" style="max-width: 40%"
+				 placeholder="Right Person"/>
 		<n-button @click="replicants.lowerThird.commentators.show.value = !replicants.lowerThird.commentators.show.value"
 				  style="margin-left: 20px">
-			{{ replicants.lowerThird.commentators.show.value ? "Hide" : "Show"}}
+			{{ replicants.lowerThird.commentators.show.value ? "Hide" : "Show" }}
+		</n-button>
+		<h2>Display Locator</h2>
+		<n-button @click="replicants.lowerThird.locator.value = !replicants.lowerThird.locator.value">
+			{{ replicants.lowerThird.locator.value ? "Hide" : "Show" }}
 		</n-button>
 	</div>
 </template>
