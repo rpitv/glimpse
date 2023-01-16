@@ -1,7 +1,7 @@
 import {AbilityAction, AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
 import {SetMetadata} from "@nestjs/common";
 
-export type RuleFn = (ability: GlimpseAbility) => boolean;
+export type RuleFn = (ability: GlimpseAbility, value?: any) => boolean;
 export type Rule = { name?: string, rule: RuleFn | [AbilityAction, AbilitySubjects?, string?] }
 export type NonEmptyArray<T> = [T, ...T[]];
 export const RULES_METADATA_KEY = 'casl_rule'
