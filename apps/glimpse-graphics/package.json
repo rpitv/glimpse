@@ -108,6 +108,13 @@
         "file": "image-editor.html",
         "workspace": "Images",
         "width": "8"
+      },
+      {
+        "name": "lower-third",
+        "title": "Lower Third",
+        "file": "lower-third.html",
+        "workspace": "Images",
+        "width": "8"
       }
     ],
     "graphics": [
