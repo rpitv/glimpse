@@ -48,6 +48,13 @@ export class RulesGuard implements CanActivate {
             // [AbilityAction, AbilitySubjects, string]
              {
                  const castedRule = <[AbilityAction, AbilitySubjects, string]> rule.rule;
+
+                 // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
+                 //  to a string before testing.
+                 if(typeof castedRule[1] === "function") {
+                     castedRule[1] = <AbilitySubjects> (castedRule[1].modelName || castedRule[1].name);
+                 }
+
                  if(!ability.can(castedRule[0],castedRule[1], castedRule[2])) {
                      this.logger.verbose(`${rule.name ? `Rule "${rule.name}"` : 'Unnamed rule'} condition failed. Cannot activate.`);
                      return false;
