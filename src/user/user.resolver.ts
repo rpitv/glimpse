@@ -6,7 +6,7 @@ import {PrismaService} from "../prisma/prisma.service";
 import {validate} from "class-validator";
 import {plainToClass} from "class-transformer";
 import {BadRequestException, Logger, Session} from "@nestjs/common";
-import {Rule} from "../casl/rule.decorator";
+import {Rules} from "../casl/rules.decorator";
 import {AbilityAction} from "../casl/casl-ability.factory";
 
 @Resolver(() => User)
@@ -29,7 +29,7 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  @Rule((ability) => ability.can(AbilityAction.Read, User))
+  @Rules("Read users", AbilityAction.Read, User)
   async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User|null> {
     return ctx.req.user || null;
   }
