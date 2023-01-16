@@ -4,12 +4,13 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { PrismaService } from './prisma/prisma.service';
 import * as path from 'path';
-import {APP_FILTER, APP_GUARD} from '@nestjs/core';
+import {APP_FILTER, APP_GUARD, APP_INTERCEPTOR} from '@nestjs/core';
 import { MainExceptionFilter } from './main.filter';
-import { loggerMiddleware } from './graphql-permissions.middleware';
+import { caslMiddleware } from './casl/casl.middleware';
 import { AuthModule } from './auth/auth.module';
 import { CaslModule } from './casl/casl.module';
 import {RulesGuard} from "./casl/rules.guard";
+import {CaslInterceptor} from "./casl/casl.interceptor";
 
 /*
 
@@ -38,7 +39,7 @@ import {RulesGuard} from "./casl/rules.guard";
       sortSchema: true,
       playground: true,
       buildSchemaOptions: {
-        fieldMiddleware: [loggerMiddleware],
+        fieldMiddleware: [caslMiddleware],
       },
     }),
     UserModule,
@@ -55,7 +56,11 @@ import {RulesGuard} from "./casl/rules.guard";
     {
       provide: APP_GUARD,
       useClass: RulesGuard
-    }
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CaslInterceptor,
+    },
   ],
 })
 export class AppModule {}
