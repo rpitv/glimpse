@@ -9,8 +9,8 @@ export class RulesGuard implements CanActivate {
     private readonly logger: Logger = new Logger('RulesGuard');
 
     constructor(
-        private reflector: Reflector,
-        private caslAbilityFactory: CaslAbilityFactory,
+        private readonly reflector: Reflector,
+        private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,7 +28,10 @@ export class RulesGuard implements CanActivate {
             throw new Error(`RulesGuard applied to unsupported context type ${context.getType()}`)
         }
 
-        const ability = await this.caslAbilityFactory.createForUser(req.user);
+        if(!req.permissions) {
+            this.logger.debug('User request does not yet have CASL ability generated. Generating now...')
+            req.permissions = await this.caslAbilityFactory.createForUser(req.user);
+        }
         const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
         if(!rules || rules.length === 0) {
@@ -40,7 +43,7 @@ export class RulesGuard implements CanActivate {
             this.logger.verbose(`Testing ${rule.name ? `rule "${rule.name}"` : 'unnamed rule'}.`)
             // RuleFn
             if(typeof rule.rule === "function") {
-                if(!rule.rule(ability)) {
+                if(!rule.rule(req.permissions)) {
                     this.logger.verbose(`${rule.name ? `Rule "${rule.name}"` : 'Unnamed rule'} function returned false. Cannot activate.`);
                     return false;
                 }
@@ -55,7 +58,7 @@ export class RulesGuard implements CanActivate {
                      castedRule[1] = <AbilitySubjects> (castedRule[1].modelName || castedRule[1].name);
                  }
 
-                 if(!ability.can(castedRule[0],castedRule[1], castedRule[2])) {
+                 if(!req.permissions.can(castedRule[0],castedRule[1], castedRule[2])) {
                      this.logger.verbose(`${rule.name ? `Rule "${rule.name}"` : 'Unnamed rule'} condition failed. Cannot activate.`);
                      return false;
                  }
