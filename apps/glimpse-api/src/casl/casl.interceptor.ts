@@ -15,7 +15,7 @@ export class CaslInterceptor implements NestInterceptor {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    private testRules(rules: Rule[], ability: GlimpseAbility, value?: any) {
+    private testRules(rules: Rule[], ability: GlimpseAbility, value?: any): void {
 
         if(!rules || rules.length === 0) {
             this.logger.verbose('No rules applied for the given resource. Calling method.');
