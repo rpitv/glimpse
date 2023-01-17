@@ -137,3 +137,9 @@ dist
 # NodeCG files, except the config
 ./.nodecg/
 !./.nodecg/cfg
+
+# vscode
+.vscode
+
+# jet brains
+.idea
