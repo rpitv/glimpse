@@ -1,8 +1,10 @@
 import {GlimpseAbility} from "../../src/casl/casl-ability.factory";
+import {User} from "../../src/user/user.entity";
 
-declare module 'express-session' {
+declare module 'express' {
   interface Request {
-    permissions: GlimpseAbility
+    permissions?: GlimpseAbility
+    user?: User
   }
 }
 export {};
