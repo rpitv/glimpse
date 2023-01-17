@@ -112,6 +112,8 @@ export async function loadReplicants() {
 			team2: await replicant<Announcement[]>("team2", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 		},
 		lowerThird: {
+			school1Logo: await replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			school2Logo: await replicant<string>("school2Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
 			scoreboard: await replicant<boolean>("scoreboard", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {

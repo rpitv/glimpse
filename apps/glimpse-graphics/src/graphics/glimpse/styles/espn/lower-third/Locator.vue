@@ -5,10 +5,10 @@
 	<div id="team2SecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
 	<div id="team2PrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
 	<div class="team1Logo">
-		<img id="team1Logo" :src="replicants.teams[0].logo.value">
+		<img id="team1Logo" :src="replicants.lowerThird.school1Logo.value">
 	</div>
 	<div class="team2Logo">
-		<img id="team2Logo" :src="replicants.teams[1].logo.value">
+		<img id="team2Logo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
 	<div class="team1Name">{{replicants.teams[0].name.value}}</div>
 	<div class="team2Name">{{replicants.teams[1].name.value}}</div>
@@ -63,7 +63,7 @@ img {
 }
 .team1Logo {
 	left: 0;
-	bottom: 22.1vh;
+	bottom: 22.4vh;
 	width: 76.67vw;
 	display: flex;
 	justify-content: center;
@@ -73,11 +73,11 @@ img {
 	height: auto;
 	width: auto;
 	max-width: 11.9vw;
-	max-height: 9.6vh;
+	max-height: 9vh;
 }
 .team2Logo {
 	left: 0;
-	bottom: 22.1vh;
+	bottom: 22.4vh;
 	width: 123vw;
 	display: flex;
 	justify-content: center;
@@ -87,7 +87,7 @@ img {
 	height: auto;
 	width: auto;
 	max-width: 11.9vw;
-	max-height: 9.6vh;
+	max-height: 9vh;
 }
 .team1Name {
 	left: 0;

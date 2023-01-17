@@ -1,5 +1,11 @@
 <template>
 	<div>
+		<n-input :on-update-value="(string) => replicants.lowerThird.school1Logo.value = string"
+				 :default-value="replicants.lowerThird.school1Logo.value"
+				 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for team 1's logo"/>
+		<n-input :on-update-value="(string) => replicants.lowerThird.school2Logo.value = string"
+				 :default-value="replicants.lowerThird.school2Logo.value"
+				 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for team 2's logo"/>
 		<h2>Display Scoreboard</h2>
 		<n-button @click="replicants.lowerThird.scoreboard.value = !replicants.lowerThird.scoreboard.value">
 			{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}

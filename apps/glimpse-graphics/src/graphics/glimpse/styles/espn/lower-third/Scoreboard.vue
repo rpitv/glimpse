@@ -20,10 +20,10 @@
 	<div class="colors" id="team2PrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
 	<div class="colors" id="team2SecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
 	<div class="team1Logo">
-		<img id="team1Logo" :src="replicants.teams[0].logo.value">
+		<img id="team1Logo" :src="replicants.lowerThird.school1Logo.value">
 	</div>
 	<div class="team2Logo">
-		<img id="team2Logo" :src="replicants.teams[1].logo.value">
+		<img id="team2Logo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
 </template>
 
@@ -31,17 +31,60 @@
 import {loadReplicants} from "../../../../../browser-common/replicants";
 import {computed} from "vue";
 import scoreboard from "../../../../../Scoreboard.png";
+import { replace } from "lodash";
 
 const replicants = await loadReplicants();
 
-const period = computed<string>(() => {
+const period = computed(() => {
+	console.log(replicants.scoreboard.period.value);
 	if (replicants.scoreboard.period.value === 1)
 		return "End of 1st";
 	if (replicants.scoreboard.period.value === 2)
 		return "End of 2nd";
-	if ((replicants.scoreboard.period.value === 3) && (replicants.teams[0].score.value === replicants.teams[1].score.value))
-		return "End of reg";
-	return "Final";
+	// If the team's score are the same and we're nearing the third period...
+	if (replicants.teams[0].score.value === replicants.teams[1].score.value) {
+		if (replicants.scoreboard.period.value === 3) 
+			return "End of Reg.";
+		// If there is no shootout...
+		if (!replicants.gameSettings.periods.shootouts.value) {
+			// If there is no 2nd overtime...
+			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
+				return "Final OT";
+			// If there is 2nd overtime...
+			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value >= 2)
+				return "End 1st OT";
+			if (replicants.scoreboard.period.value === 5)
+				return "Final OT";
+		}
+		// If there is shootout...
+		if (replicants.gameSettings.periods.shootouts.value) {
+			// If there is no 2nd overtime...
+			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
+				return "End of OT";
+			if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value < 2)
+				return "Final SO";
+			// If there is 2nd overtime...
+			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value === 2)
+				return "End 1st OT";
+			if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value === 2)
+				return "End 2nd OT";
+			if (replicants.scoreboard.period.value === 6 && replicants.gameSettings.periods.overtime.count.value === 2)
+				return "Final SO";
+		}
+	}
+	// If the team's score are not the same and we're at/past the third period...
+	if (replicants.scoreboard.period.value === 3)
+		return "Final";
+	// If there is no shootout...
+	if (!replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4)
+		return "Final OT";
+	// If there is shootout...
+	if (replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4) {
+		if (replicants.scoreboard.period.value >= 4 && replicants.scoreboard.period.value <= 5)
+			return "Final OT";
+		if (replicants.scoreboard.period.value === 6)
+			return "Final SO";
+	}
 })
 </script>
 
@@ -125,7 +168,7 @@ img {
 	left: 0;
 	top: 0;
 	width: 69.4vw;
-	height: 146.5vh;
+	height: 147vh;
 	display: flex;
 	justify-content: center;
 }
@@ -133,7 +176,7 @@ img {
 	left: 0;
 	top: 0;
 	width: 130vw;
-	height: 146.5vh;
+	height: 147vh;
 	display: flex;
 	justify-content: center;
 }
@@ -141,7 +184,7 @@ img {
 	position: relative;
 	margin: auto;
 	max-width: 8vw;
-	max-height: 9.6vh;
+	max-height: 9vh;
 	height: auto;
 	width: auto;
 }
@@ -149,7 +192,7 @@ img {
 	position: relative;
 	margin: auto;
 	max-width: 8vw;
-	max-height: 9.6vh;
+	max-height: 9vh;
 	height: auto;
 	width: auto;
 }
