@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import commentators from "../../../../../Commentators.png"
+import commentators from "../../../../../assets/espn/Commentators.png"
 import { loadReplicants } from "../../../../../browser-common/replicants";
 
 const replicants = await loadReplicants();
@@ -14,7 +14,7 @@ const replicants = await loadReplicants();
 <style scoped>
 @font-face {
 	font-family: "swiss721_med";
-	src: url('Swiss721Medium.ttf')
+	src: url('../../../../../assets/espn/Swiss721Medium.ttf')
 }
 div {
 	position: absolute;

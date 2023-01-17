@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import Locator from "../../../../../Locator.png"
+import Locator from "../../../../../assets/espn/Locator.png"
 import {loadReplicants} from "../../../../../browser-common/replicants";
 
 const replicants = await loadReplicants();
@@ -24,7 +24,7 @@ const replicants = await loadReplicants();
 <style scoped>
 @font-face {
 	font-family: "swiss721_heavy";
-	src: url('Swiss721Heavy.ttf')
+	src: url('../../../../../assets/espn/Swiss721Heavy.ttf')
 }
 div {
 	position: absolute;

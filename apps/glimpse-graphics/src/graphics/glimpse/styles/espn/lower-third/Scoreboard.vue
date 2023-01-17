@@ -30,8 +30,7 @@
 <script setup lang="ts">
 import {loadReplicants} from "../../../../../browser-common/replicants";
 import {computed} from "vue";
-import scoreboard from "../../../../../Scoreboard.png";
-import { replace } from "lodash";
+import scoreboard from "../../../../../assets/espn/Scoreboard.png";
 
 const replicants = await loadReplicants();
 
@@ -43,7 +42,7 @@ const period = computed(() => {
 		return "End of 2nd";
 	// If the team's score are the same and we're nearing the third period...
 	if (replicants.teams[0].score.value === replicants.teams[1].score.value) {
-		if (replicants.scoreboard.period.value === 3) 
+		if (replicants.scoreboard.period.value === 3)
 			return "End of Reg.";
 		// If there is no shootout...
 		if (!replicants.gameSettings.periods.shootouts.value) {
@@ -91,7 +90,7 @@ const period = computed(() => {
 <style scoped>
 @font-face {
 	font-family: "swiss721_heavy";
-	src: url('Swiss721Heavy.ttf')
+	src: url('../../../../../assets/espn/Swiss721Heavy.ttf')
 }
 div {
 	position: absolute;

@@ -139,7 +139,7 @@ dist
 !./.nodecg/cfg
 
 # vscode
-.vscode
+.vscode/
 
 # jet brains
-.idea
+.idea/
