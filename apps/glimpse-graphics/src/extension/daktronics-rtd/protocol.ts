@@ -1,7 +1,7 @@
 import {sports} from "./sports-definitions";
 import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
-import { writeFile } from "fs";
+import {appendFile} from "fs";
 
 const packetBytes: number[] = [];
 let computedChecksum = 0;
@@ -60,7 +60,7 @@ export function daktronicsRtdListener(data: Buffer) {
 
 	// dumping the Daktronics serial connection to a log file
 	const d = new Date();
-	writeFile(`${__dirname}/_Daktronics_${d.getFullYear()}-${d.getMonth()}-${d.getDay()}.log`,
+	appendFile(`${__dirname}/_Daktronics_${d.getFullYear()}-${d.getMonth()}-${d.getDay()}.log`,
 		bufferToHexString(data) + "\n", (err) => {
 			logger.trace(
 				`failed to save buffer"
