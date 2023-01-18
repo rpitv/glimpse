@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js')
+const { EmbedBuilder, userMention} = require('discord.js')
 const { FieldValue } = require('firebase-admin/firestore');
 const { db } = require('../../firebase');
 
@@ -44,7 +44,7 @@ module.exports = {
             let field = volunteerMsg.embeds[0].data.fields
             if (currentProduction.volunteers.length === 0)
                 volunteers = '🦗';
-            field[3] = {
+            field[4] = {
                 name: 'Volunteers',
                 value: volunteers
             }
@@ -55,6 +55,7 @@ module.exports = {
             await unVolunteerMsg.edit({embeds: [updatedProduction]});
             let currProChannel = await interaction.guild.channels.cache.find(ch => ch.id === currentProduction.channelId)
             currProChannel.permissionOverwrites.delete(interaction.user.id);
+            await interaction.reply(`${userMention(interaction.user.id)} has unvolunteered this production!`);
         })
     }
 }

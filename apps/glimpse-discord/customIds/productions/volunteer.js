@@ -42,7 +42,7 @@ module.exports = {
             for (let i = 0; i < currentProduction.volunteers.length; i++)
                 volunteers += `<@${currentProduction.volunteers[i]}> `;
             let field = volunteerMsg.embeds[0].data.fields
-            field[3] = {
+            field[4] = {
                 name: 'Volunteers',
                 value: volunteers
             }
