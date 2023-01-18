@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { EmbedBuilder } = require('discord.js')
+const { EmbedBuilder, channelMention} = require('discord.js')
 const { FieldValue } = require('firebase-admin/firestore');
 const { db } = require('../../firebase');
 
@@ -44,7 +44,8 @@ module.exports = {
                 { name: 'Closet', value: `${closetLocation} @ ${closetTime}` },
                 { name: 'Start', value: `${startTime}` },
                 { name: 'End', value: `${endTime}` },
-            ) 
+                { name: 'Channel', value: `${channelMention(interaction.channel.id)}`}
+            );
         if (volunteers.length === 0 )
             production.addFields({ name: 'Volunteers', value: '🦗'})
         else 
