@@ -1,7 +1,7 @@
 <template>
 	<img :src="Scoreboard">
-	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor}"></div>
-	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor}"></div>
+	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
+	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
 	<div class="logo" id="leftLogo">
 		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
 	</div>
