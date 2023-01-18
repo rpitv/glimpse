@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import {CaslAbilityFactory} from "./casl-ability.factory";
-import {PrismaService} from "../prisma/prisma.service";
+import { Module } from "@nestjs/common";
+import { CaslAbilityFactory } from "./casl-ability.factory";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Module({
     providers: [CaslAbilityFactory, PrismaService],

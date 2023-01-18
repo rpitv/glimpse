@@ -1,8 +1,8 @@
-import {AuthService} from "./auth.service";
-import {PassportSerializer} from "@nestjs/passport";
-import {Injectable} from "@nestjs/common";
-import {PrismaService} from "../prisma/prisma.service";
-import {User} from "../user/user.entity";
+import { AuthService } from "./auth.service";
+import { PassportSerializer } from "@nestjs/passport";
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { User } from "../user/user.entity";
 
 @Injectable()
 export class AuthSerializer extends PassportSerializer {
@@ -24,12 +24,12 @@ export class AuthSerializer extends PassportSerializer {
                     id: userId
                 }
             });
-            if(!user) {
+            if (!user) {
                 done(new Error(`User with id ${userId} does not exist.`));
                 return;
             }
             done(null, user);
-        } catch(e) {
+        } catch (e) {
             done(e);
         }
     }

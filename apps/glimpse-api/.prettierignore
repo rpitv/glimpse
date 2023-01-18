@@ -1,0 +1,9 @@
+node_modules
+dist
+.db-data
+.husky
+.meili-data
+.redis-data
+cert
+generated
+.idea
