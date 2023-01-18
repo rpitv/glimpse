@@ -1,24 +1,23 @@
-import {InferSubjects, RawRuleOf} from "@casl/ability";
-import {User} from "../user/user.entity";
-import {createPrismaAbility, PrismaAbility} from "@casl/prisma";
-import {Injectable, Logger} from "@nestjs/common";
-import {GroupPermission, UserPermission} from "@prisma/client"; // FIXME import nestjs entities instead
-import {PrismaService} from "../prisma/prisma.service";
+import { InferSubjects, RawRuleOf } from "@casl/ability";
+import { User } from "../user/user.entity";
+import { createPrismaAbility, PrismaAbility } from "@casl/prisma";
+import { Injectable, Logger } from "@nestjs/common";
+import { GroupPermission, UserPermission } from "@prisma/client"; // FIXME import nestjs entities instead
+import { PrismaService } from "../prisma/prisma.service";
 
 export enum AbilityAction {
-    Manage = 'manage',
-    Create = 'create',
-    Read = 'read',
-    Update = 'update',
-    Delete = 'delete',
+    Manage = "manage",
+    Create = "create",
+    Read = "read",
+    Update = "update",
+    Delete = "delete"
 }
-export type AbilitySubjects = InferSubjects<typeof User, true> | 'all';
+export type AbilitySubjects = InferSubjects<typeof User, true> | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 
 @Injectable()
 export class CaslAbilityFactory {
-
-    private readonly logger: Logger = new Logger('CaslAbilityFactory');
+    private readonly logger: Logger = new Logger("CaslAbilityFactory");
     constructor(private readonly prisma: PrismaService) {}
 
     /**
@@ -53,17 +52,23 @@ export class CaslAbilityFactory {
 
             const permissions = [...userPermissions, ...groupPermissions];
             delete (<any>user).password; // Hide password from logs
-            this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
+            this.logger.debug(
+                `Retrieved permissions for user ${user.id} from database`,
+                { user, permissions }
+            );
 
             // Must make an assumption that the database has correct values due to raw query.
             return <(UserPermission | GroupPermission)[]>permissions;
         } else {
-            const guestPermissions =
-                await this.prisma.$queryRaw`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
+            const guestPermissions = await this.prisma
+                .$queryRaw`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
                                         FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
                                                               name = 'Guest' LIMIT 1)`;
 
-            this.logger.debug("Retrieved guest permissions from database", guestPermissions);
+            this.logger.debug(
+                "Retrieved guest permissions from database",
+                guestPermissions
+            );
 
             // Must make an assumption that the database has correct values due to raw query.
             return <GroupPermission[]>guestPermissions;
@@ -189,7 +194,9 @@ export class CaslAbilityFactory {
     // }
 
     async createForUser(user: User): Promise<GlimpseAbility> {
-        this.logger.verbose(`Fetching rules for the current user (user ID: ${user?.id || null})`)
+        this.logger.verbose(
+            `Fetching rules for the current user (user ID: ${user?.id || null})`
+        );
         const rawPermissions = <RawRuleOf<GlimpseAbility>[]>(
             await this.getPermissions(user)
         );
