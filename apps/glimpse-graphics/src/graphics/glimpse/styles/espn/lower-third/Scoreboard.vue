@@ -35,7 +35,6 @@ import scoreboard from "../../../../../assets/espn/Scoreboard.png";
 const replicants = await loadReplicants();
 
 const period = computed(() => {
-	console.log(replicants.scoreboard.period.value);
 	if (replicants.scoreboard.period.value === 1)
 		return "End of 1st";
 	if (replicants.scoreboard.period.value === 2)

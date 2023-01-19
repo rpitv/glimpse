@@ -1,16 +1,20 @@
 <template>
 	<div>
-		<n-input :on-update-value="(string) => replicants.lowerThird.school1Logo.value = string"
-				 :default-value="replicants.lowerThird.school1Logo.value"
-				 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for Home/Left team's logo"/>
-		<n-input :on-update-value="(string) => replicants.lowerThird.school2Logo.value = string"
-				 :default-value="replicants.lowerThird.school2Logo.value"
-				 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for Away/Right logo"/>
-		<h2>Display Scoreboard</h2>
-		<n-button @click="replicants.lowerThird.scoreboard.value = !replicants.lowerThird.scoreboard.value"
-				  :type="replicants.lowerThird.scoreboard.value ? 'error' : 'success'">
-			{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
-		</n-button>
+		<div>
+			<NCheckbox> Sync school logos with the ones displayed in the actual scoreboard?</NCheckbox>
+			<br>
+			<n-input :on-update-value="(string) => replicants.lowerThird.school1Logo.value = string"
+					 :default-value="replicants.lowerThird.school1Logo.value"
+					 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for Home/Left team's logo"/>
+			<n-input :on-update-value="(string) => replicants.lowerThird.school2Logo.value = string"
+					 :default-value="replicants.lowerThird.school2Logo.value"
+					 :style="{'max-width': '40%', 'margin-right': '20px'}" placeholder="URL for Away/Right logo"/>
+			<h2>Display Scoreboard</h2>
+			<n-button @click="replicants.lowerThird.scoreboard.value = !replicants.lowerThird.scoreboard.value"
+					  :type="replicants.lowerThird.scoreboard.value ? 'error' : 'success'">
+				{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
+			</n-button>
+		</div>
 		<h2>Display Commentators/Interviewer and Interviewee</h2>
 		<n-input :on-update:value="(string) => replicants.lowerThird.commentators.leftPerson.value = string"
 				 :default-value="replicants.lowerThird.commentators.leftPerson.value"
@@ -32,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import {NButton, NInput} from "naive-ui"
+import {NButton, NInput, NCheckbox} from "naive-ui"
 import { loadReplicants } from "../../browser-common/replicants";
 import {ref} from "vue";
 
