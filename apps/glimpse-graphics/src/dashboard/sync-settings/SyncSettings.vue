@@ -24,7 +24,7 @@
 		<h1>Mock Data Submission</h1>
 
 		<h2>Packet Upload</h2>
-		<n-alert title="Packet Information" type="info">
+		<v-alert title="Packet Information" type="info">
 			<p>
 				If the data you input is less than the expected length, it will be padded with spaces according
 				to its justification. If the data you input is greater than the expected length, it will all be
@@ -43,7 +43,7 @@
 					<li>Hexadecimal: <kbd>{{ mockPacketPaddedDataInputHexDisplay }}</kbd></li>
 				</ul>
 			</div>
-		</n-alert>
+		</v-alert>
 		<div class="mt-10">
 			<label :for="mockPacketId">Packet</label>
 			<n-select :id="mockPacketId" v-model:value="mockPacketSelection" :options="mockPacketOptions" />
@@ -55,7 +55,7 @@
 		<n-button class="mt-10" @click="submitMockPacket">Submit</n-button>
 
 		<h2>Bulk Upload</h2>
-		<n-alert type="warning" v-if="mockBulkErrorMsg">{{ mockBulkErrorMsg }}</n-alert>
+		<v-alert type="warning" v-if="mockBulkErrorMsg">{{ mockBulkErrorMsg }}</v-alert>
 		<n-upload ref="mockBulkUploadElem" @change="uploadChangedEvent" :max="1" class="mt-10">
 			<n-upload-dragger>
 				<p>Click or drag a file to this area to upload.</p>
@@ -73,9 +73,9 @@
 			:parse="(val) => parseFloat(val) * 1000"
 		/>
 
-		<n-alert v-if="mockBulkDataSliderValue > 19200" class="mt-10" title="Impossible Bitrate" type="info">
+		<v-alert v-if="mockBulkDataSliderValue > 19200" class="mt-10" title="Impossible Bitrate" type="info">
 			<p>In real-world scenarios, bitrate will never exceed 19.2 Kbps (i.e., the baud rate).</p>
-		</n-alert>
+		</v-alert>
 
 		<n-button
 			class="mt-10"
@@ -100,7 +100,6 @@ import {
 	NButton,
 	NUpload,
 	NUploadDragger,
-	NAlert,
 	NProgress,
 	useThemeVars
 } from "naive-ui";

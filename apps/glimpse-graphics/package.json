@@ -23,13 +23,15 @@
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.2.1",
     "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
     "module-alias": "^2.2.2",
     "pinia": "^2.0.23",
     "pino": "^8.7.0",
     "serialport": "^10.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vuetify": "^3.1.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.47",
@@ -47,6 +49,7 @@
     "vite": "^2.9.14",
     "vite-plugin-checker": "^0.4.9",
     "vite-plugin-nodecg": "^1.0.2",
+    "vite-plugin-vuetify": "^1.0.1",
     "vue": "^3.2.37",
     "vue-tsc": "^0.39.5"
   },
