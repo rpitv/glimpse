@@ -1,13 +1,13 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
 	<div id="team1Name" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
-		{{replicants.teams[0].name.value}}
+		{{replicants.teams[0].schoolName.value}}
 	</div>
 	<div  id="team1Score" class="lower-third">
 		{{replicants.teams[0].score.value}}
 	</div>
 	<div id="team2Name" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
-		{{replicants.teams[1].name.value}}
+		{{replicants.teams[1].schoolName.value}}
 	</div>
 	<div  id="team2Score" class="lower-third">
 		{{replicants.teams[1].score.value}}
