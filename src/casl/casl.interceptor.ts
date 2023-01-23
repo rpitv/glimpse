@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     CallHandler,
     ExecutionContext,
     ForbiddenException,
@@ -11,17 +10,16 @@ import {
 import { firstValueFrom, Observable } from "rxjs";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import {
-    AbilityAction,
     AbilitySubjects,
     CaslAbilityFactory,
     GlimpseAbility
 } from "./casl-ability.factory";
-import { Rule, RULES_METADATA_KEY } from "./rules.decorator";
+import { Rule, RuleDef, RULES_METADATA_KEY } from "./rules.decorator";
 import { Reflector } from "@nestjs/core";
 import { subject } from "@casl/ability";
 import { Request } from "express";
-import {GraphQLResolveInfo} from "graphql/type";
-import {Kind} from "graphql/language";
+import { GraphQLResolveInfo } from "graphql/type";
+import { Kind } from "graphql/language";
 
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
@@ -32,167 +30,15 @@ export class CaslInterceptor implements NestInterceptor {
         private readonly caslAbilityFactory: CaslAbilityFactory
     ) {}
 
-    /**
-     * Test the provided rules against the given ability.
-     *
-     * Rules are defined as either being an array containing a required AbilityAction plus an optional AbilitySubject
-     * and field name, or a function which takes in a GlimpseAbility and optional value and then returns true or false.
-     *
-     * If an array-based rule is passed, pre-resolution, the rules are checked exactly as-is. Post-resolution, some
-     * reasonable assumptions about the desired behavior are made:
-     * - If the returned value is an object (or object array)...
-     *   - The returned value is assumed to be of or an array of the subject type, if present.
-     *   - The user must have permission to read all requested properties on the returned object(s).
-     *   - If the user cannot read the object or any requested property on the object, a ForbiddenException is thrown.
-     *     In the case of an array, the same must be true for every element of the array.
-     * - If the returned value is a scalar (or scalar array)... TODO
-     *   - The returned value is assumed to be a property of or an array of properties of the subject type, if present.
-     *   -
-     *
-     * If these assumptions are not desirable, then you have two options:
-     * - Disable post-resolution checks by setting the rule's "checkReturnedValue" property to "false". (TODO)
-     * - Define the rule with a RuleFn, which lets you impose your own requirements.
-     *
-     * TODO these defaults are subject to change before the merging of the nestjs branch.
-     *  Remove this to-do before merge.
-     * @param context Execution context received from NestJS.
-     * @param rules Array of rules.
-     * @param ability Glimpse ability to check each rule against.
-     * @param value The value returned from the resolver. Pre-resolution, this is expected to be undefined.
-     *  Post-resolution, this is expected to be anything else (null values are acceptable).
-     * @private
-     */
-    private testRules(
-        context: ExecutionContext,
-        rules: Rule[],
-        ability: GlimpseAbility,
-        value?: any
-    ): void {
-        if (!rules || rules.length === 0) {
-            this.logger.verbose(
-                "No rules applied for the given resource. Calling method."
-            );
-        }
-
-        // Go through each rule passed to @Rules() and run them.
-        for (const rule of rules || []) {
-            this.logger.verbose(
-                `Testing ${rule.name ? `rule "${rule.name}"` : "unnamed rule"}${
-                    value ? " with value" : ""
-                }.`
-            );
-
-            // RuleFn
-            if (typeof rule.rule === "function") {
-                if (!rule.rule(ability, value)) {
-                    this.logger.debug(
-                        `${
-                            rule.name ? `Rule "${rule.name}"` : "Unnamed rule"
-                        } function returned false. Throwing ForbiddenException.`
-                    );
-                    throw new ForbiddenException();
-                }
-                continue;
-            }
-
-            // else [AbilityAction, AbilitySubjects, string]
-            const castedRule = <[AbilityAction, AbilitySubjects, string]>(
-                rule.rule
-            );
-
-            // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
-            //  to a string before testing. Typeof classes === function.
-            if (typeof castedRule[1] === "function") {
-                castedRule[1] = <Extract<AbilitySubjects, string>>(castedRule[1].modelName || castedRule[1].name);
-            }
-
-            // Get the info from the GQL request, so we can see what fields are requested from the returned object.
-            //  If this is not a GraphQL request, info will be null, and each property on the returned value
-            //  should be checked instead.
-            const info = this.getGraphQLInfo(context);
-            let fields = undefined;
-            if (info !== null) {
-                fields = this.getSelectedFields(info);
-            }
-
-            // If fields are defined, check that the user has permission to read each individual field
-            if(fields && fields.length > 0) {
-
-            }
-
-            // If subject is provided and the returned value is an array then make the permission checks on each
-            //  element of the array. If this is undesirable, the developer can pass a RuleFn instead.
-            if (value && Array.isArray(value) && castedRule[1]) {
-                for (let i = 0; i < value.length; i++) {
-                    if (
-                        !ability.can(
-                            castedRule[0],
-                            subject(
-                                <Extract<AbilitySubjects, string>>(
-                                    castedRule[1]
-                                ),
-                                value[i]
-                            ),
-                            castedRule[2]
-                        )
-                    ) {
-                        this.logger.debug(
-                            `${
-                                rule.name
-                                    ? `Rule "${rule.name}"`
-                                    : "Unnamed rule"
-                            } condition failed on array index ${i}. Throwing ForbiddenException.`
-                        );
-                        throw new ForbiddenException();
-                    }
-                }
-            } else if (!castedRule[1]) {
-                // No subject is passed. Just check the action.
-                if (!ability.can(castedRule[0], undefined)) {
-                    this.logger.debug(
-                        `${
-                            rule.name
-                                ? `Rule "${rule.name}"`
-                                : "Unnamed rule"
-                        } condition failed. Throwing ForbiddenException.`
-                    );
-                    throw new ForbiddenException();
-                }
-            } else {
-                // Calculate subject value to pass to can(). If value is set, we pass that value after running it
-                //  through subject() with the subject passed to @Rules(). Otherwise, just pass the subject directly.
-                const subj = value
-                    ? subject(
-                        <Extract<AbilitySubjects, string>>castedRule[1],
-                        value
-                    )
-                    : castedRule[1];
-                if (!ability.can(castedRule[0], subj, castedRule[2])) {
-                    this.logger.debug(
-                        `${
-                            rule.name
-                                ? `Rule "${rule.name}"`
-                                : "Unnamed rule"
-                        } condition failed. Throwing ForbiddenException.`
-                    );
-                    throw new ForbiddenException();
-                }
-                // TODO check user has permission to read each individual requested property on values
-            }
-        }
-
-        if (rules?.length > 0) {
-            this.logger.verbose(
-                `CASL interceptor passed all rule checks${
-                    value
-                        ? " with value. Interception complete."
-                        : ". Calling method."
-                }`
-            );
-        }
+    private formatRuleName(rule: Rule): string {
+        return `Rule "${rule.name}"` || "Unnamed rule";
     }
 
-    private testRulesWithoutValue(context: ExecutionContext, rules: Rule[], ability: GlimpseAbility): void {
+    private testRulesWithoutValue(
+        context: ExecutionContext,
+        rules: Rule[],
+        ability: GlimpseAbility
+    ): void {
         if (!rules || rules.length === 0) {
             this.logger.verbose(
                 "No rules applied for the given resource. Pass."
@@ -200,113 +46,366 @@ export class CaslInterceptor implements NestInterceptor {
             return;
         }
 
-        for(const rule of rules) {
-            this.logger.verbose(
-                `Testing ${rule.name ? `rule "${rule.name}"` : "unnamed rule"}.`
-            );
+        for (const rule of rules) {
+            const ruleNameStr = this.formatRuleName(rule);
+            this.logger.verbose(`Testing ${ruleNameStr} without value.`);
             // RuleFn
             if (typeof rule.rule === "function") {
-                if (!rule.rule(ability)) {
+                if (!rule.rule(ability, context)) {
                     this.logger.debug(
-                        `${
-                            rule.name ? `Rule "${rule.name}"` : "Unnamed rule"
-                        } function returned false. Throwing ForbiddenException.`
+                        `${ruleNameStr} function returned false. Throwing ForbiddenException.`
                     );
                     throw new ForbiddenException();
                 }
             }
-            // [AbilityAction, AbilitySubjects, string]
-            else {
 
-                const castedRule = <[AbilityAction, AbilitySubjects, string]>(
-                    rule.rule
-                );
+            // [AbilityAction, AbilitySubjects, string]
+            else if (Array.isArray(rule.rule)) {
+                // https://stackoverflow.com/a/53832911/4698546
+                let [, subj] = <RuleDef>rule.rule;
+                const [action, , field] = <RuleDef>rule.rule;
+
+                // If this is an array, extract the type from the array. Arrays as subjects are used to indicate
+                //  that the return type is an array when checkValues option is passed as true.
+                if (Array.isArray(subj)) {
+                    subj = subj[0];
+                }
 
                 // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
                 //  to a string before testing. Typeof classes === function.
-                if (typeof castedRule[1] === "function") {
-                    castedRule[1] = <Extract<AbilitySubjects, string>>(castedRule[1].modelName || castedRule[1].name);
+                if (typeof subj === "function") {
+                    subj = <Extract<AbilitySubjects, string>>(
+                        (subj.modelName || subj.name)
+                    );
                 }
 
-                // Get the info from the GQL request, so we can see what fields are requested from the returned object.
-                //  If this is not a GraphQL request, info will be null, and each property on the returned value
-                //  should be checked instead.
-                const info = this.getGraphQLInfo(context);
-                let fields = undefined;
-                if (info !== null) {
-                    fields = this.getSelectedFields(info);
+                // For field checks, a subject is required.
+                if (subj && (field || rule.options?.inferFields === true)) {
+                    throw new Error(
+                        "Fields cannot be checked or inferred without a subject type."
+                    );
                 }
 
-                // If fields are defined, check that the user has permission to read each individual field
-                if(fields && fields.length > 0) {
-
+                // The @Rule() decorator supports two ways of checking fields, which probably aren't ever intended to be
+                //  used in combination with each other, however there is no reason they can't be. Warn when this happens.
+                if (
+                    field !== undefined &&
+                    rule.options?.inferFields === true &&
+                    rule.options?.muteFieldsWarning !== false
+                ) {
+                    this.logger.warn(
+                        `Field is passed to @Rule decorator in ${ruleNameStr}, but inferFields ` +
+                            `option was explicitly set to true. Both the explicit field and inferred fields will be ` +
+                            `checked. If this is desired, set the "muteFieldsWarning" option to true.`
+                    );
                 }
 
-                // If subject is provided and the returned value is an array then make the permission checks on each
-                //  element of the array. If this is undesirable, the developer can pass a RuleFn instead.
-                if (value && Array.isArray(value) && castedRule[1]) {
-                    for (let i = 0; i < value.length; i++) {
-                        if (
-                            !ability.can(
-                                castedRule[0],
-                                subject(
-                                    <Extract<AbilitySubjects, string>>(
-                                        castedRule[1]
-                                    ),
-                                    value[i]
-                                ),
-                                castedRule[2]
-                            )
-                        ) {
+                // Basic test with the provided action and optional subject + field.
+                if (!ability.can(action, subj, field)) {
+                    this.logger.debug(
+                        `${ruleNameStr} condition failed. Throwing ForbiddenException.`
+                    );
+                    throw new ForbiddenException();
+                }
+
+                // Fields should be inferred if a field was not passed and the inferFields option was not explicitly
+                //  set to false, or if the inferFields object was explicitly set to true.
+                const shouldInferFields =
+                    rule.options?.inferFields === true ||
+                    (!field && rule.options?.inferFields !== false);
+                // Fields cannot be inferred without a value outside of GraphQL requests.
+                if (
+                    shouldInferFields &&
+                    context.getType<GqlContextType>() === "graphql"
+                ) {
+                    // Get the info from the GQL request, so we can see what fields are requested from the returned object.
+                    //  If this is not a GraphQL request, info will be null, and each property on the returned value
+                    //  should be checked instead.
+                    const info = this.getGraphQLInfo(context);
+                    const fields = this.getSelectedFields(info);
+
+                    // Remove any specifically excluded fields from the list of inferred fields.
+                    if (rule.options?.excludeFields) {
+                        rule.options.excludeFields.forEach((v) =>
+                            fields.delete(v)
+                        );
+                    }
+
+                    // Test the ability against each inferred field
+                    for (const inferredField of fields) {
+                        if (!ability.can(action, subj, inferredField)) {
                             this.logger.debug(
-                                `${
-                                    rule.name
-                                        ? `Rule "${rule.name}"`
-                                        : "Unnamed rule"
-                                } condition failed on array index ${i}. Throwing ForbiddenException.`
+                                `${ruleNameStr} condition failed with inferred field "${inferredField}". Throwing ForbiddenException.`
                             );
                             throw new ForbiddenException();
                         }
                     }
-                } else if (!castedRule[1]) {
-                    // No subject is passed. Just check the action.
-                    if (!ability.can(castedRule[0], undefined)) {
-                        this.logger.debug(
-                            `${
-                                rule.name
-                                    ? `Rule "${rule.name}"`
-                                    : "Unnamed rule"
-                            } condition failed. Throwing ForbiddenException.`
-                        );
-                        throw new ForbiddenException();
-                    }
-                } else {
-                    // Calculate subject value to pass to can(). If value is set, we pass that value after running it
-                    //  through subject() with the subject passed to @Rules(). Otherwise, just pass the subject directly.
-                    const subj = value
-                        ? subject(
-                            <Extract<AbilitySubjects, string>>castedRule[1],
-                            value
-                        )
-                        : castedRule[1];
-                    if (!ability.can(castedRule[0], subj, castedRule[2])) {
-                        this.logger.debug(
-                            `${
-                                rule.name
-                                    ? `Rule "${rule.name}"`
-                                    : "Unnamed rule"
-                            } condition failed. Throwing ForbiddenException.`
-                        );
-                        throw new ForbiddenException();
-                    }
-                    // TODO check user has permission to read each individual requested property on values
                 }
+            } else {
+                throw new Error("Unknown Rule definition");
             }
         }
     }
 
-    private testRulesWithValue(context: ExecutionContext, rules: Rule[], ability: GlimpseAbility, value: any): void {
+    private testRulesWithValue(
+        context: ExecutionContext,
+        rules: Rule[],
+        ability: GlimpseAbility,
+        value: any
+    ): void {
+        if (!rules || rules.length === 0) {
+            this.logger.verbose(
+                "No rules applied for the given resource. Pass."
+            );
+            return;
+        }
 
+        for (const rule of rules) {
+            const ruleNameStr = this.formatRuleName(rule);
+            this.logger.verbose(`Testing ${ruleNameStr} with value.`);
+
+            if (!(rule.options?.checkValue ?? true)) {
+                this.logger.verbose(
+                    `Rule ${ruleNameStr} checkValue option is set to false. Skipping.`
+                );
+                continue;
+            }
+
+            // RuleFn
+            if (typeof rule.rule === "function") {
+                if (!rule.rule(ability, context, value)) {
+                    this.logger.debug(
+                        `${ruleNameStr} function with value returned false. Throwing ForbiddenException.`
+                    );
+                    throw new ForbiddenException();
+                }
+            }
+
+            // [AbilityAction, AbilitySubjects, string]
+            else if (Array.isArray(rule.rule)) {
+                // https://stackoverflow.com/a/53832911/4698546
+                let [, subj] = <RuleDef>rule.rule;
+                const [action, , field] = <RuleDef>rule.rule;
+
+                // If this is an array, extract the type from the array. Arrays as subjects are used to indicate
+                //  that the return type is an array when checkValues option is passed as true.
+                let subjIsArray;
+                if ((subjIsArray = Array.isArray(subj))) {
+                    subj = subj[0];
+                }
+                if (subjIsArray && !Array.isArray(value)) {
+                    throw new Error(
+                        `Expected subject value to be an array but received ${typeof value}`
+                    );
+                }
+
+                // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
+                //  to a string before testing. Typeof classes === function.
+                if (typeof subj === "function") {
+                    subj = <Extract<AbilitySubjects, string>>(
+                        (subj.modelName || subj.name)
+                    );
+                }
+
+                // For field checks, a subject is required.
+                if (subj && (field || rule.options?.inferFields === true)) {
+                    throw new Error(
+                        "Fields cannot be checked or inferred without a subject type."
+                    );
+                }
+
+                // The @Rule() decorator supports two ways of checking fields, which probably aren't ever intended to be
+                //  used in combination with each other, however there is no reason they can't be. Warn when this happens.
+                if (
+                    field !== undefined &&
+                    rule.options?.inferFields === true &&
+                    rule.options?.muteFieldsWarning !== false
+                ) {
+                    this.logger.warn(
+                        `Field is passed to @Rule decorator in ${ruleNameStr}, but inferFields ` +
+                            `option was explicitly set to true. Both the explicit field and inferred fields will be ` +
+                            `checked. If this is desired, set the "muteFieldsWarning" option to true.`
+                    );
+                }
+
+                // Basic test with the provided action and optional subject + field.
+                if (subjIsArray) {
+                    for (const valueItem of value) {
+                        if (
+                            !ability.can(
+                                action,
+                                subject(
+                                    <Extract<AbilitySubjects, string>>subj,
+                                    valueItem
+                                ),
+                                field
+                            )
+                        ) {
+                            this.logger.debug(
+                                `${ruleNameStr} condition failed. Throwing ForbiddenException.`
+                            );
+                            throw new ForbiddenException();
+                        }
+                    }
+                } else {
+                    if (
+                        !ability.can(
+                            action,
+                            subject(
+                                <Extract<AbilitySubjects, string>>subj,
+                                value
+                            ),
+                            field
+                        )
+                    ) {
+                        this.logger.debug(
+                            `${ruleNameStr} condition failed. Throwing ForbiddenException.`
+                        );
+                        throw new ForbiddenException();
+                    }
+                }
+
+                // Fields should be inferred if a field was not passed and the inferFields option was not explicitly
+                //  set to false, or if the inferFields object was explicitly set to true.
+                const shouldInferFields =
+                    rule.options?.inferFields === true ||
+                    (!field && rule.options?.inferFields !== false);
+
+                // In a GraphQL context, inferred fields are only the fields which are requested. In other contexts,
+                //  inferred fields are all fields within the value.
+                if (
+                    shouldInferFields &&
+                    context.getType<GqlContextType>() === "graphql"
+                ) {
+                    // Get the info from the GQL request, so we can see what fields are requested from the returned object.
+                    //  If this is not a GraphQL request, info will be null, and each property on the returned value
+                    //  should be checked instead.
+                    const info = this.getGraphQLInfo(context);
+                    const fields = this.getSelectedFields(info);
+
+                    // Remove any specifically excluded fields from the list of inferred fields.
+                    if (rule.options?.excludeFields) {
+                        rule.options.excludeFields.forEach((v) =>
+                            fields.delete(v)
+                        );
+                    }
+
+                    // Test the ability against each inferred field
+                    for (const inferredField of fields) {
+                        // Basic test with the provided action and optional subject + field.
+                        if (subjIsArray) {
+                            for (const valueItem of value) {
+                                if (
+                                    !ability.can(
+                                        action,
+                                        subject(
+                                            <Extract<AbilitySubjects, string>>(
+                                                subj
+                                            ),
+                                            valueItem
+                                        ),
+                                        inferredField
+                                    )
+                                ) {
+                                    this.logger.debug(
+                                        `${ruleNameStr} condition failed with inferred field "${inferredField}". Throwing ForbiddenException.`
+                                    );
+                                    throw new ForbiddenException();
+                                }
+                            }
+                        } else {
+                            if (
+                                !ability.can(
+                                    action,
+                                    subject(
+                                        <Extract<AbilitySubjects, string>>subj,
+                                        value
+                                    ),
+                                    inferredField
+                                )
+                            ) {
+                                this.logger.debug(
+                                    `${ruleNameStr} condition failed with inferred field "${inferredField}". Throwing ForbiddenException.`
+                                );
+                                throw new ForbiddenException();
+                            }
+                        }
+                    }
+                } else {
+                    if (subjIsArray) {
+                        for (const valueItem of value) {
+                            // Fields can't be inferred on non-objects outside of GraphQL context.
+                            if (typeof valueItem !== "object") {
+                                return;
+                            }
+                            const fields = new Set(Object.keys(valueItem));
+
+                            // Remove any specifically excluded fields from the list of inferred fields.
+                            if (rule.options?.excludeFields) {
+                                rule.options.excludeFields.forEach((v) =>
+                                    fields.delete(v)
+                                );
+                            }
+
+                            // Test the ability against each inferred field
+                            for (const inferredField of fields) {
+                                if (
+                                    !ability.can(
+                                        action,
+                                        subject(
+                                            <Extract<AbilitySubjects, string>>(
+                                                subj
+                                            ),
+                                            valueItem
+                                        ),
+                                        inferredField
+                                    )
+                                ) {
+                                    this.logger.debug(
+                                        `${ruleNameStr} condition failed with inferred field "${inferredField}". Throwing ForbiddenException.`
+                                    );
+                                    throw new ForbiddenException();
+                                }
+                            }
+                        }
+                    } else {
+                        // Fields can't be inferred on non-objects outside of GraphQL context.
+                        if (typeof value !== "object") {
+                            return;
+                        }
+                        const fields = new Set(Object.keys(value));
+
+                        // Remove any specifically excluded fields from the list of inferred fields.
+                        if (rule.options?.excludeFields) {
+                            rule.options.excludeFields.forEach((v) =>
+                                fields.delete(v)
+                            );
+                        }
+
+                        // Test the ability against each inferred field
+                        for (const inferredField of fields) {
+                            if (
+                                !ability.can(
+                                    action,
+                                    subject(
+                                        <Extract<AbilitySubjects, string>>subj,
+                                        value
+                                    ),
+                                    inferredField
+                                )
+                            ) {
+                                this.logger.debug(
+                                    `${ruleNameStr} condition failed with inferred field "${inferredField}". Throwing ForbiddenException.`
+                                );
+                                throw new ForbiddenException();
+                            }
+                        }
+                    }
+                }
+            } else {
+                throw new Error("Unknown Rule definition");
+            }
+        }
     }
 
     /**
@@ -354,22 +453,28 @@ export class CaslInterceptor implements NestInterceptor {
             }
             for (const selection of fieldNode.selectionSet?.selections || []) {
                 if (selection.kind === Kind.FIELD) {
-                    if(selection.name.kind !== Kind.NAME) {
+                    if (selection.name.kind !== Kind.NAME) {
                         // This should never happen.
                         this.logger.warn(
                             `Encountered unexpected field node selection name type "${
                                 selection.name.kind || "undefined"
                             }" when traversing AST. Selection definition: ${selection}`
                         );
-                        throw new InternalServerErrorException("Unexpected node type");
+                        throw new InternalServerErrorException(
+                            "Unexpected node type"
+                        );
                     }
                     fields.add(selection.name.value);
                 } else if (selection.kind === Kind.INLINE_FRAGMENT) {
                     // TODO
-                    throw new Error('Unsupported selection kind "INLINE_FRAGMENT"');
+                    throw new Error(
+                        'Unsupported selection kind "INLINE_FRAGMENT"'
+                    );
                 } else if (selection.kind === Kind.FRAGMENT_SPREAD) {
                     // TODO
-                    throw new Error('Unsupported selection kind "FRAGMENT_SPREAD"');
+                    throw new Error(
+                        'Unsupported selection kind "FRAGMENT_SPREAD"'
+                    );
                 } else {
                     // This should never happen.
                     this.logger.warn(
@@ -383,8 +488,10 @@ export class CaslInterceptor implements NestInterceptor {
                 }
             }
         }
-        this.logger.debug(() =>
-            `User requested the following fields in their query: ${[...fields].join(", ")}`
+        this.logger.debug(
+            `User requested the following fields in their query: ${[
+                ...fields
+            ].join(", ")}`
         );
         return fields;
     }
@@ -414,13 +521,13 @@ export class CaslInterceptor implements NestInterceptor {
             context.getHandler()
         );
 
-        this.testRules(context, rules, req.permissions);
+        this.testRulesWithoutValue(context, rules, req.permissions);
         const value = await firstValueFrom(next.handle());
         this.logger.verbose("Method completed.");
         // Re-apply rules but with the actual return value passed in.
         // Note that conditional permission checks are limited to actual fields and not computed fields via
         //  @ResolveField(). There is no reasonable way to check these values for permissions.
-        this.testRules(context, rules, req.permissions, value);
+        this.testRulesWithValue(context, rules, req.permissions, value);
         return value;
     }
 }

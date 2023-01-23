@@ -18,7 +18,7 @@ export class UserResolver {
     @Query(() => [User])
     @Rules("Read users", AbilityAction.Read, User)
     async findManyUser(@Context() ctx: any): Promise<User[]> {
-        this.logger.verbose('findManyUser resolver called');
+        this.logger.verbose("findManyUser resolver called");
         return this.prisma.user.findMany({
             where: accessibleBy(ctx.req.permissions).User
         });
@@ -30,7 +30,7 @@ export class UserResolver {
         @Args("id", { type: () => Int }) id: number,
         @Context() ctx: any
     ): Promise<User> {
-        this.logger.verbose('findOneUser resolver called');
+        this.logger.verbose("findOneUser resolver called");
         return this.prisma.user.findFirst({
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).User]
@@ -44,7 +44,7 @@ export class UserResolver {
         @Session() session: Record<string, any>,
         @Context() ctx: any
     ): Promise<User | null> {
-        this.logger.verbose('self resolver called');
+        this.logger.verbose("self resolver called");
         return ctx.req.user || null;
     }
 
@@ -53,7 +53,7 @@ export class UserResolver {
     async createUser(
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
     ): Promise<User> {
-        this.logger.verbose('createUser resolver called');
+        this.logger.verbose("createUser resolver called");
         // TODO
         input = plainToClass(CreateUserInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
@@ -75,7 +75,7 @@ export class UserResolver {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
         @Args("input", { type: () => UpdateUserInput }) input: UpdateUserInput
     ): Promise<User> {
-        this.logger.verbose('updateUser resolver called');
+        this.logger.verbose("updateUser resolver called");
         // TODO
         return new User();
     }
@@ -86,7 +86,7 @@ export class UserResolver {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
         @Args("id", { type: () => Int }) id: number
     ): Promise<User> {
-        this.logger.verbose('deleteUser resolver called');
+        this.logger.verbose("deleteUser resolver called");
         // TODO
         return new User();
     }
