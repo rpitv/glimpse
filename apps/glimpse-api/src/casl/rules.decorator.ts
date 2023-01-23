@@ -3,12 +3,28 @@ import {
     AbilitySubjects,
     GlimpseAbility
 } from "./casl-ability.factory";
-import { SetMetadata } from "@nestjs/common";
+import { ExecutionContext, SetMetadata } from "@nestjs/common";
 
-export type RuleFn = (ability: GlimpseAbility, value?: any) => boolean;
+export type RuleFn = (
+    ability: GlimpseAbility,
+    context: ExecutionContext,
+    value?: any
+) => boolean;
+export type RuleDef = [
+    AbilityAction,
+    (AbilitySubjects | [AbilitySubjects])?,
+    string?
+];
 export type Rule = {
     name?: string;
-    rule: RuleFn | [AbilityAction, AbilitySubjects?, string?];
+    rule: RuleFn | RuleDef;
+    options?: RuleOptions;
+};
+export type RuleOptions = {
+    inferFields?: boolean;
+    excludeFields?: string[];
+    checkValue?: boolean;
+    muteFieldsWarning?: boolean;
 };
 export type NonEmptyArray<T> = [T, ...T[]];
 export const RULES_METADATA_KEY = "casl_rule";
