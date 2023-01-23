@@ -271,7 +271,7 @@ export class CaslInterceptor implements NestInterceptor {
                     rule.options?.inferFields === true ||
                     (!field && rule.options?.inferFields !== false);
 
-                if(!shouldInferFields) {
+                if (!shouldInferFields) {
                     return;
                 }
 
