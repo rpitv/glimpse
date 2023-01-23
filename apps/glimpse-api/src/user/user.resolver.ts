@@ -16,7 +16,7 @@ export class UserResolver {
     constructor(private readonly prisma: PrismaService) {}
 
     @Query(() => [User])
-    @Rules("Read users", AbilityAction.Read, User)
+    @Rules("Read users", AbilityAction.Read, [User])
     async findManyUser(@Context() ctx: any): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         return this.prisma.user.findMany({

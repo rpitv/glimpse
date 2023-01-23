@@ -33,7 +33,7 @@ function Rules(name: string | null, ruleFn: RuleFn);
 function Rules(
     name: string | null,
     action: AbilityAction,
-    subject?: AbilitySubjects,
+    subject?: AbilitySubjects | [AbilitySubjects],
     field?: string
 );
 function Rules(rules: Rule[]);

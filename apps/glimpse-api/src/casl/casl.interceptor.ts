@@ -271,12 +271,13 @@ export class CaslInterceptor implements NestInterceptor {
                     rule.options?.inferFields === true ||
                     (!field && rule.options?.inferFields !== false);
 
+                if(!shouldInferFields) {
+                    return;
+                }
+
                 // In a GraphQL context, inferred fields are only the fields which are requested. In other contexts,
                 //  inferred fields are all fields within the value.
-                if (
-                    shouldInferFields &&
-                    context.getType<GqlContextType>() === "graphql"
-                ) {
+                if (context.getType<GqlContextType>() === "graphql") {
                     // Get the info from the GQL request, so we can see what fields are requested from the returned object.
                     //  If this is not a GraphQL request, info will be null, and each property on the returned value
                     //  should be checked instead.
