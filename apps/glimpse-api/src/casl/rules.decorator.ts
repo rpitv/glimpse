@@ -20,33 +20,32 @@ export enum RuleType {
 }
 export type Rule =
     | {
-          name?: string;
           rule: RuleFn;
           type: RuleType.Custom;
           options?: RuleOptions;
       }
     | {
-          name?: string;
           rule: [AbilityAction, AbilitySubjects];
           type: Exclude<RuleType, RuleType.Custom>;
           options?: RuleOptions;
       };
 export type RuleOptions = {
-    inferFields?: boolean;
+    name?: string;
     excludeFields?: string[];
     checkValue?: boolean;
-    muteFieldsWarning?: boolean;
+    orderInputName?: string;
+    filterInputName?: string;
+    inputName?: string;
 };
 export const RULES_METADATA_KEY = "casl_rule";
 
+function Rules(type: RuleType.Custom, rule: RuleFn, options?: RuleOptions);
 function Rules(
-    name: string | null,
-    type: RuleType.Custom,
-    rule: RuleFn,
+    type: Exclude<RuleType, RuleType.Custom>,
+    subject: AbilitySubjects,
     options?: RuleOptions
 );
 function Rules(
-    name: string | null,
     type: Exclude<RuleType, RuleType.Custom>,
     rule: [AbilityAction, AbilitySubjects],
     options?: RuleOptions
@@ -57,13 +56,46 @@ function Rules(...args: any[]) {
     if (Array.isArray(args[0])) {
         return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, args[0]);
     }
+
+    args[2] ||= {};
+
     // Single rule
+    // Custom function-based rules and rules with an explicitly defined
+    //  action type require no processing.
+    if (args[0] === RuleType.Custom || Array.isArray(args[1])) {
+        // Default rule name based on the requirements if it wasn't supplied
+        if (args[0] === RuleType.Custom) {
+            args[2].name ||= "Custom rule";
+        } else {
+            args[2].name ||= `${args[0]} (${args[1][0]}) ${args[1][1]}`;
+        }
+
+        return SetMetadata<string, Rule>(RULES_METADATA_KEY, {
+            type: args[0],
+            rule: args[1],
+            options: args[2]
+        });
+    }
+
+    // Supplying action is often redundant since it's already in the RuleType,
+    //  so optionally the user can just pass a subject instead and we'll
+    //  infer the action from the RuleType.
+    let inferredAction = args[0];
+    if (
+        inferredAction === RuleType.ReadMany ||
+        inferredAction === RuleType.ReadOne
+    ) {
+        inferredAction = "read";
+    }
+    inferredAction = inferredAction.toLowerCase() as AbilityAction;
+    // Default rule name based on the requirements if it wasn't supplied
+    args[2].name ||= `${args[0]} ${args[1]}`;
+
     return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, [
         {
-            name: args[0],
-            type: args[1],
-            rule: args[2],
-            options: args[3]
+            type: args[0],
+            rule: [inferredAction, args[1]],
+            options: args[2]
         }
     ]);
 }
