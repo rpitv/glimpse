@@ -21,6 +21,71 @@ import { Request } from "express";
 import { GraphQLResolveInfo } from "graphql/type";
 import { Kind } from "graphql/language";
 
+/*
+General CRUD steps:
+
+Read one:
+- Check the user has permission to read at least one field on objects of the given type
+- Check the user has permission to read all the requested fields on the given type
+- Get object
+- Check user has permission to read at least one field on this specific object
+- Check the user has permission to read all the requested fields on this specific object
+
+Read many:
+- Check the user has permission to read at least one field on objects of the given type
+- Check the user has permission to read all the requested fields on the given type
+- Check the user has permission to read the filtering fields
+- Check the user has permission to read objects with the filter values
+- Check the user has permission to read the ordering fields, unconditionally*
+- Get objects
+- Check user has permission to read at least one field on each object
+- Check the user has permission to read all the requested fields on each object
+- Check the user has permission to read the filtered value on each object
+- Check the user has permission to read the ordering value on each object
+
+    *NOTE: Ordering does introduce a slight security hole when used in combination with pagination. Imagine you have
+    three documents:
+    - {"name": "Document 1", "secret": 7, "public": true}
+    - {"name": "Document 2", "secret": 8, "public": false}
+    - {"name": "Document 3", "secret": 9, "public": true}
+    The user has permission to read "name" on all documents, but only "secret" on documents which are public. If the
+    user requests the field "name" and orders "secret" in descending order, this would normally throw a Forbidden error.
+    However, if the user uses pagination to request only one document at a time, they would only get a Forbidden error
+    on the second page (i.e., when requesting Document 2). From this, they can infer that Document 2 must have a secret
+    value between 7 and 9. If secret values are unique integers, then they are able to conclusively infer that
+    Document 2 has a secret value of 8. To solve this issue, the user is not allowed to order by fields which they
+    have any conditional permissions against.
+
+Update:
+- Check the user has permission to update at least one field on objects of the given type
+- Check the user has permission to update all the supplied fields on objects of the given type
+- Get the object to be updated
+- Check the user has permission to update at least one field on the object
+- Check the user has permission to update all the fields on the object
+- Tentatively update the object via a transaction
+- Check the user has permission to update at least one field on the object
+- Check the user has permission to update all the fields on the object
+- Save the transaction, or rollback if either of the previous two checks failed.
+
+Create:
+- Check the user has permission to create at least one field on objects of the given type
+- Check the user has permission to create all the supplied fields on objects of the given type
+- Tentatively create the object via a transaction
+- Check the user has permission to create at least one field on the object
+- Check the user has permission to create all the fields on the object, including defaults
+- Save the transaction, or rollback if either of the previous two checks failed.
+
+Delete:
+- Check the user has permission to delete objects of the given type*
+- Get the object to be deleted
+- Check the user has permission to delete the object
+- Delete the object
+
+    *NOTE: Field-based permissions do not make sense in the context of record deletion. There should be constraints
+    (either in code or the database itself) to specifically prevent field restrictions from being set on delete rules.
+
+ */
+
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
     private readonly logger: Logger = new Logger("CaslInterceptor");

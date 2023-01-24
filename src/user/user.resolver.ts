@@ -39,7 +39,7 @@ export class UserResolver {
     }
 
     @Query(() => User, { nullable: true })
-    @Rules("Read users", AbilityAction.Read, User)
+    @Rules("Read user", AbilityAction.Read, User)
     async self(
         @Session() session: Record<string, any>,
         @Context() ctx: any
