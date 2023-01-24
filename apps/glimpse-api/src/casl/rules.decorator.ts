@@ -18,18 +18,19 @@ export enum RuleType {
     Delete = "Delete",
     Custom = "Custom"
 }
-export type Rule = {
-    name?: string;
-    rule: RuleFn
-    type: RuleType.Custom,
-    options?: RuleOptions
-} | {
-    name?: string;
-    rule: [AbilityAction, AbilitySubjects]
-    type: Exclude<RuleType, RuleType.Custom>,
-    options?: RuleOptions
-
-};
+export type Rule =
+    | {
+          name?: string;
+          rule: RuleFn;
+          type: RuleType.Custom;
+          options?: RuleOptions;
+      }
+    | {
+          name?: string;
+          rule: [AbilityAction, AbilitySubjects];
+          type: Exclude<RuleType, RuleType.Custom>;
+          options?: RuleOptions;
+      };
 export type RuleOptions = {
     inferFields?: boolean;
     excludeFields?: string[];
@@ -38,8 +39,18 @@ export type RuleOptions = {
 };
 export const RULES_METADATA_KEY = "casl_rule";
 
-function Rules(name: string | null, type: RuleType.Custom, rule: RuleFn, options?: RuleOptions)
-function Rules(name: string | null, type: Exclude<RuleType, RuleType.Custom>, rule: [AbilityAction, AbilitySubjects], options?: RuleOptions)
+function Rules(
+    name: string | null,
+    type: RuleType.Custom,
+    rule: RuleFn,
+    options?: RuleOptions
+);
+function Rules(
+    name: string | null,
+    type: Exclude<RuleType, RuleType.Custom>,
+    rule: [AbilityAction, AbilitySubjects],
+    options?: RuleOptions
+);
 function Rules(rules: Rule[]);
 function Rules(...args: any[]) {
     // Array of rules
@@ -54,7 +65,7 @@ function Rules(...args: any[]) {
             rule: args[2],
             options: args[3]
         }
-    ])
+    ]);
 }
 
 export { Rules };
