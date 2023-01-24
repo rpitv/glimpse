@@ -38,12 +38,12 @@ module.exports = {
             }).catch(() => interaction.reply({ content: 'Could not update user', ephemeral: true}));
             let volunteerMsg = await interaction.guild.channels.cache.get(proChannel)
                 .messages.fetch(currentProduction.volunteerMsgId);
-            let volunteers = ``;
+            let volunteers = `(${currentProduction.volunteers.length}) `;
             for (let i = 0; i < currentProduction.volunteers.length; i++)
                 volunteers += `<@${currentProduction.volunteers[i]}> `;
             let field = volunteerMsg.embeds[0].data.fields
             if (currentProduction.volunteers.length === 0)
-                volunteers = '🦗';
+                volunteers = '(0) 🦗';
             field[4] = {
                 name: 'Volunteers',
                 value: volunteers

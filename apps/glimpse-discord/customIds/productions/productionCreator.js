@@ -33,8 +33,9 @@ module.exports = {
                 { name: 'Closet', value: `${closetLocation} @ ${closetTime}` },
                 { name: 'Start', value: `${startTime}` },
                 { name: 'End', value: `${endTime}` },
-            )
-
+                { name: 'Volunteers', value: '(0) 🦗'}
+            ) 
+        
         const volunteerBtn = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
@@ -67,7 +68,7 @@ module.exports = {
         }).then(async channel => {
             production.addFields(
                 { name: "Channel", value: `${channelMention(channel.id)}`},
-                { name: 'Volunteers', value: '🦗'})
+                { name: 'Volunteers', value: '(0) 🦗'})
             const volunteerMsg = await interaction.guild.channels.cache.get(proChannel).send({ 
                 embeds: [production], 
                 components: [volunteerBtn] 

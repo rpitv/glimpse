@@ -32,7 +32,7 @@ module.exports = {
         const startTime = moment(closetStartEndTime[2], "HHmm").format('HH:mm') + ` ${closetStartEndTime[3]}`;
         const endTime = moment(closetStartEndTime[4], "HHmm").format('HH:mm') + ` ${closetStartEndTime[5]}`;
         
-        let volunteers = ``
+        let volunteers = `(${currentProduction.volunteers.length}) `
         for (const volunteer of currentProduction.volunteers)
             volunteers += `<@${volunteer}> `;
         
@@ -47,7 +47,7 @@ module.exports = {
                 { name: 'Channel', value: `${channelMention(interaction.channel.id)}`}
             );
         if (volunteers.length === 0 )
-            production.addFields({ name: 'Volunteers', value: '🦗'})
+            production.addFields({ name: 'Volunteers', value: '(0) 🦗'})
         else 
             production.addFields({ name: 'Volunteers', value: `${volunteers}`});
         const volunteerMsg = await interaction.guild.channels.cache.find(ch => ch.id === proChannel)
