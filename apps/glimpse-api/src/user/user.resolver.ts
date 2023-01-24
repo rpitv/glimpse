@@ -6,8 +6,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger, Session } from "@nestjs/common";
-import { Rules } from "../casl/rules.decorator";
-import { AbilityAction } from "../casl/casl-ability.factory";
+import { Rules, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
 
 @Resolver(() => User)
@@ -16,7 +15,7 @@ export class UserResolver {
     constructor(private readonly prisma: PrismaService) {}
 
     @Query(() => [User])
-    @Rules("Read users", AbilityAction.Read, [User])
+    @Rules(RuleType.ReadMany, User)
     async findManyUser(@Context() ctx: any): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         return this.prisma.user.findMany({
@@ -25,7 +24,7 @@ export class UserResolver {
     }
 
     @Query(() => User, { nullable: true })
-    @Rules("Read user", AbilityAction.Read, User)
+    @Rules(RuleType.ReadOne, User)
     async findOneUser(
         @Args("id", { type: () => Int }) id: number,
         @Context() ctx: any
@@ -39,7 +38,7 @@ export class UserResolver {
     }
 
     @Query(() => User, { nullable: true })
-    @Rules("Read user", AbilityAction.Read, User)
+    @Rules(RuleType.ReadOne, User, { name: "Read one user (self)" })
     async self(
         @Session() session: Record<string, any>,
         @Context() ctx: any
@@ -49,7 +48,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @Rules("Create user", AbilityAction.Create, User)
+    @Rules(RuleType.Create, User)
     async createUser(
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
     ): Promise<User> {
@@ -68,7 +67,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @Rules("Update user", AbilityAction.Update, User)
+    @Rules(RuleType.Update, User)
     async updateUser(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
         @Args("id", { type: () => Int }) id: number,
@@ -81,7 +80,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @Rules("Delete user", AbilityAction.Delete, User)
+    @Rules(RuleType.Delete, User)
     async deleteUser(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
         @Args("id", { type: () => Int }) id: number
