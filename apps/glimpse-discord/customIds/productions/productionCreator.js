@@ -33,7 +33,6 @@ module.exports = {
                 { name: 'Closet', value: `${closetLocation} @ ${closetTime}` },
                 { name: 'Start', value: `${startTime}` },
                 { name: 'End', value: `${endTime}` },
-                { name: 'Volunteers', value: '(0) 🦗'}
             ) 
         
         const volunteerBtn = new ActionRowBuilder()
