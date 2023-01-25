@@ -89,7 +89,9 @@ function Rules(...args: any[]) {
     }
     inferredAction = inferredAction.toLowerCase() as AbilityAction;
     // Default rule name based on the requirements if it wasn't supplied
-    args[2].name ||= `${args[0]} ${args[1]}`;
+    args[2].name ||= `${args[0]} ${
+        args[1].modelName || args[1].name || args[1]
+    }`;
 
     return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, [
         {

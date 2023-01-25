@@ -8,6 +8,8 @@ import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger, Session } from "@nestjs/common";
 import { Rules, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
+import { FilterUserInput } from "./dto/filter-user.input";
+import { OrderUserInput } from "./dto/order-user.input";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -16,11 +18,26 @@ export class UserResolver {
 
     @Query(() => [User])
     @Rules(RuleType.ReadMany, User)
-    async findManyUser(@Context() ctx: any): Promise<User[]> {
+    async findManyUser(
+        @Context() ctx: any,
+        @Args("filter", { type: () => FilterUserInput, nullable: true })
+        filter?: FilterUserInput,
+        @Args("order", { type: () => [OrderUserInput], nullable: true })
+        order?: OrderUserInput[]
+    ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
-        return this.prisma.user.findMany({
-            where: accessibleBy(ctx.req.permissions).User
-        });
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? {
+                  AND: [accessibleBy(ctx.req.permissions).User, filter]
+              }
+            : accessibleBy(ctx.req.permissions).User;
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy =
+            order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+
+        return this.prisma.user.findMany({ where, orderBy });
     }
 
     @Query(() => User, { nullable: true })
