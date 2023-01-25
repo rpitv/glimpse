@@ -1,13 +1,13 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
 	<div id="team1Name" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
-		{{replicants.teams[0].name.value}}
+		{{replicants.teams[0].schoolName.value}}
 	</div>
 	<div  id="team1Score" class="lower-third">
 		{{replicants.teams[0].score.value}}
 	</div>
 	<div id="team2Name" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
-		{{replicants.teams[1].name.value}}
+		{{replicants.teams[1].schoolName.value}}
 	</div>
 	<div  id="team2Score" class="lower-third">
 		{{replicants.teams[1].score.value}}
@@ -43,7 +43,7 @@ const period = computed(() => {
 		return "End of 2nd";
 	// If the team's score are the same and we're nearing the third period...
 	if (replicants.teams[0].score.value === replicants.teams[1].score.value) {
-		if (replicants.scoreboard.period.value === 3) 
+		if (replicants.scoreboard.period.value === 3)
 			return "End of Reg.";
 		// If there is no shootout...
 		if (!replicants.gameSettings.periods.shootouts.value) {
