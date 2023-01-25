@@ -45,8 +45,6 @@ export function mainClockHandler(value: string): void {
 }
 
 export function homeScoreHandler(value: string): void {
-	logger.trace({value}, 'homeScoreHandler called');
-
 	if(!replicants.sync.values.teams[0].score.value) {
 		logger.trace('Home score sync is disabled, ignoring home score update');
 		return;
@@ -88,24 +86,19 @@ export function periodHandler(value: string): void {
 }
 
 export function homeShotHandler(value: string): void {
-	logger.trace({value}, 'homeShotHandler called');
 	if(!replicants.sync.values.teams[0].shots.value) {
 		logger.trace('Home shots on goal sync is disabled, ignoring home shots on goal update');
 		return;
 	}
 
-	logger.debug(`SOG Home: ${value}`)
-
 	replicants.teams[0].shots.value = parseInt(value, 10) || 0;
 }
 
 export function awayShotHandler(value: string): void {
-	logger.trace({value}, 'awayShotHandler called');
 	if(!replicants.sync.values.teams[1].shots.value) {
 		logger.trace('Away shots on goal sync is disabled, ignoring away shots on goal update');
 		return;
 	}
 
-	logger.debug(`SOG Away: ${value}`)
 	replicants.teams[1].shots.value = parseInt(value, 10) || 0;
 }
