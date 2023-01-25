@@ -6,7 +6,6 @@ import { PrismaService } from "./prisma/prisma.service";
 import * as path from "path";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { MainExceptionFilter } from "./main.filter";
-import { caslMiddleware } from "./casl/casl.middleware";
 import { AuthModule } from "./auth/auth.module";
 import { CaslModule } from "./casl/casl.module";
 import { CaslInterceptor } from "./casl/casl.interceptor";
@@ -23,9 +22,6 @@ import { OrderDirection } from "./generic/order-direction.enum";
                 settings: {
                     "request.credentials": "include"
                 }
-            },
-            buildSchemaOptions: {
-                fieldMiddleware: [caslMiddleware]
             }
         }),
         UserModule,
