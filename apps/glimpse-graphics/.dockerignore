@@ -6,6 +6,7 @@ extension
 graphics
 node_modules
 shared
+dumps
 .gitattributes
 .gitignore
 docker-compose.yml
