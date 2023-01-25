@@ -1,7 +1,8 @@
 import {sports} from "./sports-definitions";
 import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
-import {appendFile} from "fs";
+import * as fs from 'fs-extra';
+import * as path from "path";
 
 const packetBytes: number[] = [];
 let computedChecksum = 0;
@@ -44,6 +45,49 @@ function bufferToHexString(data: Buffer) {
 	return hexDataStr.match(/.{1,2}/g)?.join(' ') ?? '';
 }
 
+const dumpQueue: (() => Promise<void>)[] = [];
+/**
+ * Write an incoming data buffer to the dump file. This is useful for debugging and is enabled by default,
+ *  but can be disabled by setting the DUMP_RTD environment variable to "false". Data is written in
+ *  the order it is received. Note that it always writes data to a file corresponding to the current
+ *  date. If the program is running at midnight, a packet could be split across two files.
+ *
+ *  Data is written to the "dumps" directory, with the name "Daktronics_<year>_<month>_<day>.dump". The
+ *  file and directory are created if they don't exist. If the write/creation fails, a debug is logged,
+ *  and no errors are thrown.
+ * @param data Incoming data buffer.
+ */
+async function writeToDumpFile(data: Buffer): Promise<void> {
+	const date = new Date();
+	const fileName = `Daktronics_${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate() + 1}.dump`
+	const directory = path.join(__dirname, '..', '..', 'dumps');
+	const filePath = path.join(directory, fileName);
+
+	const dumpFn = async () => {
+		try {
+			await fs.ensureFile(filePath);
+			await fs.appendFile(filePath, data);
+		} catch(err) {
+			logger.debug({error: err, data: bufferToHexString(data)},
+				`failed to write buffer to dump file ${filePath}`);
+		}
+	}
+
+	// To ensure that data is written in the correct order, we need to wait for the previous write to finish before
+	//  writing the next one. This may not be necessary due to the way the event loop functions, but it's better to be
+	//  safe than sorry for now.
+	dumpQueue.push(dumpFn);
+
+	// If this is the only dump queued up, then we can start writing it. We will then handle any
+	//  additional dumps that have been queued up.
+	if(dumpQueue.length === 1) {
+		while(dumpQueue[0] !== undefined) {
+			await dumpQueue[0]();
+			dumpQueue.shift();
+		}
+	}
+}
+
 /**
  * Handler for incoming data on a Daktronics RTD serial port. This function handles the raw data coming in from
  *   the serial port and parses it into packets. It then verifies the packets' checksums and passes them to the
@@ -58,15 +102,10 @@ export function daktronicsRtdListener(data: Buffer) {
 		logger.trace({rawBytes: bufferToHexString(data)},'Received data from serial port');
 	}
 
-	// dumping the Daktronics serial connection to a log file
-	const d = new Date();
-	appendFile(`${__dirname}/_Daktronics_${d.getFullYear()}-${d.getMonth()}-${d.getDay()}.log`,
-		bufferToHexString(data) + "\n", (err) => {
-			logger.trace(
-				`failed to save buffer"
-			${bufferToHexString(data)}
-			"to file: ${__dirname}/_Daktronics_${d.getFullYear()}-${d.getMonth()}-${d.getDay()}.log`)
-		})
+	// dumping the Daktronics serial connection to a dump file
+	if(process.env.DUMP_RTD !== "false") {
+		writeToDumpFile(data);
+	}
 
 	for(const byte of data) {
 		if(byte === 0x16) {
@@ -125,6 +164,7 @@ export function daktronicsRtdListener(data: Buffer) {
 	}
 }
 
+const packetFrequencies: {[key: number]: number} = {};
 function handlePacket(packet: Buffer): void {
 	// If selected sport is undefined or isn't in the sports list, then we don't know how to parse the packet.
 	if(!replicants.sync.selectedSport.value || !sports[replicants.sync.selectedSport.value]) {
@@ -139,6 +179,8 @@ function handlePacket(packet: Buffer): void {
 	// Get the ID. IDs are in the form "00421xxxxx", where "xxxxx" is the ID, all in ASCII. Add one, since it's zero-indexed
 	logger.trace('Getting the ID of the packet');
 	const id = parseInt(paddingStrippedData.slice(5, 10).toString('ascii'), 10) + 1;
+
+	packetFrequencies[id] = (packetFrequencies[id] || 0) + 1;
 
 	// Make sure this is a valid packet for this sport.
 	if(!sports[replicants.sync.selectedSport.value][id]) {
@@ -167,8 +209,16 @@ function handlePacket(packet: Buffer): void {
 	// Call the handler for the packet, if it is defined.
 	const handler = sports[replicants.sync.selectedSport.value][id].handler;
 	if(!handler) {
-		logger.trace('No handler defined for packet ID %d. Ignoring packet.', id);
+		logger.debug('No handler defined for packet ID %d. Ignoring packet.', id);
 		return;
 	}
 	handler(trimmedData);
+}
+
+if(logger.isLevelEnabled("debug")) {
+	setInterval(() => {
+		logger.debug({
+			packetFrequencies
+		}, 'Packet frequencies');
+	}, 10000);
 }

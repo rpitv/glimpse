@@ -8,10 +8,12 @@ services:
     environment:
       - NODE_ENV=development
       - LOG_LEVEL=trace
+      - DUMP_RTD=false
     volumes:
       - ./.nodecg/cfg:/usr/src/app/cfg
       - ./.nodecg/db:/usr/src/app/db
       - ./.nodecg/assets:/usr/src/app/assets
+      - ./dumps:/usr/src/app/dumps
       - .:/usr/src/app/bundles/glimpse-graphics
       - /usr/src/app/bundles/glimpse-graphics/node_modules
     command: npm --prefix "./bundles/glimpse-graphics" run dev

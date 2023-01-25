@@ -10,6 +10,7 @@ services:
       - ./.nodecg/cfg:/usr/src/app/cfg
       - ./.nodecg/db:/usr/src/app/db
       - ./.nodecg/assets:/usr/src/app/assets
+      - ./dumps:/usr/src/app/dumps
     networks:
       - glimpse_network
 networks:
