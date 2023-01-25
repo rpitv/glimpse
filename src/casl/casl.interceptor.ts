@@ -8,10 +8,7 @@ import {
 } from "@nestjs/common";
 import { firstValueFrom, Observable } from "rxjs";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import {
-    CaslAbilityFactory,
-    GlimpseAbility
-} from "./casl-ability.factory";
+import { CaslAbilityFactory, GlimpseAbility } from "./casl-ability.factory";
 import { Rule, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
@@ -19,10 +16,6 @@ import { CaslHelper } from "./casl.helper";
 
 /*
 General CRUD steps:
-
-Read one:
-
-Read many:
 
 Update:
 - Check the user has permission to update at least one field on objects of the given type

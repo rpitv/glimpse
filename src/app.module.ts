@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { GraphQLModule } from "@nestjs/graphql";
+import { GraphQLModule, registerEnumType } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { UserModule } from "./user/user.module";
 import { PrismaService } from "./prisma/prisma.service";
@@ -10,6 +10,8 @@ import { caslMiddleware } from "./casl/casl.middleware";
 import { AuthModule } from "./auth/auth.module";
 import { CaslModule } from "./casl/casl.module";
 import { CaslInterceptor } from "./casl/casl.interceptor";
+import { CaseSensitivity } from "./generic/case-sensitivity.enum";
+import { OrderDirection } from "./generic/order-direction.enum";
 
 @Module({
     imports: [
@@ -44,3 +46,10 @@ import { CaslInterceptor } from "./casl/casl.interceptor";
     ]
 })
 export class AppModule {}
+
+registerEnumType(CaseSensitivity, {
+    name: "CaseSensitivity"
+});
+registerEnumType(OrderDirection, {
+    name: "OrderDirection"
+});
