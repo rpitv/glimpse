@@ -203,7 +203,9 @@ const availableSportsOptions = computed<{label: string, value: string}[]>(() => 
 
 // The color of the "light" on the serial port connection status indicator.
 const connLightColor = computed<string>(() => {
-	if (replicants.sync.status.value.connected) {
+	if (replicants.sync.status.value.error) {
+		return "#db9a4f";
+	} else if (replicants.sync.status.value.connected) {
 		return "#93db4f";
 	} else {
 		return "#eb7434";
@@ -212,7 +214,9 @@ const connLightColor = computed<string>(() => {
 
 // The text to display on the serial port connection status indicator.
 const connectedText = computed<string>(() => {
-	if(replicants.sync.status.value.connected) {
+	if (replicants.sync.status.value.error) {
+		return replicants.sync.status.value.errorMsg;
+	} else if(replicants.sync.status.value.connected) {
 		return 'Connected';
 	} else if(replicants.sync.selectedPort.value) {
 		return 'Connecting...';
