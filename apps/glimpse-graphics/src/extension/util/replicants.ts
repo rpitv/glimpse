@@ -6,7 +6,14 @@ export const replicants = {
 		availablePorts: nodecg().Replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {defaultValue: [], persistent: false}),
 		selectedPort: nodecg().Replicant<string|null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
 		selectedSport: nodecg().Replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
-		status: nodecg().Replicant<{connected: boolean, bitrate: number}>("status", "glimpse-graphics.sync-settings", {defaultValue: {connected: false, bitrate: 0}, persistent: false}),
+		status: nodecg().Replicant<{ connected: boolean, bitrate: number, error: boolean, errorMsg: string }>("status", "glimpse-graphics.sync-settings", {
+			defaultValue: {
+				connected: false,
+				bitrate: 0,
+				error: false,
+				errorMsg: "Error"
+			}, persistent: false
+		}),
 		values: {
 			clock: nodecg().Replicant<boolean>("clock", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
 			period: nodecg().Replicant<boolean>("period", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
