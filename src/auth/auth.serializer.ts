@@ -6,10 +6,7 @@ import { User } from "../user/user.entity";
 
 @Injectable()
 export class AuthSerializer extends PassportSerializer {
-    constructor(
-        private readonly authService: AuthService,
-        private readonly prisma: PrismaService
-    ) {
+    constructor(private readonly authService: AuthService, private readonly prisma: PrismaService) {
         super();
     }
 
