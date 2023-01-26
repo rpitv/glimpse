@@ -461,6 +461,8 @@ export class CaslHelper {
         const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
 
+        // TODO make sure user has no conditional restrictions on their sorting fields
+
         const fields: Set<string> = new Set([...filteringFields, ...sortingFields]);
         // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
         //  fields to be returned.
