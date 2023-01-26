@@ -1,11 +1,4 @@
-import {
-    CallHandler,
-    ExecutionContext,
-    ForbiddenException,
-    Injectable,
-    Logger,
-    NestInterceptor
-} from "@nestjs/common";
+import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
 import { firstValueFrom, Observable } from "rxjs";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { CaslAbilityFactory, GlimpseAbility } from "./casl-ability.factory";
@@ -65,18 +58,14 @@ export class CaslInterceptor implements NestInterceptor {
      */
     getRequest(context: ExecutionContext): Request {
         if (context.getType<GqlContextType>() === "graphql") {
-            this.logger.verbose(
-                "CASL interceptor currently in GraphQL context."
-            );
+            this.logger.verbose("CASL interceptor currently in GraphQL context.");
             const gqlContext = GqlExecutionContext.create(context);
             return gqlContext.getContext().req;
         } else if (context.getType() === "http") {
             this.logger.verbose("CASL interceptor currently in HTTP context.");
             return context.switchToHttp().getRequest();
         } else {
-            throw new Error(
-                `CASL interceptor applied to unsupported context type ${context.getType()}`
-            );
+            throw new Error(`CASL interceptor applied to unsupported context type ${context.getType()}`);
         }
     }
 
@@ -87,21 +76,12 @@ export class CaslInterceptor implements NestInterceptor {
      * @private
      */
     private formatRuleName(rule: Rule): string {
-        return rule.options?.name
-            ? `Rule "${rule.options.name}"`
-            : "Unnamed rule";
+        return rule.options?.name ? `Rule "${rule.options.name}"` : "Unnamed rule";
     }
 
-    private testRules(
-        context: ExecutionContext,
-        rules: Rule[],
-        ability: GlimpseAbility,
-        value?: any
-    ): void {
+    private testRules(context: ExecutionContext, rules: Rule[], ability: GlimpseAbility, value?: any): void {
         if (!rules || rules.length === 0) {
-            this.logger.verbose(
-                "No rules applied for the given resource. Pass."
-            );
+            this.logger.verbose("No rules applied for the given resource. Pass.");
             return;
         }
 
@@ -111,47 +91,20 @@ export class CaslInterceptor implements NestInterceptor {
 
             if (rule.type === RuleType.Custom) {
                 this.logger.verbose("Calling testCustomRule.");
-                if (
-                    !this.caslHelper.testCustomRule(
-                        context,
-                        rule,
-                        ability,
-                        value
-                    )
-                ) {
-                    this.logger.debug(
-                        `${ruleNameStr} function returned false. Throwing ForbiddenException.`
-                    );
+                if (!this.caslHelper.testCustomRule(context, rule, ability, value)) {
+                    this.logger.debug(`${ruleNameStr} function returned false. Throwing ForbiddenException.`);
                     throw new ForbiddenException();
                 }
             } else if (rule.type === RuleType.ReadOne) {
                 this.logger.verbose("Calling testReadOneRule.");
-                if (
-                    !this.caslHelper.testReadOneRule(
-                        context,
-                        rule,
-                        ability,
-                        value
-                    )
-                ) {
-                    this.logger.debug(
-                        `${ruleNameStr} failed. Throwing ForbiddenException.`
-                    );
+                if (!this.caslHelper.testReadOneRule(context, rule, ability, value)) {
+                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
                     throw new ForbiddenException();
                 }
             } else if (rule.type === RuleType.ReadMany) {
                 this.logger.verbose("Calling testReadManyRule.");
-                if (
-                    !this.caslHelper.testReadManyRule(
-                        context,
-                        rule,
-                        ability,
-                        value
-                    )
-                ) {
-                    this.logger.debug(
-                        `${ruleNameStr} failed. Throwing ForbiddenException.`
-                    );
+                if (!this.caslHelper.testReadManyRule(context, rule, ability, value)) {
+                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
                     throw new ForbiddenException();
                 }
             } else if (
@@ -165,17 +118,12 @@ export class CaslInterceptor implements NestInterceptor {
                 );
                 throw new Error("Invalid @Rules() declaration");
             } else {
-                throw new Error(
-                    `Unsupported rule type ${rule.type} on ${ruleNameStr}.`
-                );
+                throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
             }
         }
     }
 
-    async intercept(
-        context: ExecutionContext,
-        next: CallHandler
-    ): Promise<Observable<any>> {
+    async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
         this.logger.verbose("CASL interceptor activated...");
 
         // Retrieve the Request object from the context. Currently only HTTP and GraphQL supported.
@@ -183,19 +131,12 @@ export class CaslInterceptor implements NestInterceptor {
 
         // Generate the current user's permissions as of this request if they haven't been generated already.
         if (!req.permissions) {
-            this.logger.debug(
-                "User request does not yet have CASL ability generated. Generating now..."
-            );
-            req.permissions = await this.caslAbilityFactory.createForUser(
-                req.user
-            );
+            this.logger.debug("User request does not yet have CASL ability generated. Generating now...");
+            req.permissions = await this.caslAbilityFactory.createForUser(req.user);
         }
 
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
-        const rules = this.reflector.get<Rule[]>(
-            RULES_METADATA_KEY,
-            context.getHandler()
-        );
+        const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
         this.testRules(context, rules, req.permissions);
         const value = await firstValueFrom(next.handle());

@@ -28,10 +28,7 @@ export class AuthService {
         // We intentionally don't perform any checks to make sure the password is set or the user's input is valid
         //  before attempting to verify. Doing so could reveal information about the account's password. Delegate that
         //  responsibility to argon2.
-        if (
-            user &&
-            (await verify(user.password, pass, PASSWORD_HASH_OPTIONS))
-        ) {
+        if (user && (await verify(user.password, pass, PASSWORD_HASH_OPTIONS))) {
             delete user.password;
             return user;
         }
