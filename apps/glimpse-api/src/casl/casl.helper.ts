@@ -1,19 +1,62 @@
-import {
-    ExecutionContext,
-    Injectable,
-    InternalServerErrorException,
-    Logger
-} from "@nestjs/common";
+import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
 import { AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
-import { Kind } from "graphql/language";
+import { Kind, visit } from "graphql/language";
 
 @Injectable()
 export class CaslHelper {
+    /**
+     * Keywords which are used to filter the results of a query. These keywords cannot be properites of
+     *  a filterable object type.
+     */
+    public readonly filterKeywords = [
+        "AND",
+        "OR",
+        "NOT",
+        "contains",
+        "startsWith",
+        "endsWith",
+        "in",
+        "notIn",
+        "lt",
+        "lte",
+        "gt",
+        "gte",
+        "equals",
+        "not",
+        "mode"
+    ] as const;
     private readonly logger: Logger = new Logger("CaslHelper");
+
+    /**
+     * Recursively get all keys used within an object, including keys used within objects in an array.
+     *  This is used to determine which fields are used in a filter.
+     *
+     * Example:
+     *  { a: 1, b: "two", c: [ { d: 3, e: "four" }, { e: 5, f: "six" } ] }
+     * will return a Set containing:
+     *  "a", "b", "c", "d", "e", "f".
+     *
+     * @param obj Object to get keys of.
+     * @returns Set of keys used in the object.
+     */
+    getKeysFromDeepObject(obj: Record<any, any>): Set<string> {
+        const keys = new Set<string>();
+        for (const key of Object.keys(obj)) {
+            keys.add(key);
+            if (Array.isArray(obj[key])) {
+                for (const item of obj[key]) {
+                    this.getKeysFromDeepObject(item).forEach((k) => keys.add(k));
+                }
+            } else if (typeof obj[key] === "object") {
+                this.getKeysFromDeepObject(obj[key]).forEach((k) => keys.add(k));
+            }
+        }
+        return keys;
+    }
 
     /**
      * Get the fields which the user is selecting from the GraphQL query info object. Resolvers will typically return
@@ -26,58 +69,116 @@ export class CaslHelper {
     getSelectedFields(info: GraphQLResolveInfo): Set<string> {
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
-            if (fieldNode.kind !== Kind.FIELD) {
-                // This should never happen.
-                this.logger.warn(
-                    `Encountered unexpected field node type "${
-                        fieldNode?.kind || "undefined"
-                    }" when traversing AST. Field node definition: ${fieldNode}`
-                );
-                throw new InternalServerErrorException("Unexpected node type");
-            }
+            this.assertNodeKind(fieldNode, Kind.FIELD);
+
             for (const selection of fieldNode.selectionSet?.selections || []) {
+                this.assertNodeKind(selection, [Kind.FIELD, Kind.INLINE_FRAGMENT, Kind.FRAGMENT_SPREAD]);
                 if (selection.kind === Kind.FIELD) {
-                    if (selection.name.kind !== Kind.NAME) {
-                        // This should never happen.
-                        this.logger.warn(
-                            `Encountered unexpected field node selection name type "${
-                                selection.name.kind || "undefined"
-                            }" when traversing AST. Selection definition: ${selection}`
-                        );
-                        throw new InternalServerErrorException(
-                            "Unexpected node type"
-                        );
-                    }
+                    this.assertNodeKind(selection.name, Kind.NAME);
                     fields.add(selection.name.value);
                 } else if (selection.kind === Kind.INLINE_FRAGMENT) {
                     // TODO
-                    throw new Error(
-                        'Unsupported selection kind "INLINE_FRAGMENT"'
-                    );
+                    throw new Error('Unsupported selection Kind "INLINE_FRAGMENT"');
                 } else if (selection.kind === Kind.FRAGMENT_SPREAD) {
                     // TODO
-                    throw new Error(
-                        'Unsupported selection kind "FRAGMENT_SPREAD"'
-                    );
-                } else {
-                    // This should never happen.
-                    this.logger.warn(
-                        `Encountered unexpected field node selection type "${
-                            (selection as any)?.kind || "undefined"
-                        }" when traversing AST. Selection node definition: ${selection}`
-                    );
-                    throw new InternalServerErrorException(
-                        "Unexpected node type"
-                    );
+                    throw new Error('Unsupported selection Kind "FRAGMENT_SPREAD"');
                 }
             }
         }
-        this.logger.debug(
-            `User requested the following fields in their query: ${[
-                ...fields
-            ].join(", ")}`
-        );
+        this.logger.debug(`User requested the following fields in their query: ${[...fields].join(", ")}`);
         return fields;
+    }
+
+    getFilteringFields(context: ExecutionContext, filterName: string): Set<string> {
+        const contextType = context.getType<GqlContextType>();
+        if (contextType === "graphql") {
+            const info = this.getGraphQLInfo(context);
+
+            const filteringFields = new Set<string>();
+            for (const fieldNode of info.fieldNodes) {
+                this.assertNodeKind(fieldNode, Kind.FIELD);
+
+                const filterArgArr = fieldNode.arguments.filter((arg) => arg.name.value === filterName);
+                if (filterArgArr.length <= 0) {
+                    return new Set();
+                }
+                if (filterArgArr.length > 1) {
+                    // This should never happen
+                    throw new InternalServerErrorException("Multiple filter arguments found");
+                }
+                const filterArg = filterArgArr[0];
+                this.assertNodeKind(filterArg, Kind.ARGUMENT);
+                this.assertNodeKind(filterArg.value, [Kind.OBJECT, Kind.VARIABLE]);
+
+                if (filterArg.value.kind === Kind.OBJECT) {
+                    const filterAst = filterArg.value;
+                    visit(filterAst, {
+                        ObjectField: {
+                            enter: (node) => {
+                                const name = node.name.value;
+                                if (this.filterKeywords.includes(name as any)) {
+                                    return;
+                                }
+                                filteringFields.add(name);
+                            }
+                        }
+                    });
+                } else {
+                    const argName = filterArg.name.value;
+                    const filterObj = info.variableValues[argName];
+                    this.getKeysFromDeepObject(filterObj).forEach((k) => {
+                        if (!this.filterKeywords.includes(k as any)) {
+                            filteringFields.add(k);
+                        }
+                    });
+                }
+            }
+            this.logger.debug(
+                `User filtered using the following fields in their query: ${[...filteringFields].join(", ")}`
+            );
+            return filteringFields;
+        } else if (contextType === "http") {
+            // TODO
+            return new Set();
+        } else {
+            throw new Error("Unsupported execution context");
+        }
+    }
+
+    /**
+     * Assert that a GraphQL node is of the expected type or types. If it is not, throw an error.
+     *  This is used in the AST traversal code to ensure that the AST is in the expected format.
+     *  An error is never expected to be thrown, however we should use this method to ensure that
+     *  the developer did not make a mistake in the AST traversal code or not account for another
+     *  feature of GraphQL.
+     * @param node GraphQL node to check.
+     * @param expectedKind Expected kind of the node. Can also be an array of Kinds, in which case
+     *  the node must be one of the expected kinds.
+     * @throws Error if the node is not of the expected kind.
+     * @private
+     */
+    private assertNodeKind(node: { kind: Kind } | undefined, expectedKind: Kind | Kind[]): void {
+        if (Array.isArray(expectedKind)) {
+            if (!expectedKind.includes(node?.kind)) {
+                // This should never happen.
+                this.logger.error(
+                    `Encountered unexpected Node Kind "${node?.kind || "undefined"}" \
+                     when traversing AST. Expected Node to be one of the following: \
+                     ${expectedKind.join(", ")}. Node definition: ${node}`
+                );
+                throw new InternalServerErrorException("Unexpected node type");
+            }
+        } else {
+            if (node?.kind !== expectedKind) {
+                // This should never happen.
+                this.logger.error(
+                    `Encountered unexpected Node Kind "${node?.kind || "undefined"}" \
+                     when traversing AST. Expected Node to be ${expectedKind}. \
+                     Node definition: ${node}`
+                );
+                throw new InternalServerErrorException("Unexpected node type");
+            }
+        }
     }
 
     /**
@@ -102,18 +203,13 @@ export class CaslHelper {
      * @returns String representation of the subject.
      * @private
      */
-    private getSubjectAsString(
-        subj: AbilitySubjects
-    ): Extract<AbilitySubjects, string> {
+    private getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> {
         // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
         //  to a string before testing. Typeof classes === function.
         if (typeof subj === "string") {
             return subj;
         } else if (typeof subj === "function") {
-            return (subj.modelName || subj.name) as Extract<
-                AbilitySubjects,
-                string
-            >;
+            return (subj.modelName || subj.name) as Extract<AbilitySubjects, string>;
         } else {
             throw new Error("Unknown subject type");
         }
@@ -133,21 +229,12 @@ export class CaslHelper {
      * @throws Error if the rule type is not Custom, or if the rule definition is not a RuleFn.
      * @private
      */
-    public testCustomRule(
-        context: ExecutionContext,
-        rule: Rule,
-        ability: GlimpseAbility,
-        value?: any
-    ): boolean {
+    public testCustomRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility, value?: any): boolean {
         if (rule.type !== RuleType.Custom) {
-            throw new Error(
-                `Cannot test rule of type "${rule.type}" with testCustomRule.`
-            );
+            throw new Error(`Cannot test rule of type "${rule.type}" with testCustomRule.`);
         }
         if (typeof rule.rule !== "function") {
-            throw new Error(
-                "Cannot test rule with a tuple with testCustomRule."
-            );
+            throw new Error("Cannot test rule with a tuple with testCustomRule.");
         }
 
         return rule.rule(ability, context, value);
@@ -175,27 +262,17 @@ export class CaslHelper {
      * @throws Error if the rule type is not ReadOne, or if the rule definition is a RuleFn.
      * @private
      */
-    public testReadOneRule(
-        context: ExecutionContext,
-        rule: Rule,
-        ability: GlimpseAbility,
-        value?: any
-    ): boolean {
+    public testReadOneRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility, value?: any): boolean {
         if (rule.type !== RuleType.ReadOne) {
-            throw new Error(
-                `Cannot test rule of type "${rule.type}" with testReadOneRule.`
-            );
+            throw new Error(`Cannot test rule of type "${rule.type}" with testReadOneRule.`);
         }
         if (typeof rule.rule === "function") {
-            throw new Error(
-                "Cannot test rule with a RuleFn with testReadOneRule."
-            );
+            throw new Error("Cannot test rule with a RuleFn with testReadOneRule.");
         }
 
         const [action, subjectSrc] = rule.rule;
         const subjectStr = this.getSubjectAsString(subjectSrc);
-        const subj =
-            value !== undefined ? subject(subjectStr, value) : subjectStr;
+        const subj = value !== undefined ? subject(subjectStr, value) : subjectStr;
 
         // Basic test with the provided action and subject.
         if (!ability.can(action, subj)) {
@@ -283,23 +360,17 @@ export class CaslHelper {
         value?: any[] | null
     ): boolean {
         if (rule.type !== RuleType.ReadMany) {
-            throw new Error(
-                `Cannot test rule of type "${rule.type}" with testReadManyRule.`
-            );
+            throw new Error(`Cannot test rule of type "${rule.type}" with testReadManyRule.`);
         }
         if (typeof rule.rule === "function") {
-            throw new Error(
-                "Cannot test rule with a RuleFn with testReadManyRule."
-            );
+            throw new Error("Cannot test rule with a RuleFn with testReadManyRule.");
         }
 
         // Assert that value is an array or null. If it's null or an empty array, then there are no values
         //  to check, so the rule passes. Type-based checks only occur when value is undefined.
         if (value !== undefined) {
             if (!Array.isArray(value) && value !== null) {
-                throw new Error(
-                    "Value must be an array or null when not undefined."
-                );
+                throw new Error("Value must be an array or null when not undefined.");
             }
             if (value === null || value.length === 0) {
                 return true;
@@ -323,8 +394,12 @@ export class CaslHelper {
             }
         }
 
-        // TODO ordering permission checks
-        // TODO filtering permission checks
+        const sortingFields: Set<string> = new Set();
+        let filteringFields: Set<string> = new Set();
+
+        if (context.getType<GqlContextType>() === "graphql") {
+            filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        }
 
         const fields: Set<string> = new Set();
         // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
