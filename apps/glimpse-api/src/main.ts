@@ -21,9 +21,7 @@ async function bootstrap() {
     app.use(cookieParser());
 
     if (!process.env.SESSION_SECRET) {
-        throw new Error(
-            "Required environment variable SESSION_SECRET is not set."
-        );
+        throw new Error("Required environment variable SESSION_SECRET is not set.");
     }
 
     // Create and add the middleware for sessions.

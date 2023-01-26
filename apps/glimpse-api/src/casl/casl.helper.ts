@@ -4,7 +4,7 @@ import { AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
-import { Kind, visit } from "graphql/language";
+import { EnumValueNode, Kind, visit } from "graphql/language";
 
 @Injectable()
 export class CaslHelper {
@@ -89,7 +89,15 @@ export class CaslHelper {
         return fields;
     }
 
-    getFilteringFields(context: ExecutionContext, filterName: string): Set<string> {
+    /**
+     * Get the fields used to filter a ReadMany query. These fields are then used to make sure the user has
+     *  permission to filter based on those fields.
+     * @param context NestJS execution context.
+     * @param argName Name of the filter argument in the GraphQL query.
+     * @todo Filtering currently only supports GraphQL queries.
+     * @returns Set of field names used to filter the query.
+     */
+    getFilteringFields(context: ExecutionContext, argName: string): Set<string> {
         const contextType = context.getType<GqlContextType>();
         if (contextType === "graphql") {
             const info = this.getGraphQLInfo(context);
@@ -98,15 +106,11 @@ export class CaslHelper {
             for (const fieldNode of info.fieldNodes) {
                 this.assertNodeKind(fieldNode, Kind.FIELD);
 
-                const filterArgArr = fieldNode.arguments.filter((arg) => arg.name.value === filterName);
-                if (filterArgArr.length <= 0) {
+                const filterArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
+                if (filterArg === undefined) {
                     return new Set();
                 }
-                if (filterArgArr.length > 1) {
-                    // This should never happen
-                    throw new InternalServerErrorException("Multiple filter arguments found");
-                }
-                const filterArg = filterArgArr[0];
+
                 this.assertNodeKind(filterArg, Kind.ARGUMENT);
                 this.assertNodeKind(filterArg.value, [Kind.OBJECT, Kind.VARIABLE]);
 
@@ -137,6 +141,66 @@ export class CaslHelper {
                 `User filtered using the following fields in their query: ${[...filteringFields].join(", ")}`
             );
             return filteringFields;
+        } else if (contextType === "http") {
+            // TODO
+            return new Set();
+        } else {
+            throw new Error("Unsupported execution context");
+        }
+    }
+
+    /**
+     * Get the fields used to sort a ReadMany query. These fields are then used to make sure the user has
+     *  permission to sort based on those fields.
+     * @param context NestJS execution context.
+     * @param argName Name of the sort/order argument in the GraphQL query.
+     * @todo Sorting currently only supports GraphQL queries.
+     * @returns Set of field names used to sort the query.
+     */
+    getSortingFields(context: ExecutionContext, argName: string): Set<string> {
+        const contextType = context.getType<GqlContextType>();
+        if (contextType === "graphql") {
+            const info = this.getGraphQLInfo(context);
+
+            const sortingFields = new Set<string>();
+            for (const fieldNode of info.fieldNodes) {
+                this.assertNodeKind(fieldNode, Kind.FIELD);
+
+                const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
+                if (sortArg === undefined) {
+                    return new Set();
+                }
+
+                this.assertNodeKind(sortArg, Kind.ARGUMENT);
+                this.assertNodeKind(sortArg.value, [Kind.LIST, Kind.VARIABLE]);
+
+                if (sortArg.value.kind === Kind.LIST) {
+                    const sortAst = sortArg.value;
+                    visit(sortAst, {
+                        ObjectField: {
+                            enter: (node) => {
+                                if (node.name.value === "field") {
+                                    this.assertNodeKind(node.value, Kind.ENUM);
+                                    sortingFields.add((node.value as EnumValueNode).value);
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    const argName = sortArg.name.value;
+                    const sortValue = info.variableValues[argName];
+                    if (!Array.isArray(sortValue)) {
+                        throw new Error("Ordering value must be an array");
+                    }
+                    sortValue.forEach((sortObj) => {
+                        sortingFields.add(sortObj.field);
+                    });
+                }
+            }
+            this.logger.debug(
+                `User sorted using the following fields in their query: ${[...sortingFields].join(", ")}`
+            );
+            return sortingFields;
         } else if (contextType === "http") {
             // TODO
             return new Set();
@@ -394,14 +458,10 @@ export class CaslHelper {
             }
         }
 
-        const sortingFields: Set<string> = new Set();
-        let filteringFields: Set<string> = new Set();
+        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
 
-        if (context.getType<GqlContextType>() === "graphql") {
-            filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
-        }
-
-        const fields: Set<string> = new Set();
+        const fields: Set<string> = new Set([...filteringFields, ...sortingFields]);
         // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
         //  fields to be returned.
         if (context.getType<GqlContextType>() === "graphql") {
@@ -417,6 +477,8 @@ export class CaslHelper {
         if (rule.options?.excludeFields) {
             rule.options.excludeFields.forEach((v) => fields.delete(v));
         }
+
+        this.logger.debug(`Fields to test: ${Array.from(fields).join(", ")}`);
 
         // Skip field-based tests if no fields are to be tested.
         if (fields.size === 0) {

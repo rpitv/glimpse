@@ -21,12 +21,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    async validate(
-        req: Request,
-        accessToken: string,
-        refreshToken: string,
-        profile: Profile
-    ): Promise<User> {
+    async validate(req: Request, accessToken: string, refreshToken: string, profile: Profile): Promise<User> {
         const user = this.authService.verifyDiscordCallback(profile.id);
         if (!user) {
             throw new UnauthorizedException();

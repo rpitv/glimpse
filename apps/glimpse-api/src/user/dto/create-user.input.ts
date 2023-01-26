@@ -5,8 +5,4 @@ import { User } from "../user.entity";
  * Input type for createUser mutation
  */
 @InputType()
-export class CreateUserInput extends OmitType(
-    User,
-    ["id", "joined" /* TODO 'person'*/],
-    InputType
-) {}
+export class CreateUserInput extends OmitType(User, ["id", "joined" /* TODO 'person'*/], InputType) {}

@@ -34,18 +34,14 @@ export class UserResolver {
             : accessibleBy(ctx.req.permissions).User;
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
-        const orderBy =
-            order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
         return this.prisma.user.findMany({ where, orderBy });
     }
 
     @Query(() => User, { nullable: true })
     @Rules(RuleType.ReadOne, User)
-    async findOneUser(
-        @Args("id", { type: () => Int }) id: number,
-        @Context() ctx: any
-    ): Promise<User> {
+    async findOneUser(@Args("id", { type: () => Int }) id: number, @Context() ctx: any): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return this.prisma.user.findFirst({
             where: {
@@ -56,26 +52,20 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true })
     @Rules(RuleType.ReadOne, User, { name: "Read one user (self)" })
-    async self(
-        @Session() session: Record<string, any>,
-        @Context() ctx: any
-    ): Promise<User | null> {
+    async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
     }
 
     @Mutation(() => User)
     @Rules(RuleType.Create, User)
-    async createUser(
-        @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
-    ): Promise<User> {
+    async createUser(@Args("input", { type: () => CreateUserInput }) input: CreateUserInput): Promise<User> {
         this.logger.verbose("createUser resolver called");
         // TODO
         input = plainToClass(CreateUserInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
-            const firstErrorFirstConstraint =
-                errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
         return this.prisma.user.create({

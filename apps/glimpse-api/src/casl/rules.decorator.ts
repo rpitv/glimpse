@@ -1,15 +1,7 @@
-import {
-    AbilityAction,
-    AbilitySubjects,
-    GlimpseAbility
-} from "./casl-ability.factory";
+import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { ExecutionContext, SetMetadata } from "@nestjs/common";
 
-export type RuleFn = (
-    ability: GlimpseAbility,
-    context: ExecutionContext,
-    value?: any
-) => boolean;
+export type RuleFn = (ability: GlimpseAbility, context: ExecutionContext, value?: any) => boolean;
 export enum RuleType {
     ReadOne = "ReadOne",
     ReadMany = "ReadMany",
@@ -40,16 +32,8 @@ export type RuleOptions = {
 export const RULES_METADATA_KEY = "casl_rule";
 
 function Rules(type: RuleType.Custom, rule: RuleFn, options?: RuleOptions);
-function Rules(
-    type: Exclude<RuleType, RuleType.Custom>,
-    subject: AbilitySubjects,
-    options?: RuleOptions
-);
-function Rules(
-    type: Exclude<RuleType, RuleType.Custom>,
-    rule: [AbilityAction, AbilitySubjects],
-    options?: RuleOptions
-);
+function Rules(type: Exclude<RuleType, RuleType.Custom>, subject: AbilitySubjects, options?: RuleOptions);
+function Rules(type: Exclude<RuleType, RuleType.Custom>, rule: [AbilityAction, AbilitySubjects], options?: RuleOptions);
 function Rules(rules: Rule[]);
 function Rules(...args: any[]) {
     // Array of rules
@@ -81,17 +65,12 @@ function Rules(...args: any[]) {
     //  so optionally the user can just pass a subject instead and we'll
     //  infer the action from the RuleType.
     let inferredAction = args[0];
-    if (
-        inferredAction === RuleType.ReadMany ||
-        inferredAction === RuleType.ReadOne
-    ) {
+    if (inferredAction === RuleType.ReadMany || inferredAction === RuleType.ReadOne) {
         inferredAction = "read";
     }
     inferredAction = inferredAction.toLowerCase() as AbilityAction;
     // Default rule name based on the requirements if it wasn't supplied
-    args[2].name ||= `${args[0]} ${
-        args[1].modelName || args[1].name || args[1]
-    }`;
+    args[2].name ||= `${args[0]} ${args[1].modelName || args[1].name || args[1]}`;
 
     return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, [
         {

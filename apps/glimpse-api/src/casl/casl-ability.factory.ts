@@ -33,9 +33,7 @@ export class CaslAbilityFactory {
      *   the user has no permissions, and must log in to do anything.
      * @returns An array of either UserPermission or GroupPermission objects.
      */
-    async getPermissions(
-        user?: User
-    ): Promise<(UserPermission | GroupPermission)[]> {
+    async getPermissions(user?: User): Promise<(UserPermission | GroupPermission)[]> {
         // Raw queries are used here due to a quirk in Prisma which converts null arrays to empty arrays, which
         //  CASL does not like. See: https://github.com/prisma/prisma/issues/847
         if (user) {
@@ -52,10 +50,7 @@ export class CaslAbilityFactory {
 
             const permissions = [...userPermissions, ...groupPermissions];
             delete (<any>user).password; // Hide password from logs
-            this.logger.debug(
-                `Retrieved permissions for user ${user.id} from database`,
-                { user, permissions }
-            );
+            this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
 
             // Must make an assumption that the database has correct values due to raw query.
             return <(UserPermission | GroupPermission)[]>permissions;
@@ -65,10 +60,7 @@ export class CaslAbilityFactory {
                                         FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
                                                               name = 'Guest' LIMIT 1)`;
 
-            this.logger.debug(
-                "Retrieved guest permissions from database",
-                guestPermissions
-            );
+            this.logger.debug("Retrieved guest permissions from database", guestPermissions);
 
             // Must make an assumption that the database has correct values due to raw query.
             return <GroupPermission[]>guestPermissions;
@@ -194,12 +186,8 @@ export class CaslAbilityFactory {
     // }
 
     async createForUser(user: User): Promise<GlimpseAbility> {
-        this.logger.verbose(
-            `Fetching rules for the current user (user ID: ${user?.id || null})`
-        );
-        const rawPermissions = <RawRuleOf<GlimpseAbility>[]>(
-            await this.getPermissions(user)
-        );
+        this.logger.verbose(`Fetching rules for the current user (user ID: ${user?.id || null})`);
+        const rawPermissions = <RawRuleOf<GlimpseAbility>[]>await this.getPermissions(user);
         return createPrismaAbility<GlimpseAbility>(rawPermissions);
     }
 }
