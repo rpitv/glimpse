@@ -1,4 +1,4 @@
-import {ObjectType, Field, ID, HideField, Int} from "@nestjs/graphql";
+import { ObjectType, Field, ID, HideField, Int } from "@nestjs/graphql";
 import {
     IsAlphanumeric,
     IsDate,
