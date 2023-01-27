@@ -1,7 +1,13 @@
-import {BadRequestException, ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
+import {
+    BadRequestException,
+    ExecutionContext,
+    Injectable,
+    InternalServerErrorException,
+    Logger
+} from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
-import {AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
-import {RawRule, subject} from "@casl/ability";
+import { AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
+import { RawRule, subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
 import { EnumValueNode, Kind, visit } from "graphql/language";
@@ -231,30 +237,30 @@ export class CaslHelper {
      */
     compareRulesetStrictness(a: RawRule[], b: RawRule[]): number | false {
         // TODO rule inversion kinda screws with things. Ignore the issue for now.
-        for(const rule of [...a, ...b]) {
-            if(rule.inverted) {
+        for (const rule of [...a, ...b]) {
+            if (rule.inverted) {
                 return false;
             }
         }
 
         const returnedRuleComparisonValues: Set<number> = new Set();
         // Compare every rule against every other rule, and store the comparison value in this Set.
-        for(const aRule of a) {
-            for(const bRule of b) {
+        for (const aRule of a) {
+            for (const bRule of b) {
                 const comp = this.compareConditionStrictness(aRule.conditions, bRule.conditions);
                 // If these two conditions have non-complete intersection, then the rule sets obviously don't have
                 //  complete intersection either. Return false.
-                if(comp === false) {
+                if (comp === false) {
                     return false;
                 }
                 // If these two conditions are equivalent, we don't need to know about it. We only need to know about
                 //  condition comparisons where one condition is a subset of another.
-                if(comp !== 0) {
+                if (comp !== 0) {
                     returnedRuleComparisonValues.add(comp);
                 }
                 // If two different condition comparisons returned different results, then the two rule sets must not
                 //  completely intersect, so we can return false.
-                if(returnedRuleComparisonValues.size >= 2) {
+                if (returnedRuleComparisonValues.size >= 2) {
                     return false;
                 }
             }
@@ -262,10 +268,10 @@ export class CaslHelper {
 
         // If there were no conditions where one condition was a subset of another, then the two rule sets are also
         //  equal in strictness. Otherwise, return whatever the strictness was for all the conditions.
-        if(returnedRuleComparisonValues.size === 0) {
+        if (returnedRuleComparisonValues.size === 0) {
             return 0;
         } else {
-            return [...returnedRuleComparisonValues][0]
+            return [...returnedRuleComparisonValues][0];
         }
     }
 
@@ -289,15 +295,15 @@ export class CaslHelper {
      *  - False if the two conditions' allowed values intersect, but neither one is a subset or equal to the other.
      */
     compareConditionStrictness(a: Record<any, any> | undefined, b: Record<any, any> | undefined): number | false {
-        if(!a || Object.keys(a).length === 0) {
-            return (b && Object.keys(b).length > 0) ? -1 : 0;
+        if (!a || Object.keys(a).length === 0) {
+            return b && Object.keys(b).length > 0 ? -1 : 0;
         }
-        if(!b || Object.keys(b).length === 0) {
+        if (!b || Object.keys(b).length === 0) {
             return 1;
         }
 
         // TODO very crude estimate. Improve by checking object keys.
-        if(JSON.stringify(a) === JSON.stringify(b)) {
+        if (JSON.stringify(a) === JSON.stringify(b)) {
             return 0;
         }
 
@@ -319,22 +325,22 @@ export class CaslHelper {
      * @param selectedFields The fields which the user wants returned to them
      */
     canSortByField(ability: GlimpseAbility, rule: Rule, field: string, selectedFields: Set<string>): boolean {
-        if(typeof rule.rule === "function") {
-            throw new Error('canSortByField cannot be used with custom rules.');
+        if (typeof rule.rule === "function") {
+            throw new Error("canSortByField cannot be used with custom rules.");
         }
         const [action, subjectSrc] = rule.rule;
         const subjectStr = this.getSubjectAsString(subjectSrc);
 
-        if(!ability.can(action, subjectStr, field)) {
+        if (!ability.can(action, subjectStr, field)) {
             return false;
         }
 
         const sortedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, field);
-        for(const selectedField of selectedFields) {
+        for (const selectedField of selectedFields) {
             const selectedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, selectedField);
             // If the sorted field's rules are stricter than the selected field's rules, then the user cannot
             // sort by this field, as it'd reveal information about non-selected fields.
-            if(this.compareRulesetStrictness(sortedFieldRules, selectedFieldRules) > 0) {
+            if (this.compareRulesetStrictness(sortedFieldRules, selectedFieldRules) > 0) {
                 return false;
             }
         }
@@ -607,17 +613,19 @@ export class CaslHelper {
             Object.keys(value).forEach((v) => fields.add(v));
         }
 
-        for(const field of sortingFields) {
-            if(!this.canSortByField(ability, rule, field, fields)) {
-                this.logger.verbose(`User is not allowed to sort by field "${field}" when requesting fields: ${[...fields].join(', ')}`)
+        for (const field of sortingFields) {
+            if (!this.canSortByField(ability, rule, field, fields)) {
+                this.logger.verbose(
+                    `User is not allowed to sort by field "${field}" when requesting fields: ${[...fields].join(", ")}`
+                );
                 return false;
             }
         }
 
         // Currently, users must select all fields which they are sorting by.
-        for(const field of sortingFields) {
-            if(!fields.has(field)) {
-                throw new BadRequestException('Must request all fields which you are sorting with.')
+        for (const field of sortingFields) {
+            if (!fields.has(field)) {
+                throw new BadRequestException("Must request all fields which you are sorting with.");
             }
         }
 
