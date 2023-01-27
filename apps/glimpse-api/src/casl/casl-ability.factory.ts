@@ -9,6 +9,8 @@ export enum AbilityAction {
     Manage = "manage",
     Create = "create",
     Read = "read",
+    Sort = "sort",
+    Filter = "filter",
     Update = "update",
     Delete = "delete"
 }
