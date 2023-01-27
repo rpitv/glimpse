@@ -22,8 +22,8 @@ export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
  * @param obj Object to visit each property of.
  * @param visitor Visitor function to apply to each value. The return value of this function is used as the new value.
  */
-function visit(obj: Record<string, any>, visitor: ((key: string, value: any) => any)): any {
-    for(const key of Object.keys(obj)) {
+function visit(obj: Record<string, any>, visitor: (key: string, value: any) => any): any {
+    for (const key of Object.keys(obj)) {
         if (typeof obj[key] === "object") {
             visit(obj[key], visitor);
         } else {
@@ -50,7 +50,7 @@ export class CaslAbilityFactory {
 
         if (conditions && typeof conditions === "object") {
             visit(conditions, (key, value) => {
-                if(value === "$id") {
+                if (value === "$id") {
                     if (!user) {
                         throw new Error("Cannot replace $id variable in conditions because no user is logged in.");
                     }
@@ -59,7 +59,7 @@ export class CaslAbilityFactory {
                 }
 
                 // Replace escaped variables with their unescaped versions
-                if(value === "\\$id") {
+                if (value === "\\$id") {
                     return "$id";
                 }
             });
@@ -96,10 +96,9 @@ export class CaslAbilityFactory {
                         FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
                         "user" = ${user.id})`;
 
-            const permissions = [
-                ...userPermissions,
-                ...groupPermissions
-            ].map(permission => this.replaceConditionVariables(permission, user))
+            const permissions = [...userPermissions, ...groupPermissions].map((permission) =>
+                this.replaceConditionVariables(permission, user)
+            );
 
             delete (<any>user).password; // Hide password from logs
             this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
