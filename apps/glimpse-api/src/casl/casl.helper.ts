@@ -1,7 +1,7 @@
-import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import {BadRequestException, ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
-import { AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
-import { subject } from "@casl/ability";
+import {AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
+import {RawRule, subject} from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
 import { EnumValueNode, Kind, visit } from "graphql/language";
@@ -210,6 +210,139 @@ export class CaslHelper {
     }
 
     /**
+     * Compare the strictness of the conditions of two sets of CASL RawRules. Strictness is defined as the size of the
+     *   set of values that a rule set will allow access for. We cannot compare the strictness of two rule sets in
+     *   which neither allowed value set is a complete intersection of the other allowed value set. In this case,
+     *   false is returned.
+     *
+     *   In reality, this method simply returns a safe estimation; at least for now. If rule set A allows all values
+     *   which are strings and start with "Cargo", and rule set B allows all values which are strings and start with
+     *   "Car", this method may return false (indicating not a complete overlap), even though rule set A's values
+     *   are technically a complete subset of rule set B's values. (TODO)
+     * @param a Rule set A
+     * @param b Rule set B
+     * @returns
+     *  - 0 if the set of allowed values is exactly the same for both rule sets A and B.
+     *  - A positive number if rule set A's allowed values is a complete subset of rule set B's allowed values.
+     *      (i.e., rule set A is more strict than rule set B)
+     *  - A negative number if rule set B's allowed values is a complete subset of rule set A's allowed values.
+     *      (i.e., rule set B is more strict than rule set A)
+     *  - False if the two rule sets' allowed values intersect, but neither one is a subset or equal to the other.
+     */
+    compareRulesetStrictness(a: RawRule[], b: RawRule[]): number | false {
+        // TODO rule inversion kinda screws with things. Ignore the issue for now.
+        for(const rule of [...a, ...b]) {
+            if(rule.inverted) {
+                return false;
+            }
+        }
+
+        const returnedRuleComparisonValues: Set<number> = new Set();
+        // Compare every rule against every other rule, and store the comparison value in this Set.
+        for(const aRule of a) {
+            for(const bRule of b) {
+                const comp = this.compareConditionStrictness(aRule.conditions, bRule.conditions);
+                // If these two conditions have non-complete intersection, then the rule sets obviously don't have
+                //  complete intersection either. Return false.
+                if(comp === false) {
+                    return false;
+                }
+                // If these two conditions are equivalent, we don't need to know about it. We only need to know about
+                //  condition comparisons where one condition is a subset of another.
+                if(comp !== 0) {
+                    returnedRuleComparisonValues.add(comp);
+                }
+                // If two different condition comparisons returned different results, then the two rule sets must not
+                //  completely intersect, so we can return false.
+                if(returnedRuleComparisonValues.size >= 2) {
+                    return false;
+                }
+            }
+        }
+
+        // If there were no conditions where one condition was a subset of another, then the two rule sets are also
+        //  equal in strictness. Otherwise, return whatever the strictness was for all the conditions.
+        if(returnedRuleComparisonValues.size === 0) {
+            return 0;
+        } else {
+            return [...returnedRuleComparisonValues][0]
+        }
+    }
+
+    /**
+     * Compare the strictness of two CASL condition objects. Strictness is defined as the size of the set of values that
+     *   a condition will allow access for. We cannot compare the strictness of two conditions in which neither allowed
+     *   value set is a complete intersection of the other allowed value set. In this case, false is returned.
+     *
+     *   In reality, this method simply returns a safe estimation; at least for now. If condition A allows all values
+     *   which are strings and start with "Cargo", and condition B allows all values which are strings and start with
+     *   "Car", this method may return false (indicating not a complete overlap), even though rule set A's values
+     *   are technically a complete subset of rule set B's values. (TODO)
+     * @param a Condition A
+     * @param b Condition B
+     * @returns
+     *  - 0 if the set of allowed values is exactly the same for both conditions A and B.
+     *  - A positive number if condition A's allowed values is a complete subset of condition B's allowed values.
+     *      (i.e., condition A is more strict than condition B)
+     *  - A negative number if condition B's allowed values is a complete subset of condition A's allowed values.
+     *      (i.e., condition B is more strict than condition A)
+     *  - False if the two conditions' allowed values intersect, but neither one is a subset or equal to the other.
+     */
+    compareConditionStrictness(a: Record<any, any> | undefined, b: Record<any, any> | undefined): number | false {
+        if(!a || Object.keys(a).length === 0) {
+            return (b && Object.keys(b).length > 0) ? -1 : 0;
+        }
+        if(!b || Object.keys(b).length === 0) {
+            return 1;
+        }
+
+        // TODO very crude estimate. Improve by checking object keys.
+        if(JSON.stringify(a) === JSON.stringify(b)) {
+            return 0;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether the user is permitted to sort the selected fields using a given sorting field. This is determined
+     *  based on how strict the user's permissions to read the relevant fields are.
+     *  E.g. if a user is trying to select the fields "id" and "title" on an object, and is also trying to sort by
+     *  the field "publishedDate", this is OK as long as the user is able to read the field "publishedDate" on all the
+     *  same or more fields than they are able to read "id" and "title". If the user is able to read "id" and "title"
+     *  on, say, 20 records but can only read "publishedDate" on 15, then if we were to allow the user to sort by
+     *  "publishedDate", they would be able to infer some information about the "publishedDate" value on the records
+     *  which they can't actually read it on.
+     * @param ability The user's CASL Glimpse ability
+     * @param rule Rule containing the action and subject which these fields are applied to.
+     * @param field The field which the user wants to sort with
+     * @param selectedFields The fields which the user wants returned to them
+     */
+    canSortByField(ability: GlimpseAbility, rule: Rule, field: string, selectedFields: Set<string>): boolean {
+        if(typeof rule.rule === "function") {
+            throw new Error('canSortByField cannot be used with custom rules.');
+        }
+        const [action, subjectSrc] = rule.rule;
+        const subjectStr = this.getSubjectAsString(subjectSrc);
+
+        if(!ability.can(action, subjectStr, field)) {
+            return false;
+        }
+
+        const sortedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, field);
+        for(const selectedField of selectedFields) {
+            const selectedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, selectedField);
+            // If the sorted field's rules are stricter than the selected field's rules, then the user cannot
+            // sort by this field, as it'd reveal information about non-selected fields.
+            if(this.compareRulesetStrictness(sortedFieldRules, selectedFieldRules) > 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Assert that a GraphQL node is of the expected type or types. If it is not, throw an error.
      *  This is used in the AST traversal code to ensure that the AST is in the expected format.
      *  An error is never expected to be thrown, however we should use this method to ensure that
@@ -415,6 +548,7 @@ export class CaslHelper {
      * @returns True if the rule passes, or false if it fails.
      * @throws Error if the rule type is not ReadOne, or if the rule definition is a RuleFn.
      * @throws Error if value is not null or an array.
+     * @throws HttpException if the requests includes sorting but the sorted fields aren't requested.
      * @private
      */
     public testReadManyRule(
@@ -461,9 +595,7 @@ export class CaslHelper {
         const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
 
-        // TODO make sure user has no conditional restrictions on their sorting fields
-
-        const fields: Set<string> = new Set([...filteringFields, ...sortingFields]);
+        const fields: Set<string> = new Set(filteringFields);
         // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
         //  fields to be returned.
         if (context.getType<GqlContextType>() === "graphql") {
@@ -473,6 +605,20 @@ export class CaslHelper {
             // If we're not in a GraphQL request but value is passed, then it's presumed that all the keys on the value
             //  will be returned to the user, and thus all must be tested.
             Object.keys(value).forEach((v) => fields.add(v));
+        }
+
+        for(const field of sortingFields) {
+            if(!this.canSortByField(ability, rule, field, fields)) {
+                this.logger.verbose(`User is not allowed to sort by field "${field}" when requesting fields: ${[...fields].join(', ')}`)
+                return false;
+            }
+        }
+
+        // Currently, users must select all fields which they are sorting by.
+        for(const field of sortingFields) {
+            if(!fields.has(field)) {
+                throw new BadRequestException('Must request all fields which you are sorting with.')
+            }
         }
 
         // Remove any specifically excluded fields from the list of inferred fields.
