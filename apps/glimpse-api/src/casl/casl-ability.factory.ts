@@ -17,10 +17,56 @@ export enum AbilityAction {
 export type AbilitySubjects = InferSubjects<typeof User, true> | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 
+/**
+ * Visit each value in an object and apply a visitor function to it.
+ * @param obj Object to visit each property of.
+ * @param visitor Visitor function to apply to each value. The return value of this function is used as the new value.
+ */
+function visit(obj: Record<string, any>, visitor: ((key: string, value: any) => any)): any {
+    for(const key of Object.keys(obj)) {
+        if (typeof obj[key] === "object") {
+            visit(obj[key], visitor);
+        } else {
+            obj[key] = visitor(key, obj[key]);
+        }
+    }
+}
+
 @Injectable()
 export class CaslAbilityFactory {
     private readonly logger: Logger = new Logger("CaslAbilityFactory");
     constructor(private readonly prisma: PrismaService) {}
+
+    /**
+     * Replace variables within a permission's conditions with their actual values.
+     *  Currently supported variables:
+     *  - $id: Replaced with the ID of the user that is logged in. Throws an error if no user is logged in.
+     * @param permission Permission to replace variables in.
+     * @param user User that is currently logged in, or undefined or null if no user is logged in.
+     * @returns An updated Permission object with the variables replaced.
+     */
+    replaceConditionVariables<T extends UserPermission | GroupPermission>(permission: T, user?: User | null): T {
+        const conditions = permission.conditions;
+
+        if (conditions && typeof conditions === "object") {
+            visit(conditions, (key, value) => {
+                if(value === "$id") {
+                    if (!user) {
+                        throw new Error("Cannot replace $id variable in conditions because no user is logged in.");
+                    }
+                    this.logger.verbose(`Replacing $id variable in conditions with user ID ${user.id}.`);
+                    return user.id;
+                }
+
+                // Replace escaped variables with their unescaped versions
+                if(value === "\\$id") {
+                    return "$id";
+                }
+            });
+        }
+
+        return permission;
+    }
 
     /**
      * Get the permissions objects for a specified user from the database. Also retrieves the
@@ -50,7 +96,11 @@ export class CaslAbilityFactory {
                         FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
                         "user" = ${user.id})`;
 
-            const permissions = [...userPermissions, ...groupPermissions];
+            const permissions = [
+                ...userPermissions,
+                ...groupPermissions
+            ].map(permission => this.replaceConditionVariables(permission, user))
+
             delete (<any>user).password; // Hide password from logs
             this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
 
