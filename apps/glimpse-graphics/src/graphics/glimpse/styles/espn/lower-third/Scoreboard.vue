@@ -4,16 +4,16 @@
 		{{replicants.teams[0].schoolName.value}}
 	</div>
 	<div  id="team1Score" class="lower-third">
-		{{replicants.teams[0].score.value}}
+		{{team0Score}}
 	</div>
 	<div id="team2Name" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
 		{{replicants.teams[1].schoolName.value}}
 	</div>
-	<div  id="team2Score" class="lower-third">
-		{{replicants.teams[1].score.value}}
+	<div id="team2Score" class="lower-third">
+		{{team1Score}}
 	</div>
 	<div id="gamePeriod" class="lower-third">
-		{{ period }}
+		{{period}}
 	</div>
 	<div class="colors" id="team1PrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
 	<div class="colors" id="team1SecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
@@ -29,69 +29,78 @@
 
 <script setup lang="ts">
 import {loadReplicants} from "../../../../../browser-common/replicants";
-import {computed} from "vue";
-import scoreboard from "../../../../../Scoreboard.png";
-import { replace } from "lodash";
+import {ref, watch} from "vue";
+import scoreboard from "../../../../../assets/espn/Scoreboard.png";
 
 const replicants = await loadReplicants();
 
-const period = computed(() => {
-	console.log(replicants.scoreboard.period.value);
-	if (replicants.scoreboard.period.value === 1)
-		return "End of 1st";
-	if (replicants.scoreboard.period.value === 2)
-		return "End of 2nd";
-	// If the team's score are the same and we're nearing the third period...
-	if (replicants.teams[0].score.value === replicants.teams[1].score.value) {
+const team0Score = ref<number>(replicants.teams[0].score.value);
+const team1Score = ref<number>(replicants.teams[1].score.value);
+const period = ref<string>();
+
+watch(replicants.lowerThird.scoreboard, (newValue, oldValue) => {
+	if (newValue) {
+		team0Score.value = replicants.teams[0].score.value;
+		team1Score.value = replicants.teams[1].score.value;
+		// Periods
+		if (replicants.scoreboard.period.value === 1)
+			period.value = "End of 1st";
+		if (replicants.scoreboard.period.value === 2)
+			period.value = "End of 2nd";
+		// If the team's score are the same and we're nearing the third period...
+		if (replicants.teams[0].score.value === replicants.teams[1].score.value) {
+			if (replicants.scoreboard.period.value === 3)
+				period.value = "End of Reg.";
+			// If there is no shootout...
+			if (!replicants.gameSettings.periods.shootouts.value) {
+				// If there is no 2nd overtime...
+				if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
+					period.value = "Final OT";
+				// If there is 2nd overtime...
+				if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value >= 2)
+					period.value = "End 1st OT";
+				if (replicants.scoreboard.period.value === 5)
+					period.value = "Final OT";
+			}
+			// If there is shootout...
+			if (replicants.gameSettings.periods.shootouts.value) {
+				// If there is no 2nd overtime...
+				if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
+					period.value = "End of OT";
+				if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value < 2)
+					period.value = "Final SO";
+				// If there is 2nd overtime...
+				if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value === 2)
+					period.value = "End 1st OT";
+				if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value === 2)
+					period.value = "End 2nd OT";
+				if (replicants.scoreboard.period.value === 6 && replicants.gameSettings.periods.overtime.count.value === 2)
+					period.value = "Final SO";
+			}
+		}
+		// If the team's score are not the same and we're at/past the third period...
 		if (replicants.scoreboard.period.value === 3)
-			return "End of Reg.";
+			period.value = "Final";
 		// If there is no shootout...
-		if (!replicants.gameSettings.periods.shootouts.value) {
-			// If there is no 2nd overtime...
-			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
-				return "Final OT";
-			// If there is 2nd overtime...
-			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value >= 2)
-				return "End 1st OT";
-			if (replicants.scoreboard.period.value === 5)
-				return "Final OT";
-		}
+		if (!replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4)
+			period.value = "Final OT";
 		// If there is shootout...
-		if (replicants.gameSettings.periods.shootouts.value) {
-			// If there is no 2nd overtime...
-			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value < 2)
-				return "End of OT";
-			if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value < 2)
-				return "Final SO";
-			// If there is 2nd overtime...
-			if (replicants.scoreboard.period.value === 4 && replicants.gameSettings.periods.overtime.count.value === 2)
-				return "End 1st OT";
-			if (replicants.scoreboard.period.value === 5 && replicants.gameSettings.periods.overtime.count.value === 2)
-				return "End 2nd OT";
-			if (replicants.scoreboard.period.value === 6 && replicants.gameSettings.periods.overtime.count.value === 2)
-				return "Final SO";
+		if (replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4) {
+			if (replicants.scoreboard.period.value >= 4 && replicants.scoreboard.period.value <= 5)
+				period.value = "Final OT";
+			if (replicants.scoreboard.period.value === 6)
+				period.value = "Final SO";
 		}
-	}
-	// If the team's score are not the same and we're at/past the third period...
-	if (replicants.scoreboard.period.value === 3)
-		return "Final";
-	// If there is no shootout...
-	if (!replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4)
-		return "Final OT";
-	// If there is shootout...
-	if (replicants.gameSettings.periods.shootouts.value && replicants.scoreboard.period.value >= 4) {
-		if (replicants.scoreboard.period.value >= 4 && replicants.scoreboard.period.value <= 5)
-			return "Final OT";
-		if (replicants.scoreboard.period.value === 6)
-			return "Final SO";
 	}
 })
+
+
 </script>
 
 <style scoped>
 @font-face {
 	font-family: "swiss721_heavy";
-	src: url('Swiss721Heavy.ttf')
+	src: url('../../../../../assets/espn/Swiss721Heavy.ttf')
 }
 div {
 	position: absolute;

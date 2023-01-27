@@ -114,15 +114,27 @@ export async function loadReplicants() {
 			team2: await replicant<Announcement[]>("team2", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 		},
 		lowerThird: {
-			school1Logo: await replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			school1Logo: await replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/RPI_Engineers.svg/1200px-RPI_Engineers.svg.png"}),
 			school2Logo: await replicant<string>("school2Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
 			scoreboard: await replicant<boolean>("scoreboard", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
-				show: await replicant<boolean>("commentators", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
-				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"})
+				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+				offset: {
+					enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 0})
+				}
 			},
+			endGraphics: {
+				disabled: await replicant<boolean>("disabled", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
+				show: await replicant<boolean>("endGraphics", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
+				title: await replicant<string>("title", `glimpse-graphics.images.endGraphics`, {defaultValue: "RPI TV Crew"}),
+				message: await replicant<string>("message", `glimpse-graphics.images.endGraphics`, {defaultValue: "Director\nProducer\nReplay Operator\nCamera Operator"}),
+				length: await replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30})
+			},
+			bug: await replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 		}
 	}
 }
