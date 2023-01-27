@@ -10,6 +10,7 @@ import { Rules, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
+import PaginationInput from "../generic/pagination.input";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -23,7 +24,9 @@ export class UserResolver {
         @Args("filter", { type: () => FilterUserInput, nullable: true })
         filter?: FilterUserInput,
         @Args("order", { type: () => [OrderUserInput], nullable: true })
-        order?: OrderUserInput[]
+        order?: OrderUserInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true })
+        pagination?: PaginationInput
     ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
@@ -36,7 +39,13 @@ export class UserResolver {
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return this.prisma.user.findMany({ where, orderBy });
+        return this.prisma.user.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: pagination?.take,
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
     }
 
     @Query(() => User, { nullable: true })
