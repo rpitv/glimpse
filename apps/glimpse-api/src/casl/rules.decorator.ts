@@ -28,6 +28,7 @@ export type RuleOptions = {
     orderInputName?: string;
     filterInputName?: string;
     inputName?: string;
+    strict?: boolean;
 };
 export const RULES_METADATA_KEY = "casl_rule";
 
@@ -66,7 +67,7 @@ function Rules(...args: any[]) {
     //  infer the action from the RuleType.
     let inferredAction = args[0];
     if (inferredAction === RuleType.ReadMany || inferredAction === RuleType.ReadOne) {
-        inferredAction = "read";
+        inferredAction = AbilityAction.Read;
     }
     inferredAction = inferredAction.toLowerCase() as AbilityAction;
     // Default rule name based on the requirements if it wasn't supplied
