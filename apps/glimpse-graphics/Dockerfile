@@ -1,3 +1,22 @@
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! WARNING DOCKER IS CURRENTLY NOT SUPPORTED !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# Score Sync from Daktronics will not work
+# inside Docker.
+#
+# If you wish to continue go to "package.json"
+# and inside the "scripts" change:
+#		"watch:browser": "vite",
+# to:
+#		"watch:browser": "vite --host=0.0.0.0",
+# then you can run this inside Docker.
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# ! WARNING DOCKER IS CURRENTLY NOT SUPPORTED !
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
 FROM node:18
 
 CMD ["npm", "start"]
