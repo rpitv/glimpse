@@ -1,13 +1,12 @@
 import {
-    BadRequestException,
     ExecutionContext,
     Injectable,
     InternalServerErrorException,
     Logger
 } from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
-import { AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
-import { RawRule, subject } from "@casl/ability";
+import {AbilityAction, AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
+import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
 import { EnumValueNode, Kind, visit } from "graphql/language";
@@ -49,7 +48,7 @@ export class CaslHelper {
      * @param obj Object to get keys of.
      * @returns Set of keys used in the object.
      */
-    getKeysFromDeepObject(obj: Record<any, any>): Set<string> {
+    public getKeysFromDeepObject(obj: Record<any, any>): Set<string> {
         const keys = new Set<string>();
         for (const key of Object.keys(obj)) {
             keys.add(key);
@@ -72,7 +71,7 @@ export class CaslHelper {
      * @param info GraphQL query info object.
      * @returns Set of field names which the user is selecting.
      */
-    getSelectedFields(info: GraphQLResolveInfo): Set<string> {
+    public getSelectedFields(info: GraphQLResolveInfo): Set<string> {
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
             this.assertNodeKind(fieldNode, Kind.FIELD);
@@ -103,7 +102,7 @@ export class CaslHelper {
      * @todo Filtering currently only supports GraphQL queries.
      * @returns Set of field names used to filter the query.
      */
-    getFilteringFields(context: ExecutionContext, argName: string): Set<string> {
+    public getFilteringFields(context: ExecutionContext, argName: string): Set<string> {
         const contextType = context.getType<GqlContextType>();
         if (contextType === "graphql") {
             const info = this.getGraphQLInfo(context);
@@ -163,7 +162,7 @@ export class CaslHelper {
      * @todo Sorting currently only supports GraphQL queries.
      * @returns Set of field names used to sort the query.
      */
-    getSortingFields(context: ExecutionContext, argName: string): Set<string> {
+    public getSortingFields(context: ExecutionContext, argName: string): Set<string> {
         const contextType = context.getType<GqlContextType>();
         if (contextType === "graphql") {
             const info = this.getGraphQLInfo(context);
@@ -213,139 +212,6 @@ export class CaslHelper {
         } else {
             throw new Error("Unsupported execution context");
         }
-    }
-
-    /**
-     * Compare the strictness of the conditions of two sets of CASL RawRules. Strictness is defined as the size of the
-     *   set of values that a rule set will allow access for. We cannot compare the strictness of two rule sets in
-     *   which neither allowed value set is a complete intersection of the other allowed value set. In this case,
-     *   false is returned.
-     *
-     *   In reality, this method simply returns a safe estimation; at least for now. If rule set A allows all values
-     *   which are strings and start with "Cargo", and rule set B allows all values which are strings and start with
-     *   "Car", this method may return false (indicating not a complete overlap), even though rule set A's values
-     *   are technically a complete subset of rule set B's values. (TODO)
-     * @param a Rule set A
-     * @param b Rule set B
-     * @returns
-     *  - 0 if the set of allowed values is exactly the same for both rule sets A and B.
-     *  - A positive number if rule set A's allowed values is a complete subset of rule set B's allowed values.
-     *      (i.e., rule set A is more strict than rule set B)
-     *  - A negative number if rule set B's allowed values is a complete subset of rule set A's allowed values.
-     *      (i.e., rule set B is more strict than rule set A)
-     *  - False if the two rule sets' allowed values intersect, but neither one is a subset or equal to the other.
-     */
-    compareRulesetStrictness(a: RawRule[], b: RawRule[]): number | false {
-        // TODO rule inversion kinda screws with things. Ignore the issue for now.
-        for (const rule of [...a, ...b]) {
-            if (rule.inverted) {
-                return false;
-            }
-        }
-
-        const returnedRuleComparisonValues: Set<number> = new Set();
-        // Compare every rule against every other rule, and store the comparison value in this Set.
-        for (const aRule of a) {
-            for (const bRule of b) {
-                const comp = this.compareConditionStrictness(aRule.conditions, bRule.conditions);
-                // If these two conditions have non-complete intersection, then the rule sets obviously don't have
-                //  complete intersection either. Return false.
-                if (comp === false) {
-                    return false;
-                }
-                // If these two conditions are equivalent, we don't need to know about it. We only need to know about
-                //  condition comparisons where one condition is a subset of another.
-                if (comp !== 0) {
-                    returnedRuleComparisonValues.add(comp);
-                }
-                // If two different condition comparisons returned different results, then the two rule sets must not
-                //  completely intersect, so we can return false.
-                if (returnedRuleComparisonValues.size >= 2) {
-                    return false;
-                }
-            }
-        }
-
-        // If there were no conditions where one condition was a subset of another, then the two rule sets are also
-        //  equal in strictness. Otherwise, return whatever the strictness was for all the conditions.
-        if (returnedRuleComparisonValues.size === 0) {
-            return 0;
-        } else {
-            return [...returnedRuleComparisonValues][0];
-        }
-    }
-
-    /**
-     * Compare the strictness of two CASL condition objects. Strictness is defined as the size of the set of values that
-     *   a condition will allow access for. We cannot compare the strictness of two conditions in which neither allowed
-     *   value set is a complete intersection of the other allowed value set. In this case, false is returned.
-     *
-     *   In reality, this method simply returns a safe estimation; at least for now. If condition A allows all values
-     *   which are strings and start with "Cargo", and condition B allows all values which are strings and start with
-     *   "Car", this method may return false (indicating not a complete overlap), even though rule set A's values
-     *   are technically a complete subset of rule set B's values. (TODO)
-     * @param a Condition A
-     * @param b Condition B
-     * @returns
-     *  - 0 if the set of allowed values is exactly the same for both conditions A and B.
-     *  - A positive number if condition A's allowed values is a complete subset of condition B's allowed values.
-     *      (i.e., condition A is more strict than condition B)
-     *  - A negative number if condition B's allowed values is a complete subset of condition A's allowed values.
-     *      (i.e., condition B is more strict than condition A)
-     *  - False if the two conditions' allowed values intersect, but neither one is a subset or equal to the other.
-     */
-    compareConditionStrictness(a: Record<any, any> | undefined, b: Record<any, any> | undefined): number | false {
-        if (!a || Object.keys(a).length === 0) {
-            return b && Object.keys(b).length > 0 ? -1 : 0;
-        }
-        if (!b || Object.keys(b).length === 0) {
-            return 1;
-        }
-
-        // TODO very crude estimate. Improve by checking object keys.
-        if (JSON.stringify(a) === JSON.stringify(b)) {
-            return 0;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check whether the user is permitted to sort the selected fields using a given sorting field. This is determined
-     *  based on how strict the user's permissions to read the relevant fields are.
-     *  E.g. if a user is trying to select the fields "id" and "title" on an object, and is also trying to sort by
-     *  the field "publishedDate", this is OK as long as the user is able to read the field "publishedDate" on all the
-     *  same or more fields than they are able to read "id" and "title". If the user is able to read "id" and "title"
-     *  on, say, 20 records but can only read "publishedDate" on 15, then if we were to allow the user to sort by
-     *  "publishedDate", they would be able to infer some information about the "publishedDate" value on the records
-     *  which they can't actually read it on.
-     * @param ability The user's CASL Glimpse ability
-     * @param rule Rule containing the action and subject which these fields are applied to.
-     * @param field The field which the user wants to sort with
-     * @param selectedFields The fields which the user wants returned to them
-     */
-    canSortByField(ability: GlimpseAbility, rule: Rule, field: string, selectedFields: Set<string>): boolean {
-        if (typeof rule.rule === "function") {
-            throw new Error("canSortByField cannot be used with custom rules.");
-        }
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
-
-        if (!ability.can(action, subjectStr, field)) {
-            return false;
-        }
-
-        const sortedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, field);
-        for (const selectedField of selectedFields) {
-            const selectedFieldRules: RawRule[] = ability.rulesFor(action, subjectStr, selectedField);
-            // If the sorted field's rules are stricter than the selected field's rules, then the user cannot
-            // sort by this field, as it'd reveal information about non-selected fields.
-            if (this.compareRulesetStrictness(sortedFieldRules, selectedFieldRules) > 0) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -406,7 +272,7 @@ export class CaslHelper {
      * @returns String representation of the subject.
      * @private
      */
-    private getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> {
+    public getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> {
         // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
         //  to a string before testing. Typeof classes === function.
         if (typeof subj === "string") {
@@ -499,7 +365,7 @@ export class CaslHelper {
             return true;
         }
 
-        // Remove any specifically excluded fields from the list of inferred fields.
+        // Remove any specifically excluded fields from the list of fields.
         if (rule.options?.excludeFields) {
             rule.options.excludeFields.forEach((v) => fields.delete(v));
         }
@@ -598,46 +464,45 @@ export class CaslHelper {
             }
         }
 
-        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        // Make sure user has permission to sort by the fields which they are sorting by.
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
-
-        const fields: Set<string> = new Set(filteringFields);
-        // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
-        //  fields to be returned.
-        if (context.getType<GqlContextType>() === "graphql") {
-            const info = this.getGraphQLInfo(context);
-            this.getSelectedFields(info).forEach((v) => fields.add(v));
-        } else if (value !== undefined) {
-            // If we're not in a GraphQL request but value is passed, then it's presumed that all the keys on the value
-            //  will be returned to the user, and thus all must be tested.
-            Object.keys(value).forEach((v) => fields.add(v));
-        }
-
-        for (const field of sortingFields) {
-            if (!this.canSortByField(ability, rule, field, fields)) {
-                this.logger.verbose(
-                    `User is not allowed to sort by field "${field}" when requesting fields: ${[...fields].join(", ")}`
-                );
+        for(const field of sortingFields) {
+            // Sort actions cannot have conditions, and cannot be applied to subject values.
+            if(!ability.can(AbilityAction.Sort, subjectStr, field)) {
                 return false;
             }
         }
 
-        // Currently, users must select all fields which they are sorting by.
-        for (const field of sortingFields) {
-            if (!fields.has(field)) {
-                throw new BadRequestException("Must request all fields which you are sorting with.");
+        // Make sure user has permission to filter by the fields which they are filtering by.
+        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        for(const field of filteringFields) {
+            // Filter actions cannot have conditions, and cannot be applied to subject values.
+            if(!ability.can(AbilityAction.Filter, subjectStr, field)) {
+                return false;
             }
         }
 
-        // Remove any specifically excluded fields from the list of inferred fields.
-        if (rule.options?.excludeFields) {
-            rule.options.excludeFields.forEach((v) => fields.delete(v));
+        const selectedFields: Set<string> = new Set();
+        // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
+        //  fields to be returned.
+        if (context.getType<GqlContextType>() === "graphql") {
+            const info = this.getGraphQLInfo(context);
+            this.getSelectedFields(info).forEach((v) => selectedFields.add(v));
+        } else if (value !== undefined) {
+            // If we're not in a GraphQL request but value is passed, then it's presumed that all the keys on the value
+            //  will be returned to the user, and thus all must be tested.
+            Object.keys(value).forEach((v) => selectedFields.add(v));
         }
 
-        this.logger.debug(`Fields to test: ${Array.from(fields).join(", ")}`);
+        // Remove any specifically excluded fields from the list of fields.
+        if (rule.options?.excludeFields) {
+            rule.options.excludeFields.forEach((v) => selectedFields.delete(v));
+        }
+
+        this.logger.debug(`Fields to test: ${Array.from(selectedFields).join(", ")}`);
 
         // Skip field-based tests if no fields are to be tested.
-        if (fields.size === 0) {
+        if (selectedFields.size === 0) {
             return true;
         }
 
@@ -645,15 +510,22 @@ export class CaslHelper {
             // Test the ability against each value.
             for (const v of value) {
                 // Test the ability against each requested field on value
-                for (const field of fields) {
+                for (const field of selectedFields) {
                     if (!ability.can(action, subject(subjectStr, v), field)) {
-                        return false;
+                        // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
+                        //  will be set to null. The user won't necessarily know (as of now) whether the field is
+                        //  actually null, or they just can't read it.
+                        if(rule.options?.strict ?? false) {
+                            return false;
+                        } else {
+                            v[field] = null;
+                        }
                     }
                 }
             }
         } else {
             // Test the ability against each requested field on type
-            for (const field of fields) {
+            for (const field of selectedFields) {
                 if (!ability.can(action, subjectStr, field)) {
                     return false;
                 }
