@@ -8,12 +8,16 @@
 	<div :class="{show: replicants.lowerThird.locator.value, hide: !replicants.lowerThird.locator.value}">
 		<Locator />
 	</div>
+	<div :class="{show: replicants.lowerThird.bug.value, hide: !replicants.lowerThird.bug.value}">
+		<Bug />
+	</div>
 </template>
 
 <script setup lang="ts">
 import Scoreboard from "./lower-third/Scoreboard.vue";
 import Commentators from "./lower-third/Commentators.vue";
 import Locator from "./lower-third/Locator.vue";
+import Bug from "./lower-third/Bug.vue"
 import {loadReplicants} from "../../../../browser-common/replicants";
 
 const replicants = await loadReplicants();
