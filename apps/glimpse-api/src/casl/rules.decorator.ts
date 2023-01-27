@@ -27,6 +27,7 @@ export type RuleOptions = {
     checkValue?: boolean;
     orderInputName?: string;
     filterInputName?: string;
+    paginationInputName?: string;
     inputName?: string;
     strict?: boolean;
 };

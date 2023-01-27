@@ -1,15 +1,11 @@
-import {
-    ExecutionContext,
-    Injectable,
-    InternalServerErrorException,
-    Logger
-} from "@nestjs/common";
+import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
-import {AbilityAction, AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
+import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
-import { EnumValueNode, Kind, visit } from "graphql/language";
+import {EnumValueNode, IntValueNode, Kind, visit} from "graphql/language";
+import PaginationInput from "../generic/pagination.input";
 
 @Injectable()
 export class CaslHelper {
@@ -113,13 +109,14 @@ export class CaslHelper {
 
                 const filterArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (filterArg === undefined) {
-                    return new Set();
+                    continue;
                 }
 
                 this.assertNodeKind(filterArg, Kind.ARGUMENT);
                 this.assertNodeKind(filterArg.value, [Kind.OBJECT, Kind.VARIABLE]);
 
                 if (filterArg.value.kind === Kind.OBJECT) {
+                    this.logger.verbose("Filtering argument passed in as AST.");
                     const filterAst = filterArg.value;
                     visit(filterAst, {
                         ObjectField: {
@@ -133,6 +130,7 @@ export class CaslHelper {
                         }
                     });
                 } else {
+                    this.logger.verbose("Filtering argument passed in as variable.");
                     const argName = filterArg.name.value;
                     const filterObj = info.variableValues[argName];
                     this.getKeysFromDeepObject(filterObj).forEach((k) => {
@@ -149,6 +147,80 @@ export class CaslHelper {
         } else if (contextType === "http") {
             // TODO
             return new Set();
+        } else {
+            throw new Error("Unsupported execution context");
+        }
+    }
+
+    /**
+     * Check that the user has permission to paginate the supplied subject type. We need this because cursor-based
+     *  pagination requires sorting by ID, and therefore to use it, the user needs to have permission to sort by ID.
+     * @param context NestJS execution context.
+     * @param ability GlimpseAbility instance.
+     * @param subjectName Name of the subject to check permissions for.
+     * @param argName Name of the pagination argument in the GraphQL query.
+     * @todo Filtering currently only supports GraphQL queries.
+     * @returns True if the user has permission to use the supplied pagination argument, false otherwise.
+     */
+    public canPaginate(context: ExecutionContext, ability: GlimpseAbility, subjectName: Extract<AbilitySubjects, string>, argName: string): boolean {
+        const contextType = context.getType<GqlContextType>();
+        if (contextType === "graphql") {
+            const info = this.getGraphQLInfo(context);
+
+            for (const fieldNode of info.fieldNodes) {
+                this.assertNodeKind(fieldNode, Kind.FIELD);
+
+                const paginationArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
+                if (paginationArg === undefined || paginationArg === null) {
+                    continue;
+                }
+
+                this.assertNodeKind(paginationArg, Kind.ARGUMENT);
+                this.assertNodeKind(paginationArg.value, [Kind.OBJECT, Kind.VARIABLE]);
+
+                let paginationArgValue: PaginationInput | undefined;
+                if (paginationArg.value.kind === Kind.OBJECT) {
+                    this.logger.verbose("Pagination argument passed in as AST.");
+                    const paginationAst = paginationArg.value;
+                    const parsedPaginationValue: any = {};
+                    visit(paginationAst, {
+                        ObjectField: {
+                            enter: (node) => {
+                                // All pagination arguments are ints or null.
+                                this.assertNodeKind(node.value, [Kind.INT, Kind.NULL]);
+                                if(node.value.kind === Kind.INT) {
+                                    parsedPaginationValue[node.name.value] = parseInt((node.value as IntValueNode).value);
+                                } else {
+                                    parsedPaginationValue[node.name.value] = null;
+                                }
+                            }
+                        }
+                    });
+
+                    if(parsedPaginationValue.take === undefined) {
+                        throw new Error("Pagination requires a take argument.");
+                    }
+                    paginationArgValue = parsedPaginationValue;
+                } else {
+                    this.logger.verbose("Pagination argument passed in as variable.");
+                    const argName = paginationArg.name.value;
+                    if((info.variableValues[argName] as any).take === undefined) {
+                        throw new Error("Pagination requires a take argument.");
+                    }
+                    paginationArgValue = info.variableValues[argName] as PaginationInput;
+                }
+
+                if(paginationArgValue && typeof paginationArgValue.cursor === "number") {
+                    if(!ability.can(AbilityAction.Sort, subjectName, "id")) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        } else if (contextType === "http") {
+            // TODO
+            throw new Error('Pagination via HTTP is not yet supported.')
         } else {
             throw new Error("Unsupported execution context");
         }
@@ -173,13 +245,14 @@ export class CaslHelper {
 
                 const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (sortArg === undefined) {
-                    return new Set();
+                    continue;
                 }
 
                 this.assertNodeKind(sortArg, Kind.ARGUMENT);
                 this.assertNodeKind(sortArg.value, [Kind.LIST, Kind.VARIABLE]);
 
                 if (sortArg.value.kind === Kind.LIST) {
+                    this.logger.verbose("Sorting argument passed in as AST.");
                     const sortAst = sortArg.value;
                     visit(sortAst, {
                         ObjectField: {
@@ -192,6 +265,7 @@ export class CaslHelper {
                         }
                     });
                 } else {
+                    this.logger.verbose("Sorting argument passed in as variable.");
                     const argName = sortArg.name.value;
                     const sortValue = info.variableValues[argName];
                     if (!Array.isArray(sortValue)) {
@@ -466,20 +540,25 @@ export class CaslHelper {
 
         // Make sure user has permission to sort by the fields which they are sorting by.
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
-        for(const field of sortingFields) {
+        for (const field of sortingFields) {
             // Sort actions cannot have conditions, and cannot be applied to subject values.
-            if(!ability.can(AbilityAction.Sort, subjectStr, field)) {
+            if (!ability.can(AbilityAction.Sort, subjectStr, field)) {
                 return false;
             }
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
         const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
-        for(const field of filteringFields) {
+        for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
-            if(!ability.can(AbilityAction.Filter, subjectStr, field)) {
+            if (!ability.can(AbilityAction.Filter, subjectStr, field)) {
                 return false;
             }
+        }
+
+        if(!this.canPaginate(context, ability, subjectStr, rule.options?.paginationInputName ?? "pagination")) {
+            this.logger.debug(`User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the subject "${subjectStr}".`);
+            return false;
         }
 
         const selectedFields: Set<string> = new Set();
@@ -515,7 +594,7 @@ export class CaslHelper {
                         // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
                         //  will be set to null. The user won't necessarily know (as of now) whether the field is
                         //  actually null, or they just can't read it.
-                        if(rule.options?.strict ?? false) {
+                        if (rule.options?.strict ?? false) {
                             return false;
                         } else {
                             v[field] = null;
