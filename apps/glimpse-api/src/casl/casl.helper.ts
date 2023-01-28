@@ -493,13 +493,13 @@ export class CaslHelper {
      *  have any conditional permissions against.
      *
      * @param context NestJS execution context.
-     * @param rule Rule to test. If rule type is not ReadOne, or if the rule definition is a RuleFn, an error will be
+     * @param rule Rule to test. If rule type is not ReadMany, or if the rule definition is a RuleFn, an error will be
      *  thrown.
      * @param ability GlimpseAbility to check the permissions against.
      * @param value Values to check the rule against. If this method is being called pre-resolution, this should be
      *  undefined. For post-resolution calls, the returned value should be passed in and must be an array or null.
      * @returns True if the rule passes, or false if it fails.
-     * @throws Error if the rule type is not ReadOne, or if the rule definition is a RuleFn.
+     * @throws Error if the rule type is not ReadMany, or if the rule definition is a RuleFn.
      * @throws Error if value is not null or an array.
      * @throws HttpException if the requests includes sorting but the sorted fields aren't requested.
      * @private
@@ -617,6 +617,49 @@ export class CaslHelper {
                 if (!ability.can(action, subjectStr, field)) {
                     return false;
                 }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Test that the given ability has permission to perform the given rule in the context of a count request.
+     *
+     * @param context NestJS execution context.
+     * @param rule Rule to test. If rule type is not Count, or if the rule definition is a RuleFn, an error will be
+     *  thrown.
+     * @param ability GlimpseAbility to check the permissions against.
+     * @returns True if the rule passes, or false if it fails.
+     * @throws Error if the rule type is not Count, or if the rule definition is a RuleFn.
+     * @private
+     */
+    public testCountRule(
+        context: ExecutionContext,
+        rule: Rule,
+        ability: GlimpseAbility
+    ): boolean {
+        if (rule.type !== RuleType.Count) {
+            throw new Error(`Cannot test rule of type "${rule.type}" with testCountRule.`);
+        }
+        if (typeof rule.rule === "function") {
+            throw new Error("Cannot test rule with a RuleFn with testCountRule.");
+        }
+
+        const [action, subjectSrc] = rule.rule;
+        const subjectStr = this.getSubjectAsString(subjectSrc);
+
+        // Make sure user can read at least one object of the given subject.
+        if (!ability.can(action, subjectStr)) {
+            return false;
+        }
+
+        // Make sure user has permission to filter by the fields which they are filtering by.
+        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        for (const field of filteringFields) {
+            // Filter actions cannot have conditions, and cannot be applied to subject values.
+            if (!ability.can(AbilityAction.Filter, subjectStr, field)) {
+                return false;
             }
         }
 

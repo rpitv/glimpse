@@ -18,16 +18,15 @@ export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
     constructor(private readonly prisma: PrismaService) {}
 
+    // -------------------- Generic Resolvers --------------------
+
     @Query(() => [User], { complexity: Complexities.FindMany })
     @Rules(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: any,
-        @Args("filter", { type: () => FilterUserInput, nullable: true })
-        filter?: FilterUserInput,
-        @Args("order", { type: () => [OrderUserInput], nullable: true })
-        order?: OrderUserInput[],
-        @Args("pagination", { type: () => PaginationInput, nullable: true })
-        pagination?: PaginationInput
+        @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
+        @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
@@ -51,7 +50,10 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rules(RuleType.ReadOne, User)
-    async findOneUser(@Args("id", { type: () => Int }) id: number, @Context() ctx: any): Promise<User> {
+    async findOneUser(
+        @Context() ctx: any,
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return this.prisma.user.findFirst({
             where: {
@@ -60,16 +62,11 @@ export class UserResolver {
         });
     }
 
-    @Query(() => User, { nullable: true })
-    @Rules(RuleType.ReadOne, User, { name: "Read one user (self)" })
-    async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
-        this.logger.verbose("self resolver called");
-        return ctx.req.user || null;
-    }
-
     @Mutation(() => User)
     @Rules(RuleType.Create, User)
-    async createUser(@Args("input", { type: () => CreateUserInput }) input: CreateUserInput): Promise<User> {
+    async createUser(
+        @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
+    ): Promise<User> {
         this.logger.verbose("createUser resolver called");
         // TODO
         input = plainToClass(CreateUserInput, input);
@@ -105,5 +102,30 @@ export class UserResolver {
         this.logger.verbose("deleteUser resolver called");
         // TODO
         return new User();
+    }
+
+    @Query(() => Int)
+    @Rules(RuleType.Count, User)
+    async userCount(
+        @Context() ctx: any,
+        @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
+    ): Promise<number> {
+        return this.prisma.user.count({
+            where: {
+                AND: [
+                    accessibleBy(ctx.req.permissions).User,
+                    filter
+                ]
+            }
+        });
+    }
+
+    // -------------------- Unique Resolvers --------------------
+
+    @Query(() => User, { nullable: true })
+    @Rules(RuleType.ReadOne, User, { name: "Read one user (self)" })
+    async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
+        this.logger.verbose("self resolver called");
+        return ctx.req.user || null;
     }
 }
