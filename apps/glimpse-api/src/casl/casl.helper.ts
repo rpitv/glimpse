@@ -4,7 +4,7 @@ import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.f
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
-import {EnumValueNode, IntValueNode, Kind, visit} from "graphql/language";
+import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
 
 @Injectable()
@@ -162,7 +162,12 @@ export class CaslHelper {
      * @todo Filtering currently only supports GraphQL queries.
      * @returns True if the user has permission to use the supplied pagination argument, false otherwise.
      */
-    public canPaginate(context: ExecutionContext, ability: GlimpseAbility, subjectName: Extract<AbilitySubjects, string>, argName: string): boolean {
+    public canPaginate(
+        context: ExecutionContext,
+        ability: GlimpseAbility,
+        subjectName: Extract<AbilitySubjects, string>,
+        argName: string
+    ): boolean {
         const contextType = context.getType<GqlContextType>();
         if (contextType === "graphql") {
             const info = this.getGraphQLInfo(context);
@@ -188,8 +193,10 @@ export class CaslHelper {
                             enter: (node) => {
                                 // All pagination arguments are ints or null.
                                 this.assertNodeKind(node.value, [Kind.INT, Kind.NULL]);
-                                if(node.value.kind === Kind.INT) {
-                                    parsedPaginationValue[node.name.value] = parseInt((node.value as IntValueNode).value);
+                                if (node.value.kind === Kind.INT) {
+                                    parsedPaginationValue[node.name.value] = parseInt(
+                                        (node.value as IntValueNode).value
+                                    );
                                 } else {
                                     parsedPaginationValue[node.name.value] = null;
                                 }
@@ -197,21 +204,21 @@ export class CaslHelper {
                         }
                     });
 
-                    if(parsedPaginationValue.take === undefined) {
+                    if (parsedPaginationValue.take === undefined) {
                         throw new Error("Pagination requires a take argument.");
                     }
                     paginationArgValue = parsedPaginationValue;
                 } else {
                     this.logger.verbose("Pagination argument passed in as variable.");
                     const argName = paginationArg.name.value;
-                    if((info.variableValues[argName] as any).take === undefined) {
+                    if ((info.variableValues[argName] as any).take === undefined) {
                         throw new Error("Pagination requires a take argument.");
                     }
                     paginationArgValue = info.variableValues[argName] as PaginationInput;
                 }
 
-                if(paginationArgValue && typeof paginationArgValue.cursor === "number") {
-                    if(!ability.can(AbilityAction.Sort, subjectName, "id")) {
+                if (paginationArgValue && typeof paginationArgValue.cursor === "number") {
+                    if (!ability.can(AbilityAction.Sort, subjectName, "id")) {
                         return false;
                     }
                 }
@@ -220,7 +227,7 @@ export class CaslHelper {
             return true;
         } else if (contextType === "http") {
             // TODO
-            throw new Error('Pagination via HTTP is not yet supported.')
+            throw new Error("Pagination via HTTP is not yet supported.");
         } else {
             throw new Error("Unsupported execution context");
         }
@@ -556,8 +563,10 @@ export class CaslHelper {
             }
         }
 
-        if(!this.canPaginate(context, ability, subjectStr, rule.options?.paginationInputName ?? "pagination")) {
-            this.logger.debug(`User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the subject "${subjectStr}".`);
+        if (!this.canPaginate(context, ability, subjectStr, rule.options?.paginationInputName ?? "pagination")) {
+            this.logger.debug(
+                `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the subject "${subjectStr}".`
+            );
             return false;
         }
 

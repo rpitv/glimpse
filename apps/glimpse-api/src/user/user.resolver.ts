@@ -11,13 +11,14 @@ import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
+import {Complexities} from "../gql-complexity.plugin";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
     constructor(private readonly prisma: PrismaService) {}
 
-    @Query(() => [User])
+    @Query(() => [User], { complexity: Complexities.FindMany })
     @Rules(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: any,
@@ -43,12 +44,12 @@ export class UserResolver {
             where,
             orderBy,
             skip: pagination?.skip,
-            take: pagination?.take,
+            take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 
-    @Query(() => User, { nullable: true })
+    @Query(() => User, { nullable: true, complexity: Complexities.FindOne})
     @Rules(RuleType.ReadOne, User)
     async findOneUser(@Args("id", { type: () => Int }) id: number, @Context() ctx: any): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
