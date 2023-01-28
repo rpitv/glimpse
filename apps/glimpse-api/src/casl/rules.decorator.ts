@@ -8,6 +8,7 @@ export enum RuleType {
     Create = "Create",
     Update = "Update",
     Delete = "Delete",
+    Count = "Count",
     Custom = "Custom"
 }
 export type Rule =
@@ -67,7 +68,7 @@ function Rules(...args: any[]) {
     //  so optionally the user can just pass a subject instead and we'll
     //  infer the action from the RuleType.
     let inferredAction = args[0];
-    if (inferredAction === RuleType.ReadMany || inferredAction === RuleType.ReadOne) {
+    if (inferredAction === RuleType.ReadMany || inferredAction === RuleType.ReadOne || inferredAction === RuleType.Count) {
         inferredAction = AbilityAction.Read;
     }
     inferredAction = inferredAction.toLowerCase() as AbilityAction;
