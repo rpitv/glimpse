@@ -1,11 +1,11 @@
-import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { firstValueFrom, Observable } from "rxjs";
-import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import { CaslAbilityFactory, GlimpseAbility } from "./casl-ability.factory";
-import { Rule, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
-import { Reflector } from "@nestjs/core";
-import { Request } from "express";
-import { CaslHelper } from "./casl.helper";
+import {CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor} from "@nestjs/common";
+import {firstValueFrom, Observable} from "rxjs";
+import {GqlContextType, GqlExecutionContext} from "@nestjs/graphql";
+import {CaslAbilityFactory, GlimpseAbility} from "./casl-ability.factory";
+import {Rule, RULES_METADATA_KEY, RuleType} from "./rules.decorator";
+import {Reflector} from "@nestjs/core";
+import {Request} from "express";
+import {CaslHelper} from "./casl.helper";
 
 /*
 General CRUD steps:
@@ -104,6 +104,12 @@ export class CaslInterceptor implements NestInterceptor {
             } else if (rule.type === RuleType.ReadMany) {
                 this.logger.verbose("Calling testReadManyRule.");
                 if (!this.caslHelper.testReadManyRule(context, rule, ability, value)) {
+                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
+                    throw new ForbiddenException();
+                }
+            } else if(rule.type === RuleType.Count) {
+                this.logger.verbose("Calling testCountRule.");
+                if (!this.caslHelper.testCountRule(context, rule, ability)) {
                     this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
                     throw new ForbiddenException();
                 }
