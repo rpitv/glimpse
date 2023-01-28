@@ -11,7 +11,7 @@ import { CaslModule } from "./casl/casl.module";
 import { CaslInterceptor } from "./casl/casl.interceptor";
 import { CaseSensitivity } from "./generic/case-sensitivity.enum";
 import { OrderDirection } from "./generic/order-direction.enum";
-import {ComplexityPlugin} from "./gql-complexity.plugin";
+import { ComplexityPlugin } from "./gql-complexity.plugin";
 
 @Module({
     imports: [

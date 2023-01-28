@@ -11,7 +11,7 @@ import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
-import {Complexities} from "../gql-complexity.plugin";
+import { Complexities } from "../gql-complexity.plugin";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -49,7 +49,7 @@ export class UserResolver {
         });
     }
 
-    @Query(() => User, { nullable: true, complexity: Complexities.FindOne})
+    @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rules(RuleType.ReadOne, User)
     async findOneUser(@Args("id", { type: () => Int }) id: number, @Context() ctx: any): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
