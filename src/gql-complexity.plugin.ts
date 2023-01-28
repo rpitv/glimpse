@@ -1,16 +1,9 @@
-import {ComplexityEstimatorArgs, GraphQLSchemaHost} from "@nestjs/graphql";
+import { ComplexityEstimatorArgs, GraphQLSchemaHost } from "@nestjs/graphql";
 import { Plugin } from "@nestjs/apollo";
-import {
-    ApolloServerPlugin,
-    GraphQLRequestListener,
-} from 'apollo-server-plugin-base';
-import { GraphQLError } from 'graphql';
-import {
-    fieldExtensionsEstimator,
-    getComplexity,
-    simpleEstimator,
-} from 'graphql-query-complexity';
-import {Logger} from "@nestjs/common";
+import { ApolloServerPlugin, GraphQLRequestListener } from "apollo-server-plugin-base";
+import { GraphQLError } from "graphql";
+import { fieldExtensionsEstimator, getComplexity, simpleEstimator } from "graphql-query-complexity";
+import { Logger } from "@nestjs/common";
 
 /**
  * Predefined complexity estimators that can be re-used in standard queries.
@@ -20,7 +13,7 @@ export class Complexities {
         return 10 + options.childComplexity;
     }
     static FindMany(options: ComplexityEstimatorArgs): number {
-        return 10 + (options.args.pagination?.take ?? 20) * options.childComplexity
+        return 10 + (options.args.pagination?.take ?? 20) * options.childComplexity;
     }
 }
 
@@ -43,20 +36,17 @@ export class ComplexityPlugin implements ApolloServerPlugin {
                     operationName: options.request.operationName,
                     query: options.document,
                     variables: options.request.variables,
-                    estimators: [
-                        fieldExtensionsEstimator(),
-                        simpleEstimator({ defaultComplexity: 1 }),
-                    ],
+                    estimators: [fieldExtensionsEstimator(), simpleEstimator({ defaultComplexity: 1 })]
                 });
 
                 this.logger.debug(`Query complexity: ${complexity}`);
 
                 if (complexity > maxComplexity) {
                     throw new GraphQLError(
-                        `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`,
+                        `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`
                     );
                 }
-            },
+            }
         };
     }
 }
