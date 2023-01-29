@@ -9,14 +9,29 @@ export = (nodecg: NodeCG): void => {
 	 * Version 1 of the REST API.
 	 * Expects an API key a method and endpoint within the method.
 	 */
-	router.get(`/v1/:key/:method/:endpoint/*`, (req, res) => {
+	const v1_routes = [
+		"/v1/:key/:method/:endpoint*",
+		"/v1/:key/:method*",
+		"/v1/:key*",
+	]
+	router.get(v1_routes, (req, res) => {
 		if (req.params.key != replicants.gameSettings.api.key.value) {
 			res.status(401).json({code: 401, msg: "invalid key"});
 			return;
 		}
 
 		if (!replicants.gameSettings.api.enabled.value) {
-			res.status(401).json({code: 401, msg: "api not enabled"})
+			res.status(403).json({code: 403, msg: "api not enabled"});
+			return;
+		}
+
+		if (!req.params.method) {
+			res.status(400).json({code: 400, msg: "missing method"});
+			return;
+		}
+
+		if (!req.params.endpoint) {
+			res.status(400).json({code: 400, msg: "missing endpoint"});
 			return;
 		}
 
@@ -26,7 +41,7 @@ export = (nodecg: NodeCG): void => {
 
 	// return a 403 status since invalid path
 	router.get("/*", (req, res) => {
-		res.status(403).json({code: 403, msg: "invalid path"})
+		res.status(400).json({code: 400, msg: "invalid path"})
 	});
 
 	// mounts base router url at "localhost:PORT/glimpse-graphics-api"

@@ -9,33 +9,32 @@
 				<n-select disabled title="Coming Soon" filterable :options="sportsPresetList"
 						  v-model:value="selectedSportPreset"/>
 				<n-button class="mt-10" :disabled="selectedSportPreset === null">Load Preset</n-button>
-
-				<h1>API</h1>
-				<n-checkbox v-model:checked="replicants.gameSettings.api.enabled.value">Enable API</n-checkbox>
-				<div v-if="replicants.gameSettings.api.enabled.value">
-					<p class="mt-10">API KEY</p>
-					<n-input :on-update:value="(string) => replicants.gameSettings.api.key.value = string"
-							 :default-value="replicants.gameSettings.api.key.value"
-							 placeholder="Enter an API Key"/>
-				</div>
 			</n-grid-item>
 
 			<n-grid-item>
+				<FootballSettings/>
 			</n-grid-item>
 
 			<n-grid-item>
 				<BaseballSettings/>
 			</n-grid-item>
 		</n-grid>
+
+		<n-message-provider>
+			<n-dialog-provider>
+				<api-settings/>
+			</n-dialog-provider>
+		</n-message-provider>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {ref} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
-import {NSelect, NButton, NGrid, NGridItem, NCheckbox, NInput} from "naive-ui";
+import {NButton, NGrid, NGridItem, NSelect, NMessageProvider, NDialogProvider} from "naive-ui";
 import FootballSettings from "./FootballSettings.vue";
 import BaseballSettings from "./BaseballSettings.vue";
+import ApiSettings from "./ApiSettings.vue"
 
 const replicants = await loadReplicants();
 
