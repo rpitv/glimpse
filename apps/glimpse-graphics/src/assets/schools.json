@@ -1,0 +1,70 @@
+[
+	{
+		"abrev14": "",
+		"code": "",
+		"dashAbrev": "",
+		"logo": "",
+		"primaryColor": "",
+		"schoolName": "",
+		"secondaryColor": "",
+		"teamName": ""
+	},
+	{
+		"abrev14": "Abilene Chrstn",
+		"code": "ACU",
+		"dashAbrev": "",
+		"logo": "https://dxbhsrqyrr690.cloudfront.net/sidearm.nextgen.sites/acu.sidearmsports.com/images/responsive_2020/logo_main-new.svg",
+		"primaryColor": "#4F2170",
+		"schoolName": "Abilene Christian",
+		"secondaryColor": "#C5C6C8",
+		"teamName": "Wildcats"
+	},
+	{
+		"abrev14": "Air Force",
+		"code": "AFA",
+		"dashAbrev": "",
+		"logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Air_Force_Falcons_logo.svg/1200px-Air_Force_Falcons_logo.svg.png",
+		"primaryColor": "#003087",
+		"schoolName": "Air Force",
+		"secondaryColor": "#8A8D8F",
+		"teamName": "Falcons"
+	},
+	{
+		"abrev14": "Akron",
+		"code": "AKR",
+		"dashAbrev": "",
+		"logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Akron_Zips_logo_2022.svg/1200px-Akron_Zips_logo_2022.svg.png",
+		"primaryColor": "#041E42",
+		"schoolName": "Akron",
+		"secondaryColor": "#A89968",
+		"teamName": "Zips"
+	},
+	{
+		"abrev14": "",
+		"code": "",
+		"dashAbrev": "",
+		"logo": "",
+		"primaryColor": "",
+		"schoolName": "",
+		"secondaryColor": "",
+		"teamName": ""
+	},
+	{
+		"abrev14": "Clarkson",
+		"code": "CLAR",
+		"dashAbrev": "",
+		"logo": "https://www.clarkson.edu/sites/default/files/media/image/2019-08/athletic-logo.png",
+		"primaryColor": "#004E42",
+		"schoolName": "Clarkson",
+		"secondaryColor": "FFCD00",
+		"teamName": "Golden Knights"
+	},
+	{
+		"abbreviation": "MERC",
+		"logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Mercyhurst_logo_from_NCAA.svg/2560px-Mercyhurst_logo_from_NCAA.svg.png",
+		"primaryColor": "#1A554B",
+		"schoolName": "Mercyhurst University",
+		"secondaryColor": "#1C294D",
+		"teamName": "Lakers"
+	}
+]
