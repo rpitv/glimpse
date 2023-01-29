@@ -43,6 +43,10 @@ export const replicants = {
 		}
 	},
 	gameSettings: {
+		api: {
+			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.api.key", {defaultValue: false}),
+			key: nodecg().Replicant<string>("key", `glimpse-graphics.game-settings.api.key`, {defaultValue: 'CHANGE_ME_API_KEY'}),
+		},
 		style: nodecg().Replicant<'espn'|'rpitv-modern'|'rpitv-classic'>('style', "glimpse-graphics.game-settings.style", {defaultValue: 'rpitv-modern'}),
 		clock: {
 			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
