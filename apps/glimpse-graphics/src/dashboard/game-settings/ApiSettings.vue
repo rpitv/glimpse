@@ -5,12 +5,14 @@
 	<div v-if="replicants.gameSettings.api.enabled.value">
 		<label class="mt-10">API KEY (DO NOT SHARE)</label>
 		<br>
-		<n-input :on-update:value="(string) => replicants.gameSettings.api.key.value = string"
-				 :default-value="replicants.gameSettings.api.key.value"
+		<n-input :default-value="replicants.gameSettings.api.key.value"
 				 :value="replicants.gameSettings.api.key.value"
-				 style="width: 30vw"
+				 :style="{background: (displayKey ? '' : 'white')}"
+				 @focus="onApiInputFocus"
+				 @blur="displayKey = false"
+				 readonly="true"
+				 id="apiKeyInput"
 				 placeholder="Enter an API Key"/>
-		<!-- todo hide the api key unless input is selected -->
 		<br>
 		<n-button type="info" @click="copyApiKeyToClipboard" class="mt-10">Copy Key</n-button>
 		<br>
@@ -22,10 +24,18 @@
 import {NButton, NCheckbox, NInput, useDialog, useMessage} from "naive-ui";
 import {loadReplicants} from "../../browser-common/replicants";
 import {v4} from "uuid";
+import {ref, Ref} from "vue";
 
 const replicants = await loadReplicants();
 const msg = useMessage();
-const dialog = useDialog()
+const dialog = useDialog();
+
+const displayKey: Ref<boolean> = ref(false);
+
+function onApiInputFocus(e: Event): void {
+	displayKey.value = true;
+	copyApiKeyToClipboard();
+}
 
 function regenerateApiKey(): void {
 	dialog.warning({
@@ -41,7 +51,7 @@ function regenerateApiKey(): void {
 				negativeText: "No",
 				onPositiveClick: () => {
 					replicants.gameSettings.api.key.value = v4();
-					msg.success("API Key has been reset");
+					msg.success("API Key has been reset.");
 					copyApiKeyToClipboard();
 				},
 				onNegativeClick: () => {
@@ -55,6 +65,7 @@ function regenerateApiKey(): void {
 	});
 }
 
+// copies the API key to user clipboard
 function copyApiKeyToClipboard(): void {
 	navigator.clipboard.writeText(replicants.gameSettings.api.key.value)
 	msg.info("API Key has been copied to clipboard.")
@@ -64,5 +75,9 @@ function copyApiKeyToClipboard(): void {
 <style scoped lang="scss">
 .mt-10 {
 	margin-top: 10px;
+}
+
+#apiKeyInput {
+	width: 30vw
 }
 </style>
