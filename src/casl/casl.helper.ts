@@ -634,11 +634,7 @@ export class CaslHelper {
      * @throws Error if the rule type is not Count, or if the rule definition is a RuleFn.
      * @private
      */
-    public testCountRule(
-        context: ExecutionContext,
-        rule: Rule,
-        ability: GlimpseAbility
-    ): boolean {
+    public testCountRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility): boolean {
         if (rule.type !== RuleType.Count) {
             throw new Error(`Cannot test rule of type "${rule.type}" with testCountRule.`);
         }
