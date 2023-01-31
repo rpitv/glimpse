@@ -79,56 +79,6 @@ export class CaslInterceptor implements NestInterceptor {
         return rule.options?.name ? `Rule "${rule.options.name}"` : "Unnamed rule";
     }
 
-    private testRules(context: ExecutionContext, rules: Rule[], ability: GlimpseAbility, value?: any): void {
-        if (!rules || rules.length === 0) {
-            this.logger.verbose("No rules applied for the given resource. Pass.");
-            return;
-        }
-
-        for (const rule of rules) {
-            const ruleNameStr = this.formatRuleName(rule);
-            this.logger.verbose(`Testing ${ruleNameStr} without value.`);
-
-            if (rule.type === RuleType.Custom) {
-                this.logger.verbose("Calling testCustomRule.");
-                if (!this.caslHelper.testCustomRule(context, rule, ability, value)) {
-                    this.logger.debug(`${ruleNameStr} function returned false. Throwing ForbiddenException.`);
-                    throw new ForbiddenException();
-                }
-            } else if (rule.type === RuleType.ReadOne) {
-                this.logger.verbose("Calling testReadOneRule.");
-                if (!this.caslHelper.testReadOneRule(context, rule, ability, value)) {
-                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
-                    throw new ForbiddenException();
-                }
-            } else if (rule.type === RuleType.ReadMany) {
-                this.logger.verbose("Calling testReadManyRule.");
-                if (!this.caslHelper.testReadManyRule(context, rule, ability, value)) {
-                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
-                    throw new ForbiddenException();
-                }
-            } else if (rule.type === RuleType.Count) {
-                this.logger.verbose("Calling testCountRule.");
-                if (!this.caslHelper.testCountRule(context, rule, ability)) {
-                    this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
-                    throw new ForbiddenException();
-                }
-            } else if (
-                rule.type === RuleType.Create ||
-                rule.type === RuleType.Update ||
-                rule.type === RuleType.Delete
-            ) {
-                this.logger.error(
-                    "Mutational rules cannot be tested via @Rules() decorator because they " +
-                        "must be tested mid-transaction."
-                );
-                throw new Error("Invalid @Rules() declaration");
-            } else {
-                throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
-            }
-        }
-    }
-
     async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
         this.logger.verbose("CASL interceptor activated...");
 
@@ -143,6 +93,59 @@ export class CaslInterceptor implements NestInterceptor {
 
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
         const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
+
+        if (!rules || rules.length === 0) {
+            this.logger.verbose("No rules applied for the given resource. Pass.");
+        } else for (const rule of rules) {
+            const ruleNameStr = this.formatRuleName(rule);
+            this.logger.verbose(`Testing ${ruleNameStr} without value.`);
+
+            if (rule.type === RuleType.Custom) {
+                this.logger.verbose("Calling testCustomRule.");
+                if (this.caslHelper.testCustomRule(context, rule, req.permissions, value)) {
+                    this.logger.debug(`${ruleNameStr} function returned true. Passed.`);
+                    req.passed = true;
+                }
+            } else if (rule.type === RuleType.ReadOne) {
+                this.logger.verbose("Calling testReadOneRule.");
+                if (this.caslHelper.testReadOneRule(context, rule, req.permissions, value)) {
+                    this.logger.debug(`${ruleNameStr} passed.`);
+                    req.passed = true;
+                }
+            } else if (rule.type === RuleType.ReadMany) {
+                this.logger.verbose("Calling testReadManyRule.");
+                if (this.caslHelper.testReadManyRule(context, rule, req.permissions, value)) {
+                    this.logger.debug(`${ruleNameStr} passed.`);
+                    req.passed = true;
+                }
+            } else if (rule.type === RuleType.Count) {
+                this.logger.verbose("Calling testCountRule.");
+                if (this.caslHelper.testCountRule(context, rule, req.permissions)) {
+                    this.logger.debug(`${ruleNameStr} passed.`);
+                    req.passed = true;
+                }
+            } else if (
+                rule.type === RuleType.Create ||
+                rule.type === RuleType.Update ||
+                rule.type === RuleType.Delete
+            ) {
+                this.logger.verbose(
+                    `Received rule type ${rule.type}. This rule type is not supported for automatic testing via
+                    the @Rules() decorator.`
+                );
+            } else {
+                throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
+            }
+
+            // If the rule failed, throw a ForbiddenException. We check for req.passed because for create/update/delete
+            //  rules, we can't check all necessary permissions within the interceptor. They have to be checked in the
+            //  resolver, and the resolver can then set "passed" to true. This is a failsafe to make sure no resolvers
+            //  have unimplemented permission checks.
+            if(!req.passed) {
+                this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
+                throw new ForbiddenException();
+            }
+        }
 
         this.testRules(context, rules, req.permissions);
         const value = await firstValueFrom(next.handle());
