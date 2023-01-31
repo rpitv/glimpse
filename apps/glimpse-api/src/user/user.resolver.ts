@@ -50,10 +50,7 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rules(RuleType.ReadOne, User)
-    async findOneUser(
-        @Context() ctx: any,
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<User> {
+    async findOneUser(@Context() ctx: any, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return this.prisma.user.findFirst({
             where: {
@@ -64,9 +61,7 @@ export class UserResolver {
 
     @Mutation(() => User)
     @Rules(RuleType.Create, User)
-    async createUser(
-        @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
-    ): Promise<User> {
+    async createUser(@Args("input", { type: () => CreateUserInput }) input: CreateUserInput): Promise<User> {
         this.logger.verbose("createUser resolver called");
         // TODO
         input = plainToClass(CreateUserInput, input);
@@ -112,10 +107,7 @@ export class UserResolver {
     ): Promise<number> {
         return this.prisma.user.count({
             where: {
-                AND: [
-                    accessibleBy(ctx.req.permissions).User,
-                    filter
-                ]
+                AND: [accessibleBy(ctx.req.permissions).User, filter]
             }
         });
     }
