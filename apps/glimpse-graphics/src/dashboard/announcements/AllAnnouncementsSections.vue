@@ -1,5 +1,8 @@
 <template>
 <div>
+	<n-checkbox class="ml-10" v-model:checked="syncPenalties1">Sync penalties for home team?</n-checkbox>
+	<br>
+	<n-checkbox class="ml-10" v-model:checked="syncPenalties2">Sync penalties for away team?</n-checkbox>
 	<n-grid :cols="2" :x-gap="10" :y-gap="10">
 		<n-grid-item>
 			<h2>Away Team</h2>
@@ -18,11 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import {NGrid, NGridItem} from "naive-ui";
+import {NGrid, NGridItem, NCheckbox} from "naive-ui";
 import AnnouncementsSection from "./AnnouncementsSection.vue";
 import {loadReplicants} from "../../browser-common/replicants";
 
 const replicants = await loadReplicants();
+const syncPenalties1 = replicants.sync.values.teams[0].penalty;
+const syncPenalties2 = replicants.sync.values.teams[1].penalty;
+
 
 const homeMessages = replicants.announcements.team1;
 const awayMessages = replicants.announcements.team2;

@@ -2,7 +2,9 @@
 	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
 		<div class="team2-section">
 			<TeamView class="bordered" v-if="teamTwo.enabled.value" :team-id="1" />
-
+			<p v-if="announcementType === 'away'" class="announcement-section team2">
+				{{ powerPlayStatus }} {{ powerPlayClock }}
+			</p>
 			<p v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
 				{{ computedMessage(replicants.announcements.team2.value[0]).value }}
 			</p>
@@ -10,7 +12,9 @@
 
 		<div class="team1-section">
 			<TeamView class="bordered no-left-border" v-if="teamOne.enabled.value" :team-id="0" />
-
+			<p v-if="announcementType === 'home'" class="announcement-section team1">
+				{{ powerPlayStatus }} {{ powerPlayClock }}
+			</p>
 			<p v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
 				{{ computedMessage(replicants.announcements.team1.value[0]).value }}
 			</p>
@@ -23,6 +27,9 @@
 			<hr>
 			<p v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
 				{{ formattedClockTime }}
+			</p>
+			<p v-if="announcementType === 'global'" class="announcement-section global">
+				{{ powerPlayStatus }} {{ powerPlayClock }}
 			</p>
 			<p v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
 				{{ computedMessage(replicants.announcements.global.value[0]).value }}
@@ -129,6 +136,107 @@ function computedMessage(message: Announcement) {
 		}
 	})
 }
+
+// POWERPLAY SYNC
+const announcementType = computed(() => {
+	if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value) {
+		// If two home players are on penalty
+		if (replicants.teams[0].player1PenaltyNumber.value && replicants.teams[0].player2PenaltyNumber.value)
+			return "global"
+		if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value)
+			return "home";
+		return "home"; 
+	}
+	// If two home players are on penalty...
+	if (replicants.teams[0].player1PenaltyNumber.value && replicants.teams[0].player2PenaltyNumber.value) {
+		// If two home players are on penalty
+		if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value)
+			return "global";
+		if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value)
+			return "away";
+		return "away"; 
+	}
+	// If either away player is on a penalty...
+	if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value) {
+		// If either home player is on a penalty...
+		if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value)
+			return "global";
+		return "home";
+	}
+	// If either home player is on a penalty...
+	if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value) {
+		// If either home player is on a penalty...
+		if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value)
+			return "global";
+		return "away";
+	}
+})
+
+const powerPlayStatus = computed(() => {
+	// If we are in overtime
+	// If two away players are on penalty...
+	if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value) {
+		// If two home players are on penalty
+		if (replicants.teams[0].player1PenaltyNumber.value && replicants.teams[0].player2PenaltyNumber.value)
+			return "3 on 3";
+		if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value)
+			return "4 on 3";
+		return "5 on 3"
+	}
+	// If two home players are on penalty...
+	if (replicants.teams[0].player1PenaltyNumber.value && replicants.teams[0].player2PenaltyNumber.value) {
+		// If two home players are on penalty
+		if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value)
+			return "3 on 3";
+		if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value)
+			return "4 on 3";
+		return "5 on 3"; 
+	}
+	// If either away player is on a penalty...
+	if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value) {
+		// If either home player is on a penalty...
+		if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value)
+			return "4 on 4";
+		return "Power Play";
+	}
+	// If either home player is on a penalty...
+	if (replicants.teams[0].player1PenaltyNumber.value || replicants.teams[0].player2PenaltyNumber.value) {
+		// If either home player is on a penalty...
+		if (replicants.teams[1].player1PenaltyNumber.value || replicants.teams[1].player2PenaltyNumber.value)
+			return "4 on 4";
+		return "Power Play";
+	}
+})
+
+const powerPlayClock = computed(() => {
+	let smallestTime = "";
+	const times = [replicants.teams[0].player1PenaltyClock.value, replicants.teams[0].player2PenaltyClock.value, 
+					replicants.teams[1].player1PenaltyClock.value, replicants.teams[1].player2PenaltyClock.value];
+
+	for (const time of times) {
+		if (!time)
+			continue;
+		if (!smallestTime) {
+			smallestTime = time;
+			continue;
+		}
+		// If the minutes of the "smallest time" is less than the minute of the time, ignore it
+		if (smallestTime.split(":")[0] < time.split(":")[0])
+			continue;
+
+		// If the minutes of the "smallest time" is equal to the minute of the time...
+		if (smallestTime.split(":")[0] == time.split(":")[0]) {
+			// If the seconds of the "smallest time" is less than the seconds of the time, ignore it 
+			if (smallestTime.split(":")[1] < time.split(":")[1] && smallestTime.split(":")[1] != "0")
+				continue;
+			smallestTime = time;
+			continue;
+		}
+		smallestTime = time;
+	}
+	return smallestTime;
+})
+
 </script>
 
 <style scoped lang="scss">
