@@ -1,9 +1,10 @@
 import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
 import { firstValueFrom, Observable, tap } from "rxjs";
 import { CaslAbilityFactory } from "./casl-ability.factory";
-import { Rule, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
+import {Rule, RuleFn, RULES_METADATA_KEY, RuleType} from "./rules.decorator";
 import { Reflector } from "@nestjs/core";
 import { CaslHelper } from "./casl.helper";
+import {PrismaService} from "../prisma/prisma.service";
 
 /*
 General CRUD steps:
@@ -40,22 +41,25 @@ Delete:
 
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
+
     private readonly logger: Logger = new Logger("CaslInterceptor");
 
     private readonly handlers: Map<
         RuleType,
-        (ctx: ExecutionContext, rule: Rule, handler: () => Observable<any>) => Observable<any>
+        RuleFn
     > = new Map([
         [RuleType.ReadOne, this.caslHelper.handleReadOneRule],
         [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
         [RuleType.Count, this.caslHelper.handleCountRule],
-        [RuleType.Custom, this.caslHelper.handleCustomRule]
+        [RuleType.Custom, this.caslHelper.handleCustomRule],
+        [RuleType.Create, this.caslHelper.handleCreateRule],
     ]);
 
     constructor(
         private readonly reflector: Reflector,
         private readonly caslAbilityFactory: CaslAbilityFactory,
-        private readonly caslHelper: CaslHelper
+        private readonly caslHelper: CaslHelper,
+        private readonly prisma: PrismaService
     ) {}
 
     /**
@@ -87,43 +91,49 @@ export class CaslInterceptor implements NestInterceptor {
 
         if (!rules || rules.length === 0) {
             this.logger.verbose("No rules applied for the given resource. Pass.");
-        } else
-            for (let i = rules.length - 1; i >= 0; i--) {
-                const rule = rules[i];
-                const ruleNameStr = this.formatRuleName(rule);
+        } else for (let i = rules.length - 1; i >= 0; i--) {
+            const rule = rules[i];
+            const ruleNameStr = this.formatRuleName(rule);
 
-                // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
-                const nextTemp = nextRuleFn;
-                const handler = this.handlers.get(rule.type);
+            // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
+            const nextTemp = nextRuleFn;
+            const handler = this.handlers.get(rule.type);
 
-                if (!handler) {
-                    throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
-                }
-
-                nextRuleFn = () => {
-                    this.logger.verbose(`Initializing rule handler for ${ruleNameStr}`);
-                    return handler(context, rule, nextTemp).pipe(
-                        tap((value) => {
-                            this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
-
-                            // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
-                            //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
-                            //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
-                            if (!req.passed) {
-                                this.logger.debug(
-                                    `${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
-                                );
-                                throw new ForbiddenException();
-                            }
-
-                            // Reset req.passed context variable.
-                            delete req.passed;
-                            return value;
-                        })
-                    );
-                };
+            if (!handler) {
+                throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
             }
 
-        return firstValueFrom(nextRuleFn());
+            nextRuleFn = () => {
+                this.logger.verbose(`Initializing rule handler for ${ruleNameStr}`);
+
+                return handler(context, rule, nextTemp).pipe(
+                    tap((value) => {
+                        this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
+
+                        // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
+                        //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
+                        //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
+                        if (!req.passed) {
+                            this.logger.debug(
+                                `${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
+                            );
+                            throw new ForbiddenException();
+                        }
+
+                        // Reset req.passed context variable.
+                        delete req.passed;
+                        return value;
+                    })
+                );
+            };
+        }
+
+        // Create a new Prisma transaction which can be used throughout the request. If any of the request's
+        //  rules fail, or an error is thrown, the transaction will be rolled back. This isn't a very performant
+        //  solution. https://www.prisma.io/docs/concepts/components/prisma-client/transactions#interactive-transactions
+        return this.prisma.$transaction(async (tx) => {
+            req.prismaTx = tx;
+            return firstValueFrom(nextRuleFn());
+        });
     }
 }

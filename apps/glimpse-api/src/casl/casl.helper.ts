@@ -40,6 +40,7 @@ export class CaslHelper {
         this.handleCustomRule = this.handleCustomRule.bind(this);
         this.handleReadManyRule = this.handleReadManyRule.bind(this);
         this.handleReadOneRule = this.handleReadOneRule.bind(this);
+        this.handleCreateRule = this.handleCreateRule.bind(this);
     }
 
     /**
@@ -316,6 +317,71 @@ export class CaslHelper {
                 `User sorted using the following fields in their query: ${[...sortingFields].join(", ")}`
             );
             return sortingFields;
+        } else if (contextType === "http") {
+            // TODO
+            return new Set();
+        } else {
+            throw new Error("Unsupported execution context");
+        }
+    }
+
+    /**
+     * Get the fields supplied in a Create/Update mutation. These fields are then used to make sure the user has
+     *  permission to create/update an object based on those fields.
+     * @param context NestJS execution context.
+     * @param argName Name of the input data argument in the GraphQL query.
+     * @todo Inputting data currently only supports GraphQL queries.
+     * @returns Set of field names supplied in the input data.
+     */
+    public getInputFields(context: ExecutionContext, argName: string): Set<string> {
+        const contextType = context.getType<GqlContextType>();
+        if (contextType === "graphql") {
+            const info = this.getGraphQLInfo(context);
+
+            const inputFields = new Set<string>();
+            for (const fieldNode of info.fieldNodes) {
+                this.assertNodeKind(fieldNode, Kind.FIELD);
+
+                const inputArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
+                if (inputArg === undefined) {
+                    continue;
+                }
+
+                this.assertNodeKind(inputArg, Kind.ARGUMENT);
+                this.assertNodeKind(inputArg.value, [Kind.OBJECT, Kind.VARIABLE]);
+
+                if (inputArg.value.kind === Kind.OBJECT) {
+                    this.logger.verbose("Input argument passed in as AST.");
+                    const inputAst = inputArg.value;
+                    visit(inputAst, {
+                        ObjectField: {
+                            enter: (node) => {
+                                // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
+                                //  create relations in a single mutation.
+                                this.assertNodeKind(node.value, [
+                                    Kind.ENUM, Kind.STRING, Kind.INT, Kind.BOOLEAN, Kind.FLOAT
+                                ])
+                                inputFields.add(node.name.value);
+                            }
+                        }
+                    });
+                } else {
+                    this.logger.verbose("Input argument passed in as variable.");
+                    const argName = inputArg.name.value;
+                    for(const fieldName of Object.keys(info.variableValues[argName])) {
+                        // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
+                        //  create relations in a single mutation.
+                        if(typeof info.variableValues[argName][fieldName] === "object") {
+                            throw new Error("Input data cannot contain nested objects.");
+                        }
+                        inputFields.add(fieldName);
+                    }
+                }
+            }
+            this.logger.debug(
+                `User input the following fields in their mutation: ${[...inputFields].join(", ")}`
+            );
+            return inputFields;
         } else if (contextType === "http") {
             // TODO
             return new Set();
@@ -735,10 +801,6 @@ export class CaslHelper {
     }
 
     /**
-     *
-     *
-     *
-     *
      * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Count}
      *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
      *  have permission to read at least one field on the subject type which they're attempting to count. The user must
@@ -811,5 +873,94 @@ export class CaslHelper {
         // No permission checks need to be applied to the returned value (it's just a number), so return it.
         req.passed = true;
         return handler();
+    }
+
+    /**
+     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Count}
+     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
+     *  have permission to read at least one field on the subject type which they're attempting to count. The user must
+     *  also have permission to filter by any fields which they're trying to filter their count by.
+     *
+     *  Currently, filtering permissions cannot have conditions applied to them. It is expected that any filtering
+     *  permissions that the user has do not have conditions applied. If they do, the conditions will currently be
+     *  ignored and the user will be able to sort or filter by the field regardless of the conditions.
+     *
+     *  Counting is primarily used for pagination so the interface can show how many pages are remaining.
+     *
+     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
+     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *
+     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
+     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
+     *  {@link Request#passed} is false and throw an error.
+     *
+     * @see {@link handleReadManyRule} for where pagination is used.
+     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     *
+     * @param context - NestJS execution context.
+     * @param rule - Rule to test. If rule type is not Count, or if the rule definition is a RuleFn, an error will be
+     *  thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass.
+     * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
+     *  mutate the return value from the next handler.
+     * @throws Error if the rule type is not {@link RuleType.Count}.
+     * @throws Error if the rule definition is a {@link RuleFn}.
+     * @throws Error if the current user's permissions are not initialized.
+     */
+    public handleCreateRule<T extends Exclude<AbilitySubjects, string>>(
+        context: ExecutionContext,
+        rule: Rule,
+        handler: () => Observable<T | null>
+    ): Observable<T | null> {
+        if (rule.type !== RuleType.Create) {
+            throw new Error(`Cannot test rule of type "${rule.type}" with handleCreateRule.`);
+        }
+        if (typeof rule.rule === "function") {
+            throw new Error("Cannot test rule with a RuleFn with handleCreateRule.");
+        }
+
+        const req = this.getRequest(context);
+        if (!req.permissions) {
+            throw new Error("User permissions not initialized.");
+        }
+
+        const [action, subjectSrc] = rule.rule;
+        const subjectStr = this.getSubjectAsString(subjectSrc);
+
+        // Basic test with the provided action and subject.
+        if (!req.permissions.can(action, subjectStr)) {
+            req.passed = false;
+            return of(null);
+        }
+
+        const inputFields = this.getInputFields(context, rule.options?.inputName ?? "input");
+
+        // Make sure user can create an object with the fields they've supplied.
+        for (const field of inputFields) {
+            if(!req.permissions.can(action, subjectStr, field)) {
+                req.passed = false;
+                return of(null);
+            }
+        }
+
+        // TODO make sure the user will be able to read the fields which they've requested to read.
+
+        // We don't set req.passed to true here because the mutation
+        return handler().pipe(map((newValue) => {
+
+            const subjectObj = subject(subjectStr, newValue);
+
+            // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+            for(const field of Object.keys(newValue)) {
+                if(!req.permissions.can(action, subjectObj, field)) {
+                    req.passed = false;
+                    return null;
+                }
+            }
+
+            req.passed = true;
+            return newValue;
+        }));
     }
 }

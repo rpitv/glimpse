@@ -2,7 +2,7 @@ import { AbilityAction, AbilitySubjects } from "./casl-ability.factory";
 import { ExecutionContext, SetMetadata } from "@nestjs/common";
 import { Observable } from "rxjs";
 
-export type RuleFn = <T = any>(context: ExecutionContext, rule: Rule, handler: () => Observable<T>) => Observable<T>;
+export type RuleFn<T = any> = (context: ExecutionContext, rule: Rule, handler: () => Observable<T>) => Observable<T>;
 export enum RuleType {
     ReadOne = "ReadOne",
     ReadMany = "ReadMany",
