@@ -359,8 +359,12 @@ export class CaslHelper {
                                 // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
                                 //  create relations in a single mutation.
                                 this.assertNodeKind(node.value, [
-                                    Kind.ENUM, Kind.STRING, Kind.INT, Kind.BOOLEAN, Kind.FLOAT
-                                ])
+                                    Kind.ENUM,
+                                    Kind.STRING,
+                                    Kind.INT,
+                                    Kind.BOOLEAN,
+                                    Kind.FLOAT
+                                ]);
                                 inputFields.add(node.name.value);
                             }
                         }
@@ -368,19 +372,17 @@ export class CaslHelper {
                 } else {
                     this.logger.verbose("Input argument passed in as variable.");
                     const argName = inputArg.name.value;
-                    for(const fieldName of Object.keys(info.variableValues[argName])) {
+                    for (const fieldName of Object.keys(info.variableValues[argName])) {
                         // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
                         //  create relations in a single mutation.
-                        if(typeof info.variableValues[argName][fieldName] === "object") {
+                        if (typeof info.variableValues[argName][fieldName] === "object") {
                             throw new Error("Input data cannot contain nested objects.");
                         }
                         inputFields.add(fieldName);
                     }
                 }
             }
-            this.logger.debug(
-                `User input the following fields in their mutation: ${[...inputFields].join(", ")}`
-            );
+            this.logger.debug(`User input the following fields in their mutation: ${[...inputFields].join(", ")}`);
             return inputFields;
         } else if (contextType === "http") {
             // TODO
@@ -938,7 +940,7 @@ export class CaslHelper {
 
         // Make sure user can create an object with the fields they've supplied.
         for (const field of inputFields) {
-            if(!req.permissions.can(action, subjectStr, field)) {
+            if (!req.permissions.can(action, subjectStr, field)) {
                 req.passed = false;
                 return of(null);
             }
@@ -947,20 +949,21 @@ export class CaslHelper {
         // TODO make sure the user will be able to read the fields which they've requested to read.
 
         // We don't set req.passed to true here because the mutation
-        return handler().pipe(map((newValue) => {
+        return handler().pipe(
+            map((newValue) => {
+                const subjectObj = subject(subjectStr, newValue);
 
-            const subjectObj = subject(subjectStr, newValue);
-
-            // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
-            for(const field of Object.keys(newValue)) {
-                if(!req.permissions.can(action, subjectObj, field)) {
-                    req.passed = false;
-                    return null;
+                // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+                for (const field of Object.keys(newValue)) {
+                    if (!req.permissions.can(action, subjectObj, field)) {
+                        req.passed = false;
+                        return null;
+                    }
                 }
-            }
 
-            req.passed = true;
-            return newValue;
-        }));
+                req.passed = true;
+                return newValue;
+            })
+        );
     }
 }
