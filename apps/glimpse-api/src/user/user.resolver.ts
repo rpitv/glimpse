@@ -2,7 +2,6 @@ import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
 import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
-import { PrismaService } from "../prisma/prisma.service";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger, Session } from "@nestjs/common";
@@ -12,18 +11,20 @@ import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
+import {Request} from "express";
+import {AuthService} from "../auth/auth.service";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly authService: AuthService) {}
 
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [User], { complexity: Complexities.FindMany })
     @Rules(RuleType.ReadMany, User)
     async findManyUser(
-        @Context() ctx: any,
+        @Context() ctx: {req: Request},
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
         @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
@@ -39,7 +40,7 @@ export class UserResolver {
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return this.prisma.user.findMany({
+        return ctx.req.prismaTx.user.findMany({
             where,
             orderBy,
             skip: pagination?.skip,
@@ -50,9 +51,9 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rules(RuleType.ReadOne, User)
-    async findOneUser(@Context() ctx: any, @Args("id", { type: () => Int }) id: number): Promise<User> {
+    async findOneUser(@Context() ctx: {req: Request}, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
-        return this.prisma.user.findFirst({
+        return ctx.req.prismaTx.user.findFirst({
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
@@ -61,16 +62,24 @@ export class UserResolver {
 
     @Mutation(() => User)
     @Rules(RuleType.Create, User)
-    async createUser(@Args("input", { type: () => CreateUserInput }) input: CreateUserInput): Promise<User> {
+    async createUser(
+        @Context() ctx: {req: Request},
+        @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
+    ): Promise<User> {
         this.logger.verbose("createUser resolver called");
-        // TODO
         input = plainToClass(CreateUserInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
-        return this.prisma.user.create({
+
+        // Hash the password if it is provided.
+        if(input.password) {
+            input.password = await this.authService.hashPassword(input.password);
+        }
+
+        return ctx.req.prismaTx.user.create({
             data: input
         });
     }
@@ -102,10 +111,10 @@ export class UserResolver {
     @Query(() => Int)
     @Rules(RuleType.Count, User)
     async userCount(
-        @Context() ctx: any,
+        @Context() ctx: {req: Request},
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
     ): Promise<number> {
-        return this.prisma.user.count({
+        return ctx.req.prismaTx.user.count({
             where: {
                 AND: [accessibleBy(ctx.req.permissions).User, filter]
             }

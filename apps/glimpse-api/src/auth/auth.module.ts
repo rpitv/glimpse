@@ -11,6 +11,7 @@ import { DiscordStrategy } from "./discord.strategy";
 @Module({
     imports: [PassportModule],
     providers: [AuthService, PrismaService, LocalStrategy, DiscordStrategy, AuthResolver, AuthSerializer],
+    exports: [AuthService],
     controllers: [AuthController]
 })
 export class AuthModule {}

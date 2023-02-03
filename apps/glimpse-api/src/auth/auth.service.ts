@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { argon2id, verify } from "argon2";
+import { argon2id, verify, hash } from "argon2";
 import { User } from "@prisma/client";
 
 export const PASSWORD_HASH_OPTIONS = {
@@ -13,6 +13,10 @@ export const PASSWORD_HASH_OPTIONS = {
 @Injectable()
 export class AuthService {
     constructor(private prisma: PrismaService) {}
+
+    async hashPassword(pass: string): Promise<string> {
+        return hash(pass, PASSWORD_HASH_OPTIONS);
+    }
 
     async verifyPassword(username: string, pass: string): Promise<boolean> {
         return (await this.attemptLogin(username, pass)) !== null;
