@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
 import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
@@ -6,6 +6,8 @@ import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
 import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
+import { map, Observable, of } from "rxjs";
+import { Request } from "express";
 
 @Injectable()
 export class CaslHelper {
@@ -31,6 +33,33 @@ export class CaslHelper {
         "mode"
     ] as const;
     private readonly logger: Logger = new Logger("CaslHelper");
+
+    constructor() {
+        // I don't know why this is necessary, but without it, "this" is undefined within these methods.
+        this.handleCountRule = this.handleCountRule.bind(this);
+        this.handleCustomRule = this.handleCustomRule.bind(this);
+        this.handleReadManyRule = this.handleReadManyRule.bind(this);
+        this.handleReadOneRule = this.handleReadOneRule.bind(this);
+    }
+
+    /**
+     * Retrieve the Express Request object from the given execution context. Currently only supports GraphQL and
+     *  HTTP execution contexts. If the execution context is set to something else, this will throw an Error.
+     * @param context Execution context to retrieve the Request object from.
+     * @throws Error if execution context type is not GraphQL or HTTP.
+     */
+    public getRequest(context: ExecutionContext): Request {
+        if (context.getType<GqlContextType>() === "graphql") {
+            this.logger.verbose("CASL interceptor currently in GraphQL context.");
+            const gqlContext = GqlExecutionContext.create(context);
+            return gqlContext.getContext().req;
+        } else if (context.getType() === "http") {
+            this.logger.verbose("CASL interceptor currently in HTTP context.");
+            return context.switchToHttp().getRequest();
+        } else {
+            throw new Error(`CASL interceptor applied to unsupported context type ${context.getType()}`);
+        }
+    }
 
     /**
      * Recursively get all keys used within an object, including keys used within objects in an array.
@@ -367,19 +396,26 @@ export class CaslHelper {
 
     /**
      * Test that the given ability has permission to perform the given rule. Rule is defined as a custom function
-     *  set within the rule decorator.
+     *  set within the rule decorator. This function is almost as simple as just calling the rule's custom function,
+     *  but it does perform a couple sanity checks before doing so.
      *
+     * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
+     *  applied to.
      * @param context NestJS execution context.
      * @param rule Rule to test. If rule type is not Custom, or if the rule definition is not a RuleFn, an error will be
      *  thrown.
-     * @param ability GlimpseAbility to check the permissions against.
-     * @param value Value to check the rule against. If this method is being called pre-resolution, this should be undefined.
-     *  For post-resolution calls, the returned value should be passed in.
-     * @returns True if the rule passes, or false if it fails.
+     * @param handler The handler that calls the request method/resolver, or the next interceptor in line if applicable.
+     *  This is passed to the rule function, allowing the rule function to call the resolver at the appropriate time.
+     * @returns The returned value from the rule function. Typically, this will be the value returned from the
+     *  resolver/handler, but the rule function is allowed to mutate that value, or return a completely different value.
+     *  Whatever is returned should be treated as the final value returned from the resolver/handler.
      * @throws Error if the rule type is not Custom, or if the rule definition is not a RuleFn.
-     * @private
      */
-    public testCustomRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility, value?: any): boolean {
+    public handleCustomRule<T = any>(
+        context: ExecutionContext,
+        rule: Rule,
+        handler: () => Observable<T>
+    ): Observable<T> {
         if (rule.type !== RuleType.Custom) {
             throw new Error(`Cannot test rule of type "${rule.type}" with testCustomRule.`);
         }
@@ -387,170 +423,222 @@ export class CaslHelper {
             throw new Error("Cannot test rule with a tuple with testCustomRule.");
         }
 
-        return rule.rule(ability, context, value);
+        return rule.rule(context, rule, handler);
     }
 
     /**
-     * Test that the given ability has permission to perform the given rule. If value is provided, then this will check
-     *  that the ability has permission to perform the rule on the given value. If value is not provided, then this will
-     *  check that the ability has permission to perform the rule on any value of the given subject.
+     * Test that the current user has permission to perform the given {@link Rule} within their {@link GlimpseAbility},
+     *  and then call and return the passed handler's value if so. Permissions are also tested against the specific
+     *  value that is returned by the handler, so it is possible for the handler to be called and the request still to
+     *  fail if the user didn't have permission to read the specific value in question. For this reason, the
+     *  resolvers/handlers which this rule handler is applied to should not have any mutating effects.
      *
-     * Specifically, ReadOne resolvers should perform the following steps:
-     * - Check the user has permission to read at least one field on objects of the given type
-     * - Check the user has permission to read all the requested fields on the given type
-     * - Get object
-     * - Check user has permission to read at least one field on this specific object
-     * - Check the user has permission to read all the requested fields on this specific object
+     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
+     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
      *
-     * @param context NestJS execution context.
-     * @param rule Rule to test. If rule type is not ReadOne, or if the rule definition is a RuleFn, an error will be
+     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
+     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
+     *  {@link Request#passed} is false and throw an error.
+     *
+     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     *
+     * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
+     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type.
+     * @param context - NestJS execution context.
+     * @param rule - Rule to test. If rule type is not ReadOne, or if the rule definition is a RuleFn, an error will be
      *  thrown.
-     * @param ability GlimpseAbility to check the permissions against.
-     * @param value Value to check the rule against. If this method is being called pre-resolution, this should be undefined.
-     *  For post-resolution calls, the returned value should be passed in.
-     * @returns True if the rule passes, or false if it fails.
-     * @throws Error if the rule type is not ReadOne, or if the rule definition is a RuleFn.
-     * @private
+     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
+     * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
+     *  mutate the return value from the next handler.
+     * @throws Error if the rule type is not {@link RuleType.ReadOne}.
+     * @throws Error if the rule definition is a {@link RuleFn}.
+     * @throws Error if the current user's permissions are not initialized.
      */
-    public testReadOneRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility, value?: any): boolean {
+    public handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
+        context: ExecutionContext,
+        rule: Rule,
+        handler: () => Observable<T|null>
+    ): Observable<T|null> {
         if (rule.type !== RuleType.ReadOne) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with testReadOneRule.`);
+            throw new Error(`Cannot test rule of type "${rule.type}" with handleReadOneRule.`);
         }
         if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with testReadOneRule.");
+            throw new Error("Cannot test rule with a RuleFn with handleReadOneRule.");
+        }
+
+        const req = this.getRequest(context);
+        if(!req.permissions) {
+            throw new Error("User permissions not initialized.");
         }
 
         const [action, subjectSrc] = rule.rule;
         const subjectStr = this.getSubjectAsString(subjectSrc);
-        const subj = value !== undefined ? subject(subjectStr, value) : subjectStr;
 
         // Basic test with the provided action and subject.
-        if (!ability.can(action, subj)) {
-            return false;
+        if (!req.permissions.can(action, subjectStr)) {
+            req.passed = false;
+            return of(null);
         }
 
         const fields: Set<string> = new Set();
-        // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
-        //  fields to be returned.
+        // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
+        //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context.getType<GqlContextType>() === "graphql") {
             const info = this.getGraphQLInfo(context);
             this.getSelectedFields(info).forEach((v) => fields.add(v));
-        } else if (value !== undefined) {
-            // If we're not in a GraphQL request but value is passed, then it's presumed that all the keys on the value
-            //  will be returned to the user, and thus all must be tested.
-            Object.keys(value).forEach((v) => fields.add(v));
-        }
 
-        // Skip field-based tests if no fields are to be tested.
-        if (fields.size === 0) {
-            return true;
-        }
+            // Remove any specifically excluded fields from the list of fields.
+            if (rule.options?.excludeFields) {
+                rule.options.excludeFields.forEach((v) => fields.delete(v));
+            }
 
-        // Remove any specifically excluded fields from the list of fields.
-        if (rule.options?.excludeFields) {
-            rule.options.excludeFields.forEach((v) => fields.delete(v));
-        }
-
-        // Test the ability against each requested field
-        for (const field of fields) {
-            if (!ability.can(action, subj, field)) {
-                return false;
+            // Test the ability against each requested field
+            for (const field of fields) {
+                if (!req.permissions.can(action, subjectStr, field)) {
+                    req.passed = false;
+                    return of(null);
+                }
             }
         }
 
-        return true;
+        // Call next rule, or resolver/handler if no more rules.
+        return handler().pipe(map((value) => {
+
+            // If the value is nullish, there's no value to check, so just return null.
+            if (value === null || value === undefined) {
+                req.passed = true;
+                return null;
+            }
+
+            // Repeat previous tests with the value as the subject.
+
+            const subjectObj = subject(subjectStr, value);
+
+            if(!req.permissions.can(action, subjectObj)) {
+                req.passed = false;
+                return null;
+            }
+
+            // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
+            //  post-resolver, which is done here.
+            if(context.getType<GqlContextType>() !== "graphql") {
+                Object.keys(value).forEach(v => fields.add(v));
+
+                // Remove any specifically excluded fields from the list of fields.
+                if (rule.options?.excludeFields) {
+                    rule.options.excludeFields.forEach((v) => fields.delete(v));
+                }
+            }
+
+            // Test the ability against each requested field with subject value.
+            for (const field of fields) {
+                if (!req.permissions.can(action, subjectObj, field)) {
+                    req.passed = false;
+                    return null;
+                }
+            }
+
+            req.passed = true;
+            return value;
+        }))
+
     }
 
     /**
-     * Test that the given ability has permission to perform the given rule. If value is provided, then this will check
-     *  that the ability has permission to perform the rule on each value within the given array. If value is not
-     *  provided, then this will check that the ability has permission to perform the rule on any value of the given
-     *  subject.
+     * Test that the current user has permission to perform the given {@link Rule} within their {@link GlimpseAbility},
+     *  and then call and return the passed handler's value if so. Permissions are also tested against the specific
+     *  values that is returned by the handler, so it is possible for the handler to be called and the request still to
+     *  fail if the user didn't have permission to read the specific values in question. For this reason, the
+     *  resolvers/handlers which this rule handler is applied to should not have any mutating effects.
      *
-     * Specifically, ReadMany resolvers should perform the following steps:
-     *  - Check the user has permission to read at least one field on objects of the given type
-     *  - Check the user has permission to read all the requested fields on the given type
-     *  - Check the user has permission to read the filtering fields
-     *  - Check the user has permission to read objects with the filter values
-     *  - Check the user has permission to read the ordering fields, unconditionally*
-     *  - Get objects
-     *  - Check user has permission to read at least one field on each object
-     *  - Check the user has permission to read all the requested fields on each object
-     *  - Check the user has permission to read the filtered value on each object
-     *  - Check the user has permission to read the ordering value on each object
+     *  In addition to traditional subject/field permission checks, ReadMany rules also allow for the use of sorting,
+     *  filtering, and pagination. These permissions are handled as such:
      *
-     * *NOTE: Ordering does introduce a slight security hole when used in combination with pagination. Imagine you have
-     *  three documents:
-     *   - {"name": "Document 1", "secret": 7, "public": true}
-     *   - {"name": "Document 2", "secret": 8, "public": false}
-     *   - {"name": "Document 3", "secret": 9, "public": true}
-     *  The user has permission to read "name" on all documents, but only "secret" on documents which are public. If the
-     *  user requests the field "name" and orders "secret" in descending order, this would normally throw a Forbidden error.
-     *  However, if the user uses pagination to request only one document at a time, they would only get a Forbidden error
-     *  on the second page (i.e., when requesting Document 2). From this, they can infer that Document 2 must have a secret
-     *  value between 7 and 9. If secret values are unique integers, then they are able to conclusively infer that
-     *  Document 2 has a secret value of 8. To solve this issue, the user is not allowed to order by fields which they
-     *  have any conditional permissions against.
+     *  - <b>Sorting:</b> The user must have {@link AbilityAction.Sort} permission on the field being sorted by. The
+     *    user's {@link GlimpseAbility} to read the field(s) being sorted is not currently taken into account. As such,
+     *    it is possible for a user to infer some information about fields which they cannot read as long as they have
+     *    permission to sort by them.
+     *  - <b>Filtering:</b> The user must have {@link AbilityAction.Filter} permission on the field being filtered by.
+     *    The user's {@link GlimpseAbility} to read the field(s) being filtered is not currently taken into account. As
+     *    such, it is possible for a user to infer some information about fields which they cannot read as long as they
+     *    have permission to filter by them.
+     *  - <b>Pagination:</b> Generally, there are no permission checks against permission necessary. However, if the
+     *    user is using cursor-based pagination, they must have permission to sort by the "ID" field. This is because
+     *    cursor-based pagination requires sorting by some field by its very nature, and the "ID" field is the only
+     *    field which Glimpse currently allows to be used for this. For skip-based pagination, there are no permission
+     *    checks.
      *
-     * @param context NestJS execution context.
-     * @param rule Rule to test. If rule type is not ReadMany, or if the rule definition is a RuleFn, an error will be
+     *  Currently, sorting and filtering permissions cannot have conditions applied to them. It is expected that any
+     *  sorting or filtering permissions that the user has do not have conditions applied. If they do, the conditions
+     *  will currently be ignored and the user will be able to sort or filter by the field regardless of the conditions.
+     *
+     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
+     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *
+     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
+     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
+     *  {@link Request#passed} is false and throw an error.
+     *
+     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     *
+     * @typeParam T - The type of the array of values expected to be returned by the resolver/handler which this rule
+     *  is being applied to. E.g., if the resolver returns an array of {@link User| Users}, T would be {@link User}.
+     *  Currently, this must be an instance of a valid {@link AbilitySubjects} type.
+     * @param context - NestJS execution context.
+     * @param rule - Rule to test. If rule type is not ReadMany, or if the rule definition is a RuleFn, an error will be
      *  thrown.
-     * @param ability GlimpseAbility to check the permissions against.
-     * @param value Values to check the rule against. If this method is being called pre-resolution, this should be
-     *  undefined. For post-resolution calls, the returned value should be passed in and must be an array or null.
-     * @returns True if the rule passes, or false if it fails.
-     * @throws Error if the rule type is not ReadMany, or if the rule definition is a RuleFn.
-     * @throws Error if value is not null or an array.
-     * @throws HttpException if the requests includes sorting but the sorted fields aren't requested.
-     * @private
+     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
+     * @returns The value returned from the handler, or null if the rule checks fail. If the rule's strict mode is
+     *  enabled, then this will return null if the user doesn't have permission to read one or more of the fields on
+     *  any object within the array returned by handler. However, if the rule's strict mode is disabled, then those
+     *  fields will be set to null on the relevant objects. Note that if the user doesn't have permission to read the
+     *  field on <i>any</i> object of the given type, the same behavior as strict mode will occur. That is, null will
+     *  be returned and {@link Request#passed} will be set to false. It is only when the user has permission to read the
+     *  field on some objects of the given type that the strict mode behavior will differ.
+     * @throws Error if the rule type is not {@link RuleType.ReadMany}.
+     * @throws Error if the rule definition is a {@link RuleFn}.
+     * @throws Error if the current user's permissions are not initialized.
      */
-    public testReadManyRule(
+    public handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
         rule: Rule,
-        ability: GlimpseAbility,
-        value?: any[] | null
-    ): boolean {
+        handler: () => Observable<T[]|null>
+    ): Observable<T[]|null> {
+
         if (rule.type !== RuleType.ReadMany) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with testReadManyRule.`);
+            throw new Error(`Cannot test rule of type "${rule.type}" with handleReadManyRule.`);
         }
         if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with testReadManyRule.");
+            throw new Error("Cannot test rule with a RuleFn with handleReadManyRule.");
         }
 
-        // Assert that value is an array or null. If it's null or an empty array, then there are no values
-        //  to check, so the rule passes. Type-based checks only occur when value is undefined.
-        if (value !== undefined) {
-            if (!Array.isArray(value) && value !== null) {
-                throw new Error("Value must be an array or null when not undefined.");
-            }
-            if (value === null || value.length === 0) {
-                return true;
-            }
+        const req = this.getRequest(context);
+        if(!req.permissions) {
+            throw new Error("User permissions not initialized.");
         }
 
         const [action, subjectSrc] = rule.rule;
         const subjectStr = this.getSubjectAsString(subjectSrc);
 
-        if (value) {
-            // Test the ability against each value.
-            for (const v of value) {
-                if (!ability.can(action, subject(subjectStr, v))) {
-                    return false;
-                }
-            }
-        } else {
-            // Basic test with the provided action and subject type.
-            if (!ability.can(action, subjectStr)) {
-                return false;
-            }
+        // Basic test with the provided action and subject.
+        if (!req.permissions.can(action, subjectStr)) {
+            req.passed = false;
+            return of(null);
         }
+
 
         // Make sure user has permission to sort by the fields which they are sorting by.
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
         for (const field of sortingFields) {
             // Sort actions cannot have conditions, and cannot be applied to subject values.
-            if (!ability.can(AbilityAction.Sort, subjectStr, field)) {
-                return false;
+            // TODO make sure the user has no sort permissions that have conditions
+            if (!req.permissions.can(AbilityAction.Sort, subjectStr, field)) {
+                req.passed = false;
+                return of(null);
             }
         }
 
@@ -558,107 +646,174 @@ export class CaslHelper {
         const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
         for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
-            if (!ability.can(AbilityAction.Filter, subjectStr, field)) {
-                return false;
+            // TODO make sure the user has no filter permissions that have conditions
+            if (!req.permissions.can(AbilityAction.Filter, subjectStr, field)) {
+                req.passed = false;
+                return of(null);
             }
         }
 
-        if (!this.canPaginate(context, ability, subjectStr, rule.options?.paginationInputName ?? "pagination")) {
+        if (!this.canPaginate(
+            context,
+            req.permissions,
+            subjectStr,
+            rule.options?.paginationInputName ?? "pagination"
+        )) {
             this.logger.debug(
-                `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the subject "${subjectStr}".`
+                `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the 
+                subject "${subjectStr}".`
             );
-            return false;
+            req.passed = false;
+            return of(null);
         }
 
-        const selectedFields: Set<string> = new Set();
-        // Field-based tests can only be done pre-value for GraphQL requests, since the request includes the
-        //  fields to be returned.
+        const fields: Set<string> = new Set();
+        // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
+        //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context.getType<GqlContextType>() === "graphql") {
             const info = this.getGraphQLInfo(context);
-            this.getSelectedFields(info).forEach((v) => selectedFields.add(v));
-        } else if (value !== undefined) {
-            // If we're not in a GraphQL request but value is passed, then it's presumed that all the keys on the value
-            //  will be returned to the user, and thus all must be tested.
-            Object.keys(value).forEach((v) => selectedFields.add(v));
+            this.getSelectedFields(info).forEach((v) => fields.add(v));
+
+            // Remove any specifically excluded fields from the list of fields.
+            if (rule.options?.excludeFields) {
+                rule.options.excludeFields.forEach((v) => fields.delete(v));
+            }
+
+            // Test the ability against each requested field
+            for (const field of fields) {
+                if (!req.permissions.can(action, subjectStr, field)) {
+                    req.passed = false;
+                    return of(null);
+                }
+            }
         }
 
-        // Remove any specifically excluded fields from the list of fields.
-        if (rule.options?.excludeFields) {
-            rule.options.excludeFields.forEach((v) => selectedFields.delete(v));
-        }
+        // Call next rule, or resolver/handler if no more rules.
+        return handler().pipe(map((values) => {
 
-        this.logger.debug(`Fields to test: ${Array.from(selectedFields).join(", ")}`);
+            // If the value is nullish, there's no value to check, so just return null.
+            if (values === null || values === undefined) {
+                req.passed = true;
+                return null;
+            }
 
-        // Skip field-based tests if no fields are to be tested.
-        if (selectedFields.size === 0) {
-            return true;
-        }
+            // Repeat previous tests with the values as the subject.
 
-        if (value) {
-            // Test the ability against each value.
-            for (const v of value) {
-                // Test the ability against each requested field on value
-                for (const field of selectedFields) {
-                    if (!ability.can(action, subject(subjectStr, v), field)) {
+            for(const value of values) {
+                const subjectObj = subject(subjectStr, value);
+                if(!req.permissions.can(action, subjectObj)) {
+                    req.passed = false;
+                    return null;
+                }
+
+                // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
+                //  post-resolver, which is done here.
+                if(context.getType<GqlContextType>() !== "graphql") {
+                    Object.keys(value).forEach(v => fields.add(v));
+
+                    // Remove any specifically excluded fields from the list of fields.
+                    if (rule.options?.excludeFields) {
+                        rule.options.excludeFields.forEach((v) => fields.delete(v));
+                    }
+                }
+
+                // Test the ability against each requested field with subject value.
+                for (const field of fields) {
+                    if (!req.permissions.can(action, subjectObj, field)) {
                         // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
                         //  will be set to null. The user won't necessarily know (as of now) whether the field is
                         //  actually null, or they just can't read it.
                         if (rule.options?.strict ?? false) {
-                            return false;
+                            req.passed = false;
+                            return null;
                         } else {
-                            v[field] = null;
+                            value[field] = null;
                         }
                     }
                 }
             }
-        } else {
-            // Test the ability against each requested field on type
-            for (const field of selectedFields) {
-                if (!ability.can(action, subjectStr, field)) {
-                    return false;
-                }
-            }
-        }
 
-        return true;
+            req.passed = true;
+            return values;
+        }))
     }
 
     /**
-     * Test that the given ability has permission to perform the given rule in the context of a count request.
      *
-     * @param context NestJS execution context.
-     * @param rule Rule to test. If rule type is not Count, or if the rule definition is a RuleFn, an error will be
+     *
+     *
+     *
+     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Count}
+     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
+     *  have permission to read at least one field on the subject type which they're attempting to count. The user must
+     *  also have permission to filter by any fields which they're trying to filter their count by.
+     *
+     *  Currently, filtering permissions cannot have conditions applied to them. It is expected that any filtering
+     *  permissions that the user has do not have conditions applied. If they do, the conditions will currently be
+     *  ignored and the user will be able to sort or filter by the field regardless of the conditions.
+     *
+     *  Counting is primarily used for pagination so the interface can show how many pages are remaining.
+     *
+     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
+     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *
+     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
+     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
+     *  {@link Request#passed} is false and throw an error.
+     *
+     * @see {@link handleReadManyRule} for where pagination is used.
+     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     *
+     * @param context - NestJS execution context.
+     * @param rule - Rule to test. If rule type is not Count, or if the rule definition is a RuleFn, an error will be
      *  thrown.
-     * @param ability GlimpseAbility to check the permissions against.
-     * @returns True if the rule passes, or false if it fails.
-     * @throws Error if the rule type is not Count, or if the rule definition is a RuleFn.
-     * @private
+     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass.
+     * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
+     *  mutate the return value from the next handler.
+     * @throws Error if the rule type is not {@link RuleType.Count}.
+     * @throws Error if the rule definition is a {@link RuleFn}.
+     * @throws Error if the current user's permissions are not initialized.
      */
-    public testCountRule(context: ExecutionContext, rule: Rule, ability: GlimpseAbility): boolean {
+    public handleCountRule(
+        context: ExecutionContext,
+        rule: Rule,
+        handler: () => Observable<number|null>
+    ): Observable<number|null> {
         if (rule.type !== RuleType.Count) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with testCountRule.`);
+            throw new Error(`Cannot test rule of type "${rule.type}" with handleCountRule.`);
         }
         if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with testCountRule.");
+            throw new Error("Cannot test rule with a RuleFn with handleCountRule.");
+        }
+
+        const req = this.getRequest(context);
+        if (!req.permissions) {
+            throw new Error("User permissions not initialized.");
         }
 
         const [action, subjectSrc] = rule.rule;
         const subjectStr = this.getSubjectAsString(subjectSrc);
 
-        // Make sure user can read at least one object of the given subject.
-        if (!ability.can(action, subjectStr)) {
-            return false;
+        // Basic test with the provided action and subject.
+        if (!req.permissions.can(action, subjectStr)) {
+            req.passed = false;
+            return of(null);
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
         const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
         for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
-            if (!ability.can(AbilityAction.Filter, subjectStr, field)) {
-                return false;
+            // TODO make sure the user has no filter permissions that have conditions
+            if (!req.permissions.can(AbilityAction.Filter, subjectStr, field)) {
+                req.passed = false;
+                return of(null);
             }
         }
 
-        return true;
+        // No permission checks need to be applied to the returned value (it's just a number), so return it.
+        req.passed = true;
+        return handler();
     }
 }

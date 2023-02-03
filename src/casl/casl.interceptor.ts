@@ -1,10 +1,8 @@
 import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { firstValueFrom, Observable } from "rxjs";
-import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import { CaslAbilityFactory, GlimpseAbility } from "./casl-ability.factory";
+import { firstValueFrom, Observable, tap } from "rxjs";
+import { CaslAbilityFactory } from "./casl-ability.factory";
 import { Rule, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
 import { Reflector } from "@nestjs/core";
-import { Request } from "express";
 import { CaslHelper } from "./casl.helper";
 
 /*
@@ -44,30 +42,26 @@ Delete:
 export class CaslInterceptor implements NestInterceptor {
     private readonly logger: Logger = new Logger("CaslInterceptor");
 
+    private readonly handlers: Map<
+        RuleType,
+        (
+            ctx: ExecutionContext,
+            rule: Rule,
+            handler: () => Observable<any>
+        ) => Observable<any>
+    > =
+        new Map([
+            [RuleType.ReadOne, this.caslHelper.handleReadOneRule],
+            [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
+            [RuleType.Count, this.caslHelper.handleCountRule],
+            [RuleType.Custom, this.caslHelper.handleCustomRule],
+        ])
+
     constructor(
         private readonly reflector: Reflector,
         private readonly caslAbilityFactory: CaslAbilityFactory,
         private readonly caslHelper: CaslHelper
     ) {}
-
-    /**
-     * Retrieve the Express Request object from the current execution context. Currently only supports GraphQL and
-     *  HTTP execution contexts. If the execution context is set to something else, this will throw an Error.
-     * @param context Execution context to retrieve the Request object from.
-     * @throws Error if execution context type is not GraphQL or HTTP.
-     */
-    getRequest(context: ExecutionContext): Request {
-        if (context.getType<GqlContextType>() === "graphql") {
-            this.logger.verbose("CASL interceptor currently in GraphQL context.");
-            const gqlContext = GqlExecutionContext.create(context);
-            return gqlContext.getContext().req;
-        } else if (context.getType() === "http") {
-            this.logger.verbose("CASL interceptor currently in HTTP context.");
-            return context.switchToHttp().getRequest();
-        } else {
-            throw new Error(`CASL interceptor applied to unsupported context type ${context.getType()}`);
-        }
-    }
 
     /**
      * Format a Rule's name into a string that can be used to identify it in logs.
@@ -83,7 +77,7 @@ export class CaslInterceptor implements NestInterceptor {
         this.logger.verbose("CASL interceptor activated...");
 
         // Retrieve the Request object from the context. Currently only HTTP and GraphQL supported.
-        const req = this.getRequest(context);
+        const req = this.caslHelper.getRequest(context);
 
         // Generate the current user's permissions as of this request if they haven't been generated already.
         if (!req.permissions) {
@@ -94,66 +88,43 @@ export class CaslInterceptor implements NestInterceptor {
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
         const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
+
+        let nextRuleFn = next.handle;
+
         if (!rules || rules.length === 0) {
             this.logger.verbose("No rules applied for the given resource. Pass.");
-        } else for (const rule of rules) {
+        } else for(let i = rules.length - 1; i >= 0; i--) {
+            const rule = rules[i];
             const ruleNameStr = this.formatRuleName(rule);
-            this.logger.verbose(`Testing ${ruleNameStr} without value.`);
 
-            if (rule.type === RuleType.Custom) {
-                this.logger.verbose("Calling testCustomRule.");
-                if (this.caslHelper.testCustomRule(context, rule, req.permissions, value)) {
-                    this.logger.debug(`${ruleNameStr} function returned true. Passed.`);
-                    req.passed = true;
-                }
-            } else if (rule.type === RuleType.ReadOne) {
-                this.logger.verbose("Calling testReadOneRule.");
-                if (this.caslHelper.testReadOneRule(context, rule, req.permissions, value)) {
-                    this.logger.debug(`${ruleNameStr} passed.`);
-                    req.passed = true;
-                }
-            } else if (rule.type === RuleType.ReadMany) {
-                this.logger.verbose("Calling testReadManyRule.");
-                if (this.caslHelper.testReadManyRule(context, rule, req.permissions, value)) {
-                    this.logger.debug(`${ruleNameStr} passed.`);
-                    req.passed = true;
-                }
-            } else if (rule.type === RuleType.Count) {
-                this.logger.verbose("Calling testCountRule.");
-                if (this.caslHelper.testCountRule(context, rule, req.permissions)) {
-                    this.logger.debug(`${ruleNameStr} passed.`);
-                    req.passed = true;
-                }
-            } else if (
-                rule.type === RuleType.Create ||
-                rule.type === RuleType.Update ||
-                rule.type === RuleType.Delete
-            ) {
-                this.logger.verbose(
-                    `Received rule type ${rule.type}. This rule type is not supported for automatic testing via
-                    the @Rules() decorator.`
-                );
-            } else {
+            // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
+            const nextTemp = nextRuleFn;
+            const handler = this.handlers.get(rule.type);
+
+            if(!handler) {
                 throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
             }
 
-            // If the rule failed, throw a ForbiddenException. We check for req.passed because for create/update/delete
-            //  rules, we can't check all necessary permissions within the interceptor. They have to be checked in the
-            //  resolver, and the resolver can then set "passed" to true. This is a failsafe to make sure no resolvers
-            //  have unimplemented permission checks.
-            if(!req.passed) {
-                this.logger.debug(`${ruleNameStr} failed. Throwing ForbiddenException.`);
-                throw new ForbiddenException();
+            nextRuleFn = () => {
+                this.logger.verbose(`Initializing rule handler for ${ruleNameStr}`);
+                return handler(context, rule, nextTemp).pipe(tap((value) => {
+                    this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
+
+                    // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
+                    //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
+                    //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
+                    if(!req.passed) {
+                        this.logger.debug(`${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`);
+                        throw new ForbiddenException();
+                    }
+
+                    // Reset req.passed context variable.
+                    delete req.passed;
+                    return value;
+                }))
             }
         }
 
-        this.testRules(context, rules, req.permissions);
-        const value = await firstValueFrom(next.handle());
-        this.logger.verbose("Method completed.");
-        // Re-apply rules but with the actual return value passed in.
-        // Note that conditional permission checks are limited to actual fields and not computed fields via
-        //  @ResolveField(). There is no reasonable way to check these values for permissions.
-        this.testRules(context, rules, req.permissions, value);
-        return value;
+        return firstValueFrom(nextRuleFn());
     }
 }
