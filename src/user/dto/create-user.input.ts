@@ -1,6 +1,6 @@
-import {Field, InputType, OmitType} from "@nestjs/graphql";
+import { Field, InputType, OmitType } from "@nestjs/graphql";
 import { User } from "../user.entity";
-import {IsOptional, IsString, MinLength} from "class-validator";
+import { IsOptional, IsString, MinLength } from "class-validator";
 
 /**
  * Input type for createUser mutation
@@ -15,5 +15,4 @@ export class CreateUserInput extends OmitType(User, ["id", "joined" /* TODO 'per
     @MinLength(8)
     @IsOptional()
     password: string | null;
-
 }
