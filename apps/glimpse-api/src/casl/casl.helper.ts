@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
+import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { Rule, RuleType } from "./rules.decorator";
 import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
@@ -459,8 +459,8 @@ export class CaslHelper {
     public handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
         rule: Rule,
-        handler: () => Observable<T|null>
-    ): Observable<T|null> {
+        handler: () => Observable<T | null>
+    ): Observable<T | null> {
         if (rule.type !== RuleType.ReadOne) {
             throw new Error(`Cannot test rule of type "${rule.type}" with handleReadOneRule.`);
         }
@@ -469,7 +469,7 @@ export class CaslHelper {
         }
 
         const req = this.getRequest(context);
-        if(!req.permissions) {
+        if (!req.permissions) {
             throw new Error("User permissions not initialized.");
         }
 
@@ -504,46 +504,46 @@ export class CaslHelper {
         }
 
         // Call next rule, or resolver/handler if no more rules.
-        return handler().pipe(map((value) => {
-
-            // If the value is nullish, there's no value to check, so just return null.
-            if (value === null || value === undefined) {
-                req.passed = true;
-                return null;
-            }
-
-            // Repeat previous tests with the value as the subject.
-
-            const subjectObj = subject(subjectStr, value);
-
-            if(!req.permissions.can(action, subjectObj)) {
-                req.passed = false;
-                return null;
-            }
-
-            // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
-            //  post-resolver, which is done here.
-            if(context.getType<GqlContextType>() !== "graphql") {
-                Object.keys(value).forEach(v => fields.add(v));
-
-                // Remove any specifically excluded fields from the list of fields.
-                if (rule.options?.excludeFields) {
-                    rule.options.excludeFields.forEach((v) => fields.delete(v));
+        return handler().pipe(
+            map((value) => {
+                // If the value is nullish, there's no value to check, so just return null.
+                if (value === null || value === undefined) {
+                    req.passed = true;
+                    return null;
                 }
-            }
 
-            // Test the ability against each requested field with subject value.
-            for (const field of fields) {
-                if (!req.permissions.can(action, subjectObj, field)) {
+                // Repeat previous tests with the value as the subject.
+
+                const subjectObj = subject(subjectStr, value);
+
+                if (!req.permissions.can(action, subjectObj)) {
                     req.passed = false;
                     return null;
                 }
-            }
 
-            req.passed = true;
-            return value;
-        }))
+                // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
+                //  post-resolver, which is done here.
+                if (context.getType<GqlContextType>() !== "graphql") {
+                    Object.keys(value).forEach((v) => fields.add(v));
 
+                    // Remove any specifically excluded fields from the list of fields.
+                    if (rule.options?.excludeFields) {
+                        rule.options.excludeFields.forEach((v) => fields.delete(v));
+                    }
+                }
+
+                // Test the ability against each requested field with subject value.
+                for (const field of fields) {
+                    if (!req.permissions.can(action, subjectObj, field)) {
+                        req.passed = false;
+                        return null;
+                    }
+                }
+
+                req.passed = true;
+                return value;
+            })
+        );
     }
 
     /**
@@ -606,9 +606,8 @@ export class CaslHelper {
     public handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
         rule: Rule,
-        handler: () => Observable<T[]|null>
-    ): Observable<T[]|null> {
-
+        handler: () => Observable<T[] | null>
+    ): Observable<T[] | null> {
         if (rule.type !== RuleType.ReadMany) {
             throw new Error(`Cannot test rule of type "${rule.type}" with handleReadManyRule.`);
         }
@@ -617,7 +616,7 @@ export class CaslHelper {
         }
 
         const req = this.getRequest(context);
-        if(!req.permissions) {
+        if (!req.permissions) {
             throw new Error("User permissions not initialized.");
         }
 
@@ -629,7 +628,6 @@ export class CaslHelper {
             req.passed = false;
             return of(null);
         }
-
 
         // Make sure user has permission to sort by the fields which they are sorting by.
         const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
@@ -653,12 +651,9 @@ export class CaslHelper {
             }
         }
 
-        if (!this.canPaginate(
-            context,
-            req.permissions,
-            subjectStr,
-            rule.options?.paginationInputName ?? "pagination"
-        )) {
+        if (
+            !this.canPaginate(context, req.permissions, subjectStr, rule.options?.paginationInputName ?? "pagination")
+        ) {
             this.logger.debug(
                 `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the 
                 subject "${subjectStr}".`
@@ -689,53 +684,54 @@ export class CaslHelper {
         }
 
         // Call next rule, or resolver/handler if no more rules.
-        return handler().pipe(map((values) => {
-
-            // If the value is nullish, there's no value to check, so just return null.
-            if (values === null || values === undefined) {
-                req.passed = true;
-                return null;
-            }
-
-            // Repeat previous tests with the values as the subject.
-
-            for(const value of values) {
-                const subjectObj = subject(subjectStr, value);
-                if(!req.permissions.can(action, subjectObj)) {
-                    req.passed = false;
+        return handler().pipe(
+            map((values) => {
+                // If the value is nullish, there's no value to check, so just return null.
+                if (values === null || values === undefined) {
+                    req.passed = true;
                     return null;
                 }
 
-                // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
-                //  post-resolver, which is done here.
-                if(context.getType<GqlContextType>() !== "graphql") {
-                    Object.keys(value).forEach(v => fields.add(v));
+                // Repeat previous tests with the values as the subject.
 
-                    // Remove any specifically excluded fields from the list of fields.
-                    if (rule.options?.excludeFields) {
-                        rule.options.excludeFields.forEach((v) => fields.delete(v));
+                for (const value of values) {
+                    const subjectObj = subject(subjectStr, value);
+                    if (!req.permissions.can(action, subjectObj)) {
+                        req.passed = false;
+                        return null;
                     }
-                }
 
-                // Test the ability against each requested field with subject value.
-                for (const field of fields) {
-                    if (!req.permissions.can(action, subjectObj, field)) {
-                        // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
-                        //  will be set to null. The user won't necessarily know (as of now) whether the field is
-                        //  actually null, or they just can't read it.
-                        if (rule.options?.strict ?? false) {
-                            req.passed = false;
-                            return null;
-                        } else {
-                            value[field] = null;
+                    // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
+                    //  post-resolver, which is done here.
+                    if (context.getType<GqlContextType>() !== "graphql") {
+                        Object.keys(value).forEach((v) => fields.add(v));
+
+                        // Remove any specifically excluded fields from the list of fields.
+                        if (rule.options?.excludeFields) {
+                            rule.options.excludeFields.forEach((v) => fields.delete(v));
+                        }
+                    }
+
+                    // Test the ability against each requested field with subject value.
+                    for (const field of fields) {
+                        if (!req.permissions.can(action, subjectObj, field)) {
+                            // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
+                            //  will be set to null. The user won't necessarily know (as of now) whether the field is
+                            //  actually null, or they just can't read it.
+                            if (rule.options?.strict ?? false) {
+                                req.passed = false;
+                                return null;
+                            } else {
+                                value[field] = null;
+                            }
                         }
                     }
                 }
-            }
 
-            req.passed = true;
-            return values;
-        }))
+                req.passed = true;
+                return values;
+            })
+        );
     }
 
     /**
@@ -778,8 +774,8 @@ export class CaslHelper {
     public handleCountRule(
         context: ExecutionContext,
         rule: Rule,
-        handler: () => Observable<number|null>
-    ): Observable<number|null> {
+        handler: () => Observable<number | null>
+    ): Observable<number | null> {
         if (rule.type !== RuleType.Count) {
             throw new Error(`Cannot test rule of type "${rule.type}" with handleCountRule.`);
         }
