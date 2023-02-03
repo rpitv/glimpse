@@ -62,6 +62,8 @@ export class CaslAbilityFactory {
                 if (value === "\\$id") {
                     return "$id";
                 }
+
+                return value;
             });
         }
 
