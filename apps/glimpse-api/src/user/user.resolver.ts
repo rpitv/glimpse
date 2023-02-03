@@ -11,8 +11,8 @@ import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
-import {Request} from "express";
-import {AuthService} from "../auth/auth.service";
+import { Request } from "express";
+import { AuthService } from "../auth/auth.service";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -24,7 +24,7 @@ export class UserResolver {
     @Query(() => [User], { complexity: Complexities.FindMany })
     @Rules(RuleType.ReadMany, User)
     async findManyUser(
-        @Context() ctx: {req: Request},
+        @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
         @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
@@ -51,7 +51,7 @@ export class UserResolver {
 
     @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rules(RuleType.ReadOne, User)
-    async findOneUser(@Context() ctx: {req: Request}, @Args("id", { type: () => Int }) id: number): Promise<User> {
+    async findOneUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return ctx.req.prismaTx.user.findFirst({
             where: {
@@ -63,7 +63,7 @@ export class UserResolver {
     @Mutation(() => User)
     @Rules(RuleType.Create, User)
     async createUser(
-        @Context() ctx: {req: Request},
+        @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
     ): Promise<User> {
         this.logger.verbose("createUser resolver called");
@@ -75,7 +75,7 @@ export class UserResolver {
         }
 
         // Hash the password if it is provided.
-        if(input.password) {
+        if (input.password) {
             input.password = await this.authService.hashPassword(input.password);
         }
 
@@ -111,7 +111,7 @@ export class UserResolver {
     @Query(() => Int)
     @Rules(RuleType.Count, User)
     async userCount(
-        @Context() ctx: {req: Request},
+        @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
     ): Promise<number> {
         return ctx.req.prismaTx.user.count({
