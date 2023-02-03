@@ -44,18 +44,13 @@ export class CaslInterceptor implements NestInterceptor {
 
     private readonly handlers: Map<
         RuleType,
-        (
-            ctx: ExecutionContext,
-            rule: Rule,
-            handler: () => Observable<any>
-        ) => Observable<any>
-    > =
-        new Map([
-            [RuleType.ReadOne, this.caslHelper.handleReadOneRule],
-            [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
-            [RuleType.Count, this.caslHelper.handleCountRule],
-            [RuleType.Custom, this.caslHelper.handleCustomRule],
-        ])
+        (ctx: ExecutionContext, rule: Rule, handler: () => Observable<any>) => Observable<any>
+    > = new Map([
+        [RuleType.ReadOne, this.caslHelper.handleReadOneRule],
+        [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
+        [RuleType.Count, this.caslHelper.handleCountRule],
+        [RuleType.Custom, this.caslHelper.handleCustomRule]
+    ]);
 
     constructor(
         private readonly reflector: Reflector,
@@ -88,42 +83,46 @@ export class CaslInterceptor implements NestInterceptor {
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
         const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
 
-
         let nextRuleFn = next.handle;
 
         if (!rules || rules.length === 0) {
             this.logger.verbose("No rules applied for the given resource. Pass.");
-        } else for(let i = rules.length - 1; i >= 0; i--) {
-            const rule = rules[i];
-            const ruleNameStr = this.formatRuleName(rule);
+        } else
+            for (let i = rules.length - 1; i >= 0; i--) {
+                const rule = rules[i];
+                const ruleNameStr = this.formatRuleName(rule);
 
-            // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
-            const nextTemp = nextRuleFn;
-            const handler = this.handlers.get(rule.type);
+                // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
+                const nextTemp = nextRuleFn;
+                const handler = this.handlers.get(rule.type);
 
-            if(!handler) {
-                throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
+                if (!handler) {
+                    throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
+                }
+
+                nextRuleFn = () => {
+                    this.logger.verbose(`Initializing rule handler for ${ruleNameStr}`);
+                    return handler(context, rule, nextTemp).pipe(
+                        tap((value) => {
+                            this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
+
+                            // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
+                            //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
+                            //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
+                            if (!req.passed) {
+                                this.logger.debug(
+                                    `${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
+                                );
+                                throw new ForbiddenException();
+                            }
+
+                            // Reset req.passed context variable.
+                            delete req.passed;
+                            return value;
+                        })
+                    );
+                };
             }
-
-            nextRuleFn = () => {
-                this.logger.verbose(`Initializing rule handler for ${ruleNameStr}`);
-                return handler(context, rule, nextTemp).pipe(tap((value) => {
-                    this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
-
-                    // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
-                    //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
-                    //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
-                    if(!req.passed) {
-                        this.logger.debug(`${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`);
-                        throw new ForbiddenException();
-                    }
-
-                    // Reset req.passed context variable.
-                    delete req.passed;
-                    return value;
-                }))
-            }
-        }
 
         return firstValueFrom(nextRuleFn());
     }
