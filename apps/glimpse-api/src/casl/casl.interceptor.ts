@@ -48,7 +48,8 @@ export class CaslInterceptor implements NestInterceptor {
         [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
         [RuleType.Count, this.caslHelper.handleCountRule],
         [RuleType.Custom, this.caslHelper.handleCustomRule],
-        [RuleType.Create, this.caslHelper.handleCreateRule]
+        [RuleType.Create, this.caslHelper.handleCreateRule],
+        [RuleType.Update, this.caslHelper.handleUpdateRule]
     ]);
 
     constructor(
