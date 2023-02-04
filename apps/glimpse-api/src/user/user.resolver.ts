@@ -1,8 +1,8 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
-import { User } from "./user.entity";
-import { CreateUserInput } from "./dto/create-user.input";
-import { UpdateUserInput } from "./dto/update-user.input";
-import { validate } from "class-validator";
+import {Resolver, Query, Mutation, Args, Int, Context} from "@nestjs/graphql";
+import {User} from "./user.entity";
+import {CreateUserInput} from "./dto/create-user.input";
+import {UpdateUserInput} from "./dto/update-user.input";
+import {validate} from "class-validator";
 import {plainToClass} from "class-transformer";
 import {BadRequestException, Logger, Session} from "@nestjs/common";
 import {Rules, RuleType} from "../casl/rules.decorator";
@@ -110,7 +110,7 @@ export class UserResolver {
         });
 
         if (!userToUpdate) {
-            throw new BadRequestException("User not found")
+            throw new BadRequestException("User not found");
         }
 
         // Make sure the user has permission to update all the fields they are trying to update, given the object's
@@ -138,12 +138,33 @@ export class UserResolver {
     @Mutation(() => User)
     @Rules(RuleType.Delete, User)
     async deleteUser(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
-        @Args("id", { type: () => Int }) id: number
+        @Context() ctx: { req: Request },
+        @Args("id", {type: () => Int}) id: number
     ): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
-        // TODO
-        return new User();
+
+        const userToDelete = await ctx.req.prismaTx.user.findFirst({
+            where: {
+                AND: [{id}, accessibleBy(ctx.req.permissions).User]
+            }
+        });
+
+        if (!userToDelete) {
+            throw new BadRequestException("User not found");
+        }
+
+        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
+        //  handle this after the object has been deleted, but this saves an extra database call.
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("User", userToDelete))) {
+            ctx.req.passed = false;
+            return null;
+        }
+
+        return ctx.req.prismaTx.user.delete({
+            where: {
+                id
+            }
+        });
     }
 
     @Query(() => Int)
