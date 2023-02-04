@@ -1,8 +1,12 @@
-import { AbilityAction, AbilitySubjects } from "./casl-ability.factory";
-import { ExecutionContext, SetMetadata } from "@nestjs/common";
-import { Observable } from "rxjs";
+import {AbilitySubjects} from "./casl-ability.factory";
+import {ExecutionContext, SetMetadata} from "@nestjs/common";
+import {Observable} from "rxjs";
 
-export type RuleFn<T = any> = (context: ExecutionContext, rule: Rule, handler: () => Observable<T>) => Observable<T>;
+export type RuleFn<T = any> = (context: ExecutionContext, rule: RuleDef, handler: () => Observable<T>) => Observable<T>;
+export type RuleDef =
+    [RuleType.Custom, RuleFn, RuleOptions?]
+    | [Exclude<RuleType, RuleType.Custom>, AbilitySubjects, RuleOptions?];
+
 export enum RuleType {
     ReadOne = "ReadOne",
     ReadMany = "ReadMany",
@@ -12,17 +16,7 @@ export enum RuleType {
     Count = "Count",
     Custom = "Custom"
 }
-export type Rule =
-    | {
-          rule: RuleFn;
-          type: RuleType.Custom;
-          options?: RuleOptions;
-      }
-    | {
-          rule: [AbilityAction, AbilitySubjects];
-          type: Exclude<RuleType, RuleType.Custom>;
-          options?: RuleOptions;
-      };
+
 export type RuleOptions = {
     name?: string;
     excludeFields?: string[];
@@ -35,58 +29,18 @@ export type RuleOptions = {
 };
 export const RULES_METADATA_KEY = "casl_rule";
 
-function Rules(type: RuleType.Custom, rule: RuleFn, options?: RuleOptions);
-function Rules(type: Exclude<RuleType, RuleType.Custom>, subject: AbilitySubjects, options?: RuleOptions);
-function Rules(type: Exclude<RuleType, RuleType.Custom>, rule: [AbilityAction, AbilitySubjects], options?: RuleOptions);
-function Rules(rules: Rule[]);
-function Rules(...args: any[]) {
-    // Array of rules
+function Rule(type: RuleType.Custom, fn: RuleFn, options?: RuleOptions);
+function Rule(type: Exclude<RuleType, RuleType.Custom>, subject: AbilitySubjects, options?: RuleOptions);
+function Rule(rules: RuleDef[]);
+function Rule(...args: any) {
+    // Multiple rule definitions supplied
     if (Array.isArray(args[0])) {
-        return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, args[0]);
+        return SetMetadata<string, RuleDef[]>(RULES_METADATA_KEY, args[0]);
     }
 
+    // Single rule definition supplied
     args[2] ||= {};
-
-    // Single rule
-    // Custom function-based rules and rules with an explicitly defined
-    //  action type require no processing.
-    if (args[0] === RuleType.Custom || Array.isArray(args[1])) {
-        // Default rule name based on the requirements if it wasn't supplied
-        if (args[0] === RuleType.Custom) {
-            args[2].name ||= "Custom rule";
-        } else {
-            args[2].name ||= `${args[0]} (${args[1][0]}) ${args[1][1]}`;
-        }
-
-        return SetMetadata<string, Rule>(RULES_METADATA_KEY, {
-            type: args[0],
-            rule: args[1],
-            options: args[2]
-        });
-    }
-
-    // Supplying action is often redundant since it's already in the RuleType,
-    //  so optionally the user can just pass a subject instead and we'll
-    //  infer the action from the RuleType.
-    let inferredAction = args[0];
-    if (
-        inferredAction === RuleType.ReadMany ||
-        inferredAction === RuleType.ReadOne ||
-        inferredAction === RuleType.Count
-    ) {
-        inferredAction = AbilityAction.Read;
-    }
-    inferredAction = inferredAction.toLowerCase() as AbilityAction;
-    // Default rule name based on the requirements if it wasn't supplied
-    args[2].name ||= `${args[0]} ${args[1].modelName || args[1].name || args[1]}`;
-
-    return SetMetadata<string, Rule[]>(RULES_METADATA_KEY, [
-        {
-            type: args[0],
-            rule: [inferredAction, args[1]],
-            options: args[2]
-        }
-    ]);
+    return SetMetadata<string, RuleDef[]>(RULES_METADATA_KEY, [args]);
 }
 
-export { Rules };
+export {Rule};

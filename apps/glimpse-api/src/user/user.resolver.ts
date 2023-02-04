@@ -5,7 +5,7 @@ import {UpdateUserInput} from "./dto/update-user.input";
 import {validate} from "class-validator";
 import {plainToClass} from "class-transformer";
 import {BadRequestException, Logger, Session} from "@nestjs/common";
-import {Rules, RuleType} from "../casl/rules.decorator";
+import {Rule, RuleType} from "../casl/rules.decorator";
 import {accessibleBy} from "@casl/prisma";
 import {FilterUserInput} from "./dto/filter-user.input";
 import {OrderUserInput} from "./dto/order-user.input";
@@ -26,12 +26,12 @@ export class UserResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [User], {complexity: Complexities.FindMany})
-    @Rules(RuleType.ReadMany, User)
+    @Rule(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
-        @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
-        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+        @Args("filter", {type: () => FilterUserInput, nullable: true}) filter?: FilterUserInput,
+        @Args("order", {type: () => [OrderUserInput], nullable: true}) order?: OrderUserInput[],
+        @Args("pagination", {type: () => PaginationInput, nullable: true}) pagination?: PaginationInput
     ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
@@ -49,23 +49,23 @@ export class UserResolver {
             orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+            cursor: pagination?.cursor ? {id: pagination.cursor} : undefined
         });
     }
 
-    @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
-    @Rules(RuleType.ReadOne, User)
-    async findOneUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
+    @Query(() => User, {nullable: true, complexity: Complexities.FindOne})
+    @Rule(RuleType.ReadOne, User)
+    async findOneUser(@Context() ctx: { req: Request }, @Args("id", {type: () => Int}) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return ctx.req.prismaTx.user.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
+                AND: [{id}, accessibleBy(ctx.req.permissions).User]
             }
         });
     }
 
     @Mutation(() => User)
-    @Rules(RuleType.Create, User)
+    @Rule(RuleType.Create, User)
     async createUser(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
@@ -89,7 +89,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @Rules(RuleType.Update, User)
+    @Rule(RuleType.Update, User)
     async updateUser(
         @Context() ctx: { req: Request },
         @Args("id", {type: () => Int}) id: number,
@@ -136,11 +136,8 @@ export class UserResolver {
     }
 
     @Mutation(() => User)
-    @Rules(RuleType.Delete, User)
-    async deleteUser(
-        @Context() ctx: { req: Request },
-        @Args("id", {type: () => Int}) id: number
-    ): Promise<User> {
+    @Rule(RuleType.Delete, User)
+    async deleteUser(@Context() ctx: { req: Request }, @Args("id", {type: () => Int}) id: number): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
 
         const userToDelete = await ctx.req.prismaTx.user.findFirst({
@@ -168,7 +165,7 @@ export class UserResolver {
     }
 
     @Query(() => Int)
-    @Rules(RuleType.Count, User)
+    @Rule(RuleType.Count, User)
     async userCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
@@ -182,8 +179,8 @@ export class UserResolver {
 
     // -------------------- Unique Resolvers --------------------
 
-    @Query(() => User, { nullable: true })
-    @Rules(RuleType.ReadOne, User, { name: "Read one user (self)" })
+    @Query(() => User, {nullable: true})
+    @Rule(RuleType.ReadOne, User, {name: "Read one user (self)"})
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;

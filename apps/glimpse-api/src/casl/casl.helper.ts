@@ -1,13 +1,13 @@
-import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "./rules.decorator";
-import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
-import { subject } from "@casl/ability";
-import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import { GraphQLResolveInfo } from "graphql/type";
-import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
+import {ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
+import {RuleDef, RuleType} from "./rules.decorator";
+import {AbilityAction, AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
+import {subject} from "@casl/ability";
+import {GqlContextType, GqlExecutionContext} from "@nestjs/graphql";
+import {GraphQLResolveInfo} from "graphql/type";
+import {EnumValueNode, IntValueNode, Kind, visit} from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
-import { map, Observable, of } from "rxjs";
-import { Request } from "express";
+import {map, Observable, of} from "rxjs";
+import {Request} from "express";
 
 @Injectable()
 export class CaslHelper {
@@ -483,17 +483,14 @@ export class CaslHelper {
      */
     public handleCustomRule<T = any>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T>
     ): Observable<T> {
-        if (rule.type !== RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with testCustomRule.`);
-        }
-        if (typeof rule.rule !== "function") {
-            throw new Error("Cannot test rule with a tuple with testCustomRule.");
+        if (rule[0] !== RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with testCustomRule.`);
         }
 
-        return rule.rule(context, rule, handler);
+        return rule[1](context, rule, handler);
     }
 
     /**
@@ -523,19 +520,15 @@ export class CaslHelper {
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
      * @throws Error if the rule type is not {@link RuleType.ReadOne}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule.type !== RuleType.ReadOne) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleReadOneRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleReadOneRule.");
+        if (rule[0] !== RuleType.ReadOne) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -543,11 +536,10 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
             req.passed = false;
             return of(null);
         }
@@ -560,13 +552,13 @@ export class CaslHelper {
             this.getSelectedFields(info).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
-            if (rule.options?.excludeFields) {
-                rule.options.excludeFields.forEach((v) => fields.delete(v));
+            if (rule[2]?.excludeFields) {
+                rule[2].excludeFields.forEach((v) => fields.delete(v));
             }
 
             // Test the ability against each requested field
             for (const field of fields) {
-                if (!req.permissions.can(action, subjectStr, field)) {
+                if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
                     req.passed = false;
                     return of(null);
                 }
@@ -591,7 +583,7 @@ export class CaslHelper {
 
                 const subjectObj = subject(subjectStr, value);
 
-                if (!req.permissions.can(action, subjectObj)) {
+                if (!req.permissions.can(AbilityAction.Read, subjectObj)) {
                     req.passed = false;
                     return null;
                 }
@@ -602,14 +594,14 @@ export class CaslHelper {
                     Object.keys(value).forEach((v) => fields.add(v));
 
                     // Remove any specifically excluded fields from the list of fields.
-                    if (rule.options?.excludeFields) {
-                        rule.options.excludeFields.forEach((v) => fields.delete(v));
+                    if (rule[2]?.excludeFields) {
+                        rule[2].excludeFields.forEach((v) => fields.delete(v));
                     }
                 }
 
                 // Test the ability against each requested field with subject value.
                 for (const field of fields) {
-                    if (!req.permissions.can(action, subjectObj, field)) {
+                    if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
                         req.passed = false;
                         return null;
                     }
@@ -675,19 +667,15 @@ export class CaslHelper {
      *  be returned and {@link Request#passed} will be set to false. It is only when the user has permission to read the
      *  field on some objects of the given type that the strict mode behavior will differ.
      * @throws Error if the rule type is not {@link RuleType.ReadMany}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T[] | null>
     ): Observable<T[] | null> {
-        if (rule.type !== RuleType.ReadMany) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleReadManyRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleReadManyRule.");
+        if (rule[0] !== RuleType.ReadMany) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadManyRule.`);
         }
 
         const req = this.getRequest(context);
@@ -695,17 +683,16 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
             req.passed = false;
             return of(null);
         }
 
         // Make sure user has permission to sort by the fields which they are sorting by.
-        const sortingFields = this.getSortingFields(context, rule.options?.orderInputName ?? "order");
+        const sortingFields = this.getSortingFields(context, rule[2]?.orderInputName ?? "order");
         for (const field of sortingFields) {
             // Sort actions cannot have conditions, and cannot be applied to subject values.
             // TODO make sure the user has no sort permissions that have conditions
@@ -716,7 +703,7 @@ export class CaslHelper {
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        const filteringFields = this.getFilteringFields(context, rule[2]?.filterInputName ?? "filter");
         for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
             // TODO make sure the user has no filter permissions that have conditions
@@ -727,7 +714,7 @@ export class CaslHelper {
         }
 
         if (
-            !this.canPaginate(context, req.permissions, subjectStr, rule.options?.paginationInputName ?? "pagination")
+            !this.canPaginate(context, req.permissions, subjectStr, rule[2]?.paginationInputName ?? "pagination")
         ) {
             this.logger.debug(
                 `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the 
@@ -745,13 +732,13 @@ export class CaslHelper {
             this.getSelectedFields(info).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
-            if (rule.options?.excludeFields) {
-                rule.options.excludeFields.forEach((v) => fields.delete(v));
+            if (rule[2]?.excludeFields) {
+                rule[2].excludeFields.forEach((v) => fields.delete(v));
             }
 
             // Test the ability against each requested field
             for (const field of fields) {
-                if (!req.permissions.can(action, subjectStr, field)) {
+                if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
                     req.passed = false;
                     return of(null);
                 }
@@ -776,7 +763,7 @@ export class CaslHelper {
 
                 for (const value of values) {
                     const subjectObj = subject(subjectStr, value);
-                    if (!req.permissions.can(action, subjectObj)) {
+                    if (!req.permissions.can(AbilityAction.Read, subjectObj)) {
                         req.passed = false;
                         return null;
                     }
@@ -787,18 +774,18 @@ export class CaslHelper {
                         Object.keys(value).forEach((v) => fields.add(v));
 
                         // Remove any specifically excluded fields from the list of fields.
-                        if (rule.options?.excludeFields) {
-                            rule.options.excludeFields.forEach((v) => fields.delete(v));
+                        if (rule[2]?.excludeFields) {
+                            rule[2].excludeFields.forEach((v) => fields.delete(v));
                         }
                     }
 
                     // Test the ability against each requested field with subject value.
                     for (const field of fields) {
-                        if (!req.permissions.can(action, subjectObj, field)) {
+                        if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
                             // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
                             //  will be set to null. The user won't necessarily know (as of now) whether the field is
                             //  actually null, or they just can't read it.
-                            if (rule.options?.strict ?? false) {
+                            if (rule[2]?.strict ?? false) {
                                 req.passed = false;
                                 return null;
                             } else {
@@ -844,19 +831,15 @@ export class CaslHelper {
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
      * @throws Error if the rule type is not {@link RuleType.Count}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCountRule(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<number | null>
     ): Observable<number | null> {
-        if (rule.type !== RuleType.Count) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleCountRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleCountRule.");
+        if (rule[0] !== RuleType.Count) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleCountRule.`);
         }
 
         const req = this.getRequest(context);
@@ -864,17 +847,16 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
             req.passed = false;
             return of(null);
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        const filteringFields = this.getFilteringFields(context, rule.options?.filterInputName ?? "filter");
+        const filteringFields = this.getFilteringFields(context, rule[2]?.filterInputName ?? "filter");
         for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
             // TODO make sure the user has no filter permissions that have conditions
@@ -915,19 +897,15 @@ export class CaslHelper {
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
      * @throws Error if the rule type is not {@link RuleType.Create}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCreateRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule.type !== RuleType.Create) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleCreateRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleCreateRule.");
+        if (rule[0] !== RuleType.Create) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleCreateRule.`);
         }
 
         const req = this.getRequest(context);
@@ -935,20 +913,19 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Create, subjectStr)) {
             req.passed = false;
             return of(null);
         }
 
-        const inputFields = this.getInputFields(context, rule.options?.inputName ?? "input");
+        const inputFields = this.getInputFields(context, rule[2]?.inputName ?? "input");
 
         // Make sure user can create an object with the fields they've supplied.
         for (const field of inputFields) {
-            if (!req.permissions.can(action, subjectStr, field)) {
+            if (!req.permissions.can(AbilityAction.Create, subjectStr, field)) {
                 req.passed = false;
                 return of(null);
             }
@@ -967,7 +944,7 @@ export class CaslHelper {
 
                 // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
                 for (const field of Object.keys(newValue)) {
-                    if (!req.permissions.can(action, subjectObj, field)) {
+                    if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
                         req.passed = false;
                         return null;
                     }
@@ -1005,19 +982,15 @@ export class CaslHelper {
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
      * @throws Error if the rule type is not {@link RuleType.Update}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleUpdateRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule.type !== RuleType.Update) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleUpdateRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleUpdateRule.");
+        if (rule[0] !== RuleType.Update) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleUpdateRule.`);
         }
 
         const req = this.getRequest(context);
@@ -1025,20 +998,19 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Update, subjectStr)) {
             req.passed = false;
             return of(null);
         }
 
-        const inputFields = this.getInputFields(context, rule.options?.inputName ?? "input");
+        const inputFields = this.getInputFields(context, rule[2]?.inputName ?? "input");
 
         // Make sure user can update an object with the fields they've supplied.
         for (const field of inputFields) {
-            if (!req.permissions.can(action, subjectStr, field)) {
+            if (!req.permissions.can(AbilityAction.Update, subjectStr, field)) {
                 req.passed = false;
                 return of(null);
             }
@@ -1062,7 +1034,7 @@ export class CaslHelper {
                 // Check that the user has permission to update TO an object like this one. If not, prisma tx will roll
                 //  back.
                 for (const field of inputFields) {
-                    if (!req.permissions.can(action, subjectObj, field)) {
+                    if (!req.permissions.can(AbilityAction.Update, subjectObj, field)) {
                         req.passed = false;
                         return null;
                     }
@@ -1099,19 +1071,15 @@ export class CaslHelper {
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
      * @throws Error if the rule type is not {@link RuleType.Delete}.
-     * @throws Error if the rule definition is a {@link RuleFn}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleDeleteRule<T extends Exclude<AbilitySubjects, string>>(
         context: ExecutionContext,
-        rule: Rule,
+        rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule.type !== RuleType.Delete) {
-            throw new Error(`Cannot test rule of type "${rule.type}" with handleDeleteRule.`);
-        }
-        if (typeof rule.rule === "function") {
-            throw new Error("Cannot test rule with a RuleFn with handleDeleteRule.");
+        if (rule[0] !== RuleType.Delete) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleDeleteRule.`);
         }
 
         const req = this.getRequest(context);
@@ -1119,11 +1087,10 @@ export class CaslHelper {
             throw new Error("User permissions not initialized.");
         }
 
-        const [action, subjectSrc] = rule.rule;
-        const subjectStr = this.getSubjectAsString(subjectSrc);
+        const subjectStr = this.getSubjectAsString(rule[1]);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(action, subjectStr)) {
+        if (!req.permissions.can(AbilityAction.Delete, subjectStr)) {
             req.passed = false;
             return of(null);
         }
@@ -1145,7 +1112,7 @@ export class CaslHelper {
                 //  transaction at this point. However, if the user doesn't have permission, it'll be rolled back.
                 //  The resolver can also do this before executing the deletion query. See the FIX-ME above.
                 const subjectObj = subject(subjectStr, newValue);
-                if (!req.permissions.can(action, subjectObj)) {
+                if (!req.permissions.can(AbilityAction.Delete, subjectObj)) {
                     req.passed = false;
                     return null;
                 }
