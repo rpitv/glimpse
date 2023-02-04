@@ -3,25 +3,29 @@ import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
 import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger, Session } from "@nestjs/common";
-import { Rules, RuleType } from "../casl/rules.decorator";
-import { accessibleBy } from "@casl/prisma";
-import { FilterUserInput } from "./dto/filter-user.input";
-import { OrderUserInput } from "./dto/order-user.input";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger, Session} from "@nestjs/common";
+import {Rules, RuleType} from "../casl/rules.decorator";
+import {accessibleBy} from "@casl/prisma";
+import {FilterUserInput} from "./dto/filter-user.input";
+import {OrderUserInput} from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
-import { Complexities } from "../gql-complexity.plugin";
-import { Request } from "express";
-import { AuthService } from "../auth/auth.service";
+import {Complexities} from "../gql-complexity.plugin";
+import {Request} from "express";
+import {AuthService} from "../auth/auth.service";
+import {AbilityAction} from "../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
-    constructor(private readonly authService: AuthService) {}
+
+    constructor(private readonly authService: AuthService) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [User], { complexity: Complexities.FindMany })
+    @Query(() => [User], {complexity: Complexities.FindMany})
     @Rules(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: { req: Request },
@@ -87,14 +91,48 @@ export class UserResolver {
     @Mutation(() => User)
     @Rules(RuleType.Update, User)
     async updateUser(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
-        @Args("id", { type: () => Int }) id: number,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FIXME
-        @Args("input", { type: () => UpdateUserInput }) input: UpdateUserInput
+        @Context() ctx: { req: Request },
+        @Args("id", {type: () => Int}) id: number,
+        @Args("input", {type: () => UpdateUserInput}) input: UpdateUserInput
     ): Promise<User> {
         this.logger.verbose("updateUser resolver called");
-        // TODO
-        return new User();
+        input = plainToClass(CreateUserInput, input);
+        const errors = await validate(input, {skipMissingProperties: true});
+        if (errors.length > 0) {
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            throw new BadRequestException(firstErrorFirstConstraint);
+        }
+
+        const userToUpdate = await ctx.req.prismaTx.user.findFirst({
+            where: {
+                AND: [{id}, accessibleBy(ctx.req.permissions).User]
+            }
+        });
+
+        if (!userToUpdate) {
+            throw new BadRequestException("User not found")
+        }
+
+        // Make sure the user has permission to update all the fields they are trying to update, given the object's
+        //  current state.
+        for (const field of Object.keys(input)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("User", userToUpdate), field)) {
+                ctx.req.passed = false;
+                return null;
+            }
+        }
+
+        // Hash the password if it is provided.
+        if (input.password) {
+            input.password = await this.authService.hashPassword(input.password);
+        }
+
+        return ctx.req.prismaTx.user.update({
+            where: {
+                id
+            },
+            data: input
+        });
     }
 
     @Mutation(() => User)
