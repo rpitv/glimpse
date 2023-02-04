@@ -1,10 +1,10 @@
-import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { firstValueFrom, Observable, tap } from "rxjs";
-import { CaslAbilityFactory } from "./casl-ability.factory";
-import { Rule, RuleFn, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
-import { Reflector } from "@nestjs/core";
-import { CaslHelper } from "./casl.helper";
-import { PrismaService } from "../prisma/prisma.service";
+import {CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor} from "@nestjs/common";
+import {firstValueFrom, Observable, tap} from "rxjs";
+import {CaslAbilityFactory} from "./casl-ability.factory";
+import {RuleDef, RuleFn, RULES_METADATA_KEY, RuleType} from "./rules.decorator";
+import {Reflector} from "@nestjs/core";
+import {CaslHelper} from "./casl.helper";
+import {PrismaService} from "../prisma/prisma.service";
 
 /*
 General CRUD steps:
@@ -66,8 +66,8 @@ export class CaslInterceptor implements NestInterceptor {
      * @param rule Rule to format the name of.
      * @private
      */
-    private formatRuleName(rule: Rule): string {
-        return rule.options?.name ? `Rule "${rule.options.name}"` : "Unnamed rule";
+    private formatRuleName(rule: RuleDef): string {
+        return rule[2]?.name ? `Rule "${rule[2].name}"` : "Unnamed rule";
     }
 
     async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -83,7 +83,7 @@ export class CaslInterceptor implements NestInterceptor {
         }
 
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
-        const rules = this.reflector.get<Rule[]>(RULES_METADATA_KEY, context.getHandler());
+        const rules = this.reflector.get<RuleDef[]>(RULES_METADATA_KEY, context.getHandler());
 
         let nextRuleFn = next.handle;
 
@@ -96,10 +96,10 @@ export class CaslInterceptor implements NestInterceptor {
 
                 // Cannot pass nextRuleFn directly as it'd pass by reference and cause infinite loop.
                 const nextTemp = nextRuleFn;
-                const handler = this.handlers.get(rule.type);
+                const handler = this.handlers.get(rule[0]);
 
                 if (!handler) {
-                    throw new Error(`Unsupported rule type ${rule.type} on ${ruleNameStr}.`);
+                    throw new Error(`Unsupported rule type ${rule[0]} on ${ruleNameStr}.`);
                 }
 
                 nextRuleFn = () => {
