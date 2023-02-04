@@ -42,6 +42,7 @@ export class CaslHelper {
         this.handleReadOneRule = this.handleReadOneRule.bind(this);
         this.handleCreateRule = this.handleCreateRule.bind(this);
         this.handleUpdateRule = this.handleUpdateRule.bind(this);
+        this.handleDeleteRule = this.handleDeleteRule.bind(this);
     }
 
     /**
@@ -955,7 +956,6 @@ export class CaslHelper {
 
         // TODO make sure the user will be able to read the fields which they've requested to read.
 
-        // We don't set req.passed to true here because the mutation
         return handler().pipe(
             map((newValue) => {
                 // Handler already marked the request as failed for some permission error.
@@ -1050,7 +1050,6 @@ export class CaslHelper {
 
         // TODO make sure the user will be able to read the fields which they've requested to read.
 
-        // We don't set req.passed to true here because the mutation
         return handler().pipe(
             map((newValue) => {
                 // Handler already marked the request as failed for some permission error.
@@ -1067,6 +1066,88 @@ export class CaslHelper {
                         req.passed = false;
                         return null;
                     }
+                }
+
+                req.passed = true;
+                return newValue;
+            })
+        );
+    }
+
+    /**
+     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Delete}
+     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
+     *  have permission to delete the object that they are trying to delete. Field-based permissions do not
+     *  make sense in the context of delete actions, and as a result, are ignored. The user must also have permission to
+     *  read the fields which they're attempting to read after the deletion. If they have permission to delete the
+     *  object but can't read the requested fields, the deletion will be rolled back.
+     *
+     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
+     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *
+     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
+     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
+     *  {@link Request#passed} is false and throw an error.
+     *
+     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     *
+     * @param context - NestJS execution context.
+     * @param rule - Rule to test. If rule type is not Delete, or if the rule definition is a RuleFn, an error will be
+     *  thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass.
+     * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
+     *  mutate the return value from the next handler.
+     * @throws Error if the rule type is not {@link RuleType.Delete}.
+     * @throws Error if the rule definition is a {@link RuleFn}.
+     * @throws Error if the current user's permissions are not initialized.
+     */
+    public handleDeleteRule<T extends Exclude<AbilitySubjects, string>>(
+        context: ExecutionContext,
+        rule: Rule,
+        handler: () => Observable<T | null>
+    ): Observable<T | null> {
+        if (rule.type !== RuleType.Delete) {
+            throw new Error(`Cannot test rule of type "${rule.type}" with handleDeleteRule.`);
+        }
+        if (typeof rule.rule === "function") {
+            throw new Error("Cannot test rule with a RuleFn with handleDeleteRule.");
+        }
+
+        const req = this.getRequest(context);
+        if (!req.permissions) {
+            throw new Error("User permissions not initialized.");
+        }
+
+        const [action, subjectSrc] = rule.rule;
+        const subjectStr = this.getSubjectAsString(subjectSrc);
+
+        // Basic test with the provided action and subject.
+        if (!req.permissions.can(action, subjectStr)) {
+            req.passed = false;
+            return of(null);
+        }
+
+        // TODO make sure the user will be able to read the fields which they've requested to read.
+
+        // FIXME currently there is no way to check within the interceptor if the user has permission to delete the
+        //  object to delete before it's been deleted. This check needs to be done in the resolver. This can be solved
+        //  in a future refactor. Technically not required, but it would improve efficiency.
+
+        return handler().pipe(
+            map((newValue) => {
+                // Handler already marked the request as failed for some permission error.
+                if (req.passed === false) {
+                    return null;
+                }
+
+                // Check the user can actually delete the object. Note, the deletion has already happened within the
+                //  transaction at this point. However, if the user doesn't have permission, it'll be rolled back.
+                //  The resolver can also do this before executing the deletion query. See the FIX-ME above.
+                const subjectObj = subject(subjectStr, newValue);
+                if (!req.permissions.can(action, subjectObj)) {
+                    req.passed = false;
+                    return null;
                 }
 
                 req.passed = true;
