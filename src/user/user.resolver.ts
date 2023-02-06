@@ -1,37 +1,36 @@
-import {Resolver, Query, Mutation, Args, Int, Context} from "@nestjs/graphql";
-import {User} from "./user.entity";
-import {CreateUserInput} from "./dto/create-user.input";
-import {UpdateUserInput} from "./dto/update-user.input";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger, Session} from "@nestjs/common";
-import {Rule, RuleType} from "../casl/rules.decorator";
-import {accessibleBy} from "@casl/prisma";
-import {FilterUserInput} from "./dto/filter-user.input";
-import {OrderUserInput} from "./dto/order-user.input";
+import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import { User } from "./user.entity";
+import { CreateUserInput } from "./dto/create-user.input";
+import { UpdateUserInput } from "./dto/update-user.input";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger, Session } from "@nestjs/common";
+import { Rule, RuleType } from "../casl/rules.decorator";
+import { accessibleBy } from "@casl/prisma";
+import { FilterUserInput } from "./dto/filter-user.input";
+import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../generic/pagination.input";
-import {Complexities} from "../gql-complexity.plugin";
-import {Request} from "express";
-import {AuthService} from "../auth/auth.service";
-import {AbilityAction} from "../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
+import { Complexities } from "../gql-complexity.plugin";
+import { Request } from "express";
+import { AuthService } from "../auth/auth.service";
+import { AbilityAction } from "../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
 
-    constructor(private readonly authService: AuthService) {
-    }
+    constructor(private readonly authService: AuthService) {}
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [User], {complexity: Complexities.FindMany})
+    @Query(() => [User], { complexity: Complexities.FindMany })
     @Rule(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: { req: Request },
-        @Args("filter", {type: () => FilterUserInput, nullable: true}) filter?: FilterUserInput,
-        @Args("order", {type: () => [OrderUserInput], nullable: true}) order?: OrderUserInput[],
-        @Args("pagination", {type: () => PaginationInput, nullable: true}) pagination?: PaginationInput
+        @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
+        @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
@@ -49,17 +48,17 @@ export class UserResolver {
             orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? {id: pagination.cursor} : undefined
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 
-    @Query(() => User, {nullable: true, complexity: Complexities.FindOne})
+    @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
     @Rule(RuleType.ReadOne, User)
-    async findOneUser(@Context() ctx: { req: Request }, @Args("id", {type: () => Int}) id: number): Promise<User> {
+    async findOneUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return ctx.req.prismaTx.user.findFirst({
             where: {
-                AND: [{id}, accessibleBy(ctx.req.permissions).User]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
         });
     }
@@ -92,12 +91,12 @@ export class UserResolver {
     @Rule(RuleType.Update, User)
     async updateUser(
         @Context() ctx: { req: Request },
-        @Args("id", {type: () => Int}) id: number,
-        @Args("input", {type: () => UpdateUserInput}) input: UpdateUserInput
+        @Args("id", { type: () => Int }) id: number,
+        @Args("input", { type: () => UpdateUserInput }) input: UpdateUserInput
     ): Promise<User> {
         this.logger.verbose("updateUser resolver called");
         input = plainToClass(CreateUserInput, input);
-        const errors = await validate(input, {skipMissingProperties: true});
+        const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
@@ -105,7 +104,7 @@ export class UserResolver {
 
         const userToUpdate = await ctx.req.prismaTx.user.findFirst({
             where: {
-                AND: [{id}, accessibleBy(ctx.req.permissions).User]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
         });
 
@@ -137,12 +136,12 @@ export class UserResolver {
 
     @Mutation(() => User)
     @Rule(RuleType.Delete, User)
-    async deleteUser(@Context() ctx: { req: Request }, @Args("id", {type: () => Int}) id: number): Promise<User> {
+    async deleteUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
 
         const userToDelete = await ctx.req.prismaTx.user.findFirst({
             where: {
-                AND: [{id}, accessibleBy(ctx.req.permissions).User]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
         });
 
@@ -179,8 +178,8 @@ export class UserResolver {
 
     // -------------------- Unique Resolvers --------------------
 
-    @Query(() => User, {nullable: true})
-    @Rule(RuleType.ReadOne, User, {name: "Read one user (self)"})
+    @Query(() => User, { nullable: true })
+    @Rule(RuleType.ReadOne, User, { name: "Read one user (self)" })
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;

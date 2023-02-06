@@ -1,6 +1,6 @@
-import {AbilitySubjects} from "./casl-ability.factory";
-import {ExecutionContext, SetMetadata} from "@nestjs/common";
-import {Observable} from "rxjs";
+import { AbilitySubjects } from "./casl-ability.factory";
+import { ExecutionContext, SetMetadata } from "@nestjs/common";
+import { Observable } from "rxjs";
 
 export type RuleFn<T = any> = (context: ExecutionContext, rule: RuleDef, handler: () => Observable<T>) => Observable<T>;
 export type RuleDef =
@@ -43,4 +43,4 @@ function Rule(...args: any) {
     return SetMetadata<string, RuleDef[]>(RULES_METADATA_KEY, [args]);
 }
 
-export {Rule};
+export { Rule };

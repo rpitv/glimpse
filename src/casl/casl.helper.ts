@@ -1,13 +1,13 @@
-import {ExecutionContext, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
-import {RuleDef, RuleType} from "./rules.decorator";
-import {AbilityAction, AbilitySubjects, GlimpseAbility} from "./casl-ability.factory";
-import {subject} from "@casl/ability";
-import {GqlContextType, GqlExecutionContext} from "@nestjs/graphql";
-import {GraphQLResolveInfo} from "graphql/type";
-import {EnumValueNode, IntValueNode, Kind, visit} from "graphql/language";
+import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { RuleDef, RuleType } from "./rules.decorator";
+import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
+import { subject } from "@casl/ability";
+import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
+import { GraphQLResolveInfo } from "graphql/type";
+import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
-import {map, Observable, of} from "rxjs";
-import {Request} from "express";
+import { map, Observable, of } from "rxjs";
+import { Request } from "express";
 
 @Injectable()
 export class CaslHelper {
@@ -929,31 +929,33 @@ export class CaslHelper {
             }
         }
 
-        return handler().pipe(
-            map((newValue) => {
-                // Handler already marked the request as failed for some permission error.
-                if (req.passed === false) {
-                    return null;
-                }
-
-                const subjectObj = subject(subjectStr, newValue);
-
-                // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
-                for (const field of Object.keys(newValue)) {
-                    if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
-                        req.passed = false;
+        return handler()
+            .pipe(
+                map((newValue) => {
+                    // Handler already marked the request as failed for some permission error.
+                    if (req.passed === false) {
                         return null;
                     }
-                }
 
-                req.passed = true;
-                return newValue;
-            })
-        ).pipe((v) => {
-            // Make sure user has permission to read the fields they're trying to read after the creation. Creation will
-            //  be rolled back if not.
-            return this.handleReadOneRule(context, rule, () => v);
-        });
+                    const subjectObj = subject(subjectStr, newValue);
+
+                    // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+                    for (const field of Object.keys(newValue)) {
+                        if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
+                            req.passed = false;
+                            return null;
+                        }
+                    }
+
+                    req.passed = true;
+                    return newValue;
+                })
+            )
+            .pipe((v) => {
+                // Make sure user has permission to read the fields they're trying to read after the creation. Creation will
+                //  be rolled back if not.
+                return this.handleReadOneRule(context, rule, () => v);
+            });
     }
 
     /**
@@ -1020,32 +1022,34 @@ export class CaslHelper {
         //  object to update before it's been updated. This check needs to be done in the resolver. This can be solved
         //  in a future refactor.
 
-        return handler().pipe(
-            map((newValue) => {
-                // Handler already marked the request as failed for some permission error.
-                if (req.passed === false) {
-                    return null;
-                }
-
-                const subjectObj = subject(subjectStr, newValue);
-
-                // Check that the user has permission to update TO an object like this one. If not, prisma tx will roll
-                //  back.
-                for (const field of inputFields) {
-                    if (!req.permissions.can(AbilityAction.Update, subjectObj, field)) {
-                        req.passed = false;
+        return handler()
+            .pipe(
+                map((newValue) => {
+                    // Handler already marked the request as failed for some permission error.
+                    if (req.passed === false) {
                         return null;
                     }
-                }
 
-                req.passed = true;
-                return newValue;
-            })
-        ).pipe((v) => {
-            // Make sure user has permission to read the fields they're trying to read after the update. Update will
-            //  be rolled back if not.
-            return this.handleReadOneRule(context, rule, () => v);
-        });
+                    const subjectObj = subject(subjectStr, newValue);
+
+                    // Check that the user has permission to update TO an object like this one. If not, prisma tx will roll
+                    //  back.
+                    for (const field of inputFields) {
+                        if (!req.permissions.can(AbilityAction.Update, subjectObj, field)) {
+                            req.passed = false;
+                            return null;
+                        }
+                    }
+
+                    req.passed = true;
+                    return newValue;
+                })
+            )
+            .pipe((v) => {
+                // Make sure user has permission to read the fields they're trying to read after the update. Update will
+                //  be rolled back if not.
+                return this.handleReadOneRule(context, rule, () => v);
+            });
     }
 
     /**
@@ -1101,29 +1105,31 @@ export class CaslHelper {
         //  object to delete before it's been deleted. This check needs to be done in the resolver. This can be solved
         //  in a future refactor. Technically not required, but it would improve efficiency.
 
-        return handler().pipe(
-            map((newValue) => {
-                // Handler already marked the request as failed for some permission error.
-                if (req.passed === false) {
-                    return null;
-                }
+        return handler()
+            .pipe(
+                map((newValue) => {
+                    // Handler already marked the request as failed for some permission error.
+                    if (req.passed === false) {
+                        return null;
+                    }
 
-                // Check the user can actually delete the object. Note, the deletion has already happened within the
-                //  transaction at this point. However, if the user doesn't have permission, it'll be rolled back.
-                //  The resolver can also do this before executing the deletion query. See the FIX-ME above.
-                const subjectObj = subject(subjectStr, newValue);
-                if (!req.permissions.can(AbilityAction.Delete, subjectObj)) {
-                    req.passed = false;
-                    return null;
-                }
+                    // Check the user can actually delete the object. Note, the deletion has already happened within the
+                    //  transaction at this point. However, if the user doesn't have permission, it'll be rolled back.
+                    //  The resolver can also do this before executing the deletion query. See the FIX-ME above.
+                    const subjectObj = subject(subjectStr, newValue);
+                    if (!req.permissions.can(AbilityAction.Delete, subjectObj)) {
+                        req.passed = false;
+                        return null;
+                    }
 
-                req.passed = true;
-                return newValue;
-            })
-        ).pipe((v) => {
-            // Make sure user has permission to read the fields they're trying to read after the deletion. Deletion will
-            //  be rolled back if not.
-            return this.handleReadOneRule(context, rule, () => v);
-        });
+                    req.passed = true;
+                    return newValue;
+                })
+            )
+            .pipe((v) => {
+                // Make sure user has permission to read the fields they're trying to read after the deletion. Deletion will
+                //  be rolled back if not.
+                return this.handleReadOneRule(context, rule, () => v);
+            });
     }
 }
