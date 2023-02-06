@@ -527,7 +527,7 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] !== RuleType.ReadOne) {
+        if (rule[0] === RuleType.Custom) {
             throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
@@ -674,8 +674,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T[] | null>
     ): Observable<T[] | null> {
-        if (rule[0] !== RuleType.ReadMany) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadManyRule.`);
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -713,9 +713,7 @@ export class CaslHelper {
             }
         }
 
-        if (
-            !this.canPaginate(context, req.permissions, subjectStr, rule[2]?.paginationInputName ?? "pagination")
-        ) {
+        if (!this.canPaginate(context, req.permissions, subjectStr, rule[2]?.paginationInputName ?? "pagination")) {
             this.logger.debug(
                 `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the 
                 subject "${subjectStr}".`
@@ -838,8 +836,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<number | null>
     ): Observable<number | null> {
-        if (rule[0] !== RuleType.Count) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleCountRule.`);
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -904,8 +902,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] !== RuleType.Create) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleCreateRule.`);
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -931,8 +929,6 @@ export class CaslHelper {
             }
         }
 
-        // TODO make sure the user will be able to read the fields which they've requested to read.
-
         return handler().pipe(
             map((newValue) => {
                 // Handler already marked the request as failed for some permission error.
@@ -953,7 +949,11 @@ export class CaslHelper {
                 req.passed = true;
                 return newValue;
             })
-        );
+        ).pipe((v) => {
+            // Make sure user has permission to read the fields they're trying to read after the creation. Creation will
+            //  be rolled back if not.
+            return this.handleReadOneRule(context, rule, () => v);
+        });
     }
 
     /**
@@ -989,8 +989,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] !== RuleType.Update) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleUpdateRule.`);
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -1020,8 +1020,6 @@ export class CaslHelper {
         //  object to update before it's been updated. This check needs to be done in the resolver. This can be solved
         //  in a future refactor.
 
-        // TODO make sure the user will be able to read the fields which they've requested to read.
-
         return handler().pipe(
             map((newValue) => {
                 // Handler already marked the request as failed for some permission error.
@@ -1043,7 +1041,11 @@ export class CaslHelper {
                 req.passed = true;
                 return newValue;
             })
-        );
+        ).pipe((v) => {
+            // Make sure user has permission to read the fields they're trying to read after the update. Update will
+            //  be rolled back if not.
+            return this.handleReadOneRule(context, rule, () => v);
+        });
     }
 
     /**
@@ -1078,8 +1080,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] !== RuleType.Delete) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleDeleteRule.`);
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
         }
 
         const req = this.getRequest(context);
@@ -1094,8 +1096,6 @@ export class CaslHelper {
             req.passed = false;
             return of(null);
         }
-
-        // TODO make sure the user will be able to read the fields which they've requested to read.
 
         // FIXME currently there is no way to check within the interceptor if the user has permission to delete the
         //  object to delete before it's been deleted. This check needs to be done in the resolver. This can be solved
@@ -1120,6 +1120,10 @@ export class CaslHelper {
                 req.passed = true;
                 return newValue;
             })
-        );
+        ).pipe((v) => {
+            // Make sure user has permission to read the fields they're trying to read after the deletion. Deletion will
+            //  be rolled back if not.
+            return this.handleReadOneRule(context, rule, () => v);
+        });
     }
 }
