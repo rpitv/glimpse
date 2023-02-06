@@ -4,7 +4,7 @@ import {Observable} from "rxjs";
 
 export type RuleFn<T = any> = (context: ExecutionContext, rule: RuleDef, handler: () => Observable<T>) => Observable<T>;
 export type RuleDef =
-    [RuleType.Custom, RuleFn, RuleOptions?]
+    | [RuleType.Custom, RuleFn, RuleOptions?]
     | [Exclude<RuleType, RuleType.Custom>, AbilitySubjects, RuleOptions?];
 
 export enum RuleType {
