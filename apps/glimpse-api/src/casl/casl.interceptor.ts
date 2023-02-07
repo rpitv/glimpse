@@ -1,10 +1,9 @@
 import { CallHandler, ExecutionContext, ForbiddenException, Injectable, Logger, NestInterceptor } from "@nestjs/common";
-import { firstValueFrom, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { CaslAbilityFactory } from "./casl-ability.factory";
 import { RuleDef, RuleFn, RULES_METADATA_KEY, RuleType } from "./rules.decorator";
 import { Reflector } from "@nestjs/core";
 import { CaslHelper } from "./casl.helper";
-import { PrismaService } from "../prisma/prisma.service";
 
 /*
 General CRUD steps:
@@ -56,8 +55,7 @@ export class CaslInterceptor implements NestInterceptor {
     constructor(
         private readonly reflector: Reflector,
         private readonly caslAbilityFactory: CaslAbilityFactory,
-        private readonly caslHelper: CaslHelper,
-        private readonly prisma: PrismaService
+        private readonly caslHelper: CaslHelper
     ) {}
 
     /**
@@ -127,12 +125,6 @@ export class CaslInterceptor implements NestInterceptor {
                 };
             }
 
-        // Create a new Prisma transaction which can be used throughout the request. If any of the request's
-        //  rules fail, or an error is thrown, the transaction will be rolled back. This isn't a very performant
-        //  solution. https://www.prisma.io/docs/concepts/components/prisma-client/transactions#interactive-transactions
-        return this.prisma.$transaction(async (tx) => {
-            req.prismaTx = tx;
-            return firstValueFrom(nextRuleFn());
-        });
+        return nextRuleFn();
     }
 }
