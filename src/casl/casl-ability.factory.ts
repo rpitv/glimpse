@@ -103,7 +103,7 @@ export class CaslAbilityFactory {
             );
 
             delete (<any>user).password; // Hide password from logs
-            this.logger.debug(`Retrieved permissions for user ${user.id} from database`, { user, permissions });
+            this.logger.debug(`Retrieved permissions for user ${user.id} from database: ${JSON.stringify({ user, permissions })}`);
 
             // Must make an assumption that the database has correct values due to raw query.
             return <(UserPermission | GroupPermission)[]>permissions;
@@ -239,7 +239,7 @@ export class CaslAbilityFactory {
     // }
 
     async createForUser(user: User): Promise<GlimpseAbility> {
-        this.logger.verbose(`Fetching rules for the current user (user ID: ${user?.id || null})`);
+        this.logger.debug(`Fetching rules for the current user (user ID: ${user?.id || null})`);
         const rawPermissions = <RawRuleOf<GlimpseAbility>[]>await this.getPermissions(user);
         return createPrismaAbility<GlimpseAbility>(rawPermissions);
     }

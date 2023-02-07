@@ -46,21 +46,21 @@ export class CaslHelper {
     }
 
     /**
-     * Retrieve the Express Request object from the given execution context. Currently only supports GraphQL and
+     * Retrieve the {@link Express.Request} object from the given execution context. Currently only supports GraphQL and
      *  HTTP execution contexts. If the execution context is set to something else, this will throw an Error.
      * @param context Execution context to retrieve the Request object from.
      * @throws Error if execution context type is not GraphQL or HTTP.
      */
     public getRequest(context: ExecutionContext): Request {
         if (context.getType<GqlContextType>() === "graphql") {
-            this.logger.verbose("CASL interceptor currently in GraphQL context.");
+            this.logger.debug("Request currently in GraphQL context.");
             const gqlContext = GqlExecutionContext.create(context);
             return gqlContext.getContext().req;
         } else if (context.getType() === "http") {
-            this.logger.verbose("CASL interceptor currently in HTTP context.");
+            this.logger.debug("Request currently in HTTP context.");
             return context.switchToHttp().getRequest();
         } else {
-            throw new Error(`CASL interceptor applied to unsupported context type ${context.getType()}`);
+            throw new Error(`CASL helper used on unsupported context type ${context.getType()}`);
         }
     }
 
@@ -68,10 +68,10 @@ export class CaslHelper {
      * Recursively get all keys used within an object, including keys used within objects in an array.
      *  This is used to determine which fields are used in a filter.
      *
-     * Example:
-     *  { a: 1, b: "two", c: [ { d: 3, e: "four" }, { e: 5, f: "six" } ] }
-     * will return a Set containing:
-     *  "a", "b", "c", "d", "e", "f".
+     * @example
+     *  <pre>{ a: 1, b: "two", c: [ { d: 3, e: "four" }, { e: 5, f: "six" } ] }</pre>
+     *  will return a Set containing:
+     *  <pre>"a", "b", "c", "d", "e", "f"</pre>.
      *
      * @param obj Object to get keys of.
      * @returns Set of keys used in the object.
@@ -88,26 +88,61 @@ export class CaslHelper {
                 this.getKeysFromDeepObject(obj[key]).forEach((k) => keys.add(k));
             }
         }
+        this.logger.debug('Keys from deep object: ' + JSON.stringify(keys));
         return keys;
+    }
+
+    /**
+     * Get the {@link Express.Request} object and a {@link RuleDef}'s subject in string form. These are both frequently
+     *  done at the start of a rule handler, so this method is used to reduce code duplication. Subjects have to be
+     *  in string form because the Glimpse database stores them as strings. This method should only be called on
+     *  rules which are not of type {@link RuleType.Custom}.
+     * @param context NestJS execution context.
+     * @param rule Rule to get the subject of.
+     * @returns An object containing the request and subject string.
+     * @throws Error if the user permissions are not initialized.
+     * @throws Error if the rule is of type {@link RuleType.Custom}.
+     * @private
+     */
+    private getReqAndSubject(context: ExecutionContext, rule: RuleDef): {
+        req: Request,
+        subjectStr: Extract<AbilitySubjects, string>
+    } {
+        if (rule[0] === RuleType.Custom) {
+            throw new Error(`Cannot test rule of type "${rule[0]}" with non-custom rule handler.`);
+        }
+
+        const req = this.getRequest(context);
+        if (!req.permissions) {
+            throw new Error("User permissions not initialized.");
+        }
+
+        const subjectStr = this.getSubjectAsString(rule[1]);
+
+        return { req, subjectStr };
     }
 
     /**
      * Get the fields which the user is selecting from the GraphQL query info object. Resolvers will typically return
      *  the entire object, but the user may only be interested in a subset of the fields, which the GraphQL driver
      *  filters out.
-     *  TODO basic field selection is supported, but inline fragments and fragment spreads are not.
-     * @param info GraphQL query info object.
-     * @returns Set of field names which the user is selecting.
+     *  TODO basic field selection is supported, but inline fragments and fragment spreads are not. It will most likely
+     *   be easiest to implement this when doing UserPermissions and GroupPermissions, where unions are used.
+     * @param context NestJS execution context.
+     * @returns Set containing the field names which the user is selecting.
      */
-    public getSelectedFields(info: GraphQLResolveInfo): Set<string> {
+    public getSelectedFields(context: ExecutionContext): Set<string> {
+        if (context.getType<GqlContextType>() !== "graphql") {
+            throw new Error("Cannot get GraphQL info from non-GraphQL context")
+        }
+        const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
-            this.assertNodeKind(fieldNode, Kind.FIELD);
 
             for (const selection of fieldNode.selectionSet?.selections || []) {
                 this.assertNodeKind(selection, [Kind.FIELD, Kind.INLINE_FRAGMENT, Kind.FRAGMENT_SPREAD]);
                 if (selection.kind === Kind.FIELD) {
-                    this.assertNodeKind(selection.name, Kind.NAME);
                     fields.add(selection.name.value);
                 } else if (selection.kind === Kind.INLINE_FRAGMENT) {
                     // TODO
@@ -118,35 +153,44 @@ export class CaslHelper {
                 }
             }
         }
-        this.logger.debug(`User requested the following fields in their query: ${[...fields].join(", ")}`);
+        this.logger.debug(`User requested the following fields in their query: ${JSON.stringify(Array.from(fields))}`);
         return fields;
     }
 
     /**
-     * Get the fields used to filter a ReadMany query. These fields are then used to make sure the user has
-     *  permission to filter based on those fields.
+     * Check that the user is allowed to filter a query by the given fields, assuming a filter has been supplied.
      * @param context NestJS execution context.
-     * @param argName Name of the filter argument in the GraphQL query.
+     * @param req Express request object. Should contain the user's permissions on <pre>req.permissions</pre>.
+     * @param subjectStr The type of subject which the user is attempting to filter.
+     * @param argName Name of the filter parameter in the case of GraphQL queries, or the filter property within the
+     *  body for HTTP queries.
      * @todo Filtering currently only supports GraphQL queries.
-     * @returns Set of field names used to filter the query.
+     * @returns True if the user has permission to filter by all the fields they are filtering by, or false if not.
      */
-    public getFilteringFields(context: ExecutionContext, argName: string): Set<string> {
+    public canFilterByFields(
+        context: ExecutionContext,
+        req: Request,
+        subjectStr: Extract<AbilitySubjects, string>,
+        argName: string
+    ): boolean {
         const contextType = context.getType<GqlContextType>();
+        this.logger.verbose(`Filtering in ${contextType} context`);
+        const filteringFields = new Set<string>();
         if (contextType === "graphql") {
-            const info = this.getGraphQLInfo(context);
+            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
-            const filteringFields = new Set<string>();
+            // Each requested field...
             for (const fieldNode of info.fieldNodes) {
-                this.assertNodeKind(fieldNode, Kind.FIELD);
 
+                // Find the argument which is the filter, if present.
                 const filterArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (filterArg === undefined) {
                     continue;
                 }
 
-                this.assertNodeKind(filterArg, Kind.ARGUMENT);
                 this.assertNodeKind(filterArg.value, [Kind.OBJECT, Kind.VARIABLE]);
 
+                // The filter is an object, i.e. it was passed directly in the query as an AST.
                 if (filterArg.value.kind === Kind.OBJECT) {
                     this.logger.verbose("Filtering argument passed in as AST.");
                     const filterAst = filterArg.value;
@@ -161,7 +205,7 @@ export class CaslHelper {
                             }
                         }
                     });
-                } else {
+                } else { // The filter is a variable, we can just get the JSON object from the variables.
                     this.logger.verbose("Filtering argument passed in as variable.");
                     const argName = filterArg.name.value;
                     const filterObj = info.variableValues[argName];
@@ -172,16 +216,106 @@ export class CaslHelper {
                     });
                 }
             }
-            this.logger.debug(
-                `User filtered using the following fields in their query: ${[...filteringFields].join(", ")}`
-            );
-            return filteringFields;
         } else if (contextType === "http") {
             // TODO
-            return new Set();
+            throw new Error("HTTP filtering not yet implemented");
         } else {
             throw new Error("Unsupported execution context");
         }
+
+        this.logger.debug(
+            `User attempting to filter using the following fields in their query: ${
+                JSON.stringify(Array.from(filteringFields))
+            }`);
+
+        for (const field of filteringFields) {
+            // Filter actions cannot have conditions, and cannot be applied to subject values.
+            // TODO make sure the user has no filter permissions that have conditions
+            if (!req.permissions.can(AbilityAction.Filter, subjectStr, field)) {
+                this.logger.debug(`User does not have permission to filter by field "${field}"`);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check that the user is allowed to sort a query by the given fields, assuming a sort order has been supplied.
+     * @param context NestJS execution context.
+     * @param req Express request object. Should contain the user's permissions on <pre>req.permissions</pre>.
+     * @param subjectStr The type of subject which the user is attempting to sort.
+     * @param argName Name of the sort parameter in the case of GraphQL queries, or the sort property within the body
+     *  for HTTP queries.
+     * @todo Sorting currently only supports GraphQL queries.
+     * @returns True if the user has permission to sort by all the fields they are sorting by, or false if not.
+     */
+    public canSortByFields(
+        context: ExecutionContext,
+        req: Request,
+        subjectStr: Extract<AbilitySubjects, string>,
+        argName: string
+    ): boolean {
+        const contextType = context.getType<GqlContextType>();
+        this.logger.verbose(`Sorting in ${contextType} context`);
+        const sortingFields = new Set<string>();
+        if (contextType === "graphql") {
+            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            for (const fieldNode of info.fieldNodes) {
+
+                const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
+                if (sortArg === undefined) {
+                    continue;
+                }
+
+                this.assertNodeKind(sortArg.value, [Kind.LIST, Kind.VARIABLE]);
+
+                if (sortArg.value.kind === Kind.LIST) {
+                    this.logger.verbose("Sorting argument passed in as AST.");
+                    const sortAst = sortArg.value;
+                    visit(sortAst, {
+                        ObjectField: {
+                            enter: (node) => {
+                                if (node.name.value === "field") {
+                                    this.assertNodeKind(node.value, Kind.ENUM);
+                                    sortingFields.add((node.value as EnumValueNode).value);
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    this.logger.verbose("Sorting argument passed in as variable.");
+                    const argName = sortArg.name.value;
+                    const sortValue = info.variableValues[argName];
+                    if (!Array.isArray(sortValue)) {
+                        throw new Error("Ordering value must be an array");
+                    }
+                    sortValue.forEach((sortObj) => {
+                        sortingFields.add(sortObj.field);
+                    });
+                }
+            }
+        } else if (contextType === "http") {
+            // TODO
+            throw new Error("Sorting via HTTP is not yet supported.");
+        } else {
+            throw new Error("Unsupported execution context");
+        }
+
+        this.logger.debug(
+            `User attempting to sort using the following fields in their query: ${
+                JSON.stringify(Array.from(sortingFields))
+            }`
+        );
+
+        for (const field of sortingFields) {
+            // Sort actions cannot have conditions, and cannot be applied to subject values.
+            // TODO make sure the user has no sort permissions that have conditions
+            if (!req.permissions.can(AbilityAction.Sort, subjectStr, field)) {
+                this.logger.debug(`User does not have permission to sort by field "${field}"`);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -201,18 +335,17 @@ export class CaslHelper {
         argName: string
     ): boolean {
         const contextType = context.getType<GqlContextType>();
+        this.logger.verbose(`Paginating in ${contextType} context`);
         if (contextType === "graphql") {
-            const info = this.getGraphQLInfo(context);
+            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
             for (const fieldNode of info.fieldNodes) {
-                this.assertNodeKind(fieldNode, Kind.FIELD);
 
                 const paginationArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (paginationArg === undefined || paginationArg === null) {
                     continue;
                 }
 
-                this.assertNodeKind(paginationArg, Kind.ARGUMENT);
                 this.assertNodeKind(paginationArg.value, [Kind.OBJECT, Kind.VARIABLE]);
 
                 let paginationArgValue: PaginationInput | undefined;
@@ -266,68 +399,6 @@ export class CaslHelper {
     }
 
     /**
-     * Get the fields used to sort a ReadMany query. These fields are then used to make sure the user has
-     *  permission to sort based on those fields.
-     * @param context NestJS execution context.
-     * @param argName Name of the sort/order argument in the GraphQL query.
-     * @todo Sorting currently only supports GraphQL queries.
-     * @returns Set of field names used to sort the query.
-     */
-    public getSortingFields(context: ExecutionContext, argName: string): Set<string> {
-        const contextType = context.getType<GqlContextType>();
-        if (contextType === "graphql") {
-            const info = this.getGraphQLInfo(context);
-
-            const sortingFields = new Set<string>();
-            for (const fieldNode of info.fieldNodes) {
-                this.assertNodeKind(fieldNode, Kind.FIELD);
-
-                const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
-                if (sortArg === undefined) {
-                    continue;
-                }
-
-                this.assertNodeKind(sortArg, Kind.ARGUMENT);
-                this.assertNodeKind(sortArg.value, [Kind.LIST, Kind.VARIABLE]);
-
-                if (sortArg.value.kind === Kind.LIST) {
-                    this.logger.verbose("Sorting argument passed in as AST.");
-                    const sortAst = sortArg.value;
-                    visit(sortAst, {
-                        ObjectField: {
-                            enter: (node) => {
-                                if (node.name.value === "field") {
-                                    this.assertNodeKind(node.value, Kind.ENUM);
-                                    sortingFields.add((node.value as EnumValueNode).value);
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    this.logger.verbose("Sorting argument passed in as variable.");
-                    const argName = sortArg.name.value;
-                    const sortValue = info.variableValues[argName];
-                    if (!Array.isArray(sortValue)) {
-                        throw new Error("Ordering value must be an array");
-                    }
-                    sortValue.forEach((sortObj) => {
-                        sortingFields.add(sortObj.field);
-                    });
-                }
-            }
-            this.logger.debug(
-                `User sorted using the following fields in their query: ${[...sortingFields].join(", ")}`
-            );
-            return sortingFields;
-        } else if (contextType === "http") {
-            // TODO
-            return new Set();
-        } else {
-            throw new Error("Unsupported execution context");
-        }
-    }
-
-    /**
      * Get the fields supplied in a Create/Update mutation. These fields are then used to make sure the user has
      *  permission to create/update an object based on those fields.
      * @param context NestJS execution context.
@@ -337,19 +408,18 @@ export class CaslHelper {
      */
     public getInputFields(context: ExecutionContext, argName: string): Set<string> {
         const contextType = context.getType<GqlContextType>();
+        this.logger.verbose(`Retrieving input fields in ${contextType} context`);
         if (contextType === "graphql") {
-            const info = this.getGraphQLInfo(context);
+            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
             const inputFields = new Set<string>();
             for (const fieldNode of info.fieldNodes) {
-                this.assertNodeKind(fieldNode, Kind.FIELD);
 
                 const inputArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (inputArg === undefined) {
                     continue;
                 }
 
-                this.assertNodeKind(inputArg, Kind.ARGUMENT);
                 this.assertNodeKind(inputArg.value, [Kind.OBJECT, Kind.VARIABLE]);
 
                 if (inputArg.value.kind === Kind.OBJECT) {
@@ -365,7 +435,8 @@ export class CaslHelper {
                                     Kind.STRING,
                                     Kind.INT,
                                     Kind.BOOLEAN,
-                                    Kind.FLOAT
+                                    Kind.FLOAT,
+                                    Kind.NULL
                                 ]);
                                 inputFields.add(node.name.value);
                             }
@@ -384,7 +455,7 @@ export class CaslHelper {
                     }
                 }
             }
-            this.logger.debug(`User input the following fields in their mutation: ${[...inputFields].join(", ")}`);
+            this.logger.debug(`User input the following fields in their mutation: ${JSON.stringify(Array.from(inputFields))}`);
             return inputFields;
         } else if (contextType === "http") {
             // TODO
@@ -408,6 +479,7 @@ export class CaslHelper {
      */
     private assertNodeKind(node: { kind: Kind } | undefined, expectedKind: Kind | Kind[]): void {
         if (Array.isArray(expectedKind)) {
+            this.logger.verbose(`Asserting that node kind "${node?.kind}" is one of "${expectedKind.join('", "')}".`)
             if (!expectedKind.includes(node?.kind)) {
                 // This should never happen.
                 this.logger.error(
@@ -418,6 +490,7 @@ export class CaslHelper {
                 throw new InternalServerErrorException("Unexpected node type");
             }
         } else {
+            this.logger.verbose(`Asserting that node kind "${node?.kind}" is "${expectedKind}".`)
             if (node?.kind !== expectedKind) {
                 // This should never happen.
                 this.logger.error(
@@ -431,35 +504,28 @@ export class CaslHelper {
     }
 
     /**
-     * Get the GraphQL info object from the current execution context. If the execution context is not GraphQL, this
-     *  will return null.
-     * @param context NestJS execution context.
-     * @returns GraphQL info object, or null if the execution context is not GraphQL.
-     */
-    private getGraphQLInfo(context: ExecutionContext): GraphQLResolveInfo {
-        if (context.getType<GqlContextType>() !== "graphql") {
-            return null;
-        }
-        const gqlContext = GqlExecutionContext.create(context);
-        return gqlContext.getInfo<GraphQLResolveInfo>();
-    }
-
-    /**
      * Convert an AbilitySubject value into a string. Glimpse stores all subjects as strings within the database, so
      *  we must convert non-string AbilitySubject values into strings before passing them to CASL. This is
      *  accomplished by returning the static "modelName" property on classes if it exists, or the class name otherwise.
      * @param subj Subject to convert.
      * @returns String representation of the subject.
-     * @private
      */
     public getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> {
         // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
         //  to a string before testing. Typeof classes === function.
         if (typeof subj === "string") {
+            this.logger.verbose('Getting subject as string but subject is already a string: ' + subj);
             return subj;
         } else if (typeof subj === "function") {
-            return (subj.modelName || subj.name) as Extract<AbilitySubjects, string>;
+            this.logger.verbose('Getting subject as a string from a class.');
+            const subjStr = (subj.modelName || subj.name) as Extract<AbilitySubjects, string>;
+            this.logger.verbose('Subject string: ' + subjStr);
+            return subjStr;
         } else {
+            this.logger.verbose(
+                'Attempted to get subject from a string but subject is not a string or class. Type: ' +
+                typeof subj
+            );
             throw new Error("Unknown subject type");
         }
     }
@@ -527,19 +593,12 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        this.logger.debug("Handling ReadOne rule.");
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
+            this.logger.verbose('Failed basic ReadOne rule test.');
             req.passed = false;
             return of(null);
         }
@@ -548,8 +607,7 @@ export class CaslHelper {
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context.getType<GqlContextType>() === "graphql") {
-            const info = this.getGraphQLInfo(context);
-            this.getSelectedFields(info).forEach((v) => fields.add(v));
+            this.getSelectedFields(context).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
             if (rule[2]?.excludeFields) {
@@ -559,6 +617,7 @@ export class CaslHelper {
             // Test the ability against each requested field
             for (const field of fields) {
                 if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
+                    this.logger.verbose(`Failed field-based ReadOne rule test for field "${field}".`);
                     req.passed = false;
                     return of(null);
                 }
@@ -570,6 +629,7 @@ export class CaslHelper {
             map((value) => {
                 // Handler already marked the request as failed for some permission error.
                 if (req.passed === false) {
+                    this.logger.verbose("Failed ReadOne rule test. Handler already marked as failed.")
                     return null;
                 }
 
@@ -584,6 +644,7 @@ export class CaslHelper {
                 const subjectObj = subject(subjectStr, value);
 
                 if (!req.permissions.can(AbilityAction.Read, subjectObj)) {
+                    this.logger.verbose('Failed basic ReadOne rule test with value as subject.');
                     req.passed = false;
                     return null;
                 }
@@ -602,6 +663,7 @@ export class CaslHelper {
                 // Test the ability against each requested field with subject value.
                 for (const field of fields) {
                     if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
+                        this.logger.verbose(`Failed field-based ReadOne rule test for field "${field}" with value as subject.`);
                         req.passed = false;
                         return null;
                     }
@@ -674,47 +736,36 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T[] | null>
     ): Observable<T[] | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        this.logger.debug("Handling ReadMany rule.");
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
+            this.logger.verbose("Failed basic ReadMany rule test.")
             req.passed = false;
             return of(null);
         }
 
         // Make sure user has permission to sort by the fields which they are sorting by.
-        const sortingFields = this.getSortingFields(context, rule[2]?.orderInputName ?? "order");
-        for (const field of sortingFields) {
-            // Sort actions cannot have conditions, and cannot be applied to subject values.
-            // TODO make sure the user has no sort permissions that have conditions
-            if (!req.permissions.can(AbilityAction.Sort, subjectStr, field)) {
-                req.passed = false;
-                return of(null);
-            }
+        if(!this.canSortByFields(context, req, subjectStr, rule[2]?.orderInputName ?? "order")) {
+            this.logger.verbose(
+                "User doesn't have permission to sort by one or more of their supplied sorting arguments."
+            );
+            req.passed = false;
+            return of(null);
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        const filteringFields = this.getFilteringFields(context, rule[2]?.filterInputName ?? "filter");
-        for (const field of filteringFields) {
-            // Filter actions cannot have conditions, and cannot be applied to subject values.
-            // TODO make sure the user has no filter permissions that have conditions
-            if (!req.permissions.can(AbilityAction.Filter, subjectStr, field)) {
-                req.passed = false;
-                return of(null);
-            }
+        if(!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
+            this.logger.verbose(
+                "User doesn't have permission to filter by one or more of their supplied filters."
+            );
+            req.passed = false;
+            return of(null);
         }
 
         if (!this.canPaginate(context, req.permissions, subjectStr, rule[2]?.paginationInputName ?? "pagination")) {
-            this.logger.debug(
+            this.logger.verbose(
                 `User supplied cursor-based pagination argument(s) but doesn't have permission to sort by ID on the 
                 subject "${subjectStr}".`
             );
@@ -726,8 +777,7 @@ export class CaslHelper {
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context.getType<GqlContextType>() === "graphql") {
-            const info = this.getGraphQLInfo(context);
-            this.getSelectedFields(info).forEach((v) => fields.add(v));
+            this.getSelectedFields(context).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
             if (rule[2]?.excludeFields) {
@@ -737,6 +787,7 @@ export class CaslHelper {
             // Test the ability against each requested field
             for (const field of fields) {
                 if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
+                    this.logger.verbose(`Failed field-based ReadMany rule test for field "${field}".`);
                     req.passed = false;
                     return of(null);
                 }
@@ -748,6 +799,7 @@ export class CaslHelper {
             map((values) => {
                 // Handler already marked the request as failed for some permission error.
                 if (req.passed === false) {
+                    this.logger.verbose("Failed ReadMany rule test. Handler already marked as failed.")
                     return null;
                 }
 
@@ -762,6 +814,7 @@ export class CaslHelper {
                 for (const value of values) {
                     const subjectObj = subject(subjectStr, value);
                     if (!req.permissions.can(AbilityAction.Read, subjectObj)) {
+                        this.logger.verbose("Failed basic ReadMany rule test on one or more values.");
                         req.passed = false;
                         return null;
                     }
@@ -784,9 +837,11 @@ export class CaslHelper {
                             //  will be set to null. The user won't necessarily know (as of now) whether the field is
                             //  actually null, or they just can't read it.
                             if (rule[2]?.strict ?? false) {
+                                this.logger.verbose(`Failed field-based ReadMany rule test for field "${field}" on one or more values.`);
                                 req.passed = false;
                                 return null;
                             } else {
+                                this.logger.verbose(`Failed field-based ReadMany rule test for field "${field}" on one value. More may come...`);
                                 value[field] = null;
                             }
                         }
@@ -836,32 +891,23 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<number | null>
     ): Observable<number | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        this.logger.debug("Handling Count rule.");
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
+            this.logger.verbose("Failed basic Count rule test.");
             req.passed = false;
             return of(null);
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        const filteringFields = this.getFilteringFields(context, rule[2]?.filterInputName ?? "filter");
-        for (const field of filteringFields) {
-            // Filter actions cannot have conditions, and cannot be applied to subject values.
-            // TODO make sure the user has no filter permissions that have conditions
-            if (!req.permissions.can(AbilityAction.Filter, subjectStr, field)) {
-                req.passed = false;
-                return of(null);
-            }
+        if(!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
+            this.logger.verbose(
+                "User doesn't have permission to filter by one or more of their supplied filters."
+            );
+            req.passed = false;
+            return of(null);
         }
 
         // No permission checks need to be applied to the returned value (it's just a number), so return it.
@@ -902,19 +948,12 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        this.logger.debug("Handling Create rule.");
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Create, subjectStr)) {
+            this.logger.verbose("Failed basic Create rule test.");
             req.passed = false;
             return of(null);
         }
@@ -924,6 +963,7 @@ export class CaslHelper {
         // Make sure user can create an object with the fields they've supplied.
         for (const field of inputFields) {
             if (!req.permissions.can(AbilityAction.Create, subjectStr, field)) {
+                this.logger.verbose(`Failed Create rule test for field ${field}.`);
                 req.passed = false;
                 return of(null);
             }
@@ -934,6 +974,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
+                        this.logger.verbose("Failed Create rule test. Handler already marked as failed.")
                         return null;
                     }
 
@@ -942,6 +983,7 @@ export class CaslHelper {
                     // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
                     for (const field of Object.keys(newValue)) {
                         if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
+                            this.logger.verbose(`Failed Create rule test for field ${field} with value.`);
                             req.passed = false;
                             return null;
                         }
@@ -991,19 +1033,12 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        this.logger.debug("Handling Update rule.");
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Update, subjectStr)) {
+            this.logger.verbose("Failed basic Update rule test.");
             req.passed = false;
             return of(null);
         }
@@ -1013,6 +1048,7 @@ export class CaslHelper {
         // Make sure user can update an object with the fields they've supplied.
         for (const field of inputFields) {
             if (!req.permissions.can(AbilityAction.Update, subjectStr, field)) {
+                this.logger.verbose(`Failed Update rule test for field ${field}.`);
                 req.passed = false;
                 return of(null);
             }
@@ -1027,6 +1063,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
+                        this.logger.verbose("Failed Update rule test. Handler already marked as failed.")
                         return null;
                     }
 
@@ -1036,6 +1073,7 @@ export class CaslHelper {
                     //  back.
                     for (const field of inputFields) {
                         if (!req.permissions.can(AbilityAction.Update, subjectObj, field)) {
+                            this.logger.verbose(`Failed Update rule test for field ${field} with value.`);
                             req.passed = false;
                             return null;
                         }
@@ -1084,19 +1122,11 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
-        if (rule[0] === RuleType.Custom) {
-            throw new Error(`Cannot test rule of type "${rule[0]}" with handleReadOneRule.`);
-        }
-
-        const req = this.getRequest(context);
-        if (!req.permissions) {
-            throw new Error("User permissions not initialized.");
-        }
-
-        const subjectStr = this.getSubjectAsString(rule[1]);
+        const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Delete, subjectStr)) {
+            this.logger.verbose("Failed basic Delete rule test.");
             req.passed = false;
             return of(null);
         }
@@ -1110,6 +1140,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
+                        this.logger.verbose("Failed Delete rule test. Handler already marked as failed.")
                         return null;
                     }
 
@@ -1118,6 +1149,7 @@ export class CaslHelper {
                     //  The resolver can also do this before executing the deletion query. See the FIX-ME above.
                     const subjectObj = subject(subjectStr, newValue);
                     if (!req.permissions.can(AbilityAction.Delete, subjectObj)) {
+                        this.logger.verbose("Failed Delete rule test with value.");
                         req.passed = false;
                         return null;
                     }
