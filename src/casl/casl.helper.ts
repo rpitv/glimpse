@@ -12,7 +12,7 @@ import { Request } from "express";
 @Injectable()
 export class CaslHelper {
     /**
-     * Keywords which are used to filter the results of a query. These keywords cannot be properites of
+     * Keywords which are used to filter the results of a query. These keywords cannot be properties of
      *  a filterable object type.
      */
     public readonly filterKeywords = [
