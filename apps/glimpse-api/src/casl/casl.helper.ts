@@ -88,7 +88,7 @@ export class CaslHelper {
                 this.getKeysFromDeepObject(obj[key]).forEach((k) => keys.add(k));
             }
         }
-        this.logger.debug('Keys from deep object: ' + JSON.stringify(keys));
+        this.logger.debug("Keys from deep object: " + JSON.stringify(keys));
         return keys;
     }
 
@@ -104,9 +104,12 @@ export class CaslHelper {
      * @throws Error if the rule is of type {@link RuleType.Custom}.
      * @private
      */
-    private getReqAndSubject(context: ExecutionContext, rule: RuleDef): {
-        req: Request,
-        subjectStr: Extract<AbilitySubjects, string>
+    private getReqAndSubject(
+        context: ExecutionContext,
+        rule: RuleDef
+    ): {
+        req: Request;
+        subjectStr: Extract<AbilitySubjects, string>;
     } {
         if (rule[0] === RuleType.Custom) {
             throw new Error(`Cannot test rule of type "${rule[0]}" with non-custom rule handler.`);
@@ -133,13 +136,12 @@ export class CaslHelper {
      */
     public getSelectedFields(context: ExecutionContext): Set<string> {
         if (context.getType<GqlContextType>() !== "graphql") {
-            throw new Error("Cannot get GraphQL info from non-GraphQL context")
+            throw new Error("Cannot get GraphQL info from non-GraphQL context");
         }
         const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
-
             for (const selection of fieldNode.selectionSet?.selections || []) {
                 this.assertNodeKind(selection, [Kind.FIELD, Kind.INLINE_FRAGMENT, Kind.FRAGMENT_SPREAD]);
                 if (selection.kind === Kind.FIELD) {
@@ -181,7 +183,6 @@ export class CaslHelper {
 
             // Each requested field...
             for (const fieldNode of info.fieldNodes) {
-
                 // Find the argument which is the filter, if present.
                 const filterArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (filterArg === undefined) {
@@ -205,7 +206,8 @@ export class CaslHelper {
                             }
                         }
                     });
-                } else { // The filter is a variable, we can just get the JSON object from the variables.
+                } else {
+                    // The filter is a variable, we can just get the JSON object from the variables.
                     this.logger.verbose("Filtering argument passed in as variable.");
                     const argName = filterArg.name.value;
                     const filterObj = info.variableValues[argName];
@@ -224,9 +226,10 @@ export class CaslHelper {
         }
 
         this.logger.debug(
-            `User attempting to filter using the following fields in their query: ${
-                JSON.stringify(Array.from(filteringFields))
-            }`);
+            `User attempting to filter using the following fields in their query: ${JSON.stringify(
+                Array.from(filteringFields)
+            )}`
+        );
 
         for (const field of filteringFields) {
             // Filter actions cannot have conditions, and cannot be applied to subject values.
@@ -261,7 +264,6 @@ export class CaslHelper {
         if (contextType === "graphql") {
             const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
             for (const fieldNode of info.fieldNodes) {
-
                 const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (sortArg === undefined) {
                     continue;
@@ -302,9 +304,9 @@ export class CaslHelper {
         }
 
         this.logger.debug(
-            `User attempting to sort using the following fields in their query: ${
-                JSON.stringify(Array.from(sortingFields))
-            }`
+            `User attempting to sort using the following fields in their query: ${JSON.stringify(
+                Array.from(sortingFields)
+            )}`
         );
 
         for (const field of sortingFields) {
@@ -340,7 +342,6 @@ export class CaslHelper {
             const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
             for (const fieldNode of info.fieldNodes) {
-
                 const paginationArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (paginationArg === undefined || paginationArg === null) {
                     continue;
@@ -414,7 +415,6 @@ export class CaslHelper {
 
             const inputFields = new Set<string>();
             for (const fieldNode of info.fieldNodes) {
-
                 const inputArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (inputArg === undefined) {
                     continue;
@@ -455,7 +455,9 @@ export class CaslHelper {
                     }
                 }
             }
-            this.logger.debug(`User input the following fields in their mutation: ${JSON.stringify(Array.from(inputFields))}`);
+            this.logger.debug(
+                `User input the following fields in their mutation: ${JSON.stringify(Array.from(inputFields))}`
+            );
             return inputFields;
         } else if (contextType === "http") {
             // TODO
@@ -479,7 +481,7 @@ export class CaslHelper {
      */
     private assertNodeKind(node: { kind: Kind } | undefined, expectedKind: Kind | Kind[]): void {
         if (Array.isArray(expectedKind)) {
-            this.logger.verbose(`Asserting that node kind "${node?.kind}" is one of "${expectedKind.join('", "')}".`)
+            this.logger.verbose(`Asserting that node kind "${node?.kind}" is one of "${expectedKind.join('", "')}".`);
             if (!expectedKind.includes(node?.kind)) {
                 // This should never happen.
                 this.logger.error(
@@ -490,7 +492,7 @@ export class CaslHelper {
                 throw new InternalServerErrorException("Unexpected node type");
             }
         } else {
-            this.logger.verbose(`Asserting that node kind "${node?.kind}" is "${expectedKind}".`)
+            this.logger.verbose(`Asserting that node kind "${node?.kind}" is "${expectedKind}".`);
             if (node?.kind !== expectedKind) {
                 // This should never happen.
                 this.logger.error(
@@ -514,17 +516,16 @@ export class CaslHelper {
         // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
         //  to a string before testing. Typeof classes === function.
         if (typeof subj === "string") {
-            this.logger.verbose('Getting subject as string but subject is already a string: ' + subj);
+            this.logger.verbose("Getting subject as string but subject is already a string: " + subj);
             return subj;
         } else if (typeof subj === "function") {
-            this.logger.verbose('Getting subject as a string from a class.');
+            this.logger.verbose("Getting subject as a string from a class.");
             const subjStr = (subj.modelName || subj.name) as Extract<AbilitySubjects, string>;
-            this.logger.verbose('Subject string: ' + subjStr);
+            this.logger.verbose("Subject string: " + subjStr);
             return subjStr;
         } else {
             this.logger.verbose(
-                'Attempted to get subject from a string but subject is not a string or class. Type: ' +
-                typeof subj
+                "Attempted to get subject from a string but subject is not a string or class. Type: " + typeof subj
             );
             throw new Error("Unknown subject type");
         }
@@ -598,7 +599,7 @@ export class CaslHelper {
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
-            this.logger.verbose('Failed basic ReadOne rule test.');
+            this.logger.verbose("Failed basic ReadOne rule test.");
             req.passed = false;
             return of(null);
         }
@@ -629,7 +630,7 @@ export class CaslHelper {
             map((value) => {
                 // Handler already marked the request as failed for some permission error.
                 if (req.passed === false) {
-                    this.logger.verbose("Failed ReadOne rule test. Handler already marked as failed.")
+                    this.logger.verbose("Failed ReadOne rule test. Handler already marked as failed.");
                     return null;
                 }
 
@@ -644,7 +645,7 @@ export class CaslHelper {
                 const subjectObj = subject(subjectStr, value);
 
                 if (!req.permissions.can(AbilityAction.Read, subjectObj)) {
-                    this.logger.verbose('Failed basic ReadOne rule test with value as subject.');
+                    this.logger.verbose("Failed basic ReadOne rule test with value as subject.");
                     req.passed = false;
                     return null;
                 }
@@ -663,7 +664,9 @@ export class CaslHelper {
                 // Test the ability against each requested field with subject value.
                 for (const field of fields) {
                     if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
-                        this.logger.verbose(`Failed field-based ReadOne rule test for field "${field}" with value as subject.`);
+                        this.logger.verbose(
+                            `Failed field-based ReadOne rule test for field "${field}" with value as subject.`
+                        );
                         req.passed = false;
                         return null;
                     }
@@ -741,13 +744,13 @@ export class CaslHelper {
 
         // Basic test with the provided action and subject.
         if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
-            this.logger.verbose("Failed basic ReadMany rule test.")
+            this.logger.verbose("Failed basic ReadMany rule test.");
             req.passed = false;
             return of(null);
         }
 
         // Make sure user has permission to sort by the fields which they are sorting by.
-        if(!this.canSortByFields(context, req, subjectStr, rule[2]?.orderInputName ?? "order")) {
+        if (!this.canSortByFields(context, req, subjectStr, rule[2]?.orderInputName ?? "order")) {
             this.logger.verbose(
                 "User doesn't have permission to sort by one or more of their supplied sorting arguments."
             );
@@ -756,10 +759,8 @@ export class CaslHelper {
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        if(!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
-            this.logger.verbose(
-                "User doesn't have permission to filter by one or more of their supplied filters."
-            );
+        if (!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
+            this.logger.verbose("User doesn't have permission to filter by one or more of their supplied filters.");
             req.passed = false;
             return of(null);
         }
@@ -799,7 +800,7 @@ export class CaslHelper {
             map((values) => {
                 // Handler already marked the request as failed for some permission error.
                 if (req.passed === false) {
-                    this.logger.verbose("Failed ReadMany rule test. Handler already marked as failed.")
+                    this.logger.verbose("Failed ReadMany rule test. Handler already marked as failed.");
                     return null;
                 }
 
@@ -837,11 +838,15 @@ export class CaslHelper {
                             //  will be set to null. The user won't necessarily know (as of now) whether the field is
                             //  actually null, or they just can't read it.
                             if (rule[2]?.strict ?? false) {
-                                this.logger.verbose(`Failed field-based ReadMany rule test for field "${field}" on one or more values.`);
+                                this.logger.verbose(
+                                    `Failed field-based ReadMany rule test for field "${field}" on one or more values.`
+                                );
                                 req.passed = false;
                                 return null;
                             } else {
-                                this.logger.verbose(`Failed field-based ReadMany rule test for field "${field}" on one value. More may come...`);
+                                this.logger.verbose(
+                                    `Failed field-based ReadMany rule test for field "${field}" on one value. More may come...`
+                                );
                                 value[field] = null;
                             }
                         }
@@ -902,10 +907,8 @@ export class CaslHelper {
         }
 
         // Make sure user has permission to filter by the fields which they are filtering by.
-        if(!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
-            this.logger.verbose(
-                "User doesn't have permission to filter by one or more of their supplied filters."
-            );
+        if (!this.canFilterByFields(context, req, subjectStr, rule[2]?.filterInputName ?? "filter")) {
+            this.logger.verbose("User doesn't have permission to filter by one or more of their supplied filters.");
             req.passed = false;
             return of(null);
         }
@@ -974,7 +977,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
-                        this.logger.verbose("Failed Create rule test. Handler already marked as failed.")
+                        this.logger.verbose("Failed Create rule test. Handler already marked as failed.");
                         return null;
                     }
 
@@ -1063,7 +1066,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
-                        this.logger.verbose("Failed Update rule test. Handler already marked as failed.")
+                        this.logger.verbose("Failed Update rule test. Handler already marked as failed.");
                         return null;
                     }
 
@@ -1140,7 +1143,7 @@ export class CaslHelper {
                 map((newValue) => {
                     // Handler already marked the request as failed for some permission error.
                     if (req.passed === false) {
-                        this.logger.verbose("Failed Delete rule test. Handler already marked as failed.")
+                        this.logger.verbose("Failed Delete rule test. Handler already marked as failed.");
                         return null;
                     }
 

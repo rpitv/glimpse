@@ -5,43 +5,14 @@ import { RuleDef, RuleFn, RULES_METADATA_KEY, RuleType } from "./rules.decorator
 import { Reflector } from "@nestjs/core";
 import { CaslHelper } from "./casl.helper";
 
-/*
-General CRUD steps:
-
-Update:
-- Check the user has permission to update at least one field on objects of the given type
-- Check the user has permission to update all the supplied fields on objects of the given type
-- Get the object to be updated
-- Check the user has permission to update at least one field on the object
-- Check the user has permission to update all the fields on the object
-- Tentatively update the object via a transaction
-- Check the user has permission to update at least one field on the object
-- Check the user has permission to update all the fields on the object
-- Save the transaction, or rollback if either of the previous two checks failed.
-
-Create:
-- Check the user has permission to create at least one field on objects of the given type
-- Check the user has permission to create all the supplied fields on objects of the given type
-- Tentatively create the object via a transaction
-- Check the user has permission to create at least one field on the object
-- Check the user has permission to create all the fields on the object, including defaults
-- Save the transaction, or rollback if either of the previous two checks failed.
-
-Delete:
-- Check the user has permission to delete objects of the given type*
-- Get the object to be deleted
-- Check the user has permission to delete the object
-- Delete the object
-
-    *NOTE: Field-based permissions do not make sense in the context of record deletion. There should be constraints
-    (either in code or the database itself) to specifically prevent field restrictions from being set on delete rules.
-
- */
-
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
     private readonly logger: Logger = new Logger("CaslInterceptor");
 
+    /**
+     * Map of RuleType to the corresponding handler function.
+     * @private
+     */
     private readonly handlers: Map<RuleType, RuleFn> = new Map([
         [RuleType.ReadOne, this.caslHelper.handleReadOneRule],
         [RuleType.ReadMany, this.caslHelper.handleReadManyRule],
@@ -59,13 +30,22 @@ export class CaslInterceptor implements NestInterceptor {
     ) {}
 
     /**
-     * Format a Rule's name into a string that can be used to identify it in logs.
-     *  Returns a string in the format 'Rule "<name>"' for named rules, or 'Unnamed rule' for unnamed rules.
+     * Format a Rule's name into a string that can be used to identify it in logs. If a name was not provided in the
+     *  rule's config, it is inferred from the rule's type and subject. If a name was provided but is null or an empty
+     *  string, "Unnamed rule" is returned. Otherwise, whatever value is provided in the config is used.
      * @param rule Rule to format the name of.
+     * @returns Formatted name of the rule in the form "Rule "name"". If the rule is unnamed, then "Unnamed rule" is
+     *  returned.
      * @private
      */
     private formatRuleName(rule: RuleDef): string {
-        return rule[2]?.name ? `Rule "${rule[2].name}"` : "Unnamed rule";
+        const setName = rule[2]?.name;
+        // If a name wasn't provided in the rule config, the name can be inferred from the rule's type and subject.
+        if(setName === undefined) {
+            return `Rule "${rule[0]} ${rule[1]}"`
+        }
+        // If a name was explicitly set but is null or an empty string, use "Unnamed rule". Otherwise, return the name.
+        return setName ? `Rule "${setName}"` : "Unnamed rule";
     }
 
     async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -88,6 +68,9 @@ export class CaslInterceptor implements NestInterceptor {
         if (!rules || rules.length === 0) {
             this.logger.verbose("No rules applied for the given resource. Pass.");
         } else
+            // Rules are applied recursively, so we need to reverse the order of the rules so that the first rule in the
+            //  list of rules is the first to be called. That rule then calls the next rule, and so on, until the actual
+            //  resolver/handler is called.
             for (let i = rules.length - 1; i >= 0; i--) {
                 const rule = rules[i];
                 const ruleNameStr = this.formatRuleName(rule);
@@ -96,6 +79,8 @@ export class CaslInterceptor implements NestInterceptor {
                 const nextTemp = nextRuleFn;
                 const handler = this.handlers.get(rule[0]);
 
+                // This should only happen if this.handlers is not set up properly to define a handler for every
+                //  RuleType.
                 if (!handler) {
                     throw new Error(`Unsupported rule type ${rule[0]} on ${ruleNameStr}.`);
                 }
@@ -107,9 +92,10 @@ export class CaslInterceptor implements NestInterceptor {
                         tap((value) => {
                             this.logger.verbose(`Rule handler for ${ruleNameStr} returned.`);
 
-                            // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows the actual
-                            //  handler to set this value to true/false if it needs to. This is particularly applicable to mutation
-                            //  handlers (create/update/delete), where you may want to check permissions mid-database transaction.
+                            // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows
+                            //  the actual handler to set this value to true/false if it needs to. This is particularly
+                            //  applicable to mutation handlers (create/update/delete), where you may want to check
+                            //  permissions mid-database transaction.
                             if (!req.passed) {
                                 this.logger.debug(
                                     `${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
