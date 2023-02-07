@@ -11,8 +11,8 @@ import { CaslInterceptor } from "./casl/casl.interceptor";
 import { CaseSensitivity } from "./generic/case-sensitivity.enum";
 import { OrderDirection } from "./generic/order-direction.enum";
 import { ComplexityPlugin } from "./gql-complexity.plugin";
-import {PrismaModule} from "./prisma/prisma.module";
-import {PrismaInterceptor} from "./prisma/prisma.interceptor";
+import { PrismaModule } from "./prisma/prisma.module";
+import { PrismaInterceptor } from "./prisma/prisma.interceptor";
 
 @Module({
     imports: [
@@ -38,7 +38,8 @@ import {PrismaInterceptor} from "./prisma/prisma.interceptor";
             provide: APP_FILTER,
             useClass: MainExceptionFilter
         },
-        { // IMPORTANT! PrismaInterceptor must be registered before any other interceptors which use req.prismaTx.
+        {
+            // IMPORTANT! PrismaInterceptor must be registered before any other interceptors which use req.prismaTx.
             provide: APP_INTERCEPTOR,
             useClass: PrismaInterceptor
         },

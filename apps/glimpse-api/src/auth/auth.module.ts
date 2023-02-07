@@ -6,7 +6,7 @@ import { AuthResolver } from "./auth.resolver";
 import { AuthSerializer } from "./auth.serializer";
 import { AuthController } from "./auth.controller";
 import { DiscordStrategy } from "./discord.strategy";
-import {PrismaModule} from "../prisma/prisma.module";
+import { PrismaModule } from "../prisma/prisma.module";
 
 @Module({
     imports: [PassportModule, PrismaModule],
