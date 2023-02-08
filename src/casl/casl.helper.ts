@@ -162,7 +162,7 @@ export class CaslHelper {
     /**
      * Check that the user is allowed to filter a query by the given fields, assuming a filter has been supplied.
      * @param context NestJS execution context.
-     * @param req Express request object. Should contain the user's permissions on <pre>req.permissions</pre>.
+     * @param req Express request object. Should contain the user's permissions on {@link Express.Request#permissions}.
      * @param subjectStr The type of subject which the user is attempting to filter.
      * @param argName Name of the filter parameter in the case of GraphQL queries, or the filter property within the
      *  body for HTTP queries.
@@ -245,7 +245,7 @@ export class CaslHelper {
     /**
      * Check that the user is allowed to sort a query by the given fields, assuming a sort order has been supplied.
      * @param context NestJS execution context.
-     * @param req Express request object. Should contain the user's permissions on <pre>req.permissions</pre>.
+     * @param req Express request object. Should contain the user's permissions on {@link Express.Request#permissions}.
      * @param subjectStr The type of subject which the user is attempting to sort.
      * @param argName Name of the sort parameter in the case of GraphQL queries, or the sort property within the body
      *  for HTTP queries.
@@ -532,21 +532,26 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the given ability has permission to perform the given rule. Rule is defined as a custom function
-     *  set within the rule decorator. This function is almost as simple as just calling the rule's custom function,
-     *  but it does perform a couple sanity checks before doing so.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.Custom}. This function just ensures that the
+     *  rule's type is {@link RuleType.Custom} and then calls the rule's custom definition.
+     *
+     *  This function is almost completely unnecessary. Since this function has the same definition as the rule's custom
+     *  function itself, we could technically just call the rule's custom function directly. However, the {@link Rule}
+     *  decorator accepts classes as the subject type in non-custom rules, and there isn't a <i>great</i> way to
+     *  distinguish between a function and class at runtime. With some refactoring, this could be made to work, but
+     *  isn't a priority as of writing this.
      *
      * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
      *  applied to.
      * @param context NestJS execution context.
-     * @param rule Rule to test. If rule type is not Custom, or if the rule definition is not a RuleFn, an error will be
-     *  thrown.
+     * @param rule {@link RuleDef} to test. If rule type is not {@link RuleType.Custom}, or if the rule definition is
+     *  not a {@link RuleFn}, an error will be thrown.
      * @param handler The handler that calls the request method/resolver, or the next interceptor in line if applicable.
      *  This is passed to the rule function, allowing the rule function to call the resolver at the appropriate time.
      * @returns The returned value from the rule function. Typically, this will be the value returned from the
      *  resolver/handler, but the rule function is allowed to mutate that value, or return a completely different value.
      *  Whatever is returned should be treated as the final value returned from the resolver/handler.
-     * @throws Error if the rule type is not Custom, or if the rule definition is not a RuleFn.
+     * @throws Error if the rule type is not {@link RuleType.Custom}.
      */
     public handleCustomRule<T = any>(
         context: ExecutionContext,
@@ -561,32 +566,39 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} within their {@link GlimpseAbility},
-     *  and then call and return the passed handler's value if so. Permissions are also tested against the specific
-     *  value that is returned by the handler, so it is possible for the handler to be called and the request still to
-     *  fail if the user didn't have permission to read the specific value in question. For this reason, the
-     *  resolvers/handlers which this rule handler is applied to should not have any mutating effects.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.ReadOne}. This function ensures that the user has
+     *  permission to read a single resource of the given type, and intercepts the returned value from the
+     *  resolver/handler that it is applied to, to make sure the user has permission to read that specific value.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read the resource, then this method sets {@link Express.Request#passed}
+     *  to false on the context's request object and returns null, potentially before calling the handler. From there,
+     *  the {@link CaslInterceptor} will see that {@link Request#passed} is false and throw an error.
+     *  {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule is applied to,
+     *  which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument.
+     *
+     * @todo Support toggling strict mode?
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
      * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
-     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type.
+     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may
+     *  no longer be required.
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not ReadOne, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
      *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
      *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
-     * @throws Error if the rule type is not {@link RuleType.ReadOne}.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
@@ -595,6 +607,7 @@ export class CaslHelper {
         handler: () => Observable<T | null>
     ): Observable<T | null> {
         this.logger.debug("Handling ReadOne rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -679,23 +692,22 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} within their {@link GlimpseAbility},
-     *  and then call and return the passed handler's value if so. Permissions are also tested against the specific
-     *  values that is returned by the handler, so it is possible for the handler to be called and the request still to
-     *  fail if the user didn't have permission to read the specific values in question. For this reason, the
-     *  resolvers/handlers which this rule handler is applied to should not have any mutating effects.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.ReadMany}. This function ensures that the user
+     *  has permission to read an array of resources of the given type, and intercepts the returned values from the
+     *  resolver/handler that it is applied to, to make sure the user has permission to read all the returned values.
      *
      *  In addition to traditional subject/field permission checks, ReadMany rules also allow for the use of sorting,
      *  filtering, and pagination. These permissions are handled as such:
      *
      *  - <b>Sorting:</b> The user must have {@link AbilityAction.Sort} permission on the field being sorted by. The
-     *    user's {@link GlimpseAbility} to read the field(s) being sorted is not currently taken into account. As such,
-     *    it is possible for a user to infer some information about fields which they cannot read as long as they have
-     *    permission to sort by them.
+     *    user's ability to read the field(s) being sorted is not currently taken into account. As such, it is possible
+     *    for a user to infer some information about fields which they cannot read as long as they have permission to
+     *    sort by them. With combinations of subsequent sorts, the user may be able to decipher the value completely.
      *  - <b>Filtering:</b> The user must have {@link AbilityAction.Filter} permission on the field being filtered by.
-     *    The user's {@link GlimpseAbility} to read the field(s) being filtered is not currently taken into account. As
+     *    The user's ability to read the individual field(s) being filtered is not currently taken into account. As
      *    such, it is possible for a user to infer some information about fields which they cannot read as long as they
-     *    have permission to filter by them.
+     *    have permission to filter by them. With complex and combinations of filters, the user may be able to decipher
+     *    the value completely.
      *  - <b>Pagination:</b> Generally, there are no permission checks against permission necessary. However, if the
      *    user is using cursor-based pagination, they must have permission to sort by the "ID" field. This is because
      *    cursor-based pagination requires sorting by some field by its very nature, and the "ID" field is the only
@@ -703,25 +715,33 @@ export class CaslHelper {
      *    checks.
      *
      *  Currently, sorting and filtering permissions cannot have conditions applied to them. It is expected that any
-     *  sorting or filtering permissions that the user has do not have conditions applied. If they do, the conditions
+     *  sorting or filtering permissions that the user has, do not have conditions applied. If they do, the conditions
      *  will currently be ignored and the user will be able to sort or filter by the field regardless of the conditions.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read the resources, then this method sets {@link Express.Request#passed}
+     *  to false on the context's request object and returns null, potentially before calling the handler. From there,
+     *  the {@link CaslInterceptor} will see that {@link Request#passed} is false and throw an error.
+     *  {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule is applied to,
+     *  which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument. Namely, strict mode currently applies exclusively to this rule type, allowing you to control what
+     *  happens when the user doesn't have permission to read a field only on a subset of values of the requested type.
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
      * @typeParam T - The type of the array of values expected to be returned by the resolver/handler which this rule
      *  is being applied to. E.g., if the resolver returns an array of {@link User| Users}, T would be {@link User}.
-     *  Currently, this must be an instance of a valid {@link AbilitySubjects} type.
+     *  Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may no longer be
+     *  required.
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not ReadMany, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
      *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
      *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. If the rule's strict mode is
@@ -729,9 +749,9 @@ export class CaslHelper {
      *  any object within the array returned by handler. However, if the rule's strict mode is disabled, then those
      *  fields will be set to null on the relevant objects. Note that if the user doesn't have permission to read the
      *  field on <i>any</i> object of the given type, the same behavior as strict mode will occur. That is, null will
-     *  be returned and {@link Request#passed} will be set to false. It is only when the user has permission to read the
-     *  field on some objects of the given type that the strict mode behavior will differ.
-     * @throws Error if the rule type is not {@link RuleType.ReadMany}.
+     *  be returned and {@link Express.Request#passed} will be set to false. It is only when the user has permission to
+     *  read the field on some objects of the given type that the strict mode behavior will differ.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
@@ -740,6 +760,7 @@ export class CaslHelper {
         handler: () => Observable<T[] | null>
     ): Observable<T[] | null> {
         this.logger.debug("Handling ReadMany rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -860,35 +881,44 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Count}
-     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
-     *  have permission to read at least one field on the subject type which they're attempting to count. The user must
-     *  also have permission to filter by any fields which they're trying to filter their count by.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.Count}. This function ensures that the user
+     *  has permission to read at least one resource of the given type, as count resolvers should only be returning the
+     *  count of resources the user has permission to read (as well as match their supplied filter).
      *
-     *  Currently, filtering permissions cannot have conditions applied to them. It is expected that any filtering
-     *  permissions that the user has do not have conditions applied. If they do, the conditions will currently be
-     *  ignored and the user will be able to sort or filter by the field regardless of the conditions.
+     *  The user must have {@link AbilityAction.Filter} permission on the field being filtered by. The user's
+     *  ability to read the individual field(s) being filtered is not currently taken into account. As such, it is
+     *  possible for a user to infer some information about fields which they cannot read as long as they have
+     *  permission to filter by them. With complex and combinations of filters, the user may be able to decipher the
+     *  value completely.
      *
-     *  Counting is primarily used for pagination so the interface can show how many pages are remaining.
+     *  Currently, filtering permissions cannot have conditions applied to them. It is expected that any sorting or
+     *  filtering permissions that the user has, do not have conditions applied. If they do, the conditions will
+     *  currently be ignored and the user will be able to sort or filter by the field regardless of the conditions.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read the resource type, then this method sets
+     *  {@link Express.Request#passed} to false on the context's request object and returns null, potentially before
+     *  calling the handler. From there, the {@link CaslInterceptor} will see that {@link Request#passed} is false and
+     *  throw an error. {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule
+     *  is applied to, which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
-     * @see {@link handleReadManyRule} for where pagination is used.
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument.
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not Count, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
-     *  applicable. This is called after the necessary rule checks pass.
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
-     * @throws Error if the rule type is not {@link RuleType.Count}.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCountRule(
@@ -897,6 +927,7 @@ export class CaslHelper {
         handler: () => Observable<number | null>
     ): Observable<number | null> {
         this.logger.debug("Handling Count rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -919,31 +950,40 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Create}
-     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
-     *  have permission to create at least one field on the subject type which they're attempting to create. The user
-     *  must also have permission to read the fields which they're attempting to read after creation. If they have
-     *  permission to create the object but can't read the requested fields, the creation will be rolled back. The user
-     *  must have permission not only to create an object with the fields they've supplied, but also any default
-     *  values generated by the database.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.Create}. This function ensures that the user has
+     *  permission to create a resource of the given type, and intercepts the returned value from the resolver/handler
+     *  that it is applied to, to make sure the user has permission to read that specific value. This is done by
+     *  wrapping this method in the {@link this#readOneRuleHandler} method.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read or create the resource, then this method sets
+     *  {@link Express.Request#passed} to false on the context's request object and returns null, potentially before
+     *  calling the handler. From there, the {@link CaslInterceptor} will see that {@link Request#passed} is false and
+     *  throw an error. {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule
+     *  is applied to, which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument.
+     *
+     * @todo Support toggling strict mode?
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
+     * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
+     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may
+     *  no longer be required.
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not Create, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
-     *  applicable. This is called after the necessary rule checks pass.
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
-     * @throws Error if the rule type is not {@link RuleType.Create}.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCreateRule<T extends Exclude<AbilitySubjects, string>>(
@@ -952,6 +992,7 @@ export class CaslHelper {
         handler: () => Observable<T | null>
     ): Observable<T | null> {
         this.logger.debug("Handling Create rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -972,63 +1013,73 @@ export class CaslHelper {
             }
         }
 
-        return handler()
-            .pipe(
-                map((newValue) => {
-                    // Handler already marked the request as failed for some permission error.
-                    if (req.passed === false) {
-                        this.logger.verbose("Failed Create rule test. Handler already marked as failed.");
-                        return null;
-                    }
 
-                    const subjectObj = subject(subjectStr, newValue);
-
-                    // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
-                    for (const field of Object.keys(newValue)) {
-                        if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
-                            this.logger.verbose(`Failed Create rule test for field ${field} with value.`);
-                            req.passed = false;
+        // Make sure user has permission to read the fields they're trying to read from their creation. If it's
+        //  determined after the creation that the user doesn't have permission to read it, the creation will be rolled
+        //  back thanks to PrismaInterceptor.
+        return this.handleReadOneRule(context, rule, () => {
+            return handler()
+                .pipe(
+                    map((newValue) => {
+                        // Handler already marked the request as failed for some permission error.
+                        if (req.passed === false) {
+                            this.logger.verbose("Failed Create rule test. Handler already marked as failed.");
                             return null;
                         }
-                    }
 
-                    req.passed = true;
-                    return newValue;
-                })
-            )
-            .pipe((v) => {
-                // Make sure user has permission to read the fields they're trying to read after the creation. Creation will
-                //  be rolled back if not.
-                return this.handleReadOneRule(context, rule, () => v);
-            });
+                        const subjectObj = subject(subjectStr, newValue);
+
+                        // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+                        for (const field of Object.keys(newValue)) {
+                            if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
+                                this.logger.verbose(`Failed Create rule test for field ${field} with value.`);
+                                req.passed = false;
+                                return null;
+                            }
+                        }
+
+                        req.passed = true;
+                        return newValue;
+                    })
+                )
+        });
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Update}
-     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
-     *  have permission to update at least one field on the subject type which they're attempting to update. The user
-     *  must also have permission to read the fields which they're attempting to read after the update. If they have
-     *  permission to update the object but can't read the requested fields, the update will be rolled back. The user
-     *  must have permission not only to update an object with the fields they've supplied, but also any default
-     *  values generated by the database.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.Update}. This function ensures that the user has
+     *  permission to update a resource of the given type, and intercepts the returned value from the resolver/handler
+     *  that it is applied to, to make sure the user has permission to read that specific value. This is done by
+     *  wrapping this method in the {@link this#readOneRuleHandler} method.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read or update the resource, then this method sets
+     *  {@link Express.Request#passed} to false on the context's request object and returns null, potentially before
+     *  calling the handler. From there, the {@link CaslInterceptor} will see that {@link Request#passed} is false and
+     *  throw an error. {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule
+     *  is applied to, which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument.
+     *
+     * @todo Support toggling strict mode?
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
+     * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
+     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may
+     *  no longer be required.
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not Update, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
-     *  applicable. This is called after the necessary rule checks pass.
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
-     * @throws Error if the rule type is not {@link RuleType.Update}.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleUpdateRule<T extends Exclude<AbilitySubjects, string>>(
@@ -1037,6 +1088,7 @@ export class CaslHelper {
         handler: () => Observable<T | null>
     ): Observable<T | null> {
         this.logger.debug("Handling Update rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -1059,7 +1111,7 @@ export class CaslHelper {
 
         // FIXME currently there is no way to check within the interceptor if the user has permission to update the
         //  object to update before it's been updated. This check needs to be done in the resolver. This can be solved
-        //  in a future refactor.
+        //  in a future refactor. Unlike the delete rule, this is a required check.
 
         return handler()
             .pipe(
@@ -1094,30 +1146,40 @@ export class CaslHelper {
     }
 
     /**
-     * Test that the current user has permission to perform the given {@link Rule} with type {@link RuleType.Delete}
-     *  within their {@link GlimpseAbility}, and then call and return the passed handler's value if so. The user must
-     *  have permission to delete the object that they are trying to delete. Field-based permissions do not
-     *  make sense in the context of delete actions, and as a result, are ignored. The user must also have permission to
-     *  read the fields which they're attempting to read after the deletion. If they have permission to delete the
-     *  object but can't read the requested fields, the deletion will be rolled back.
+     * Handle a {@link Rule} definition with rule type {@link RuleType.Delete}. This function ensures that the user has
+     *  permission to delete a resource of the given type, and intercepts the returned value from the resolver/handler
+     *  that it is applied to, to make sure the user has permission to read that specific value. This is done by
+     *  wrapping this method in the {@link this#readOneRuleHandler} method.
      *
-     *  The current user's permissions are determined by the {@link Request#permissions} property within the current
-     *  NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this value.
+     *  The current user's permissions are determined by the {@link Express.Request#permissions} property within the
+     *  current NestJS execution context. The {@link CaslInterceptor} is expected to have already initialized this
+     *  value.
      *
-     *  If any rule checks fail, then this method sets {@link Request#passed} to false on the context's request object
-     *  and returns null, potentially before calling the handler. From there, the {@link CaslInterceptor} will see that
-     *  {@link Request#passed} is false and throw an error.
+     *  If the user does not have permission to read or delete the resource, then this method sets
+     *  {@link Express.Request#passed} to false on the context's request object and returns null, potentially before
+     *  calling the handler. From there, the {@link CaslInterceptor} will see that {@link Request#passed} is false and
+     *  throw an error. {@link Express.Request#passed} can also be set to false by the resolver/handler that this rule
+     *  is applied to, which stops the rule checks and immediately returns back to the {@link CaslInterceptor}.
      *
+     *  Options can be supplied to this function to change the behavior of the rule checks within the {@link RuleDef}
+     *  argument.
+     *
+     * @todo Support toggling strict mode?
+     *
+     * @see {@link RuleOptions}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      *
+     * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
+     *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may
+     *  no longer be required.
      * @param context - NestJS execution context.
-     * @param rule - Rule to test. If rule type is not Delete, or if the rule definition is a RuleFn, an error will be
-     *  thrown.
-     * @param handler - The handler that calls the request method/resolver, or the next interceptor in line if
-     *  applicable. This is called after the necessary rule checks pass.
+     * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.
+     * @param handler - The handler that calls the request method/resolver, or the next rule/interceptor in line if
+     *  applicable. This is called after the necessary rule checks pass, and then additional checks are applied to the
+     *  return value.
      * @returns The value returned from the handler, or null if the rule checks fail. This rule handler does not ever
      *  mutate the return value from the next handler.
-     * @throws Error if the rule type is not {@link RuleType.Delete}.
+     * @throws Error if the rule type is {@link RuleType.Custom}.
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleDeleteRule<T extends Exclude<AbilitySubjects, string>>(
@@ -1125,6 +1187,8 @@ export class CaslHelper {
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
+        this.logger.debug("Handling Delete rule.");
+        // Asserts that the rule is not a RuleType.Custom rule.
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
@@ -1136,7 +1200,7 @@ export class CaslHelper {
 
         // FIXME currently there is no way to check within the interceptor if the user has permission to delete the
         //  object to delete before it's been deleted. This check needs to be done in the resolver. This can be solved
-        //  in a future refactor. Technically not required, but it would improve efficiency.
+        //  in a future refactor. Technically not required, but it could improve efficiency.
 
         return handler()
             .pipe(
