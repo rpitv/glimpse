@@ -5,6 +5,13 @@ import { RuleDef, RuleFn, RULES_METADATA_KEY, RuleType } from "./rules.decorator
 import { Reflector } from "@nestjs/core";
 import { CaslHelper } from "./casl.helper";
 
+/**
+ * Interceptor that retrieves the @Rule() decorators from controller handlers and resolvers, and makes sure that the
+ *  currently logged-in user has permission to perform the attached action. If the user does not have permission, then
+ *  a ForbiddenException is thrown. If the user does have permission, then the request continues on as normal. In some
+ *  situations, the request's response may be altered by the interceptor to remove fields that the user is not allowed
+ *  to see.
+ */
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
     private readonly logger: Logger = new Logger("CaslInterceptor");
@@ -41,8 +48,8 @@ export class CaslInterceptor implements NestInterceptor {
     private formatRuleName(rule: RuleDef): string {
         const setName = rule[2]?.name;
         // If a name wasn't provided in the rule config, the name can be inferred from the rule's type and subject.
-        if(setName === undefined) {
-            return `Rule "${rule[0]} ${rule[1]}"`
+        if (setName === undefined) {
+            return `Rule "${rule[0]} ${rule[1]}"`;
         }
         // If a name was explicitly set but is null or an empty string, use "Unnamed rule". Otherwise, return the name.
         return setName ? `Rule "${setName}"` : "Unnamed rule";
@@ -67,10 +74,11 @@ export class CaslInterceptor implements NestInterceptor {
 
         if (!rules || rules.length === 0) {
             this.logger.verbose("No rules applied for the given resource. Pass.");
-        } else
-            // Rules are applied recursively, so we need to reverse the order of the rules so that the first rule in the
-            //  list of rules is the first to be called. That rule then calls the next rule, and so on, until the actual
-            //  resolver/handler is called.
+        }
+        // Rules are applied recursively, so we need to reverse the order of the rules so that the first rule in the
+        //  list of rules is the first to be called. That rule then calls the next rule, and so on, until the actual
+        //  resolver/handler is called.
+        else
             for (let i = rules.length - 1; i >= 0; i--) {
                 const rule = rules[i];
                 const ruleNameStr = this.formatRuleName(rule);

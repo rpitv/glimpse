@@ -9,14 +9,33 @@ import { Logger } from "@nestjs/common";
  * Predefined complexity estimators that can be re-used in standard queries.
  */
 export class Complexities {
-    static FindOne(options: ComplexityEstimatorArgs): number {
+    static ReadOne(options: ComplexityEstimatorArgs): number {
         return 10 + options.childComplexity;
     }
-    static FindMany(options: ComplexityEstimatorArgs): number {
+    static ReadMany(options: ComplexityEstimatorArgs): number {
         return 10 + (options.args.pagination?.take ?? 20) * options.childComplexity;
+    }
+    static Create(options: ComplexityEstimatorArgs): number {
+        return 10 + options.childComplexity;
+    }
+    static Update(options: ComplexityEstimatorArgs): number {
+        return 10 + options.childComplexity;
+    }
+    static Delete(options: ComplexityEstimatorArgs): number {
+        return 10 + options.childComplexity;
+    }
+    static Count(options: ComplexityEstimatorArgs): number {
+        return 10 + options.childComplexity;
     }
 }
 
+/**
+ * GraphQL plugin that restricts the complexity of individual queries in order to prevent any single request from
+ *  getting too expensive.
+ *  FIXME While this plugin works, there's nothing stopping the user from sending lots of requests quickly. Some sort of
+ *   user-specific time-based complexity limit should probably be added.
+ * @see {@link https://docs.nestjs.com/graphql/complexity}
+ */
 @Plugin()
 export class ComplexityPlugin implements ApolloServerPlugin {
     private readonly logger: Logger = new Logger("ComplexityPlugin");
