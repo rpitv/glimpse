@@ -5,7 +5,7 @@ enum AlertLogOrderableFields {
     id = "id",
     message = "message",
     severity = "severity",
-    timestamp = "timestamp",
+    timestamp = "timestamp"
 }
 
 registerEnumType(AlertLogOrderableFields, {
