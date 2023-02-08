@@ -49,9 +49,9 @@ export class CaslInterceptor implements NestInterceptor {
         const setName = rule[2]?.name;
         // If a name wasn't provided in the rule config, the name can be inferred from the rule's type and subject.
         if (setName === undefined && rule[0] !== RuleType.Custom) {
-            if(typeof rule[1] === "string") {
+            if (typeof rule[1] === "string") {
                 return `Rule "${rule[0]} ${rule[1]}"`;
-            } else if(typeof rule[1] === "function") {
+            } else if (typeof rule[1] === "function") {
                 return `Rule "${rule[0]} ${rule[1].modelName || rule[1].name || rule[1]}"`;
             }
         }

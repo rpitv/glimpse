@@ -3,7 +3,7 @@ import { User } from "../user/user.entity";
 import { UseGuards } from "@nestjs/common";
 import { GraphqlLocalAuthGuard } from "./GraphqlLocalAuthGuard.guard";
 import { CurrentUser } from "./current-user.decarator";
-import {Rule, RuleType} from "../casl/rules.decorator";
+import { Rule, RuleType } from "../casl/rules.decorator";
 
 @Resolver(() => User)
 export class AuthResolver {
