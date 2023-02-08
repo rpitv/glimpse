@@ -102,20 +102,20 @@ export class UserResolver {
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const userToUpdate = await ctx.req.prismaTx.user.findFirst({
+        const rowToUpdate = await ctx.req.prismaTx.user.findFirst({
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
         });
 
-        if (!userToUpdate) {
+        if (!rowToUpdate) {
             throw new BadRequestException("User not found");
         }
 
         // Make sure the user has permission to update all the fields they are trying to update, given the object's
         //  current state.
         for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("User", userToUpdate), field)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("User", rowToUpdate), field)) {
                 ctx.req.passed = false;
                 return null;
             }
@@ -139,19 +139,19 @@ export class UserResolver {
     async deleteUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
 
-        const userToDelete = await ctx.req.prismaTx.user.findFirst({
+        const rowToDelete = await ctx.req.prismaTx.user.findFirst({
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).User]
             }
         });
 
-        if (!userToDelete) {
+        if (!rowToDelete) {
             throw new BadRequestException("User not found");
         }
 
         // Make sure the user has permission to delete the object. Technically not required since the interceptor would
         //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("User", userToDelete))) {
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("User", rowToDelete))) {
             ctx.req.passed = false;
             return null;
         }
