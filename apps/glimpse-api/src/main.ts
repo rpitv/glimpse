@@ -18,9 +18,11 @@ function isHttps(): boolean {
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-    if(!process.env.TRUST_PROXY) {
-        throw new Error('Required environment variable TRUST_PROXY is not set. ' +
-            'Set to "false" if you wish to disable trusting proxies.');
+    if (!process.env.TRUST_PROXY) {
+        throw new Error(
+            "Required environment variable TRUST_PROXY is not set. " +
+                'Set to "false" if you wish to disable trusting proxies.'
+        );
     }
     app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : process.env.TRUST_PROXY);
 
@@ -60,7 +62,7 @@ async function bootstrap() {
     await app.listen(4000);
 }
 
-bootstrap().catch(e => {
+bootstrap().catch((e) => {
     console.error(e);
     process.exit(1);
 });

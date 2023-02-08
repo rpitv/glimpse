@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { argon2id, verify, hash } from "argon2";
 import { User } from "@prisma/client";
-import {Request} from "express";
+import { Request } from "express";
 
 export const PASSWORD_HASH_OPTIONS = {
     type: argon2id,
@@ -41,7 +41,7 @@ export class AuthService {
                     service: "Glimpse API (Local)",
                     ip: req.ip
                 }
-            })
+            });
 
             return user;
         }
@@ -55,7 +55,7 @@ export class AuthService {
             }
         });
 
-        if(user) {
+        if (user) {
             delete user.password;
             await this.prisma.accessLog.create({
                 data: {
@@ -63,7 +63,7 @@ export class AuthService {
                     service: "Glimpse API (Discord)",
                     ip: req.ip
                 }
-            })
+            });
         }
 
         return user;
