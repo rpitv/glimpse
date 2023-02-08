@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { argon2id, verify, hash } from "argon2";
 import { User } from "@prisma/client";
+import {Request} from "express";
 
 export const PASSWORD_HASH_OPTIONS = {
     type: argon2id,
@@ -18,11 +19,11 @@ export class AuthService {
         return hash(pass, PASSWORD_HASH_OPTIONS);
     }
 
-    async verifyPassword(username: string, pass: string): Promise<boolean> {
-        return (await this.attemptLogin(username, pass)) !== null;
+    async verifyPassword(req: Request, username: string, pass: string): Promise<boolean> {
+        return (await this.attemptLogin(req, username, pass)) !== null;
     }
 
-    async attemptLogin(username: string, pass: string): Promise<User | null> {
+    async attemptLogin(req: Request, username: string, pass: string): Promise<User | null> {
         const user = await this.prisma.user.findFirst({
             where: {
                 username: username
@@ -34,16 +35,37 @@ export class AuthService {
         //  responsibility to argon2.
         if (user && (await verify(user.password, pass, PASSWORD_HASH_OPTIONS))) {
             delete user.password;
+            await this.prisma.accessLog.create({
+                data: {
+                    userId: user.id,
+                    service: "Glimpse API (Local)",
+                    ip: req.ip
+                }
+            })
+
             return user;
         }
         return null;
     }
 
-    async verifyDiscordCallback(userId: string): Promise<User | null> {
-        return this.prisma.user.findFirst({
+    async verifyDiscordCallback(req: Request, userId: string): Promise<User | null> {
+        const user = await this.prisma.user.findFirst({
             where: {
                 discord: userId
             }
         });
+
+        if(user) {
+            delete user.password;
+            await this.prisma.accessLog.create({
+                data: {
+                    userId: user.id,
+                    service: "Glimpse API (Discord)",
+                    ip: req.ip
+                }
+            })
+        }
+
+        return user;
     }
 }
