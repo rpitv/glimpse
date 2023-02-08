@@ -4,7 +4,7 @@ import { createPrismaAbility, PrismaAbility } from "@casl/prisma";
 import { Injectable, Logger } from "@nestjs/common";
 import { GroupPermission, UserPermission } from "@prisma/client"; // FIXME import nestjs entities instead
 import { PrismaService } from "../prisma/prisma.service";
-import {AccessLog} from "../access_logs/access_log.entity";
+import { AccessLog } from "../access_logs/access_log.entity";
 
 export enum AbilityAction {
     Manage = "manage",

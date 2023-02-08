@@ -1,9 +1,5 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {
-    IsDate,
-    IsInt,MaxLength,
-    Min,
-} from "class-validator";
+import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { AccessLog as PrismaAccessLog } from "@prisma/client";
 
 @ObjectType()
