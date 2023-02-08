@@ -24,7 +24,7 @@ export class UserResolver {
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [User], { complexity: Complexities.FindMany })
+    @Query(() => [User], { complexity: Complexities.ReadMany })
     @Rule(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: { req: Request },
@@ -52,7 +52,7 @@ export class UserResolver {
         });
     }
 
-    @Query(() => User, { nullable: true, complexity: Complexities.FindOne })
+    @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, User)
     async findOneUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
@@ -63,7 +63,7 @@ export class UserResolver {
         });
     }
 
-    @Mutation(() => User)
+    @Mutation(() => User, { complexity: Complexities.Create })
     @Rule(RuleType.Create, User)
     async createUser(
         @Context() ctx: { req: Request },
@@ -87,7 +87,7 @@ export class UserResolver {
         });
     }
 
-    @Mutation(() => User)
+    @Mutation(() => User, { complexity: Complexities.Update })
     @Rule(RuleType.Update, User)
     async updateUser(
         @Context() ctx: { req: Request },
@@ -134,7 +134,7 @@ export class UserResolver {
         });
     }
 
-    @Mutation(() => User)
+    @Mutation(() => User, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, User)
     async deleteUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
@@ -163,7 +163,7 @@ export class UserResolver {
         });
     }
 
-    @Query(() => Int)
+    @Query(() => Int, { complexity: Complexities.Count })
     @Rule(RuleType.Count, User)
     async userCount(
         @Context() ctx: { req: Request },
@@ -178,7 +178,7 @@ export class UserResolver {
 
     // -------------------- Unique Resolvers --------------------
 
-    @Query(() => User, { nullable: true })
+    @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, User, { name: "Read one user (self)" })
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");

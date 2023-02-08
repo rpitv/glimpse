@@ -47,7 +47,8 @@ export class CaslAbilityFactory {
      * @returns An updated Permission object with the variables replaced.
      */
     private replaceConditionVariables<T extends UserPermission | GroupPermission>(
-        permission: T, user?: User | null
+        permission: T,
+        user?: User | null
     ): T {
         const conditions = permission.conditions;
 
