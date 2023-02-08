@@ -4,7 +4,8 @@ import { createPrismaAbility, PrismaAbility } from "@casl/prisma";
 import { Injectable, Logger } from "@nestjs/common";
 import { GroupPermission, UserPermission } from "@prisma/client"; // FIXME import nestjs entities instead
 import { PrismaService } from "../prisma/prisma.service";
-import { AccessLog } from "../access_logs/access_log.entity";
+import { AccessLog } from "../access_log/access_log.entity";
+import {AlertLog} from "../alert_log/alert_log.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -15,7 +16,7 @@ export enum AbilityAction {
     Update = "update",
     Delete = "delete"
 }
-export type AbilitySubjects = InferSubjects<typeof User | typeof AccessLog, true> | "all";
+export type AbilitySubjects = InferSubjects<typeof User | typeof AccessLog | typeof AlertLog, true> | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 
 @Injectable()
