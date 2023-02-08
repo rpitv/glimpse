@@ -1,4 +1,4 @@
-import { CreateAlertLogInput } from "./create-alert_log.input";
+import {CreateAssetInput} from "./create-asset.input";
 import { InputType, PartialType } from "@nestjs/graphql";
 
 /**
@@ -6,4 +6,4 @@ import { InputType, PartialType } from "@nestjs/graphql";
  *  pass null.
  */
 @InputType()
-export class UpdateAlertLogInput extends PartialType(CreateAlertLogInput) {}
+export class UpdateAssetInput extends PartialType(CreateAssetInput) {}
