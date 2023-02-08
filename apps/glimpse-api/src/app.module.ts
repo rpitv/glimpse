@@ -13,7 +13,8 @@ import { OrderDirection } from "./generic/order-direction.enum";
 import { ComplexityPlugin } from "./gql-complexity.plugin";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaInterceptor } from "./prisma/prisma.interceptor";
-import { AccessLogModule } from "./access_logs/access_log.module";
+import { AccessLogModule } from "./access_log/access_log.module";
+import {AlertLogModule} from "./alert_log/alert_log.module";
 
 @Module({
     imports: [
@@ -27,8 +28,9 @@ import { AccessLogModule } from "./access_logs/access_log.module";
                 }
             }
         }),
-        UserModule,
         AccessLogModule,
+        AlertLogModule,
+        UserModule,
         AuthModule,
         CaslModule,
         PrismaModule
