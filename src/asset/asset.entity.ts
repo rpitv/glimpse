@@ -1,4 +1,4 @@
-import {ObjectType, Field, ID, Int} from "@nestjs/graphql";
+import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { Asset as PrismaAsset } from "@prisma/client";
 
