@@ -95,7 +95,7 @@ export class UserResolver {
         @Args("input", { type: () => UpdateUserInput }) input: UpdateUserInput
     ): Promise<User> {
         this.logger.verbose("updateUser resolver called");
-        input = plainToClass(CreateUserInput, input);
+        input = plainToClass(UpdateUserInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
