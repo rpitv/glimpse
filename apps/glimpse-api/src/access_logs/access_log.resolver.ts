@@ -47,7 +47,10 @@ export class AccessLogResolver {
 
     @Query(() => AccessLog, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, AccessLog)
-    async findOneAccessLog(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<AccessLog> {
+    async findOneAccessLog(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<AccessLog> {
         this.logger.verbose("findOneAccessLog resolver called");
         return ctx.req.prismaTx.accessLog.findFirst({
             where: {
@@ -58,7 +61,10 @@ export class AccessLogResolver {
 
     @Mutation(() => AccessLog, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, AccessLog)
-    async deleteAccessLog(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<AccessLog> {
+    async deleteAccessLog(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<AccessLog> {
         this.logger.verbose("deleteAccessLog resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.accessLog.findFirst({
