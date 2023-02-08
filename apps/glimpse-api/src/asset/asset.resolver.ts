@@ -9,11 +9,11 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import {FilterAssetInput} from "./dto/filter-asset.input";
-import {Asset} from "./asset.entity";
-import {UpdateAssetInput} from "./dto/update-asset.input";
-import {CreateAssetInput} from "./dto/create-asset.input";
-import {OrderAssetInput} from "./dto/order-asset.input";
+import { FilterAssetInput } from "./dto/filter-asset.input";
+import { Asset } from "./asset.entity";
+import { UpdateAssetInput } from "./dto/update-asset.input";
+import { CreateAssetInput } from "./dto/create-asset.input";
+import { OrderAssetInput } from "./dto/order-asset.input";
 
 @Resolver(() => Asset)
 export class AssetResolver {
@@ -51,10 +51,7 @@ export class AssetResolver {
 
     @Query(() => Asset, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, Asset)
-    async findOneAsset(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<Asset> {
+    async findOneAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
         this.logger.verbose("findOneAsset resolver called");
         return ctx.req.prismaTx.asset.findFirst({
             where: {
@@ -126,10 +123,7 @@ export class AssetResolver {
 
     @Mutation(() => Asset, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, Asset)
-    async deleteAsset(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<Asset> {
+    async deleteAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
         this.logger.verbose("deleteAsset resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.asset.findFirst({
