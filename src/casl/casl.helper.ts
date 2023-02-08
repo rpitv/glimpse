@@ -1013,35 +1013,33 @@ export class CaslHelper {
             }
         }
 
-
         // Make sure user has permission to read the fields they're trying to read from their creation. If it's
         //  determined after the creation that the user doesn't have permission to read it, the creation will be rolled
         //  back thanks to PrismaInterceptor.
         return this.handleReadOneRule(context, rule, () => {
-            return handler()
-                .pipe(
-                    map((newValue) => {
-                        // Handler already marked the request as failed for some permission error.
-                        if (req.passed === false) {
-                            this.logger.verbose("Failed Create rule test. Handler already marked as failed.");
+            return handler().pipe(
+                map((newValue) => {
+                    // Handler already marked the request as failed for some permission error.
+                    if (req.passed === false) {
+                        this.logger.verbose("Failed Create rule test. Handler already marked as failed.");
+                        return null;
+                    }
+
+                    const subjectObj = subject(subjectStr, newValue);
+
+                    // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+                    for (const field of Object.keys(newValue)) {
+                        if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
+                            this.logger.verbose(`Failed Create rule test for field ${field} with value.`);
+                            req.passed = false;
                             return null;
                         }
+                    }
 
-                        const subjectObj = subject(subjectStr, newValue);
-
-                        // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
-                        for (const field of Object.keys(newValue)) {
-                            if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
-                                this.logger.verbose(`Failed Create rule test for field ${field} with value.`);
-                                req.passed = false;
-                                return null;
-                            }
-                        }
-
-                        req.passed = true;
-                        return newValue;
-                    })
-                )
+                    req.passed = true;
+                    return newValue;
+                })
+            );
         });
     }
 

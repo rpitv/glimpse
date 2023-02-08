@@ -18,17 +18,16 @@ export class User implements PrismaUser {
     /**
      * CASL "modelName" used for detecting subject type. Only necessary when the string "User" is passed to CASL's
      *   can() method, and the passed User object hasn't passed through the subject() helper function.
-     * @see https://casl.js.org/v5/en/advanced/typescript
+     * @see {@link https://casl.js.org/v6/en/advanced/typescript}
      */
     static readonly modelName = "User" as const;
 
     /**
      * Unique ID for this User. Automatically generated.
      */
-    @Field(() => ID)
     @IsInt()
     @Min(0)
-    @Field(() => Int, { nullable: true })
+    @Field(() => ID, { nullable: true })
     id: number | null;
 
     /**
