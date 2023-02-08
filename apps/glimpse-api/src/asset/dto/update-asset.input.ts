@@ -1,4 +1,4 @@
-import {CreateAssetInput} from "./create-asset.input";
+import { CreateAssetInput } from "./create-asset.input";
 import { InputType, PartialType } from "@nestjs/graphql";
 
 /**

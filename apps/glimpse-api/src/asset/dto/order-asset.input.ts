@@ -9,7 +9,7 @@ enum AssetOrderableFields {
     isLost = "isLost",
     purchasePrice = "purchasePrice",
     purchaseDate = "purchaseDate",
-    parentId = "parentId",
+    parentId = "parentId"
 }
 
 registerEnumType(AssetOrderableFields, {

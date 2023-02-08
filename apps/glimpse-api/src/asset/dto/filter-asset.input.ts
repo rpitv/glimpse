@@ -2,7 +2,7 @@ import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
 import { DateComparisonInput } from "../../generic/date-comparison.input";
-import {BooleanComparisonInput} from "../../generic/boolean-comparison.input";
+import { BooleanComparisonInput } from "../../generic/boolean-comparison.input";
 
 /**
  * Input type for filtering Assets in ReadMany queries.
