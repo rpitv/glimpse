@@ -1,11 +1,19 @@
-import {ObjectType, Field, ID, Int, HideField} from "@nestjs/graphql";
+import { ObjectType, Field, ID, Int, HideField } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { AuditLog as PrismaAuditLog } from "@prisma/client";
 
 /**
- * Audit logs are used to track changes to resources within the database. They are created automatically by the
- *  {@link AuditLogPrismaMiddleware} when a resource is created, deleted, or updated. Read queries are not logged.
- *  In transactions, the audit log is reverted if the transaction is reverted.
+ * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
+ *  way of generating these automatically with the user's ID. It would be possible to generate automatically if we
+ *  weren't logging the user who made the change using Prisma middleware or extensions. For now, they have to be
+ *  logged manually using {@link PrismaService#genAuditLog}. This method is also available on transactions via
+ *  {@link ExtendedTransactionClient}.
+ *
+ *  All automatic generation solutions that I came up with involved violating type safety, relying on private Prisma
+ *  interfaces, and/or were so obtuse and hacky that it wasn't worth it.
+ *
+ * @see {@link https://github.com/prisma/prisma/issues/13851}
+ * @see {@link https://github.com/prisma/prisma/issues/6882}
  */
 @ObjectType()
 export class AuditLog implements PrismaAuditLog {
@@ -38,45 +46,34 @@ export class AuditLog implements PrismaAuditLog {
     @IsDate()
     @Field(() => Date, { nullable: true })
     timestamp: Date | null;
-
     /**
-     * The type of modification that was performed. One of "create", "update", or "delete".
+     * Custom message to display to the user when this audit log is displayed. This should be a human-readable message.
+     *  This will be combined with the automatically generated message based on {@link #prevValue}.
      */
-    @MaxLength(20)
+    @MaxLength(300)
     @Field(() => String, { nullable: true })
-    modificationType: string | null;
-
+    message: string | null;
     /**
-     * Name of the table which was modified.
+     * The type of subject which was changed. This should be one of the values in {@link AbilitySubjects}. If the change
+     *  was to a resource that is not a subject, this should be null.
      */
     @MaxLength(50)
     @Field(() => String, { nullable: true })
-    modifiedTable: string | null;
-
+    subject: string | null;
     /**
-     * Name of the column which was modified.
+     * Identifier of the resource that was changed. This should be the ID of the resource. If {@link #subject} is null,
+     *  then this should also be null.
      */
-    @MaxLength(50)
-    @Field(() => String, { nullable: true })
-    modifiedField: string | null;
-
-    /**
-     * The value of the field before the modification was performed. Only present for "update" and "delete" logs.
-     */
+    @IsInt()
+    @Min(0)
     @Field(() => Int, { nullable: true })
-    previousValue: string | null;
-
+    identifier: number | null;
     /**
-     * Any comment on the modification. These can be added manually, but are not present on automatically-generated
-     *  audit logs.
-     */
-    @Field(() => Int, { nullable: true })
-    comment: string | null;
-
-    /**
-     * JSON metadata for this audit log. This can be used to store additional information about the modification.
-     *  Currently, this cannot be read or modified by the user.
+     * The previous value of the resource before the change. Will be null if the resource was created, since there was
+     *  no previous value. This value cannot be queried directly, and is used internally for constructing an audit log
+     *  message. It is also useful for reverting changes, if ever desired. This value is typically going to be an
+     *  object (particularly if {@link #subject} is non-null), but it can technically be any value.
      */
     @HideField()
-    metadata: any | null;
+    prevValue: any | null;
 }
