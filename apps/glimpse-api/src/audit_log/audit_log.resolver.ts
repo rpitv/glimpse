@@ -9,10 +9,10 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import {AuditLog} from "./audit_log.entity";
-import {FilterAuditLogInput} from "./dto/filter-audit_log.input";
-import {OrderAuditLogInput} from "./dto/order-audit_log.input";
-import {UpdateAuditLogInput} from "./dto/update-audit_log.input";
+import { AuditLog } from "./audit_log.entity";
+import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
+import { OrderAuditLogInput } from "./dto/order-audit_log.input";
+import { UpdateAuditLogInput } from "./dto/update-audit_log.input";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -50,7 +50,10 @@ export class AuditLogResolver {
 
     @Query(() => AuditLog, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, AuditLog)
-    async findOneAuditLog(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<AuditLog> {
+    async findOneAuditLog(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<AuditLog> {
         this.logger.verbose("findOneAuditLog resolver called");
         return ctx.req.prismaTx.auditLog.findFirst({
             where: {

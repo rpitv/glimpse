@@ -5,7 +5,7 @@ import { HttpAdapterHost } from "@nestjs/core";
 export class MainExceptionFilter implements ExceptionFilter {
     constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
-    private logger: Logger = new Logger("GQLExceptionFilter");
+    private logger: Logger = new Logger("MainExceptionFilter");
 
     stringify(exception: unknown): string {
         if (exception instanceof HttpException) {
