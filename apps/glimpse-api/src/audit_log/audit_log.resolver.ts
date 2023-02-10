@@ -8,7 +8,7 @@ import { Request } from "express";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import {AbilitySubjects} from "../casl/casl-ability.factory";
+import { AbilitySubjects } from "../casl/casl-ability.factory";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -21,8 +21,8 @@ export class AuditLogResolver {
      * @private
      */
     private readonly hiddenFields: Partial<Record<Extract<AbilitySubjects, string>, string[]>> = {
-        "User": ["password"]
-    }
+        User: ["password"]
+    };
 
     // -------------------- Generic Resolvers --------------------
 
@@ -104,16 +104,16 @@ export class AuditLogResolver {
     async details(@Parent() auditLog: AuditLog): Promise<string[]> {
         // Collect a set of all the keys which have either been added, updated, or removed.
         const changedFields: Set<string> = new Set();
-        if(typeof auditLog.oldValue === "object" && auditLog.oldValue !== null) {
+        if (typeof auditLog.oldValue === "object" && auditLog.oldValue !== null) {
             Object.keys(auditLog.oldValue).forEach((key) => {
-                if(auditLog.oldValue[key] !== auditLog.newValue?.[key]) {
+                if (auditLog.oldValue[key] !== auditLog.newValue?.[key]) {
                     changedFields.add(key);
                 }
             });
         }
-        if(typeof auditLog.newValue === "object" && auditLog.newValue !== null) {
+        if (typeof auditLog.newValue === "object" && auditLog.newValue !== null) {
             Object.keys(auditLog.newValue).forEach((key) => {
-                if(auditLog.newValue[key] !== auditLog.oldValue?.[key]) {
+                if (auditLog.newValue[key] !== auditLog.oldValue?.[key]) {
                     changedFields.add(key);
                 }
             });
@@ -121,16 +121,16 @@ export class AuditLogResolver {
 
         const details: string[] = [];
         // Build a list of human-readable strings describing the changes.
-        for(const key of changedFields) {
+        for (const key of changedFields) {
             // Don't include hidden fields in the details, nor whether it was added/removed (just "updated").
-            if(this.hiddenFields[auditLog.subject]?.includes(key)) {
+            if (this.hiddenFields[auditLog.subject]?.includes(key)) {
                 details.push(`Updated \`${key}\``);
                 continue;
             }
 
-            if(auditLog.oldValue?.[key] === undefined) {
+            if (auditLog.oldValue?.[key] === undefined) {
                 details.push(`Added \`${key}\` with value "${auditLog.newValue?.[key]}"`);
-            } else if(auditLog.newValue?.[key] === undefined) {
+            } else if (auditLog.newValue?.[key] === undefined) {
                 details.push(`Deleted \`${key}\`, previously "${auditLog.oldValue?.[key]}"`);
             } else {
                 details.push(`Updated \`${key}\` from "${auditLog.oldValue?.[key]}" to "${auditLog.newValue?.[key]}"`);
