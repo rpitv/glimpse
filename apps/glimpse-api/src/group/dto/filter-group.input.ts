@@ -4,10 +4,10 @@ import { NumberComparisonInput } from "../../generic/number-comparison.input";
 import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
- * Input type for filtering Categories in ReadMany queries.
+ * Input type for filtering Groups in ReadMany queries.
  */
 @InputType()
-export class FilterCategoryInput {
+export class FilterGroupInput {
     /**
      * Filter by ID
      */
@@ -29,7 +29,7 @@ export class FilterCategoryInput {
      */
     authorDisplayName?: StringComparisonInput;
 
-    AND?: FilterCategoryInput[];
-    OR?: FilterCategoryInput[];
-    NOT?: FilterCategoryInput;
+    AND?: FilterGroupInput[];
+    OR?: FilterGroupInput[];
+    NOT?: FilterGroupInput;
 }

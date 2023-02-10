@@ -14,7 +14,7 @@ registerEnumType(ContactSubmissionOrderableFields, {
 });
 
 /**
- * Input type for ordering ContactSubmissionies in ReadMany queries.
+ * Input type for ordering ContactSubmissions in ReadMany queries.
  */
 @InputType()
 export class OrderContactSubmissionInput {

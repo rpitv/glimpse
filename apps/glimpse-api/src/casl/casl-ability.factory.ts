@@ -2,7 +2,7 @@ import { InferSubjects, RawRuleOf } from "@casl/ability";
 import { User } from "../user/user.entity";
 import { createPrismaAbility, PrismaAbility } from "@casl/prisma";
 import { Injectable, Logger } from "@nestjs/common";
-import { GroupPermission, UserPermission } from "@prisma/client"; // FIXME import nestjs entities instead
+import { UserPermission } from "@prisma/client"; // FIXME import nestjs entities instead
 import { PrismaService } from "../prisma/prisma.service";
 import { AccessLog } from "../access_log/access_log.entity";
 import { AlertLog } from "../alert_log/alert_log.entity";
@@ -10,7 +10,10 @@ import { Asset } from "../asset/asset.entity";
 import { AuditLog } from "../audit_log/audit_log.entity";
 import { BlogPost } from "../blog_post/blog_post.entity";
 import { Category } from "../category/category.entity";
-import {ContactSubmission} from "../contact_submissions/contact_submission.entity";
+import { ContactSubmission } from "../contact_submissions/contact_submission.entity";
+import {Credit} from "../credit/credit.entity";
+import {GroupPermission} from "../group_permission/group_permission.entity";
+import {Group} from "../group/group.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -30,7 +33,10 @@ export type AbilitySubjects =
           | typeof AuditLog
           | typeof BlogPost
           | typeof Category
-          | typeof ContactSubmission,
+          | typeof ContactSubmission
+          | typeof Credit
+          | typeof Group
+          | typeof GroupPermission,
           true
       >
     | "all";

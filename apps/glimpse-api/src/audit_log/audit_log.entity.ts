@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID, Int, HideField } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import {AuditLog as PrismaAuditLog, Prisma} from "@prisma/client";
+import { AuditLog as PrismaAuditLog, Prisma } from "@prisma/client";
 
 /**
  * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant

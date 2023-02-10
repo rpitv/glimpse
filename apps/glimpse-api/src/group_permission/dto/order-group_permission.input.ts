@@ -1,7 +1,7 @@
 import { InputType, registerEnumType } from "@nestjs/graphql";
 import { OrderDirection } from "../../generic/order-direction.enum";
 
-enum CategoryOrderableFields {
+enum GroupPermissionOrderableFields {
     id = "id",
     postedAt = "postedAt",
     authorId = "authorId",
@@ -9,19 +9,19 @@ enum CategoryOrderableFields {
     title = "title"
 }
 
-registerEnumType(CategoryOrderableFields, {
-    name: "CategoryOrderableFields"
+registerEnumType(GroupPermissionOrderableFields, {
+    name: "GroupPermissionOrderableFields"
 });
 
 /**
- * Input type for ordering Categories in ReadMany queries.
+ * Input type for ordering GroupPermissions in ReadMany queries.
  */
 @InputType()
-export class OrderCategoryInput {
+export class OrderGroupPermissionInput {
     /**
      * Name of the field to sort by.
      */
-    field: CategoryOrderableFields;
+    field: GroupPermissionOrderableFields;
     /**
      * Direction to order in. Required.
      */
