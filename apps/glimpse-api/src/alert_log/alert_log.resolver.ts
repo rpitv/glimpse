@@ -83,7 +83,6 @@ export class AlertLogResolver {
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
-            oldValue: null,
             newValue: result,
             subject: "AlertLog",
             id: result.id
@@ -178,7 +177,6 @@ export class AlertLogResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            newValue: null,
             subject: "AlertLog",
             id: result.id
         });

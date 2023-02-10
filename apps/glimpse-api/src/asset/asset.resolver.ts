@@ -80,7 +80,6 @@ export class AssetResolver {
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
-            oldValue: null,
             newValue: result,
             subject: "Asset",
             id: result.id
@@ -172,7 +171,6 @@ export class AssetResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            newValue: null,
             subject: "Asset",
             id: result.id
         });
