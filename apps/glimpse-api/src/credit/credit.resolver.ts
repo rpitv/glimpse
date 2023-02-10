@@ -145,10 +145,7 @@ export class CreditResolver {
 
     @Mutation(() => Credit, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, Credit)
-    async deleteCredit(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<Credit> {
+    async deleteCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Credit> {
         this.logger.verbose("deleteCredit resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.credit.findFirst({
