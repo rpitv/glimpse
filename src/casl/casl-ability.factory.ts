@@ -14,8 +14,8 @@ import { ContactSubmission } from "../contact_submissions/contact_submission.ent
 import { Credit } from "../credit/credit.entity";
 import { GroupPermission } from "../group_permission/group_permission.entity";
 import { Group } from "../group/group.entity";
-import {Image} from "../image/image.entity";
-import {Person} from "../person/person.entity";
+import { Image } from "../image/image.entity";
+import { Person } from "../person/person.entity";
 
 export enum AbilityAction {
     Manage = "manage",

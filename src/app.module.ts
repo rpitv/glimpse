@@ -23,8 +23,8 @@ import { ContactSubmissionModule } from "./contact_submissions/contact_submissio
 import { CreditModule } from "./credit/credit.module";
 import { GroupPermissionModule } from "./group_permission/group_permission.module";
 import { GroupModule } from "./group/group.module";
-import {ImageModule} from "./image/image.module";
-import {PersonModule} from "./person/person.module";
+import { ImageModule } from "./image/image.module";
+import { PersonModule } from "./person/person.module";
 
 @Module({
     imports: [

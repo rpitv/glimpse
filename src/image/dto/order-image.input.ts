@@ -3,7 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum ImageOrderableFields {
     id = "id",
-    name = "name",
+    name = "name"
 }
 
 registerEnumType(ImageOrderableFields, {

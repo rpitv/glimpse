@@ -161,32 +161,48 @@ model GroupPermission {
 }
 
 model Image {
-  id           Int               @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
-  name         String            @db.VarChar(50)
-  description  String?           @db.VarChar(200)
-  path         String            @db.VarChar(1000)
-  people       PersonImage[]
-  imageFor     ProductionImage[]
-  thumbnailFor Production[]
+  id                Int               @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
+  name              String            @db.VarChar(50)
+  description       String?           @db.VarChar(200)
+  path              String            @db.VarChar(1000)
+  people            PersonImage[]
+  productions       ProductionImage[]
+  thumbnailFor      Production[]
+  profilePictureFor Person[]
 
   @@map("images")
 }
 
 model Person {
-  id          Int           @id(map: "people_pk") @unique(map: "people_id_uindex") @default(autoincrement())
-  name        String        @db.VarChar(100)
-  pronouns    String?       @db.VarChar(20)
-  graduation  DateTime?     @db.Date
-  start       DateTime      @db.Date
-  end         DateTime?     @db.Date
-  description String?
-  blogPosts   BlogPost[]
-  credits     Credit[]
-  images      PersonImage[]
-  roles       Role[]
-  users       User[]
+  id               Int           @id(map: "people_pk") @unique(map: "people_id_uindex") @default(autoincrement())
+  name             String        @db.VarChar(100)
+  pronouns         String?       @db.VarChar(20)
+  graduation       DateTime?     @db.Date
+  start            DateTime      @db.Date
+  end              DateTime?     @db.Date
+  profilePictureId Int?          @map("profile_picture")
+  profilePicture   Image?        @relation(fields: [profilePictureId], references: [id], map: "people_images_id_fk")
+  description      String?
+  blogPosts        BlogPost[]
+  credits          Credit[]
+  images           PersonImage[]
+  roles            PersonRole[]
+  users            User[]
 
   @@map("people")
+}
+
+model PersonRole {
+  id        Int       @id(map: "people_roles_pk") @default(autoincrement())
+  personId  Int       @map("person")
+  roleId    Int       @map("role")
+  startTime DateTime  @default(now()) @map("start_time") @db.Timestamp(6)
+  endTime   DateTime? @map("end_time") @db.Timestamp(6)
+  person    Person    @relation(fields: [personId], references: [id], map: "people_roles_people_id_fk")
+  role      Role      @relation(fields: [roleId], references: [id], map: "people_roles_roles_id_fk")
+
+  @@index([personId, startTime], map: "people_roles_person_index")
+  @@map("people_roles")
 }
 
 model PersonImage {
@@ -294,15 +310,12 @@ model Redirect {
 }
 
 model Role {
-  id        Int       @id(map: "roles_pk") @default(autoincrement())
-  personId  Int       @map("person")
-  name      String    @db.VarChar(100)
-  startTime DateTime  @default(now()) @map("start_time") @db.Timestamp(6)
-  endTime   DateTime? @map("end_time") @db.Timestamp(6)
-  priority  Int       @default(0)
-  person    Person    @relation(fields: [personId], references: [id], map: "roles_people_id_fk")
+  id          Int          @id(map: "roles_pk") @default(autoincrement())
+  name        String       @db.VarChar(100)
+  description String?      @db.VarChar(1000)
+  people      PersonRole[]
 
-  @@index([personId, priority, startTime], map: "roles_person_priority_start_time_index")
+  @@index([name], map: "roles_name_index")
   @@map("roles")
 }
 

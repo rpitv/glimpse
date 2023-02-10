@@ -1,5 +1,5 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsDate, IsInt, MaxLength, Min} from "class-validator";
+import {ObjectType, Field, ID, Int} from "@nestjs/graphql";
+import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { Person as PrismaPerson } from "@prisma/client";
 
 @ObjectType()
@@ -60,4 +60,11 @@ export class Person implements PrismaPerson {
      */
     @Field(() => String, { nullable: true })
     description: string | null;
+
+    /**
+     * ID of the image which should be used for this Person's profile picture.
+     */
+    @Min(0)
+    @Field(() => Int, { nullable: true })
+    profilePictureId: number | null;
 }

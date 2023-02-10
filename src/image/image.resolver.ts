@@ -51,10 +51,7 @@ export class ImageResolver {
 
     @Query(() => Image, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, Image)
-    async findOneImage(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<Image> {
+    async findOneImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Image> {
         this.logger.verbose("findOneImage resolver called");
         return ctx.req.prismaTx.image.findFirst({
             where: {
