@@ -1,4 +1,4 @@
-import {Resolver, Query, Args, Int, Context, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
 import { Rule, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
@@ -8,10 +8,21 @@ import { Request } from "express";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
+import {AbilitySubjects} from "../casl/casl-ability.factory";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
     private logger: Logger = new Logger("AuditLogResolver");
+
+    /**
+     * These are fields which should have their values hidden within the details resolver. Instead of specifying what
+     *  the value was updated to/from, a simple "updated <key>" message will be returned. This is the case even if the
+     *  field was deleted or created.
+     * @private
+     */
+    private readonly hiddenFields: Partial<Record<Extract<AbilitySubjects, string>, string[]>> = {
+        "User": ["password"]
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -76,9 +87,9 @@ export class AuditLogResolver {
      */
     @ResolveField(() => String)
     async action(@Parent() auditLog: AuditLog): Promise<string> {
-        if(auditLog.oldValue === null && auditLog.newValue !== null) {
+        if (auditLog.oldValue === null && auditLog.newValue !== null) {
             return "created";
-        } else if(auditLog.oldValue !== null && auditLog.newValue === null) {
+        } else if (auditLog.oldValue !== null && auditLog.newValue === null) {
             return "deleted";
         } else {
             return "updated";
@@ -91,15 +102,41 @@ export class AuditLogResolver {
      */
     @ResolveField(() => [String])
     async details(@Parent() auditLog: AuditLog): Promise<string[]> {
-        const changedFields = Object.keys(auditLog.newValue).filter((key) => auditLog.oldValue?.[key] !== auditLog.newValue?.[key]);
+        // Collect a set of all the keys which have either been added, updated, or removed.
+        const changedFields: Set<string> = new Set();
+        if(typeof auditLog.oldValue === "object" && auditLog.oldValue !== null) {
+            Object.keys(auditLog.oldValue).forEach((key) => {
+                if(auditLog.oldValue[key] !== auditLog.newValue?.[key]) {
+                    changedFields.add(key);
+                }
+            });
+        }
+        if(typeof auditLog.newValue === "object" && auditLog.newValue !== null) {
+            Object.keys(auditLog.newValue).forEach((key) => {
+                if(auditLog.newValue[key] !== auditLog.oldValue?.[key]) {
+                    changedFields.add(key);
+                }
+            });
+        }
+
         const details: string[] = [];
-        for(const field of changedFields) {
-            if(field === "password") {
-                details.push("changed password");
+        // Build a list of human-readable strings describing the changes.
+        for(const key of changedFields) {
+            // Don't include hidden fields in the details, nor whether it was added/removed (just "updated").
+            if(this.hiddenFields[auditLog.subject]?.includes(key)) {
+                details.push(`Updated \`${key}\``);
+                continue;
+            }
+
+            if(auditLog.oldValue?.[key] === undefined) {
+                details.push(`Added \`${key}\` with value "${auditLog.newValue?.[key]}"`);
+            } else if(auditLog.newValue?.[key] === undefined) {
+                details.push(`Deleted \`${key}\`, previously "${auditLog.oldValue?.[key]}"`);
             } else {
-                details.push(`changed ${field} from "${auditLog.oldValue?.[field]}" to "${auditLog.newValue?.[field]}"`);
+                details.push(`Updated \`${key}\` from "${auditLog.oldValue?.[key]}" to "${auditLog.newValue?.[key]}"`);
             }
         }
+
         return details;
     }
 }
