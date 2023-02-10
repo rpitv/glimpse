@@ -8,8 +8,8 @@ import { AccessLog } from "../access_log/access_log.entity";
 import { AlertLog } from "../alert_log/alert_log.entity";
 import { Asset } from "../asset/asset.entity";
 import { AuditLog } from "../audit_log/audit_log.entity";
-import {BlogPost} from "../blog_post/blog_post.entity";
-import {Category} from "../category/category.entity";
+import { BlogPost } from "../blog_post/blog_post.entity";
+import { Category } from "../category/category.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -21,7 +21,16 @@ export enum AbilityAction {
     Delete = "delete"
 }
 export type AbilitySubjects =
-    | InferSubjects<typeof User | typeof AccessLog | typeof AlertLog | typeof Asset | typeof AuditLog | typeof BlogPost | typeof Category, true>
+    | InferSubjects<
+          | typeof User
+          | typeof AccessLog
+          | typeof AlertLog
+          | typeof Asset
+          | typeof AuditLog
+          | typeof BlogPost
+          | typeof Category,
+          true
+      >
     | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 

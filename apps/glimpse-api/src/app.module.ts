@@ -17,8 +17,8 @@ import { AccessLogModule } from "./access_log/access_log.module";
 import { AlertLogModule } from "./alert_log/alert_log.module";
 import { AssetModule } from "./asset/asset.module";
 import { AuditLogModule } from "./audit_log/audit_log.module";
-import {BlogPostModule} from "./blog_post/blog_post.module";
-import {CategoryModule} from "./category/category.module";
+import { BlogPostModule } from "./blog_post/blog_post.module";
+import { CategoryModule } from "./category/category.module";
 
 @Module({
     imports: [
