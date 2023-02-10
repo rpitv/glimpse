@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsBoolean, IsInt, IsObject, MaxLength, Min} from "class-validator";
-import {GroupPermission as PrismaGroupPermission, Prisma} from "@prisma/client";
+import { IsBoolean, IsInt, IsObject, MaxLength, Min } from "class-validator";
+import { GroupPermission as PrismaGroupPermission, Prisma } from "@prisma/client";
 import JSON from "graphql-type-json";
 
 @ObjectType()
@@ -13,7 +13,7 @@ export class GroupPermission implements PrismaGroupPermission {
     static readonly modelName = "GroupPermission" as const;
 
     /**
-     * Unique ID for this blog post. Automatically generated.
+     * Unique ID for this GroupPermission. Automatically generated.
      */
     @IsInt()
     @Min(0)
@@ -75,5 +75,4 @@ export class GroupPermission implements PrismaGroupPermission {
     @MaxLength(300)
     @Field(() => String, { nullable: true })
     reason: string | null;
-
 }
