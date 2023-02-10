@@ -88,7 +88,6 @@ export class UserResolver {
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
-            oldValue: null,
             newValue: result,
             subject: "User",
             id: result.id
@@ -150,6 +149,8 @@ export class UserResolver {
             subject: "User",
             id: result.id
         });
+
+        return result;
     }
 
     @Mutation(() => User, { complexity: Complexities.Delete })
@@ -183,10 +184,11 @@ export class UserResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            newValue: null,
             subject: "User",
             id: result.id
         });
+
+        return result;
     }
 
     @Query(() => Int, { complexity: Complexities.Count })

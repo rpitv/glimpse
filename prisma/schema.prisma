@@ -60,7 +60,7 @@ model Asset {
 
 model AuditLog {
   id               Int      @id(map: "audit_logs_pk") @default(autoincrement())
-  message          String?   @db.VarChar(300)
+  message          String?  @db.VarChar(300)
   userId           Int?     @map("user")
   timestamp        DateTime @default(now()) @db.Timestamp(6)
   subject          String?  @map("subject") @db.VarChar(50)
