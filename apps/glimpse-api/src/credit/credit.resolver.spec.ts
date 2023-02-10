@@ -1,16 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { CreditResolver } from "./credit.resolver";
 import { PrismaService } from "../prisma/prisma.service";
-import { ContactSubmissionResolver } from "./contact_submission.resolver";
 
 describe("AlertLogResolver", () => {
-    let resolver: ContactSubmissionResolver;
+    let resolver: CreditResolver;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [ContactSubmissionResolver, PrismaService]
+            providers: [CreditResolver, PrismaService]
         }).compile();
 
-        resolver = module.get<ContactSubmissionResolver>(ContactSubmissionResolver);
+        resolver = module.get<CreditResolver>(CreditResolver);
     });
 
     it("should be defined", () => {

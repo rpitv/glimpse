@@ -9,11 +9,11 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import {ContactSubmission} from "./contact_submission.entity";
-import {FilterContactSubmissionInput} from "./dto/filter-contact_submission.input";
-import {OrderContactSubmissionInput} from "./dto/order-contact_submission.input";
-import {CreateContactSubmissionInput} from "./dto/create-contact_submission.input";
-import {UpdateContactSubmissionInput} from "./dto/update-contact_submission.input";
+import { ContactSubmission } from "./contact_submission.entity";
+import { FilterContactSubmissionInput } from "./dto/filter-contact_submission.input";
+import { OrderContactSubmissionInput } from "./dto/order-contact_submission.input";
+import { CreateContactSubmissionInput } from "./dto/create-contact_submission.input";
+import { UpdateContactSubmissionInput } from "./dto/update-contact_submission.input";
 
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
@@ -25,8 +25,10 @@ export class ContactSubmissionResolver {
     @Rule(RuleType.ReadMany, ContactSubmission)
     async findManyContactSubmission(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true }) filter?: FilterContactSubmissionInput,
-        @Args("order", { type: () => [OrderContactSubmissionInput], nullable: true }) order?: OrderContactSubmissionInput[],
+        @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true })
+        filter?: FilterContactSubmissionInput,
+        @Args("order", { type: () => [OrderContactSubmissionInput], nullable: true })
+        order?: OrderContactSubmissionInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ContactSubmission[]> {
         this.logger.verbose("findManyContactSubmission resolver called");
@@ -188,7 +190,8 @@ export class ContactSubmissionResolver {
     @Rule(RuleType.Count, ContactSubmission)
     async contactSubmissionCount(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true }) filter?: FilterContactSubmissionInput
+        @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true })
+        filter?: FilterContactSubmissionInput
     ): Promise<number> {
         return ctx.req.prismaTx.contactSubmission.count({
             where: {
