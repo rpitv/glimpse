@@ -6,7 +6,7 @@ enum CategoryOrderableFields {
     postedAt = "postedAt",
     authorId = "authorId",
     authorDisplayName = "authorDisplayName",
-    title = "title",
+    title = "title"
 }
 
 registerEnumType(CategoryOrderableFields, {

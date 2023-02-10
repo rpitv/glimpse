@@ -6,7 +6,7 @@ enum BlogPostOrderableFields {
     postedAt = "postedAt",
     authorId = "authorId",
     authorDisplayName = "authorDisplayName",
-    title = "title",
+    title = "title"
 }
 
 registerEnumType(BlogPostOrderableFields, {

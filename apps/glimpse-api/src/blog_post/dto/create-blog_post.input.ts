@@ -1,5 +1,5 @@
 import { InputType, OmitType } from "@nestjs/graphql";
-import {BlogPost} from "../blog_post.entity";
+import { BlogPost } from "../blog_post.entity";
 
 /**
  * Input type for createBlogPost mutation

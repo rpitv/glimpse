@@ -1,5 +1,5 @@
 import { InputType, OmitType } from "@nestjs/graphql";
-import {Category} from "../category.entity";
+import { Category } from "../category.entity";
 
 /**
  * Input type for createCategory mutation

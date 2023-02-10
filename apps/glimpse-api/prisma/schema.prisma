@@ -109,24 +109,10 @@ model ContactSubmission {
   timestamp      DateTime                    @default(now()) @db.Timestamp(6)
   resolved       Boolean                     @default(false)
   additionalData Json?                       @map("additional_data") @db.Json
-  assignees      ContactSubmissionAssignee[]
 
   @@index([email, timestamp], map: "contact_submissions_email_timestamp_index")
   @@index([timestamp], map: "contact_submissions_timestamp_index")
   @@map("contact_submissions")
-}
-
-model ContactSubmissionAssignee {
-  submissionId Int               @map("submission")
-  userId       Int               @map("user")
-  timestamp    DateTime          @default(now()) @db.Timestamp(6)
-  id           Int               @id(map: "contact_submission_assignees_pk") @default(autoincrement())
-  submission   ContactSubmission @relation(fields: [submissionId], references: [id], map: "contact_submission_assignees_contact_submissions_id_fk")
-  user         User              @relation(fields: [userId], references: [id], map: "contact_submission_assignees_users_id_fk")
-
-  @@unique([userId, submissionId], map: "contact_submission_assignees_pk_2")
-  @@index([userId], map: "contact_submission_assignees_user_index")
-  @@map("contact_submission_assignees")
 }
 
 model Credit {
@@ -332,7 +318,6 @@ model User {
   accessLogs                 AccessLog[]
   checkedOutAssets           Asset[]                     @relation("assetsTousers")
   auditLogs                  AuditLog[]
-  assignedContactSubmissions ContactSubmissionAssignee[]
   productionRsvps            ProductionRSVP[]
   groups                     UserGroup[]                 @relation("user_groupsTousers")
   permissions                UserPermission[]            @relation("user_permissionsTousers")
