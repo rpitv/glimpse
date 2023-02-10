@@ -19,6 +19,7 @@ import { AssetModule } from "./asset/asset.module";
 import { AuditLogModule } from "./audit_log/audit_log.module";
 import { BlogPostModule } from "./blog_post/blog_post.module";
 import { CategoryModule } from "./category/category.module";
+import {ContactSubmissionModule} from "./contact_submissions/contact_submission.module";
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import { CategoryModule } from "./category/category.module";
         AuditLogModule,
         BlogPostModule,
         CategoryModule,
+        ContactSubmissionModule,
         UserModule,
         AuthModule,
         CaslModule,
