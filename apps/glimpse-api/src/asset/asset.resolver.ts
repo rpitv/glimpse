@@ -74,9 +74,19 @@ export class AssetResolver {
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        return ctx.req.prismaTx.asset.create({
+        const result = await ctx.req.prismaTx.asset.create({
             data: input
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: null,
+            newValue: result,
+            subject: "Asset",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Update })
@@ -113,12 +123,22 @@ export class AssetResolver {
             }
         }
 
-        return ctx.req.prismaTx.asset.update({
+        const result = await ctx.req.prismaTx.asset.update({
             where: {
                 id
             },
             data: input
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: rowToUpdate,
+            newValue: result,
+            subject: "Asset",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Delete })
@@ -143,11 +163,21 @@ export class AssetResolver {
             return null;
         }
 
-        return ctx.req.prismaTx.asset.delete({
+        const result = await ctx.req.prismaTx.asset.delete({
             where: {
                 id
             }
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: result,
+            newValue: null,
+            subject: "Asset",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Query(() => Int, { complexity: Complexities.Count })

@@ -82,9 +82,19 @@ export class UserResolver {
             input.password = await this.authService.hashPassword(input.password);
         }
 
-        return ctx.req.prismaTx.user.create({
+        const result = await ctx.req.prismaTx.user.create({
             data: input
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: null,
+            newValue: result,
+            subject: "User",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Mutation(() => User, { complexity: Complexities.Update })
@@ -126,11 +136,19 @@ export class UserResolver {
             input.password = await this.authService.hashPassword(input.password);
         }
 
-        return ctx.req.prismaTx.user.update({
+        const result = await ctx.req.prismaTx.user.update({
             where: {
                 id
             },
             data: input
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: rowToUpdate,
+            newValue: result,
+            subject: "User",
+            id: result.id
         });
     }
 
@@ -156,10 +174,18 @@ export class UserResolver {
             return null;
         }
 
-        return ctx.req.prismaTx.user.delete({
+        const result = await ctx.req.prismaTx.user.delete({
             where: {
                 id
             }
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: result,
+            newValue: null,
+            subject: "User",
+            id: result.id
         });
     }
 
