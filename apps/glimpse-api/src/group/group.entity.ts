@@ -12,7 +12,7 @@ export class Group implements PrismaGroup {
     static readonly modelName = "Group" as const;
 
     /**
-     * Unique ID for this blog post. Automatically generated.
+     * Unique ID for this Group. Automatically generated.
      */
     @IsInt()
     @Min(0)

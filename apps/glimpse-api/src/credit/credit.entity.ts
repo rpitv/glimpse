@@ -12,7 +12,7 @@ export class Credit implements PrismaCredit {
     static readonly modelName = "Credit" as const;
 
     /**
-     * Unique ID for this blog post. Automatically generated.
+     * Unique ID for this Credit. Automatically generated.
      */
     @IsInt()
     @Min(0)

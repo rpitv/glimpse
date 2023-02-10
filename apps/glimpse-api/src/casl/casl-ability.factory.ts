@@ -11,9 +11,11 @@ import { AuditLog } from "../audit_log/audit_log.entity";
 import { BlogPost } from "../blog_post/blog_post.entity";
 import { Category } from "../category/category.entity";
 import { ContactSubmission } from "../contact_submissions/contact_submission.entity";
-import {Credit} from "../credit/credit.entity";
-import {GroupPermission} from "../group_permission/group_permission.entity";
-import {Group} from "../group/group.entity";
+import { Credit } from "../credit/credit.entity";
+import { GroupPermission } from "../group_permission/group_permission.entity";
+import { Group } from "../group/group.entity";
+import {Image} from "../image/image.entity";
+import {Person} from "../person/person.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -36,7 +38,9 @@ export type AbilitySubjects =
           | typeof ContactSubmission
           | typeof Credit
           | typeof Group
-          | typeof GroupPermission,
+          | typeof GroupPermission
+          | typeof Image
+          | typeof Person,
           true
       >
     | "all";
