@@ -43,6 +43,7 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
         super();
     }
 
+    // Override $transaction so that interactive transactions will expect an ExtendedTransactionClient.
     override $transaction<P extends PrismaPromise<any>[]>(
         arg: [...P],
         options?: { isolationLevel?: Prisma.TransactionIsolationLevel }
@@ -61,9 +62,8 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
             const [fn, options] = args;
             return super.$transaction(async (tx) => {
                 const extendedTx = tx as ExtendedTransactionClient;
-                extendedTx.genAuditLog = this.genAuditLog.bind(tx);
-
-                return await fn(tx);
+                // Any necessary extension assignments can go here, if they don't work in the Prisma extension...
+                return await fn(extendedTx);
             }, options);
         } else {
             return super.$transaction(args);
@@ -72,12 +72,18 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
 
     genAuditLog(entries: AuditLogEntry[]): Promise<AuditLog[]>;
     genAuditLog(entry: AuditLogEntry): Promise<AuditLog>;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
+        // This method should be implemented in Prisma extensions as that alleviates the need to worry about
+        //  binding "this" to the transaction client in transactions, which was causing weird issues for me.
+        //  See prisma.module.ts for extension implementation. This method only exists for type definition.
+        throw new Error("This method should be implemented in Prisma extensions.");
+
+        /*
         if (Array.isArray(entry)) {
             return Promise.all(entry.map((entry) => this.genAuditLog(entry)));
         }
 
-        // In transactions, "this" will be bound to the transaction client.
         return await this.auditLog.create({
             data: {
                 message: entry.displayText,
@@ -88,6 +94,7 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
                 newValue: entry.newValue
             }
         });
+         */
     }
 }
 
