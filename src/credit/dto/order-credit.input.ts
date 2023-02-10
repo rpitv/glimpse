@@ -1,7 +1,7 @@
 import { InputType, registerEnumType } from "@nestjs/graphql";
 import { OrderDirection } from "../../generic/order-direction.enum";
 
-enum CategoryOrderableFields {
+enum CreditOrderableFields {
     id = "id",
     postedAt = "postedAt",
     authorId = "authorId",
@@ -9,19 +9,19 @@ enum CategoryOrderableFields {
     title = "title"
 }
 
-registerEnumType(CategoryOrderableFields, {
-    name: "CategoryOrderableFields"
+registerEnumType(CreditOrderableFields, {
+    name: "CreditOrderableFields"
 });
 
 /**
- * Input type for ordering Categories in ReadMany queries.
+ * Input type for ordering Credits in ReadMany queries.
  */
 @InputType()
-export class OrderCategoryInput {
+export class OrderCreditInput {
     /**
      * Name of the field to sort by.
      */
-    field: CategoryOrderableFields;
+    field: CreditOrderableFields;
     /**
      * Direction to order in. Required.
      */

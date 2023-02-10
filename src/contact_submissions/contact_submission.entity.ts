@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min} from "class-validator";
-import {ContactSubmission as PrismaContactSubmission, Prisma} from "@prisma/client";
-import JSON from 'graphql-type-json';
+import { IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min } from "class-validator";
+import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
+import JSON from "graphql-type-json";
 
 @ObjectType()
 export class ContactSubmission implements PrismaContactSubmission {
@@ -13,7 +13,7 @@ export class ContactSubmission implements PrismaContactSubmission {
     static readonly modelName = "ContactSubmission" as const;
 
     /**
-     * Unique ID for this blog post. Automatically generated.
+     * Unique ID for this ContactSubmission. Automatically generated.
      */
     @IsInt()
     @Min(0)

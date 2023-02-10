@@ -12,7 +12,7 @@ export class Category implements PrismaCategory {
     static readonly modelName = "Category" as const;
 
     /**
-     * Unique ID for this blog post. Automatically generated.
+     * Unique ID for this category. Automatically generated.
      */
     @IsInt()
     @Min(0)

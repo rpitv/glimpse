@@ -19,7 +19,10 @@ import { AssetModule } from "./asset/asset.module";
 import { AuditLogModule } from "./audit_log/audit_log.module";
 import { BlogPostModule } from "./blog_post/blog_post.module";
 import { CategoryModule } from "./category/category.module";
-import {ContactSubmissionModule} from "./contact_submissions/contact_submission.module";
+import { ContactSubmissionModule } from "./contact_submissions/contact_submission.module";
+import {CreditModule} from "./credit/credit.module";
+import {GroupPermissionModule} from "./group_permission/group_permission.module";
+import {GroupModule} from "./group/group.module";
 
 @Module({
     imports: [
@@ -40,6 +43,9 @@ import {ContactSubmissionModule} from "./contact_submissions/contact_submission.
         BlogPostModule,
         CategoryModule,
         ContactSubmissionModule,
+        CreditModule,
+        GroupModule,
+        GroupPermissionModule,
         UserModule,
         AuthModule,
         CaslModule,
