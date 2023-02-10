@@ -52,6 +52,4 @@ export class BlogPost implements PrismaBlogPost {
     @MaxLength(100)
     @Field(() => String, { nullable: true })
     authorDisplayName: string | null;
-
-
 }
