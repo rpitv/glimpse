@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID, Int, HideField } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { AuditLog as PrismaAuditLog } from "@prisma/client";
+import {AuditLog as PrismaAuditLog, Prisma} from "@prisma/client";
 
 /**
  * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
@@ -75,7 +75,7 @@ export class AuditLog implements PrismaAuditLog {
      *  object (particularly if {@link #subject} is non-null), but it can technically be any value.
      */
     @HideField()
-    newValue: any | null;
+    newValue: Prisma.JsonValue | null;
     /**
      * The previous value of the resource before the change. Will be null if the resource was created, since there was
      *  no previous value. This value cannot be queried directly, and is used internally for constructing an audit log
@@ -83,5 +83,5 @@ export class AuditLog implements PrismaAuditLog {
      *  object (particularly if {@link #subject} is non-null), but it can technically be any value.
      */
     @HideField()
-    oldValue: any | null;
+    oldValue: Prisma.JsonValue | null;
 }

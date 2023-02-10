@@ -10,6 +10,7 @@ import { Asset } from "../asset/asset.entity";
 import { AuditLog } from "../audit_log/audit_log.entity";
 import { BlogPost } from "../blog_post/blog_post.entity";
 import { Category } from "../category/category.entity";
+import {ContactSubmission} from "../contact_submissions/contact_submission.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -28,7 +29,8 @@ export type AbilitySubjects =
           | typeof Asset
           | typeof AuditLog
           | typeof BlogPost
-          | typeof Category,
+          | typeof Category
+          | typeof ContactSubmission,
           true
       >
     | "all";
