@@ -1,6 +1,6 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import { Resolver, Query, Args, Int, Context } from "@nestjs/graphql";
 import { AccessLog } from "./access_log.entity";
-import { BadRequestException, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { Rule, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { FilterAccessLogInput } from "./dto/filter-access_log.input";
@@ -8,8 +8,6 @@ import { OrderAccessLogInput } from "./dto/order-access_log.input";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
-import { AbilityAction } from "../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 
 @Resolver(() => AccessLog)
 export class AccessLogResolver {
@@ -55,38 +53,6 @@ export class AccessLogResolver {
         return ctx.req.prismaTx.accessLog.findFirst({
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).AccessLog]
-            }
-        });
-    }
-
-    @Mutation(() => AccessLog, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, AccessLog)
-    async deleteAccessLog(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
-    ): Promise<AccessLog> {
-        this.logger.verbose("deleteAccessLog resolver called");
-
-        const rowToDelete = await ctx.req.prismaTx.accessLog.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).AccessLog]
-            }
-        });
-
-        if (!rowToDelete) {
-            throw new BadRequestException("AccessLog not found");
-        }
-
-        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
-        //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("AccessLog", rowToDelete))) {
-            ctx.req.passed = false;
-            return null;
-        }
-
-        return ctx.req.prismaTx.accessLog.delete({
-            where: {
-                id
             }
         });
     }

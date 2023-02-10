@@ -65,7 +65,8 @@ model AuditLog {
   timestamp        DateTime @default(now()) @db.Timestamp(6)
   subject          String?  @map("subject") @db.VarChar(50)
   identifier       Int?
-  prevValue        Json?    @map("prev_value") @db.Json
+  newValue         Json?    @map("new_value") @db.Json
+  oldValue         Json?    @map("old_value") @db.Json
   user             User?    @relation(fields: [userId], references: [id], onDelete: Restrict, map: "audit_logs_users_id_fk")
 
   @@index([subject], map: "audit_logs_mtable_mf_mtype_index")

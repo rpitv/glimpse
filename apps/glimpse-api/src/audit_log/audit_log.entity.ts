@@ -69,11 +69,19 @@ export class AuditLog implements PrismaAuditLog {
     @Field(() => Int, { nullable: true })
     identifier: number | null;
     /**
+     * The new value of the resource after the change. Will be null if the resource was deleted, since there is no
+     *  updated value. This value cannot be queried directly, and is used internally for constructing an audit log
+     *  message. It is also useful for reverting changes, if ever desired. This value is typically going to be an
+     *  object (particularly if {@link #subject} is non-null), but it can technically be any value.
+     */
+    @HideField()
+    newValue: any | null;
+    /**
      * The previous value of the resource before the change. Will be null if the resource was created, since there was
      *  no previous value. This value cannot be queried directly, and is used internally for constructing an audit log
      *  message. It is also useful for reverting changes, if ever desired. This value is typically going to be an
      *  object (particularly if {@link #subject} is non-null), but it can technically be any value.
      */
     @HideField()
-    prevValue: any | null;
+    oldValue: any | null;
 }

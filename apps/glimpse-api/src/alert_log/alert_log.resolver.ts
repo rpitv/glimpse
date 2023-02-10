@@ -77,9 +77,19 @@ export class AlertLogResolver {
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        return ctx.req.prismaTx.alertLog.create({
+        const result = await ctx.req.prismaTx.alertLog.create({
             data: input
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: null,
+            newValue: result,
+            subject: "AlertLog",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Mutation(() => AlertLog, { complexity: Complexities.Update })
@@ -116,12 +126,22 @@ export class AlertLogResolver {
             }
         }
 
-        return ctx.req.prismaTx.alertLog.update({
+        const result = await ctx.req.prismaTx.alertLog.update({
             where: {
                 id
             },
             data: input
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: rowToUpdate,
+            newValue: result,
+            subject: "AlertLog",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Mutation(() => AlertLog, { complexity: Complexities.Delete })
@@ -149,11 +169,21 @@ export class AlertLogResolver {
             return null;
         }
 
-        return ctx.req.prismaTx.alertLog.delete({
+        const result = await ctx.req.prismaTx.alertLog.delete({
             where: {
                 id
             }
         });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: result,
+            newValue: null,
+            subject: "AlertLog",
+            id: result.id
+        });
+
+        return result;
     }
 
     @Query(() => Int, { complexity: Complexities.Count })

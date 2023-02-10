@@ -1,18 +1,13 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
+import { Resolver, Query, Args, Int, Context } from "@nestjs/graphql";
+import { Logger } from "@nestjs/common";
 import { Rule, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
-import { AbilityAction } from "../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import { UpdateAuditLogInput } from "./dto/update-audit_log.input";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -59,48 +54,6 @@ export class AuditLogResolver {
             where: {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).AuditLog]
             }
-        });
-    }
-
-    @Mutation(() => AuditLog, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, AuditLog)
-    async updateAuditLog(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
-        @Args("input", { type: () => UpdateAuditLogInput }) input: UpdateAuditLogInput
-    ): Promise<AuditLog> {
-        this.logger.verbose("updateAuditLog resolver called");
-        input = plainToClass(UpdateAuditLogInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.auditLog.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).AuditLog]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("AuditLog not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("AuditLog", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        return ctx.req.prismaTx.auditLog.update({
-            where: {
-                id
-            },
-            data: input
         });
     }
 
