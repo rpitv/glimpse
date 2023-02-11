@@ -145,7 +145,10 @@ export class PersonRoleResolver {
 
     @Mutation(() => PersonRole, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, PersonRole)
-    async deletePersonRole(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<PersonRole> {
+    async deletePersonRole(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<PersonRole> {
         this.logger.verbose("deletePersonRole resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.personRole.findFirst({

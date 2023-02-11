@@ -16,8 +16,11 @@ import { GroupPermission } from "../group_permission/group_permission.entity";
 import { Group } from "../group/group.entity";
 import { Image } from "../image/image.entity";
 import { Person } from "../person/person.entity";
-import {PersonImage} from "../person_image/person_image.entity";
-import {PersonRole} from "../person_role/person_role.entity";
+import { PersonImage } from "../person_image/person_image.entity";
+import { PersonRole } from "../person_role/person_role.entity";
+import {ProductionImage} from "../production_image/production_image.entity";
+import {ProductionRSVP} from "../production_rsvp/production_rsvp.entity";
+import {ProductionTag} from "../production_tag/production_tag.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -44,7 +47,10 @@ export type AbilitySubjects =
           | typeof Image
           | typeof Person
           | typeof PersonImage
-          | typeof PersonRole,
+          | typeof PersonRole
+          | typeof ProductionImage
+          | typeof ProductionRSVP
+          | typeof ProductionTag,
           true
       >
     | "all";
