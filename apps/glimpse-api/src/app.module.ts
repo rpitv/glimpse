@@ -25,8 +25,11 @@ import { GroupPermissionModule } from "./group_permission/group_permission.modul
 import { GroupModule } from "./group/group.module";
 import { ImageModule } from "./image/image.module";
 import { PersonModule } from "./person/person.module";
-import {PersonImageModule} from "./person_image/person_image.module";
-import {PersonRoleModule} from "./person_role/person_role.module";
+import { PersonImageModule } from "./person_image/person_image.module";
+import { PersonRoleModule } from "./person_role/person_role.module";
+import {ProductionImageModule} from "./production_image/production_image.module";
+import {ProductionRSVPModule} from "./production_rsvp/production_rsvp.module";
+import {ProductionTagModule} from "./production_tag/production_tag.module";
 
 @Module({
     imports: [
@@ -54,6 +57,9 @@ import {PersonRoleModule} from "./person_role/person_role.module";
         PersonModule,
         PersonImageModule,
         PersonRoleModule,
+        ProductionImageModule,
+        ProductionRSVPModule,
+        ProductionTagModule,
         UserModule,
         AuthModule,
         CaslModule,
