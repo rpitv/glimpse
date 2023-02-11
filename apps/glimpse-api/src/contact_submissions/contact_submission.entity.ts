@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min } from "class-validator";
+import {IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min, MinLength} from "class-validator";
 import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
 import JSON from "graphql-type-json";
 
@@ -33,6 +33,22 @@ export class ContactSubmission implements PrismaContactSubmission {
     @MaxLength(100)
     @Field(() => String, { nullable: true })
     name: string | null;
+
+    /**
+     * The subject/title of the ContactSubmission.
+     */
+    @MinLength(5)
+    @MaxLength(100)
+    @Field(() => String, { nullable: true })
+    subject: string | null;
+
+    /**
+     * The main body of the ContactSubmission.
+     */
+    @MinLength(15)
+    @MaxLength(1000)
+    @Field(() => String, { nullable: true })
+    body: string | null;
 
     /**
      * Timestamp at which this ContactSubmission was submitted.

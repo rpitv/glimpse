@@ -16,10 +16,6 @@ export class FilterRoleInput {
      */
     name?: StringComparisonInput;
     /**
-     * Filter by the path of this Role.
-     */
-    path?: StringComparisonInput;
-    /**
      * Filter by the description of this Role.
      */
     description?: StringComparisonInput;

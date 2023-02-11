@@ -3,12 +3,10 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum AuditLogOrderableFields {
     id = "id",
-    userId = "userId",
     timestamp = "timestamp",
-    modifiedTable = "modifiedTable",
-    modifiedField = "modifiedField",
-    previousValue = "previousValue",
-    comment = "comment"
+    subject = "subject",
+    message = "message",
+    identifier = "identifier",
 }
 
 registerEnumType(AuditLogOrderableFields, {

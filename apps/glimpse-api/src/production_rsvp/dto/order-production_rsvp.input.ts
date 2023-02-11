@@ -3,10 +3,8 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum ProductionRSVPOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
+    willAttend = "willAttend",
+
 }
 
 registerEnumType(ProductionRSVPOrderableFields, {

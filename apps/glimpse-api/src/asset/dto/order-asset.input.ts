@@ -5,11 +5,8 @@ enum AssetOrderableFields {
     id = "id",
     tag = "tag",
     name = "name",
-    lastKnownLocation = "lastKnownLocation",
-    isLost = "isLost",
     purchasePrice = "purchasePrice",
-    purchaseDate = "purchaseDate",
-    parentId = "parentId"
+    purchaseDate = "purchaseDate"
 }
 
 registerEnumType(AssetOrderableFields, {

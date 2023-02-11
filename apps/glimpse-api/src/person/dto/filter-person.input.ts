@@ -13,21 +13,13 @@ export class FilterPersonInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by name
      */
-    postedAt?: DateComparisonInput;
+    name?: StringComparisonInput;
     /**
-     * Filter by title
+     * Filter by graduation
      */
-    title?: StringComparisonInput;
-    /**
-     * Filter by author ID
-     */
-    authorId?: NumberComparisonInput;
-    /**
-     * Filter by author display name
-     */
-    authorDisplayName?: StringComparisonInput;
+    graduation?: DateComparisonInput;
 
     AND?: FilterPersonInput[];
     OR?: FilterPersonInput[];

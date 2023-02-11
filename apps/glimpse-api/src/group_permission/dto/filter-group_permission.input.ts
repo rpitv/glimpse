@@ -1,7 +1,7 @@
 import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import { DateComparisonInput } from "../../generic/date-comparison.input";
+import {BooleanComparisonInput} from "../../generic/boolean-comparison.input";
 
 /**
  * Input type for filtering GroupPermissions in ReadMany queries.
@@ -13,21 +13,21 @@ export class FilterGroupPermissionInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by group ID
      */
-    postedAt?: DateComparisonInput;
+    groupId?: NumberComparisonInput;
     /**
-     * Filter by title
+     * Filter by permission action
      */
-    title?: StringComparisonInput;
+    action?: StringComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by inverted status
      */
-    authorId?: NumberComparisonInput;
+    inverted?: BooleanComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by inverted permissions denial reason
      */
-    authorDisplayName?: StringComparisonInput;
+    reason?: StringComparisonInput;
 
     AND?: FilterGroupPermissionInput[];
     OR?: FilterGroupPermissionInput[];

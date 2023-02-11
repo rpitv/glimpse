@@ -5,7 +5,6 @@ enum UserOrderableFields {
     id = "id",
     mail = "mail",
     username = "username",
-    personId = "personId",
     joined = "joined"
 }
 

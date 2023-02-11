@@ -4,8 +4,6 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 enum BlogPostOrderableFields {
     id = "id",
     postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
     title = "title"
 }
 

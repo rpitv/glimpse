@@ -1,7 +1,5 @@
 import { InputType } from "@nestjs/graphql";
-import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
  * Input type for filtering ProductionImages in ReadMany queries.
@@ -13,21 +11,13 @@ export class FilterProductionImageInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by Production ID
      */
-    postedAt?: DateComparisonInput;
+    productionId?: NumberComparisonInput;
     /**
-     * Filter by title
+     * Filter by Image ID
      */
-    title?: StringComparisonInput;
-    /**
-     * Filter by author ID
-     */
-    authorId?: NumberComparisonInput;
-    /**
-     * Filter by author display name
-     */
-    authorDisplayName?: StringComparisonInput;
+    imageId?: NumberComparisonInput;
 
     AND?: FilterProductionImageInput[];
     OR?: FilterProductionImageInput[];

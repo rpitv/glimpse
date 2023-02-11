@@ -3,10 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum ProductionImageOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
+    priority = "priority"
 }
 
 registerEnumType(ProductionImageOrderableFields, {
