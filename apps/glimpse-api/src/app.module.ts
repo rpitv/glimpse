@@ -25,6 +25,8 @@ import { GroupPermissionModule } from "./group_permission/group_permission.modul
 import { GroupModule } from "./group/group.module";
 import { ImageModule } from "./image/image.module";
 import { PersonModule } from "./person/person.module";
+import {PersonImageModule} from "./person_image/person_image.module";
+import {PersonRoleModule} from "./person_role/person_role.module";
 
 @Module({
     imports: [
@@ -50,6 +52,8 @@ import { PersonModule } from "./person/person.module";
         GroupPermissionModule,
         ImageModule,
         PersonModule,
+        PersonImageModule,
+        PersonRoleModule,
         UserModule,
         AuthModule,
         CaslModule,
