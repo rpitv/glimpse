@@ -1,4 +1,4 @@
-import {ObjectType, Field, ID, Int} from "@nestjs/graphql";
+import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { Person as PrismaPerson } from "@prisma/client";
 
@@ -40,20 +40,6 @@ export class Person implements PrismaPerson {
     @IsDate()
     @Field(() => Date, { nullable: true })
     graduation: Date | null;
-
-    /**
-     * The date that this Person became a member of RPI TV.
-     */
-    @IsDate()
-    @Field(() => Date, { nullable: true })
-    start: Date | null;
-
-    /**
-     * The date that this Person left or plans on leaving RPI TV.
-     */
-    @IsDate()
-    @Field(() => Date, { nullable: true })
-    end: Date | null;
 
     /**
      * An "about me" section for this Person.

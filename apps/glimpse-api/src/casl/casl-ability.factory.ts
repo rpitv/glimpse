@@ -16,6 +16,8 @@ import { GroupPermission } from "../group_permission/group_permission.entity";
 import { Group } from "../group/group.entity";
 import { Image } from "../image/image.entity";
 import { Person } from "../person/person.entity";
+import {PersonImage} from "../person_image/person_image.entity";
+import {PersonRole} from "../person_role/person_role.entity";
 
 export enum AbilityAction {
     Manage = "manage",
@@ -40,7 +42,9 @@ export type AbilitySubjects =
           | typeof Group
           | typeof GroupPermission
           | typeof Image
-          | typeof Person,
+          | typeof Person
+          | typeof PersonImage
+          | typeof PersonRole,
           true
       >
     | "all";
