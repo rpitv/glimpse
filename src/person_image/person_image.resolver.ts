@@ -145,7 +145,10 @@ export class PersonImageResolver {
 
     @Mutation(() => PersonImage, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, PersonImage)
-    async deletePersonImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<PersonImage> {
+    async deletePersonImage(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<PersonImage> {
         this.logger.verbose("deletePersonImage resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.personImage.findFirst({
