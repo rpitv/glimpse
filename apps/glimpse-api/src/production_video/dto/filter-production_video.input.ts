@@ -19,7 +19,6 @@ export class FilterProductionVideoInput {
      */
     videoId?: NumberComparisonInput;
 
-
     AND?: FilterProductionVideoInput[];
     OR?: FilterProductionVideoInput[];
     NOT?: FilterProductionVideoInput;

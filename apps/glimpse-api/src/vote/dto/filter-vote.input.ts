@@ -1,7 +1,7 @@
 import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import {DateComparisonInput} from "../../generic/date-comparison.input";
+import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
  * Input type for filtering Votes in ReadMany queries.
@@ -23,7 +23,7 @@ export class FilterVoteInput {
     /**
      * Filter by description
      */
-    description?: StringComparisonInput
+    description?: StringComparisonInput;
 
     AND?: FilterVoteInput[];
     OR?: FilterVoteInput[];

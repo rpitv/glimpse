@@ -4,7 +4,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 enum CreditOrderableFields {
     id = "id",
     priority = "priority",
-    title = "title",
+    title = "title"
 }
 
 registerEnumType(CreditOrderableFields, {
