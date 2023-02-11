@@ -2,6 +2,7 @@ import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
 import { DateComparisonInput } from "../../generic/date-comparison.input";
+import {BooleanComparisonInput} from "../../generic/boolean-comparison.input";
 
 /**
  * Input type for filtering ContactSubmissions in ReadMany queries.
@@ -13,21 +14,21 @@ export class FilterContactSubmissionInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by the email of the person who submitted the ContactSubmission.
      */
-    postedAt?: DateComparisonInput;
+    email?: StringComparisonInput;
     /**
-     * Filter by title
+     * Filter by the name of the person who submitted the ContactSubmission.
      */
-    title?: StringComparisonInput;
+    name?: StringComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by timestamp
      */
-    authorId?: NumberComparisonInput;
+    timestamp?: DateComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by resolved status
      */
-    authorDisplayName?: StringComparisonInput;
+    resolved?: BooleanComparisonInput;
 
     AND?: FilterContactSubmissionInput[];
     OR?: FilterContactSubmissionInput[];

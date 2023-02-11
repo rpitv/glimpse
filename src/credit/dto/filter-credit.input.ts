@@ -1,7 +1,6 @@
 import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
  * Input type for filtering Credits in ReadMany queries.
@@ -13,21 +12,17 @@ export class FilterCreditInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
-     */
-    postedAt?: DateComparisonInput;
-    /**
-     * Filter by title
+     * Filter by position title
      */
     title?: StringComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by ID of the Person the Credit is for
      */
-    authorId?: NumberComparisonInput;
+    personId?: NumberComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by ID of the Production the Credit is for
      */
-    authorDisplayName?: StringComparisonInput;
+    productionId?: NumberComparisonInput;
 
     AND?: FilterCreditInput[];
     OR?: FilterCreditInput[];

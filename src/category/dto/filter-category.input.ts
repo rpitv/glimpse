@@ -1,7 +1,6 @@
 import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
  * Input type for filtering Categories in ReadMany queries.
@@ -13,21 +12,17 @@ export class FilterCategoryInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by name
      */
-    postedAt?: DateComparisonInput;
+    name?: StringComparisonInput;
     /**
-     * Filter by title
+     * Filter by priority
      */
-    title?: StringComparisonInput;
+    priority?: NumberComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by parent category ID
      */
-    authorId?: NumberComparisonInput;
-    /**
-     * Filter by author display name
-     */
-    authorDisplayName?: StringComparisonInput;
+    parentId?: NumberComparisonInput;
 
     AND?: FilterCategoryInput[];
     OR?: FilterCategoryInput[];

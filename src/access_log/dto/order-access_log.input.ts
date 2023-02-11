@@ -3,9 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum AccessLogOrderableFields {
     id = "id",
-    userId = "userId",
     timestamp = "timestamp",
-    ip = "ip",
     service = "service"
 }
 

@@ -3,10 +3,8 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum CreditOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
+    priority = "priority",
+    title = "title",
 }
 
 registerEnumType(CreditOrderableFields, {

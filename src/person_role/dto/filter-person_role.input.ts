@@ -1,5 +1,4 @@
 import { InputType } from "@nestjs/graphql";
-import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
 import { DateComparisonInput } from "../../generic/date-comparison.input";
 
@@ -13,21 +12,21 @@ export class FilterPersonRoleInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by Person ID
      */
-    postedAt?: DateComparisonInput;
+    personId?: NumberComparisonInput;
     /**
-     * Filter by title
+     * Filter by Role ID
      */
-    title?: StringComparisonInput;
+    roleId?: NumberComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by the start time of the PersonRole
      */
-    authorId?: NumberComparisonInput;
+    startTime?: DateComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by the end time of the PersonRole
      */
-    authorDisplayName?: StringComparisonInput;
+    endTime?: DateComparisonInput;
 
     AND?: FilterPersonRoleInput[];
     OR?: FilterPersonRoleInput[];
