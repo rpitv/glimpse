@@ -3,10 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum VoteResponseOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
+    timestamp = "timestamp",
 }
 
 registerEnumType(VoteResponseOrderableFields, {

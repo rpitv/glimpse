@@ -106,6 +106,8 @@ model ContactSubmission {
   id             Int                         @id(map: "contact_submissions_pk") @unique(map: "contact_submissions_id_uindex") @default(autoincrement())
   email          String                      @db.VarChar(300)
   name           String                      @db.VarChar(100)
+  subject        String                      @db.VarChar(100)
+  body           String                      @db.VarChar(1000)
   timestamp      DateTime                    @default(now()) @db.Timestamp(6)
   resolved       Boolean                     @default(false)
   additionalData Json?                       @map("additional_data") @db.Json

@@ -13,21 +13,21 @@ export class FilterVoteResponseInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by user ID
      */
-    postedAt?: DateComparisonInput;
+    userId?: NumberComparisonInput;
     /**
-     * Filter by title
+     * Filter by vote ID
      */
-    title?: StringComparisonInput;
+    voteId?: NumberComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by when they voted
      */
-    authorId?: NumberComparisonInput;
+    timestamp?: DateComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by their selection
      */
-    authorDisplayName?: StringComparisonInput;
+    selection?: StringComparisonInput;
 
     AND?: FilterVoteResponseInput[];
     OR?: FilterVoteResponseInput[];

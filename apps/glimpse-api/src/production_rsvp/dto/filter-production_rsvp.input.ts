@@ -1,7 +1,6 @@
 import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../generic/string-comparison.input";
 import { NumberComparisonInput } from "../../generic/number-comparison.input";
-import { DateComparisonInput } from "../../generic/date-comparison.input";
 
 /**
  * Input type for filtering ProductionRSVPs in ReadMany queries.
@@ -13,21 +12,21 @@ export class FilterProductionRSVPInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by Production ID
      */
-    postedAt?: DateComparisonInput;
+    productionId?: NumberComparisonInput;
     /**
-     * Filter by title
+     * Filter by User ID
      */
-    title?: StringComparisonInput;
+    userId?: NumberComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by whether the User will attend the Production
      */
-    authorId?: NumberComparisonInput;
+    willAttend?: StringComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by any additional notes provided by the User, officers, or producers
      */
-    authorDisplayName?: StringComparisonInput;
+    notes?: StringComparisonInput;
 
     AND?: FilterProductionRSVPInput[];
     OR?: FilterProductionRSVPInput[];

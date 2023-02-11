@@ -3,10 +3,8 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum PersonOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
+    name = "name",
+    graduation = "graduation",
 }
 
 registerEnumType(PersonOrderableFields, {

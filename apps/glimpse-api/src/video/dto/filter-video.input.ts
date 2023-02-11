@@ -12,17 +12,13 @@ export class FilterVideoInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by the name of this Video.
+     * Filter by name
      */
     name?: StringComparisonInput;
     /**
-     * Filter by the path of this Video.
+     * Filter by format
      */
-    path?: StringComparisonInput;
-    /**
-     * Filter by the description of this Video.
-     */
-    description?: StringComparisonInput;
+    format?: StringComparisonInput;
 
     AND?: FilterVideoInput[];
     OR?: FilterVideoInput[];

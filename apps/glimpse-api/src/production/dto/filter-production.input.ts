@@ -13,21 +13,45 @@ export class FilterProductionInput {
      */
     id?: NumberComparisonInput;
     /**
-     * Filter by when the blog post was posted.
+     * Filter by name
      */
-    postedAt?: DateComparisonInput;
+    name?: StringComparisonInput;
     /**
-     * Filter by title
+     * Filter by description
      */
-    title?: StringComparisonInput;
+    description?: StringComparisonInput;
     /**
-     * Filter by author ID
+     * Filter by start time
      */
-    authorId?: NumberComparisonInput;
+    startTime?: DateComparisonInput;
     /**
-     * Filter by author display name
+     * Filter by end time
      */
-    authorDisplayName?: StringComparisonInput;
+    endTime?: DateComparisonInput;
+    /**
+     * Filter by category ID
+     */
+    categoryId?: NumberComparisonInput;
+    /**
+     * Filter by closet location
+     */
+    closetLocation?: StringComparisonInput;
+    /**
+     * Filter by closet time
+     */
+    closetTime?: DateComparisonInput;
+    /**
+     * Filter by event location
+     */
+    eventLocation?: StringComparisonInput;
+    /**
+     * Filter by team notes
+     */
+    teamNotes?: StringComparisonInput;
+    /**
+     * Filter by thumbnail Image ID
+     */
+    thumbnailId?: NumberComparisonInput;
 
     AND?: FilterProductionInput[];
     OR?: FilterProductionInput[];

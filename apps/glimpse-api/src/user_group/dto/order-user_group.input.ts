@@ -3,10 +3,6 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum UserGroupOrderableFields {
     id = "id",
-    postedAt = "postedAt",
-    authorId = "authorId",
-    authorDisplayName = "authorDisplayName",
-    title = "title"
 }
 
 registerEnumType(UserGroupOrderableFields, {

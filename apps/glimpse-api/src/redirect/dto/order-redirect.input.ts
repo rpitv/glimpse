@@ -3,7 +3,8 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum RedirectOrderableFields {
     id = "id",
-    name = "name"
+    key = "key",
+    expires = "expires"
 }
 
 registerEnumType(RedirectOrderableFields, {

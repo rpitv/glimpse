@@ -21,25 +21,13 @@ export class FilterAuditLogInput {
      */
     timestamp?: DateComparisonInput;
     /**
-     * Filter by the type of change made
+     * Filter by the changed subject type
      */
-    modificationType?: StringComparisonInput;
+    subject?: StringComparisonInput;
     /**
-     * Filter by the table that was changed
+     * Filter by the identifier of the object within the subject type (e.g. the ID of the user)
      */
-    modifiedTable?: StringComparisonInput;
-    /**
-     * Filter by the field that was changed
-     */
-    modifiedField?: StringComparisonInput;
-    /**
-     * Filter by the value of the field before the change was made
-     */
-    previousValue?: StringComparisonInput;
-    /**
-     * Filter by the comment on the change
-     */
-    comment?: StringComparisonInput;
+    identifier?: NumberComparisonInput;
 
     AND?: FilterAuditLogInput[];
     OR?: FilterAuditLogInput[];

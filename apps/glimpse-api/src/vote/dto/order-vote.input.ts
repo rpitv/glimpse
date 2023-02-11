@@ -3,7 +3,8 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum VoteOrderableFields {
     id = "id",
-    name = "name"
+    question = "question",
+    expires = "expires"
 }
 
 registerEnumType(VoteOrderableFields, {
