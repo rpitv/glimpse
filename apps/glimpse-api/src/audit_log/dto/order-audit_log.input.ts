@@ -6,7 +6,7 @@ enum AuditLogOrderableFields {
     timestamp = "timestamp",
     subject = "subject",
     message = "message",
-    identifier = "identifier",
+    identifier = "identifier"
 }
 
 registerEnumType(AuditLogOrderableFields, {

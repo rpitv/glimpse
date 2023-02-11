@@ -4,7 +4,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 enum GroupOrderableFields {
     id = "id",
     priority = "priority",
-    name = "name",
+    name = "name"
 }
 
 registerEnumType(GroupOrderableFields, {

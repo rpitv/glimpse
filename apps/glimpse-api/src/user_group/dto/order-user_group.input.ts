@@ -2,7 +2,7 @@ import { InputType, registerEnumType } from "@nestjs/graphql";
 import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum UserGroupOrderableFields {
-    id = "id",
+    id = "id"
 }
 
 registerEnumType(UserGroupOrderableFields, {

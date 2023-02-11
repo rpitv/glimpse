@@ -3,7 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum PersonRoleOrderableFields {
     id = "id",
-    startTime = "startTime",
+    startTime = "startTime"
 }
 
 registerEnumType(PersonRoleOrderableFields, {

@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min, MinLength} from "class-validator";
+import { IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min, MinLength } from "class-validator";
 import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
 import JSON from "graphql-type-json";
 

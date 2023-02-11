@@ -3,7 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum ProductionTagOrderableFields {
     id = "id",
-    tag = "tag",
+    tag = "tag"
 }
 
 registerEnumType(ProductionTagOrderableFields, {
