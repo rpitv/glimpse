@@ -20,15 +20,15 @@ import { PersonRole } from "../person_role/person_role.entity";
 import { ProductionImage } from "../production_image/production_image.entity";
 import { ProductionRSVP } from "../production_rsvp/production_rsvp.entity";
 import { ProductionTag } from "../production_tag/production_tag.entity";
-import {ProductionVideo} from "../production_video/production_video.entity";
-import {Production} from "../production/production.entity";
-import {Redirect} from "../redirect/redirect.entity";
-import {Role} from "../role/role.entity";
-import {UserGroup} from "../user_group/user_group.entity";
-import {UserPermission} from "../user_permission/user_permission.entity";
-import {Video} from "../video/video.entity";
-import {Vote} from "../vote/vote.entity";
-import {VoteResponse} from "../vote_response/vote_response.entity";
+import { ProductionVideo } from "../production_video/production_video.entity";
+import { Production } from "../production/production.entity";
+import { Redirect } from "../redirect/redirect.entity";
+import { Role } from "../role/role.entity";
+import { UserGroup } from "../user_group/user_group.entity";
+import { UserPermission } from "../user_permission/user_permission.entity";
+import { Video } from "../video/video.entity";
+import { Vote } from "../vote/vote.entity";
+import { VoteResponse } from "../vote_response/vote_response.entity";
 
 export enum AbilityAction {
     Manage = "manage",

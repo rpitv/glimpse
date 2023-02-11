@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsInt, MaxLength, Min} from "class-validator";
+import { IsInt, MaxLength, Min } from "class-validator";
 import { Role as PrismaRole } from "@prisma/client";
 
 @ObjectType()
