@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import {IsInt, Min} from "class-validator";
+import { IsInt, Min } from "class-validator";
 import { ProductionImage as PrismaProductionImage } from "@prisma/client";
 
 @ObjectType()
@@ -20,14 +20,14 @@ export class ProductionImage implements PrismaProductionImage {
     id: number | null;
 
     /**
-     * ID of the person this ProductionImage is associated with.
+     * ID of the production this ProductionImage is associated with.
      */
     @Min(0)
     @Field(() => Int, { nullable: true })
     productionId: number | null;
 
     /**
-     * ID of the role this ProductionImage is associated with.
+     * ID of the image this ProductionImage is associated with.
      */
     @Min(0)
     @Field(() => Int, { nullable: true })
