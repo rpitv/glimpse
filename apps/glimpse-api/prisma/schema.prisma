@@ -222,7 +222,6 @@ model Production {
   description    String?
   startTime      DateTime?         @map("start_time") @db.Timestamp(6)
   endTime        DateTime?         @map("end_time") @db.Timestamp(6)
-  isLive         Boolean           @default(true) @map("is_live")
   categoryId     Int?              @map("category")
   closetLocation String?           @map("closet_location") @db.VarChar(100)
   eventLocation  String?           @map("event_location") @db.VarChar(100)
@@ -240,7 +239,6 @@ model Production {
   videos         ProductionVideo[]
 
   @@index([categoryId, startTime, name], map: "productions_category_start_time_name_index")
-  @@index([isLive, startTime], map: "productions_is_live_start_time_index")
   @@index([name], map: "productions_name_index")
   @@index([startTime, name], map: "productions_start_time_name_index")
   @@map("productions")
@@ -374,7 +372,7 @@ model Video {
 }
 
 model Vote {
-  id          Int            @id(map: "votes_pk")
+  id          Int            @id(map: "votes_pk") @default(autoincrement())
   question    String         @db.VarChar(200)
   options     String[]       @db.VarChar(200)
   expires     DateTime?      @db.Timestamp(6)
