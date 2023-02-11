@@ -9,38 +9,38 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import { ProductionRSVP } from "./production_rsvp.entity";
-import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
-import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
-import { CreateProductionRSVPInput } from "./dto/create-production_rsvp.input";
-import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
+import { UserPermission } from "./user_permission.entity";
+import { FilterUserPermissionInput } from "./dto/filter-user_permission.input";
+import { OrderUserPermissionInput } from "./dto/order-user_permission.input";
+import { CreateUserPermissionInput } from "./dto/create-user_permission.input";
+import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
 
-@Resolver(() => ProductionRSVP)
-export class ProductionRSVPResolver {
-    private logger: Logger = new Logger("ProductionRSVPResolver");
+@Resolver(() => UserPermission)
+export class UserPermissionResolver {
+    private logger: Logger = new Logger("UserPermissionResolver");
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [ProductionRSVP], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, ProductionRSVP)
-    async findManyProductionRSVP(
+    @Query(() => [UserPermission], { complexity: Complexities.ReadMany })
+    @Rule(RuleType.ReadMany, UserPermission)
+    async findManyUserPermission(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput,
-        @Args("order", { type: () => [OrderProductionRSVPInput], nullable: true }) order?: OrderProductionRSVPInput[],
+        @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput,
+        @Args("order", { type: () => [OrderUserPermissionInput], nullable: true }) order?: OrderUserPermissionInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
-    ): Promise<ProductionRSVP[]> {
-        this.logger.verbose("findManyProductionRSVP resolver called");
+    ): Promise<UserPermission[]> {
+        this.logger.verbose("findManyUserPermission resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                  AND: [accessibleBy(ctx.req.permissions).UserPermission, filter]
               }
-            : accessibleBy(ctx.req.permissions).ProductionRSVP;
+            : accessibleBy(ctx.req.permissions).UserPermission;
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return ctx.req.prismaTx.productionRSVP.findMany({
+        return ctx.req.prismaTx.userPermission.findMany({
             where,
             orderBy,
             skip: pagination?.skip,
@@ -49,83 +49,83 @@ export class ProductionRSVPResolver {
         });
     }
 
-    @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionRSVP)
-    async findOneProductionRSVP(
+    @Query(() => UserPermission, { nullable: true, complexity: Complexities.ReadOne })
+    @Rule(RuleType.ReadOne, UserPermission)
+    async findOneUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("findOneProductionRSVP resolver called");
-        return ctx.req.prismaTx.productionRSVP.findFirst({
+    ): Promise<UserPermission> {
+        this.logger.verbose("findOneUserPermission resolver called");
+        return ctx.req.prismaTx.userPermission.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserPermission]
             }
         });
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionRSVP)
-    async createProductionRSVP(
+    @Mutation(() => UserPermission, { complexity: Complexities.Create })
+    @Rule(RuleType.Create, UserPermission)
+    async createUserPermission(
         @Context() ctx: { req: Request },
-        @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("createProductionRSVP resolver called");
-        input = plainToClass(CreateProductionRSVPInput, input);
+        @Args("input", { type: () => CreateUserPermissionInput }) input: CreateUserPermissionInput
+    ): Promise<UserPermission> {
+        this.logger.verbose("createUserPermission resolver called");
+        input = plainToClass(CreateUserPermissionInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.create({
+        const result = await ctx.req.prismaTx.userPermission.create({
             data: input
         });
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserPermission",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionRSVP)
-    async updateProductionRSVP(
+    @Mutation(() => UserPermission, { complexity: Complexities.Update })
+    @Rule(RuleType.Update, UserPermission)
+    async updateUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
-        @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("updateProductionRSVP resolver called");
-        input = plainToClass(UpdateProductionRSVPInput, input);
+        @Args("input", { type: () => UpdateUserPermissionInput }) input: UpdateUserPermissionInput
+    ): Promise<UserPermission> {
+        this.logger.verbose("updateUserPermission resolver called");
+        input = plainToClass(UpdateUserPermissionInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const rowToUpdate = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToUpdate = await ctx.req.prismaTx.userPermission.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserPermission]
             }
         });
 
         if (!rowToUpdate) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("UserPermission not found");
         }
 
         // Make sure the user has permission to update all the fields they are trying to update, given the object's
         //  current state.
         for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionRSVP", rowToUpdate), field)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("UserPermission", rowToUpdate), field)) {
                 ctx.req.passed = false;
                 return null;
             }
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.update({
+        const result = await ctx.req.prismaTx.userPermission.update({
             where: {
                 id
             },
@@ -136,39 +136,39 @@ export class ProductionRSVPResolver {
             user: ctx.req.user,
             oldValue: rowToUpdate,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserPermission",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionRSVP)
-    async deleteProductionRSVP(
+    @Mutation(() => UserPermission, { complexity: Complexities.Delete })
+    @Rule(RuleType.Delete, UserPermission)
+    async deleteUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("deleteProductionRSVP resolver called");
+    ): Promise<UserPermission> {
+        this.logger.verbose("deleteUserPermission resolver called");
 
-        const rowToDelete = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToDelete = await ctx.req.prismaTx.userPermission.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserPermission]
             }
         });
 
         if (!rowToDelete) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("UserPermission not found");
         }
 
         // Make sure the user has permission to delete the object. Technically not required since the interceptor would
         //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("ProductionRSVP", rowToDelete))) {
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("UserPermission", rowToDelete))) {
             ctx.req.passed = false;
             return null;
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.delete({
+        const result = await ctx.req.prismaTx.userPermission.delete({
             where: {
                 id
             }
@@ -177,7 +177,7 @@ export class ProductionRSVPResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserPermission",
             id: result.id
         });
 
@@ -185,14 +185,14 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionRSVP)
-    async productionRSVPCount(
+    @Rule(RuleType.Count, UserPermission)
+    async userPermissionCount(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput
+        @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput
     ): Promise<number> {
-        return ctx.req.prismaTx.productionRSVP.count({
+        return ctx.req.prismaTx.userPermission.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                AND: [accessibleBy(ctx.req.permissions).UserPermission, filter]
             }
         });
     }

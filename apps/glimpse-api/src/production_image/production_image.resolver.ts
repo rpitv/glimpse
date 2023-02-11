@@ -51,7 +51,10 @@ export class ProductionImageResolver {
 
     @Query(() => ProductionImage, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, ProductionImage)
-    async findOneProductionImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<ProductionImage> {
+    async findOneProductionImage(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionImage> {
         this.logger.verbose("findOneProductionImage resolver called");
         return ctx.req.prismaTx.productionImage.findFirst({
             where: {
@@ -142,7 +145,10 @@ export class ProductionImageResolver {
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, ProductionImage)
-    async deleteProductionImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<ProductionImage> {
+    async deleteProductionImage(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionImage> {
         this.logger.verbose("deleteProductionImage resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.productionImage.findFirst({

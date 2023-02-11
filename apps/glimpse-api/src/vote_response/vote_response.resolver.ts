@@ -9,38 +9,38 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import { ProductionRSVP } from "./production_rsvp.entity";
-import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
-import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
-import { CreateProductionRSVPInput } from "./dto/create-production_rsvp.input";
-import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
+import { VoteResponse } from "./vote_response.entity";
+import { FilterVoteResponseInput } from "./dto/filter-vote_response.input";
+import { OrderVoteResponseInput } from "./dto/order-vote_response.input";
+import { CreateVoteResponseInput } from "./dto/create-vote_response.input";
+import { UpdateVoteResponseInput } from "./dto/update-vote_response.input";
 
-@Resolver(() => ProductionRSVP)
-export class ProductionRSVPResolver {
-    private logger: Logger = new Logger("ProductionRSVPResolver");
+@Resolver(() => VoteResponse)
+export class VoteResponseResolver {
+    private logger: Logger = new Logger("VoteResponseResolver");
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [ProductionRSVP], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, ProductionRSVP)
-    async findManyProductionRSVP(
+    @Query(() => [VoteResponse], { complexity: Complexities.ReadMany })
+    @Rule(RuleType.ReadMany, VoteResponse)
+    async findManyVoteResponse(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput,
-        @Args("order", { type: () => [OrderProductionRSVPInput], nullable: true }) order?: OrderProductionRSVPInput[],
+        @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput,
+        @Args("order", { type: () => [OrderVoteResponseInput], nullable: true }) order?: OrderVoteResponseInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
-    ): Promise<ProductionRSVP[]> {
-        this.logger.verbose("findManyProductionRSVP resolver called");
+    ): Promise<VoteResponse[]> {
+        this.logger.verbose("findManyVoteResponse resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                  AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter]
               }
-            : accessibleBy(ctx.req.permissions).ProductionRSVP;
+            : accessibleBy(ctx.req.permissions).VoteResponse;
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return ctx.req.prismaTx.productionRSVP.findMany({
+        return ctx.req.prismaTx.voteResponse.findMany({
             where,
             orderBy,
             skip: pagination?.skip,
@@ -49,83 +49,83 @@ export class ProductionRSVPResolver {
         });
     }
 
-    @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionRSVP)
-    async findOneProductionRSVP(
+    @Query(() => VoteResponse, { nullable: true, complexity: Complexities.ReadOne })
+    @Rule(RuleType.ReadOne, VoteResponse)
+    async findOneVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("findOneProductionRSVP resolver called");
-        return ctx.req.prismaTx.productionRSVP.findFirst({
+    ): Promise<VoteResponse> {
+        this.logger.verbose("findOneVoteResponse resolver called");
+        return ctx.req.prismaTx.voteResponse.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).VoteResponse]
             }
         });
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionRSVP)
-    async createProductionRSVP(
+    @Mutation(() => VoteResponse, { complexity: Complexities.Create })
+    @Rule(RuleType.Create, VoteResponse)
+    async createVoteResponse(
         @Context() ctx: { req: Request },
-        @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("createProductionRSVP resolver called");
-        input = plainToClass(CreateProductionRSVPInput, input);
+        @Args("input", { type: () => CreateVoteResponseInput }) input: CreateVoteResponseInput
+    ): Promise<VoteResponse> {
+        this.logger.verbose("createVoteResponse resolver called");
+        input = plainToClass(CreateVoteResponseInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.create({
+        const result = await ctx.req.prismaTx.voteResponse.create({
             data: input
         });
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "VoteResponse",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionRSVP)
-    async updateProductionRSVP(
+    @Mutation(() => VoteResponse, { complexity: Complexities.Update })
+    @Rule(RuleType.Update, VoteResponse)
+    async updateVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
-        @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("updateProductionRSVP resolver called");
-        input = plainToClass(UpdateProductionRSVPInput, input);
+        @Args("input", { type: () => UpdateVoteResponseInput }) input: UpdateVoteResponseInput
+    ): Promise<VoteResponse> {
+        this.logger.verbose("updateVoteResponse resolver called");
+        input = plainToClass(UpdateVoteResponseInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const rowToUpdate = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToUpdate = await ctx.req.prismaTx.voteResponse.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).VoteResponse]
             }
         });
 
         if (!rowToUpdate) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("VoteResponse not found");
         }
 
         // Make sure the user has permission to update all the fields they are trying to update, given the object's
         //  current state.
         for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionRSVP", rowToUpdate), field)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("VoteResponse", rowToUpdate), field)) {
                 ctx.req.passed = false;
                 return null;
             }
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.update({
+        const result = await ctx.req.prismaTx.voteResponse.update({
             where: {
                 id
             },
@@ -136,39 +136,39 @@ export class ProductionRSVPResolver {
             user: ctx.req.user,
             oldValue: rowToUpdate,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "VoteResponse",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionRSVP)
-    async deleteProductionRSVP(
+    @Mutation(() => VoteResponse, { complexity: Complexities.Delete })
+    @Rule(RuleType.Delete, VoteResponse)
+    async deleteVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("deleteProductionRSVP resolver called");
+    ): Promise<VoteResponse> {
+        this.logger.verbose("deleteVoteResponse resolver called");
 
-        const rowToDelete = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToDelete = await ctx.req.prismaTx.voteResponse.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).VoteResponse]
             }
         });
 
         if (!rowToDelete) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("VoteResponse not found");
         }
 
         // Make sure the user has permission to delete the object. Technically not required since the interceptor would
         //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("ProductionRSVP", rowToDelete))) {
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("VoteResponse", rowToDelete))) {
             ctx.req.passed = false;
             return null;
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.delete({
+        const result = await ctx.req.prismaTx.voteResponse.delete({
             where: {
                 id
             }
@@ -177,7 +177,7 @@ export class ProductionRSVPResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            subject: "ProductionRSVP",
+            subject: "VoteResponse",
             id: result.id
         });
 
@@ -185,14 +185,14 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionRSVP)
-    async productionRSVPCount(
+    @Rule(RuleType.Count, VoteResponse)
+    async voteResponseCount(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput
+        @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput
     ): Promise<number> {
-        return ctx.req.prismaTx.productionRSVP.count({
+        return ctx.req.prismaTx.voteResponse.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter]
             }
         });
     }

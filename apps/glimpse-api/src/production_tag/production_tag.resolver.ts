@@ -51,7 +51,10 @@ export class ProductionTagResolver {
 
     @Query(() => ProductionTag, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, ProductionTag)
-    async findOneProductionTag(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<ProductionTag> {
+    async findOneProductionTag(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionTag> {
         this.logger.verbose("findOneProductionTag resolver called");
         return ctx.req.prismaTx.productionTag.findFirst({
             where: {
@@ -142,7 +145,10 @@ export class ProductionTagResolver {
 
     @Mutation(() => ProductionTag, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, ProductionTag)
-    async deleteProductionTag(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<ProductionTag> {
+    async deleteProductionTag(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionTag> {
         this.logger.verbose("deleteProductionTag resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.productionTag.findFirst({

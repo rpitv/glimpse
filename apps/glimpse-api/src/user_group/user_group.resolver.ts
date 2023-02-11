@@ -9,38 +9,38 @@ import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
-import { ProductionRSVP } from "./production_rsvp.entity";
-import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
-import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
-import { CreateProductionRSVPInput } from "./dto/create-production_rsvp.input";
-import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
+import { UserGroup } from "./user_group.entity";
+import { FilterUserGroupInput } from "./dto/filter-user_group.input";
+import { OrderUserGroupInput } from "./dto/order-user_group.input";
+import { CreateUserGroupInput } from "./dto/create-user_group.input";
+import { UpdateUserGroupInput } from "./dto/update-user_group.input";
 
-@Resolver(() => ProductionRSVP)
-export class ProductionRSVPResolver {
-    private logger: Logger = new Logger("ProductionRSVPResolver");
+@Resolver(() => UserGroup)
+export class UserGroupResolver {
+    private logger: Logger = new Logger("UserGroupResolver");
 
     // -------------------- Generic Resolvers --------------------
 
-    @Query(() => [ProductionRSVP], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, ProductionRSVP)
-    async findManyProductionRSVP(
+    @Query(() => [UserGroup], { complexity: Complexities.ReadMany })
+    @Rule(RuleType.ReadMany, UserGroup)
+    async findManyUserGroup(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput,
-        @Args("order", { type: () => [OrderProductionRSVPInput], nullable: true }) order?: OrderProductionRSVPInput[],
+        @Args("filter", { type: () => FilterUserGroupInput, nullable: true }) filter?: FilterUserGroupInput,
+        @Args("order", { type: () => [OrderUserGroupInput], nullable: true }) order?: OrderUserGroupInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
-    ): Promise<ProductionRSVP[]> {
-        this.logger.verbose("findManyProductionRSVP resolver called");
+    ): Promise<UserGroup[]> {
+        this.logger.verbose("findManyUserGroup resolver called");
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                  AND: [accessibleBy(ctx.req.permissions).UserGroup, filter]
               }
-            : accessibleBy(ctx.req.permissions).ProductionRSVP;
+            : accessibleBy(ctx.req.permissions).UserGroup;
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return ctx.req.prismaTx.productionRSVP.findMany({
+        return ctx.req.prismaTx.userGroup.findMany({
             where,
             orderBy,
             skip: pagination?.skip,
@@ -49,83 +49,83 @@ export class ProductionRSVPResolver {
         });
     }
 
-    @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionRSVP)
-    async findOneProductionRSVP(
+    @Query(() => UserGroup, { nullable: true, complexity: Complexities.ReadOne })
+    @Rule(RuleType.ReadOne, UserGroup)
+    async findOneUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("findOneProductionRSVP resolver called");
-        return ctx.req.prismaTx.productionRSVP.findFirst({
+    ): Promise<UserGroup> {
+        this.logger.verbose("findOneUserGroup resolver called");
+        return ctx.req.prismaTx.userGroup.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserGroup]
             }
         });
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionRSVP)
-    async createProductionRSVP(
+    @Mutation(() => UserGroup, { complexity: Complexities.Create })
+    @Rule(RuleType.Create, UserGroup)
+    async createUserGroup(
         @Context() ctx: { req: Request },
-        @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("createProductionRSVP resolver called");
-        input = plainToClass(CreateProductionRSVPInput, input);
+        @Args("input", { type: () => CreateUserGroupInput }) input: CreateUserGroupInput
+    ): Promise<UserGroup> {
+        this.logger.verbose("createUserGroup resolver called");
+        input = plainToClass(CreateUserGroupInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.create({
+        const result = await ctx.req.prismaTx.userGroup.create({
             data: input
         });
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserGroup",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionRSVP)
-    async updateProductionRSVP(
+    @Mutation(() => UserGroup, { complexity: Complexities.Update })
+    @Rule(RuleType.Update, UserGroup)
+    async updateUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
-        @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("updateProductionRSVP resolver called");
-        input = plainToClass(UpdateProductionRSVPInput, input);
+        @Args("input", { type: () => UpdateUserGroupInput }) input: UpdateUserGroupInput
+    ): Promise<UserGroup> {
+        this.logger.verbose("updateUserGroup resolver called");
+        input = plainToClass(UpdateUserGroupInput, input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
             throw new BadRequestException(firstErrorFirstConstraint);
         }
 
-        const rowToUpdate = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToUpdate = await ctx.req.prismaTx.userGroup.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserGroup]
             }
         });
 
         if (!rowToUpdate) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("UserGroup not found");
         }
 
         // Make sure the user has permission to update all the fields they are trying to update, given the object's
         //  current state.
         for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionRSVP", rowToUpdate), field)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("UserGroup", rowToUpdate), field)) {
                 ctx.req.passed = false;
                 return null;
             }
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.update({
+        const result = await ctx.req.prismaTx.userGroup.update({
             where: {
                 id
             },
@@ -136,39 +136,39 @@ export class ProductionRSVPResolver {
             user: ctx.req.user,
             oldValue: rowToUpdate,
             newValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserGroup",
             id: result.id
         });
 
         return result;
     }
 
-    @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionRSVP)
-    async deleteProductionRSVP(
+    @Mutation(() => UserGroup, { complexity: Complexities.Delete })
+    @Rule(RuleType.Delete, UserGroup)
+    async deleteUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
-    ): Promise<ProductionRSVP> {
-        this.logger.verbose("deleteProductionRSVP resolver called");
+    ): Promise<UserGroup> {
+        this.logger.verbose("deleteUserGroup resolver called");
 
-        const rowToDelete = await ctx.req.prismaTx.productionRSVP.findFirst({
+        const rowToDelete = await ctx.req.prismaTx.userGroup.findFirst({
             where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
+                AND: [{ id }, accessibleBy(ctx.req.permissions).UserGroup]
             }
         });
 
         if (!rowToDelete) {
-            throw new BadRequestException("ProductionRSVP not found");
+            throw new BadRequestException("UserGroup not found");
         }
 
         // Make sure the user has permission to delete the object. Technically not required since the interceptor would
         //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("ProductionRSVP", rowToDelete))) {
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("UserGroup", rowToDelete))) {
             ctx.req.passed = false;
             return null;
         }
 
-        const result = await ctx.req.prismaTx.productionRSVP.delete({
+        const result = await ctx.req.prismaTx.userGroup.delete({
             where: {
                 id
             }
@@ -177,7 +177,7 @@ export class ProductionRSVPResolver {
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
             oldValue: result,
-            subject: "ProductionRSVP",
+            subject: "UserGroup",
             id: result.id
         });
 
@@ -185,14 +185,14 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionRSVP)
-    async productionRSVPCount(
+    @Rule(RuleType.Count, UserGroup)
+    async userGroupCount(
         @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput
+        @Args("filter", { type: () => FilterUserGroupInput, nullable: true }) filter?: FilterUserGroupInput
     ): Promise<number> {
-        return ctx.req.prismaTx.productionRSVP.count({
+        return ctx.req.prismaTx.userGroup.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                AND: [accessibleBy(ctx.req.permissions).UserGroup, filter]
             }
         });
     }

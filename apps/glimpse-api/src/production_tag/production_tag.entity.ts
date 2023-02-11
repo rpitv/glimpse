@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import {IsInt, Min} from "class-validator";
+import { IsInt, Min } from "class-validator";
 import { ProductionTag as PrismaProductionTag } from "@prisma/client";
 
 @ObjectType()
