@@ -178,8 +178,6 @@ model Person {
   name             String        @db.VarChar(100)
   pronouns         String?       @db.VarChar(20)
   graduation       DateTime?     @db.Date
-  start            DateTime      @db.Date
-  end              DateTime?     @db.Date
   profilePictureId Int?          @map("profile_picture")
   profilePicture   Image?        @relation(fields: [profilePictureId], references: [id], map: "people_images_id_fk")
   description      String?
