@@ -51,7 +51,10 @@ export class RedirectResolver {
 
     @Query(() => Redirect, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, Redirect)
-    async findOneRedirect(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Redirect> {
+    async findOneRedirect(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<Redirect> {
         this.logger.verbose("findOneRedirect resolver called");
         return ctx.req.prismaTx.redirect.findFirst({
             where: {
@@ -142,7 +145,10 @@ export class RedirectResolver {
 
     @Mutation(() => Redirect, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, Redirect)
-    async deleteRedirect(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Redirect> {
+    async deleteRedirect(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<Redirect> {
         this.logger.verbose("deleteRedirect resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.redirect.findFirst({

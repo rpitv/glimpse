@@ -30,15 +30,15 @@ import { PersonRoleModule } from "./person_role/person_role.module";
 import { ProductionImageModule } from "./production_image/production_image.module";
 import { ProductionRSVPModule } from "./production_rsvp/production_rsvp.module";
 import { ProductionTagModule } from "./production_tag/production_tag.module";
-import {ProductionVideoModule} from "./production_video/production_video.module";
-import {ProductionModule} from "./production/production.module";
-import {RedirectModule} from "./redirect/redirect.module";
-import {RoleModule} from "./role/role.module";
-import {UserGroupModule} from "./user_group/user_group.module";
-import {UserPermissionModule} from "./user_permission/user_permission.module";
-import {VideoModule} from "./video/video.module";
-import {VoteModule} from "./vote/vote.module";
-import {VoteResponseModule} from "./vote_response/vote_response.module";
+import { ProductionVideoModule } from "./production_video/production_video.module";
+import { ProductionModule } from "./production/production.module";
+import { RedirectModule } from "./redirect/redirect.module";
+import { RoleModule } from "./role/role.module";
+import { UserGroupModule } from "./user_group/user_group.module";
+import { UserPermissionModule } from "./user_permission/user_permission.module";
+import { VideoModule } from "./video/video.module";
+import { VoteModule } from "./vote/vote.module";
+import { VoteResponseModule } from "./vote_response/vote_response.module";
 
 @Module({
     imports: [

@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import {IsDate, IsInt, MaxLength, Min} from "class-validator";
+import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { VoteResponse as PrismaVoteResponse } from "@prisma/client";
 
 @ObjectType()
