@@ -3,7 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum ContactSubmissionOrderableFields {
     id = "id",
-    timestamp = "timestamp",
+    timestamp = "timestamp"
 }
 
 registerEnumType(ContactSubmissionOrderableFields, {

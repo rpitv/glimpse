@@ -4,7 +4,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 enum PersonOrderableFields {
     id = "id",
     name = "name",
-    graduation = "graduation",
+    graduation = "graduation"
 }
 
 registerEnumType(PersonOrderableFields, {

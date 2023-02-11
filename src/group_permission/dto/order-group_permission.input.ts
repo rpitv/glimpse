@@ -3,7 +3,7 @@ import { OrderDirection } from "../../generic/order-direction.enum";
 
 enum GroupPermissionOrderableFields {
     id = "id",
-    action = "action",
+    action = "action"
 }
 
 registerEnumType(GroupPermissionOrderableFields, {
