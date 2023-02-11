@@ -145,7 +145,10 @@ export class ProductionResolver {
 
     @Mutation(() => Production, { complexity: Complexities.Delete })
     @Rule(RuleType.Delete, Production)
-    async deleteProduction(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Production> {
+    async deleteProduction(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<Production> {
         this.logger.verbose("deleteProduction resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.production.findFirst({

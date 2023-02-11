@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
-import {IsInt, IsObject, MaxLength, Min} from "class-validator";
-import {Prisma, Video as PrismaVideo} from "@prisma/client";
+import { IsInt, IsObject, MaxLength, Min } from "class-validator";
+import { Prisma, Video as PrismaVideo } from "@prisma/client";
 import JSON from "graphql-type-json";
 
 @ObjectType()
