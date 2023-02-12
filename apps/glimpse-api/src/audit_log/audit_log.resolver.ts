@@ -8,7 +8,9 @@ import { Request } from "express";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import { AbilitySubjects } from "../casl/casl-ability.factory";
+import {AbilityAction, AbilitySubjects} from "../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {User} from "../user/user.entity";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -138,5 +140,29 @@ export class AuditLogResolver {
         }
 
         return details;
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the AuditLog corresponding to the AuditLog's {@link AuditLog#userId}.
+     */
+    @ResolveField(() => User, { nullable: true })
+    async user(
+        @Context() ctx: { req: Request },
+        @Parent() auditLog: AuditLog
+    ): Promise<User> {
+        if(!ctx.req.permissions.can(AbilityAction.Read, subject("AuditLog", auditLog), "user")) {
+            ctx.req.passed = false;
+            return null;
+        }
+        if(!auditLog.userId) {
+            return null;
+        }
+        return ctx.req.prismaTx.user.findFirst({
+            where: {
+                id: auditLog.userId
+            }
+        });
     }
 }
