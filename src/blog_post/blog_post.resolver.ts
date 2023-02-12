@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { FilterBlogPostInput } from "./dto/filter-blog_post.input";
 import { OrderBlogPostInput } from "./dto/order-blog_post.input";
 import { CreateBlogPostInput } from "./dto/create-blog_post.input";
 import { UpdateBlogPostInput } from "./dto/update-blog_post.input";
+import {Person} from "../person/person.entity";
 
 @Resolver(() => BlogPost)
 export class BlogPostResolver {
@@ -193,6 +194,30 @@ export class BlogPostResolver {
         return ctx.req.prismaTx.blogPost.count({
             where: {
                 AND: [accessibleBy(ctx.req.permissions).BlogPost, filter]
+            }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the BlogPost corresponding to the BlogPost's {@link BlogPost#authorId}.
+     */
+    @ResolveField(() => Person, { nullable: true })
+    async author(
+        @Context() ctx: { req: Request },
+        @Parent() blogPost: BlogPost
+    ): Promise<Person> {
+        if(!ctx.req.permissions.can(AbilityAction.Read, subject("BlogPost", blogPost), "author")) {
+            ctx.req.passed = false;
+            return null;
+        }
+        if(!blogPost.authorId) {
+            return null;
+        }
+        return ctx.req.prismaTx.person.findFirst({
+            where: {
+                id: blogPost.authorId
             }
         });
     }
