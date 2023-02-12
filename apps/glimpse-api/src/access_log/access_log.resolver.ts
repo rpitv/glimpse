@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Args, Int, Context, ResolveField, Parent} from "@nestjs/graphql";
 import { AccessLog } from "./access_log.entity";
 import { Logger } from "@nestjs/common";
 import { Rule, RuleType } from "../casl/rules.decorator";
@@ -8,6 +8,9 @@ import { OrderAccessLogInput } from "./dto/order-access_log.input";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
+import {User} from "../user/user.entity";
+import {AbilityAction} from "../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
 
 @Resolver(() => AccessLog)
 export class AccessLogResolver {
@@ -66,6 +69,30 @@ export class AccessLogResolver {
         return ctx.req.prismaTx.accessLog.count({
             where: {
                 AND: [accessibleBy(ctx.req.permissions).AccessLog, filter]
+            }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the User corresponding to the AccessLog's {@link AccessLog#userId}.
+     */
+    @ResolveField(() => User, { nullable: true })
+    async lastKnownHandler(
+        @Context() ctx: { req: Request },
+        @Parent() accessLog: AccessLog
+    ): Promise<User> {
+        if(!ctx.req.permissions.can(AbilityAction.Read, subject("AccessLog", accessLog), "user")) {
+            ctx.req.passed = false;
+            return null;
+        }
+        if(!accessLog.userId) {
+            return null;
+        }
+        return ctx.req.prismaTx.user.findFirst({
+            where: {
+                id: accessLog.userId
             }
         });
     }

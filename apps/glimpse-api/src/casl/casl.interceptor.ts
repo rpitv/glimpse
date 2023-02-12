@@ -75,10 +75,25 @@ export class CaslInterceptor implements NestInterceptor {
         // Retrieve this method's applied rules. TODO: Allow application at the class-level.
         const rules = this.reflector.get<RuleDef[]>(RULES_METADATA_KEY, context.getHandler());
 
-        let nextRuleFn = next.handle;
+        let nextRuleFn = () => next.handle().pipe(tap((value) => {
+            this.logger.verbose(`Base resolver returned.`);
+            // If the rule failed, throw a ForbiddenException. We check for req.passed as this allows
+            //  the actual handler to set this value to true/false if it needs to. This is particularly
+            //  applicable to mutation handlers (create/update/delete), where you may want to check
+            //  permissions mid-database transaction.
+            if (!req.passed) {
+                this.logger.debug(
+                    `Base resolver failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
+                );
+                throw new ForbiddenException();
+            }
+            // Reset req.passed context variable.
+            delete req.passed;
+            return value;
+        }));
 
         if (!rules || rules.length === 0) {
-            this.logger.verbose("No rules applied for the given resource. Pass.");
+            this.logger.verbose("No rules applied for the given resource. Checking only for req.passed.");
         }
         // Rules are applied recursively, so we need to reverse the order of the rules so that the first rule in the
         //  list of rules is the first to be called. That rule then calls the next rule, and so on, until the actual
