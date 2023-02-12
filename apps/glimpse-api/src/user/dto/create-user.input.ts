@@ -6,7 +6,7 @@ import { IsOptional, IsString, MinLength } from "class-validator";
  * Input type for createUser mutation
  */
 @InputType()
-export class CreateUserInput extends OmitType(User, ["id", "joined" /* TODO 'person'*/], InputType) {
+export class CreateUserInput extends OmitType(User, ["id", "joined"], InputType) {
     /**
      * The password to set for this user
      */

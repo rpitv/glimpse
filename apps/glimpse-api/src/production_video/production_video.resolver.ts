@@ -4,14 +4,12 @@ import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
 import { Rule, RuleType } from "../casl/rules.decorator";
 import { accessibleBy } from "@casl/prisma";
-import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
 import { AbilityAction } from "../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
 import { ProductionVideo } from "./production_video.entity";
 import { FilterProductionVideoInput } from "./dto/filter-production_video.input";
-import { OrderProductionVideoInput } from "./dto/order-production_video.input";
 import { CreateProductionVideoInput } from "./dto/create-production_video.input";
 import { UpdateProductionVideoInput } from "./dto/update-production_video.input";
 
@@ -20,34 +18,6 @@ export class ProductionVideoResolver {
     private logger: Logger = new Logger("ProductionVideoResolver");
 
     // -------------------- Generic Resolvers --------------------
-
-    @Query(() => [ProductionVideo], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, ProductionVideo)
-    async findManyProductionVideo(
-        @Context() ctx: { req: Request },
-        @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput,
-        @Args("order", { type: () => [OrderProductionVideoInput], nullable: true }) order?: OrderProductionVideoInput[],
-        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
-    ): Promise<ProductionVideo[]> {
-        this.logger.verbose("findManyProductionVideo resolver called");
-        // If filter is provided, combine it with the CASL accessibleBy filter.
-        const where = filter
-            ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionVideo, filter]
-              }
-            : accessibleBy(ctx.req.permissions).ProductionVideo;
-
-        // If ordering args are provided, convert them to Prisma's orderBy format.
-        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
-
-        return ctx.req.prismaTx.productionVideo.findMany({
-            where,
-            orderBy,
-            skip: pagination?.skip,
-            take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
-        });
-    }
 
     @Query(() => ProductionVideo, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, ProductionVideo)
