@@ -13,7 +13,6 @@ import { ProductionTag } from "./production_tag.entity";
 import { FilterProductionTagInput } from "./dto/filter-production_tag.input";
 import { OrderProductionTagInput } from "./dto/order-production_tag.input";
 import { CreateProductionTagInput } from "./dto/create-production_tag.input";
-import { UpdateProductionTagInput } from "./dto/update-production_tag.input";
 
 @Resolver(() => ProductionTag)
 export class ProductionTagResolver {
@@ -83,58 +82,6 @@ export class ProductionTagResolver {
 
         await ctx.req.prismaTx.genAuditLog({
             user: ctx.req.user,
-            newValue: result,
-            subject: "ProductionTag",
-            id: result.id
-        });
-
-        return result;
-    }
-
-    @Mutation(() => ProductionTag, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionTag)
-    async updateProductionTag(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
-        @Args("input", { type: () => UpdateProductionTagInput }) input: UpdateProductionTagInput
-    ): Promise<ProductionTag> {
-        this.logger.verbose("updateProductionTag resolver called");
-        input = plainToClass(UpdateProductionTagInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.productionTag.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionTag]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("ProductionTag not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionTag", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        const result = await ctx.req.prismaTx.productionTag.update({
-            where: {
-                id
-            },
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: rowToUpdate,
             newValue: result,
             subject: "ProductionTag",
             id: result.id
