@@ -164,6 +164,9 @@ export const GraphQLRuleDirective = new GraphQLDirective({
                     },
                     strict: {
                         type: GraphQLBoolean
+                    },
+                    defer: {
+                        type: GraphQLBoolean
                     }
                 }
             })

@@ -688,7 +688,7 @@ export class CaslHelper {
         const { req, subjectStr } = this.getReqAndSubject(context, rule);
 
         // Basic test with the provided action and subject.
-        if (!req.permissions.can(AbilityAction.Read, subjectStr)) {
+        if (!rule[2]?.defer && !req.permissions.can(AbilityAction.Read, subjectStr)) {
             this.logger.verbose("Failed basic ReadOne rule test.");
             req.passed = false;
             return of(null);
@@ -707,7 +707,7 @@ export class CaslHelper {
 
             // Test the ability against each requested field
             for (const field of fields) {
-                if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
+                if (!rule[2]?.defer && !req.permissions.can(AbilityAction.Read, subjectStr, field)) {
                     this.logger.verbose(`Failed field-based ReadOne rule test for field "${field}".`);
                     req.passed = false;
                     return of(null);

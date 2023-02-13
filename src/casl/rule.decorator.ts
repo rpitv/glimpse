@@ -112,6 +112,16 @@ export type RuleOptions = {
      * @default false
      */
     strict?: boolean;
+    /**
+     * Defer rule checks until after the resolver has run. This is useful for when a user's permissions are modified
+     *  within the resolver, and you only want to respect the permissions post-resolution (e.g. a login resolver).
+     *  This will result in the resolver being called 100% of the time, barring some error.
+     *  @example See {@link AuthResolver} for an example of this in use. Users are able to request details about
+     *  themselves that they wouldn't have permission to read as a guest, however they can read after being logged in.
+     *  Deferring the rule checks until after the resolver runs allows us to check the user's permissions after they
+     *  have been modified by the login resolver.
+     */
+    defer?: boolean;
 };
 export const RULES_METADATA_KEY = "casl_rule";
 
