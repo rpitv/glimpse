@@ -29,7 +29,7 @@ import { UserPermission } from "../user_permission/user_permission.entity";
 import { Video } from "../video/video.entity";
 import { Vote } from "../vote/vote.entity";
 import { VoteResponse } from "../vote_response/vote_response.entity";
-import {GraphQLEnumType} from "graphql/type";
+import { GraphQLEnumType } from "graphql/type";
 
 type ValueOf<T> = T[keyof T];
 
@@ -44,42 +44,42 @@ export enum AbilityAction {
 }
 
 export const AbilitySubjectsMap = {
-        User,
-        AccessLog,
-        AlertLog,
-        Asset,
-        AuditLog,
-        BlogPost,
-        Category,
-        ContactSubmission,
-        Credit,
-        Group,
-        GroupPermission,
-        Image,
-        Person,
-        PersonImage,
-        PersonRole,
-        ProductionImage,
-        ProductionRSVP,
-        ProductionTag,
-        ProductionVideo,
-        Production,
-        Redirect,
-        Role,
-        UserGroup,
-        UserPermission,
-        Video,
-        Vote,
-        VoteResponse,
-}
+    User,
+    AccessLog,
+    AlertLog,
+    Asset,
+    AuditLog,
+    BlogPost,
+    Category,
+    ContactSubmission,
+    Credit,
+    Group,
+    GroupPermission,
+    Image,
+    Person,
+    PersonImage,
+    PersonRole,
+    ProductionImage,
+    ProductionRSVP,
+    ProductionTag,
+    ProductionVideo,
+    Production,
+    Redirect,
+    Role,
+    UserGroup,
+    UserPermission,
+    Video,
+    Vote,
+    VoteResponse
+};
 
 export const GraphQLAbilitySubjectsType = new GraphQLEnumType({
     name: "AbilitySubjects",
     values: Object.keys(AbilitySubjectsMap).reduce((acc, key) => {
-        acc[key] = {value: key}
-        return acc
+        acc[key] = { value: key };
+        return acc;
     }, {})
-})
+});
 
 export type AbilitySubjects = InferSubjects<ValueOf<typeof AbilitySubjectsMap>, true> | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;

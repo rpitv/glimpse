@@ -1,5 +1,5 @@
 import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import {RuleDef, RuleFn, RuleType} from "./rule.decorator";
+import { RuleDef, RuleFn, RuleType } from "./rule.decorator";
 import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
@@ -8,7 +8,7 @@ import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
 import { map, Observable, of } from "rxjs";
 import { Request } from "express";
-import {GraphQLResolverArgs} from "../generic/graphql-resolver-args.class";
+import { GraphQLResolverArgs } from "../generic/graphql-resolver-args.class";
 
 @Injectable()
 export class CaslHelper {
@@ -79,7 +79,7 @@ export class CaslHelper {
      * @throws Error if execution context type is not GraphQL or HTTP.
      */
     public getRequest(context: ExecutionContext | GraphQLResolverArgs): Request {
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             return context.context.req;
         }
 
@@ -167,7 +167,7 @@ export class CaslHelper {
      */
     public getSelectedFields(context: ExecutionContext | GraphQLResolverArgs): Set<string> {
         let info;
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             info = context.info;
         } else {
             if (context.getType<GqlContextType>() !== "graphql") {
@@ -212,7 +212,7 @@ export class CaslHelper {
         argName: string
     ): boolean {
         let contextType;
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             contextType = "graphql";
         } else {
             contextType = context.getType<GqlContextType>();
@@ -222,7 +222,7 @@ export class CaslHelper {
         const filteringFields = new Set<string>();
         if (contextType === "graphql") {
             let info;
-            if(context instanceof GraphQLResolverArgs) {
+            if (context instanceof GraphQLResolverArgs) {
                 info = context.info;
             } else {
                 info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
@@ -306,7 +306,7 @@ export class CaslHelper {
         argName: string
     ): boolean {
         let contextType;
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             contextType = "graphql";
         } else {
             contextType = context.getType<GqlContextType>();
@@ -315,11 +315,11 @@ export class CaslHelper {
         const sortingFields = new Set<string>();
         if (contextType === "graphql") {
             let info;
-            if(context instanceof GraphQLResolverArgs) {
+            if (context instanceof GraphQLResolverArgs) {
                 info = context.info;
             } else {
                 info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
-        }
+            }
             for (const fieldNode of info.fieldNodes) {
                 const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (sortArg === undefined) {
@@ -394,7 +394,7 @@ export class CaslHelper {
         argName: string
     ): boolean {
         let contextType;
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             contextType = "graphql";
         } else {
             contextType = context.getType<GqlContextType>();
@@ -402,7 +402,7 @@ export class CaslHelper {
         this.logger.verbose(`Paginating in ${contextType} context`);
         if (contextType === "graphql") {
             let info;
-            if(context instanceof GraphQLResolverArgs) {
+            if (context instanceof GraphQLResolverArgs) {
                 info = context.info;
             } else {
                 info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
@@ -476,7 +476,7 @@ export class CaslHelper {
      */
     public getInputFields(context: ExecutionContext | GraphQLResolverArgs, argName: string): Set<string> {
         let contextType;
-        if(context instanceof GraphQLResolverArgs) {
+        if (context instanceof GraphQLResolverArgs) {
             contextType = "graphql";
         } else {
             contextType = context.getType<GqlContextType>();
@@ -484,7 +484,7 @@ export class CaslHelper {
         this.logger.verbose(`Retrieving input fields in ${contextType} context`);
         if (contextType === "graphql") {
             let info;
-            if(context instanceof GraphQLResolverArgs) {
+            if (context instanceof GraphQLResolverArgs) {
                 info = context.info;
             } else {
                 info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();

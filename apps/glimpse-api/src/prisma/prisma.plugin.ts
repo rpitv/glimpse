@@ -1,7 +1,7 @@
-import {ApolloServerPlugin, GraphQLRequestListener} from "apollo-server-plugin-base";
-import {Plugin} from "@nestjs/apollo";
-import {PrismaService} from "./prisma.service";
-import {Logger} from "@nestjs/common";
+import { ApolloServerPlugin, GraphQLRequestListener } from "apollo-server-plugin-base";
+import { Plugin } from "@nestjs/apollo";
+import { PrismaService } from "./prisma.service";
+import { Logger } from "@nestjs/common";
 
 @Plugin()
 export class PrismaPlugin implements ApolloServerPlugin {
@@ -24,13 +24,13 @@ export class PrismaPlugin implements ApolloServerPlugin {
                         resolve();
                     };
                 });
-            })
-        })
+            });
+        });
 
         return {
             async willSendResponse() {
                 endTransaction();
             }
-        }
+        };
     }
 }

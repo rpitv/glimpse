@@ -1,8 +1,8 @@
 import { AbilitySubjects } from "./casl-ability.factory";
 import { ExecutionContext, SetMetadata } from "@nestjs/common";
 import { Observable } from "rxjs";
-import {GraphQLEnumType} from "graphql/type";
-import {GraphQLResolverArgs} from "../generic/graphql-resolver-args.class";
+import { GraphQLEnumType } from "graphql/type";
+import { GraphQLResolverArgs } from "../generic/graphql-resolver-args.class";
 
 /**
  * Rule function that can be used to define a rule for a given resolver/controller handler. The rule function takes
