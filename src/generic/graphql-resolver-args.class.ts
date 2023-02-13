@@ -1,4 +1,4 @@
-import {GraphQLResolveInfo} from "graphql/type";
+import { GraphQLResolveInfo } from "graphql/type";
 
 export class GraphQLResolverArgs {
     public readonly source: any;

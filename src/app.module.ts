@@ -39,7 +39,7 @@ import { UserPermissionModule } from "./user_permission/user_permission.module";
 import { VideoModule } from "./video/video.module";
 import { VoteModule } from "./vote/vote.module";
 import { VoteResponseModule } from "./vote_response/vote_response.module";
-import {GraphQLRuleDirective, RuleDirective} from "./casl/rule.directive";
+import { GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
 
 @Module({
     imports: [
@@ -48,7 +48,7 @@ import {GraphQLRuleDirective, RuleDirective} from "./casl/rule.directive";
             imports: [CaslModule],
             inject: [RuleDirective],
             useFactory: async (ruleDirective: RuleDirective) => ({
-                transformSchema: schema => ruleDirective.create(schema, "rule"),
+                transformSchema: (schema) => ruleDirective.create(schema, "rule"),
                 autoSchemaFile: path.join(process.cwd(), "generated/schema.gql"),
                 sortSchema: true,
                 playground: {
@@ -57,9 +57,7 @@ import {GraphQLRuleDirective, RuleDirective} from "./casl/rule.directive";
                     }
                 },
                 buildSchemaOptions: {
-                    directives: [
-                        GraphQLRuleDirective
-                    ]
+                    directives: [GraphQLRuleDirective]
                 }
             })
         }),

@@ -1,18 +1,12 @@
-import {DirectiveLocation, getDirective, MapperKind, mapSchema} from '@graphql-tools/utils';
-import {defaultFieldResolver, GraphQLNonNull, GraphQLSchema} from 'graphql';
-import {
-    GraphQLBoolean,
-    GraphQLDirective,
-    GraphQLInputObjectType,
-    GraphQLList,
-    GraphQLString
-} from "graphql/type";
-import {GraphQLRuleType, RuleDef} from "./rule.decorator";
-import {GraphQLAbilitySubjectsType} from "./casl-ability.factory";
-import {CaslHelper} from "./casl.helper";
-import {ForbiddenException, Injectable, Logger} from "@nestjs/common";
-import {defer, firstValueFrom, Observable, tap} from "rxjs";
-import {GraphQLResolverArgs} from "../generic/graphql-resolver-args.class";
+import { DirectiveLocation, getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
+import { defaultFieldResolver, GraphQLNonNull, GraphQLSchema } from "graphql";
+import { GraphQLBoolean, GraphQLDirective, GraphQLInputObjectType, GraphQLList, GraphQLString } from "graphql/type";
+import { GraphQLRuleType, RuleDef } from "./rule.decorator";
+import { GraphQLAbilitySubjectsType } from "./casl-ability.factory";
+import { CaslHelper } from "./casl.helper";
+import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
+import { defer, firstValueFrom, Observable, tap } from "rxjs";
+import { GraphQLResolverArgs } from "../generic/graphql-resolver-args.class";
 
 @Injectable()
 export class RuleDirective {
@@ -20,18 +14,10 @@ export class RuleDirective {
 
     constructor(private readonly caslHelper: CaslHelper) {}
 
-    create(
-        schema: GraphQLSchema,
-        directiveName: string,
-    ) {
-
+    create(schema: GraphQLSchema, directiveName: string) {
         return mapSchema(schema, {
             [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
-                const rules = getDirective(
-                    schema,
-                    fieldConfig,
-                    directiveName,
-                );
+                const rules = getDirective(schema, fieldConfig, directiveName);
 
                 if (rules && rules.length > 0) {
                     const { resolve = defaultFieldResolver } = fieldConfig;
@@ -41,8 +27,8 @@ export class RuleDirective {
                     fieldConfig.resolve = async (source, args, context, info) => {
                         const resolverArgs = new GraphQLResolverArgs(source, args, context, info);
                         let nextRuleFn = (): Observable<any> => {
-                            return defer(async () => resolve(source, args, context, info))
-                        }
+                            return defer(async () => resolve(source, args, context, info));
+                        };
 
                         for (let i = rules.length - 1; i >= 0; i--) {
                             const rule: RuleDef = [rules[i].ruleType, rules[i].subject, rules[i].options];
@@ -88,11 +74,10 @@ export class RuleDirective {
                     };
                     return fieldConfig;
                 }
-            },
+            }
         });
     }
 }
-
 
 /**
  * GraphQL rule directive definition which is passed to the GraphQL module in app.module.ts. This directive can be
@@ -110,14 +95,15 @@ export const GraphQLRuleDirective = new GraphQLDirective({
         subject: {
             type: GraphQLAbilitySubjectsType
         },
-        options: { // Based on RuleOptions type. Can't think of an easy way to infer this from the RuleOptions type.
+        options: {
+            // Based on RuleOptions type. Can't think of an easy way to infer this from the RuleOptions type.
             type: new GraphQLInputObjectType({
                 name: "RuleOptions",
                 fields: {
-                    "name": {
+                    name: {
                         type: GraphQLString
                     },
-                    "excludeFields": {
+                    excludeFields: {
                         type: new GraphQLList(new GraphQLNonNull(GraphQLString))
                     },
                     orderInputName: {
@@ -139,4 +125,4 @@ export const GraphQLRuleDirective = new GraphQLDirective({
             })
         }
     }
-})
+});

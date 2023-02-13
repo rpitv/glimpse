@@ -28,7 +28,7 @@ export class PrismaInterceptor implements NestInterceptor {
         let req: Request;
         if (context.getType<GqlContextType>() === "http") {
             req = context.switchToHttp().getRequest();
-        } else if(context.getType<GqlContextType>() === "graphql") {
+        } else if (context.getType<GqlContextType>() === "graphql") {
             // For GraphQL contexts, an Apollo plugin is used due to the way interceptors work on GraphQL queries.
             //  See: https://github.com/nestjs/graphql/issues/631
             this.logger.verbose("Skipping PrismaInterceptor for GraphQL context. Using Apollo plugin instead.");
@@ -65,6 +65,6 @@ export class PrismaInterceptor implements NestInterceptor {
             tap({
                 complete: () => closePrismaTx()
             })
-        )
+        );
     }
 }
