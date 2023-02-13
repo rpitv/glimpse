@@ -61,6 +61,8 @@ export class CaslInterceptor implements NestInterceptor {
                         this.logger.debug(
                             `Base resolver failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
                         );
+                        // Reset req.passed context variable.
+                        delete req.passed;
                         throw new ForbiddenException();
                     }
                     // Reset req.passed context variable.
@@ -105,6 +107,8 @@ export class CaslInterceptor implements NestInterceptor {
                                 this.logger.debug(
                                     `${ruleNameStr} failed (req.passed = ${req.passed}). Throwing ForbiddenException.`
                                 );
+                                // Reset req.passed context variable.
+                                delete req.passed;
                                 throw new ForbiddenException();
                             }
 

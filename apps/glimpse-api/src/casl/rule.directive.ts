@@ -54,6 +54,8 @@ export class RuleDirective {
                                         `Resolver failed (req.passed = ${context.req.passed}). Throwing 
                                         ForbiddenException.`
                                     );
+                                    // Reset req.passed context variable.
+                                    delete context.req.passed;
                                     throw new ForbiddenException();
                                 }
 
@@ -92,6 +94,8 @@ export class RuleDirective {
                                                 `${ruleNameStr} failed (req.passed = ${context.req.passed}). Throwing 
                                                 ForbiddenException.`
                                             );
+                                            // Reset req.passed context variable.
+                                            delete context.req.passed;
                                             throw new ForbiddenException();
                                         }
 
