@@ -1,5 +1,5 @@
 import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { RuleDef, RuleType } from "./rules.decorator";
+import {RuleDef, RuleFn, RuleType} from "./rule.decorator";
 import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
@@ -8,6 +8,7 @@ import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
 import PaginationInput from "../generic/pagination.input";
 import { map, Observable, of } from "rxjs";
 import { Request } from "express";
+import {GraphQLResolverArgs} from "../generic/graphql-resolver-args.class";
 
 @Injectable()
 export class CaslHelper {
@@ -34,15 +35,41 @@ export class CaslHelper {
     ] as const;
     private readonly logger: Logger = new Logger("CaslHelper");
 
-    constructor() {
-        // I don't know why this is necessary, but without it, "this" is undefined within these methods.
-        this.handleCountRule = this.handleCountRule.bind(this);
-        this.handleCustomRule = this.handleCustomRule.bind(this);
-        this.handleReadManyRule = this.handleReadManyRule.bind(this);
-        this.handleReadOneRule = this.handleReadOneRule.bind(this);
-        this.handleCreateRule = this.handleCreateRule.bind(this);
-        this.handleUpdateRule = this.handleUpdateRule.bind(this);
-        this.handleDeleteRule = this.handleDeleteRule.bind(this);
+    /**
+     * Map of RuleType to the corresponding handler function.
+     * @private
+     */
+    public readonly handlers: Map<RuleType, RuleFn> = new Map([
+        [RuleType.ReadOne, this.handleReadOneRule.bind(this)],
+        [RuleType.ReadMany, this.handleReadManyRule.bind(this)],
+        [RuleType.Count, this.handleCountRule.bind(this)],
+        [RuleType.Custom, this.handleCustomRule.bind(this)],
+        [RuleType.Create, this.handleCreateRule.bind(this)],
+        [RuleType.Update, this.handleUpdateRule.bind(this)],
+        [RuleType.Delete, this.handleDeleteRule.bind(this)]
+    ]);
+
+    /**
+     * Format a Rule's name into a string that can be used to identify it in logs. If a name was not provided in the
+     *  rule's config, it is inferred from the rule's type and subject. If a name was provided but is null or an empty
+     *  string, "Unnamed rule" is returned. Otherwise, whatever value is provided in the config is used.
+     * @param rule Rule to format the name of.
+     * @returns Formatted name of the rule in the form "Rule "name"". If the rule is unnamed, then "Unnamed rule" is
+     *  returned.
+     */
+    public formatRuleName(rule: RuleDef): string {
+        const setName = rule[2]?.name;
+        // If a name wasn't provided in the rule config, the name can be inferred from the rule's type and subject.
+        if (setName === undefined && rule[0] !== RuleType.Custom) {
+            if (typeof rule[1] === "string") {
+                return `Rule "${rule[0]} ${rule[1]}"`;
+            } else if (typeof rule[1] === "function") {
+                return `Rule "${rule[0]} ${rule[1].modelName || rule[1].name || rule[1]}"`;
+            }
+        }
+        // If a name was explicitly set but is null or an empty string (or can't be inferred), use "Unnamed rule".
+        //  Otherwise, return the name.
+        return setName ? `Rule "${setName}"` : "Unnamed rule";
     }
 
     /**
@@ -51,7 +78,11 @@ export class CaslHelper {
      * @param context Execution context to retrieve the Request object from.
      * @throws Error if execution context type is not GraphQL or HTTP.
      */
-    public getRequest(context: ExecutionContext): Request {
+    public getRequest(context: ExecutionContext | GraphQLResolverArgs): Request {
+        if(context instanceof GraphQLResolverArgs) {
+            return context.context.req;
+        }
+
         if (context.getType<GqlContextType>() === "graphql") {
             this.logger.debug("Request currently in GraphQL context.");
             const gqlContext = GqlExecutionContext.create(context);
@@ -105,7 +136,7 @@ export class CaslHelper {
      * @private
      */
     private getReqAndSubject(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef
     ): {
         req: Request;
@@ -134,11 +165,16 @@ export class CaslHelper {
      * @param context NestJS execution context.
      * @returns Set containing the field names which the user is selecting.
      */
-    public getSelectedFields(context: ExecutionContext): Set<string> {
-        if (context.getType<GqlContextType>() !== "graphql") {
-            throw new Error("Cannot get GraphQL info from non-GraphQL context");
+    public getSelectedFields(context: ExecutionContext | GraphQLResolverArgs): Set<string> {
+        let info;
+        if(context instanceof GraphQLResolverArgs) {
+            info = context.info;
+        } else {
+            if (context.getType<GqlContextType>() !== "graphql") {
+                throw new Error("Cannot get GraphQL info from non-GraphQL context");
+            }
+            info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
         }
-        const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
 
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
@@ -170,16 +206,27 @@ export class CaslHelper {
      * @returns True if the user has permission to filter by all the fields they are filtering by, or false if not.
      */
     public canFilterByFields(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         req: Request,
         subjectStr: Extract<AbilitySubjects, string>,
         argName: string
     ): boolean {
-        const contextType = context.getType<GqlContextType>();
+        let contextType;
+        if(context instanceof GraphQLResolverArgs) {
+            contextType = "graphql";
+        } else {
+            contextType = context.getType<GqlContextType>();
+        }
+
         this.logger.verbose(`Filtering in ${contextType} context`);
         const filteringFields = new Set<string>();
         if (contextType === "graphql") {
-            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            let info;
+            if(context instanceof GraphQLResolverArgs) {
+                info = context.info;
+            } else {
+                info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            }
 
             // Each requested field...
             for (const fieldNode of info.fieldNodes) {
@@ -253,16 +300,26 @@ export class CaslHelper {
      * @returns True if the user has permission to sort by all the fields they are sorting by, or false if not.
      */
     public canSortByFields(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         req: Request,
         subjectStr: Extract<AbilitySubjects, string>,
         argName: string
     ): boolean {
-        const contextType = context.getType<GqlContextType>();
+        let contextType;
+        if(context instanceof GraphQLResolverArgs) {
+            contextType = "graphql";
+        } else {
+            contextType = context.getType<GqlContextType>();
+        }
         this.logger.verbose(`Sorting in ${contextType} context`);
         const sortingFields = new Set<string>();
         if (contextType === "graphql") {
-            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            let info;
+            if(context instanceof GraphQLResolverArgs) {
+                info = context.info;
+            } else {
+                info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+        }
             for (const fieldNode of info.fieldNodes) {
                 const sortArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
                 if (sortArg === undefined) {
@@ -331,15 +388,25 @@ export class CaslHelper {
      * @returns True if the user has permission to use the supplied pagination argument, false otherwise.
      */
     public canPaginate(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         ability: GlimpseAbility,
         subjectName: Extract<AbilitySubjects, string>,
         argName: string
     ): boolean {
-        const contextType = context.getType<GqlContextType>();
+        let contextType;
+        if(context instanceof GraphQLResolverArgs) {
+            contextType = "graphql";
+        } else {
+            contextType = context.getType<GqlContextType>();
+        }
         this.logger.verbose(`Paginating in ${contextType} context`);
         if (contextType === "graphql") {
-            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            let info;
+            if(context instanceof GraphQLResolverArgs) {
+                info = context.info;
+            } else {
+                info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            }
 
             for (const fieldNode of info.fieldNodes) {
                 const paginationArg = fieldNode.arguments.find((arg) => arg.name.value === argName);
@@ -407,11 +474,21 @@ export class CaslHelper {
      * @todo Inputting data currently only supports GraphQL queries.
      * @returns Set of field names supplied in the input data.
      */
-    public getInputFields(context: ExecutionContext, argName: string): Set<string> {
-        const contextType = context.getType<GqlContextType>();
+    public getInputFields(context: ExecutionContext | GraphQLResolverArgs, argName: string): Set<string> {
+        let contextType;
+        if(context instanceof GraphQLResolverArgs) {
+            contextType = "graphql";
+        } else {
+            contextType = context.getType<GqlContextType>();
+        }
         this.logger.verbose(`Retrieving input fields in ${contextType} context`);
         if (contextType === "graphql") {
-            const info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            let info;
+            if(context instanceof GraphQLResolverArgs) {
+                info = context.info;
+            } else {
+                info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
+            }
 
             const inputFields = new Set<string>();
             for (const fieldNode of info.fieldNodes) {
@@ -554,7 +631,7 @@ export class CaslHelper {
      * @throws Error if the rule type is not {@link RuleType.Custom}.
      */
     public handleCustomRule<T = any>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T>
     ): Observable<T> {
@@ -602,7 +679,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
@@ -620,7 +697,7 @@ export class CaslHelper {
         const fields: Set<string> = new Set();
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
-        if (context.getType<GqlContextType>() === "graphql") {
+        if (context instanceof GraphQLResolverArgs || context.getType<GqlContextType>() === "graphql") {
             this.getSelectedFields(context).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
@@ -665,7 +742,7 @@ export class CaslHelper {
 
                 // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
                 //  post-resolver, which is done here.
-                if (context.getType<GqlContextType>() !== "graphql") {
+                if (!(context instanceof GraphQLResolverArgs) && context.getType<GqlContextType>() !== "graphql") {
                     Object.keys(value).forEach((v) => fields.add(v));
 
                     // Remove any specifically excluded fields from the list of fields.
@@ -755,7 +832,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T[] | null>
     ): Observable<T[] | null> {
@@ -798,7 +875,7 @@ export class CaslHelper {
         const fields: Set<string> = new Set();
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
-        if (context.getType<GqlContextType>() === "graphql") {
+        if (context instanceof GraphQLResolverArgs || context.getType<GqlContextType>() === "graphql") {
             this.getSelectedFields(context).forEach((v) => fields.add(v));
 
             // Remove any specifically excluded fields from the list of fields.
@@ -843,7 +920,7 @@ export class CaslHelper {
 
                     // In GQL contexts, fields were determined pre-resolver. In other contexts, we can only determine them
                     //  post-resolver, which is done here.
-                    if (context.getType<GqlContextType>() !== "graphql") {
+                    if (!(context instanceof GraphQLResolverArgs) && context.getType<GqlContextType>() !== "graphql") {
                         Object.keys(value).forEach((v) => fields.add(v));
 
                         // Remove any specifically excluded fields from the list of fields.
@@ -922,7 +999,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCountRule(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<number | null>
     ): Observable<number | null> {
@@ -987,7 +1064,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleCreateRule<T extends Exclude<AbilitySubjects, string>>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
@@ -1081,7 +1158,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleUpdateRule<T extends Exclude<AbilitySubjects, string>>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
@@ -1181,7 +1258,7 @@ export class CaslHelper {
      * @throws Error if the current user's permissions are not initialized.
      */
     public handleDeleteRule<T extends Exclude<AbilitySubjects, string>>(
-        context: ExecutionContext,
+        context: ExecutionContext | GraphQLResolverArgs,
         rule: RuleDef,
         handler: () => Observable<T | null>
     ): Observable<T | null> {
