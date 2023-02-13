@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class GroupResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Group], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Group)
+    @Directive("@rule(ruleType: ReadMany, subject: Group)")
     async findManyGroup(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupInput, nullable: true }) filter?: FilterGroupInput,
@@ -50,7 +49,7 @@ export class GroupResolver {
     }
 
     @Query(() => Group, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Group)
+    @Directive("@rule(ruleType: ReadOne, subject: Group)")
     async findOneGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Group> {
         this.logger.verbose("findOneGroup resolver called");
         return ctx.req.prismaTx.group.findFirst({
@@ -61,7 +60,7 @@ export class GroupResolver {
     }
 
     @Mutation(() => Group, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Group)
+    @Directive("@rule(ruleType: Create, subject: Group)")
     async createGroup(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateGroupInput }) input: CreateGroupInput
@@ -89,7 +88,7 @@ export class GroupResolver {
     }
 
     @Mutation(() => Group, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Group)
+    @Directive("@rule(ruleType: Update, subject: Group)")
     async updateGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -141,7 +140,7 @@ export class GroupResolver {
     }
 
     @Mutation(() => Group, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Group)
+    @Directive("@rule(ruleType: Delete, subject: Group)")
     async deleteGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Group> {
         this.logger.verbose("deleteGroup resolver called");
 
@@ -179,7 +178,7 @@ export class GroupResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Group)
+    @Directive("@rule(ruleType: Count, subject: Group)")
     async groupCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupInput, nullable: true }) filter?: FilterGroupInput

@@ -1,11 +1,10 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger, Session } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
@@ -25,7 +24,7 @@ export class UserResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [User], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, User)
+    @Directive("@rule(ruleType: ReadMany, subject: User)")
     async findManyUser(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
@@ -53,7 +52,7 @@ export class UserResolver {
     }
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, User)
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
     async findOneUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
         return ctx.req.prismaTx.user.findFirst({
@@ -64,7 +63,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, User)
+    @Directive("@rule(ruleType: Create, subject: User)")
     async createUser(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
@@ -97,7 +96,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, User)
+    @Directive("@rule(ruleType: Update, subject: User)")
     async updateUser(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -154,7 +153,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, User)
+    @Directive("@rule(ruleType: Delete, subject: User)")
     async deleteUser(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
 
@@ -192,7 +191,7 @@ export class UserResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, User)
+    @Directive("@rule(ruleType: Count, subject: User)")
     async userCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
@@ -207,7 +206,7 @@ export class UserResolver {
     // -------------------- Unique Resolvers --------------------
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, User, { name: "Read one user (self)" })
+    @Directive("@rule(ruleType: ReadOne, subject: User, options: { name: \"Read self\" })")
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;

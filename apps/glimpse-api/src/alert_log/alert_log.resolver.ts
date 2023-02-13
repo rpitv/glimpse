@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class AlertLogResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [AlertLog], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, AlertLog)
+    @Directive("@rule(ruleType: ReadMany, subject: AlertLog)")
     async findManyAlertLog(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAlertLogInput, nullable: true }) filter?: FilterAlertLogInput,
@@ -50,7 +49,7 @@ export class AlertLogResolver {
     }
 
     @Query(() => AlertLog, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, AlertLog)
+    @Directive("@rule(ruleType: ReadOne, subject: AlertLog)")
     async findOneAlertLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class AlertLogResolver {
     }
 
     @Mutation(() => AlertLog, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, AlertLog)
+    @Directive("@rule(ruleType: Create, subject: AlertLog)")
     async createAlertLog(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateAlertLogInput }) input: CreateAlertLogInput
@@ -92,7 +91,7 @@ export class AlertLogResolver {
     }
 
     @Mutation(() => AlertLog, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, AlertLog)
+    @Directive("@rule(ruleType: Update, subject: AlertLog)")
     async updateAlertLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class AlertLogResolver {
     }
 
     @Mutation(() => AlertLog, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, AlertLog)
+    @Directive("@rule(ruleType: Delete, subject: AlertLog)")
     async deleteAlertLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class AlertLogResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, AlertLog)
+    @Directive("@rule(ruleType: Count, subject: AlertLog)")
     async alertLogCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAlertLogInput, nullable: true }) filter?: FilterAlertLogInput

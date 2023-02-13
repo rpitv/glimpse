@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class GroupPermissionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [GroupPermission], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, GroupPermission)
+    @Directive("@rule(ruleType: ReadMany, subject: GroupPermission)")
     async findManyGroupPermission(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupPermissionInput, nullable: true }) filter?: FilterGroupPermissionInput,
@@ -50,7 +49,7 @@ export class GroupPermissionResolver {
     }
 
     @Query(() => GroupPermission, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, GroupPermission)
+    @Directive("@rule(ruleType: ReadOne, subject: GroupPermission)")
     async findOneGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, GroupPermission)
+    @Directive("@rule(ruleType: Create, subject: GroupPermission)")
     async createGroupPermission(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateGroupPermissionInput }) input: CreateGroupPermissionInput
@@ -92,7 +91,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, GroupPermission)
+    @Directive("@rule(ruleType: Update, subject: GroupPermission)")
     async updateGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, GroupPermission)
+    @Directive("@rule(ruleType: Delete, subject: GroupPermission)")
     async deleteGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class GroupPermissionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, GroupPermission)
+    @Directive("@rule(ruleType: Count, subject: GroupPermission)")
     async groupPermissionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupPermissionInput, nullable: true }) filter?: FilterGroupPermissionInput
