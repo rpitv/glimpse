@@ -199,17 +199,11 @@ export class AssetResolver {
     @ResolveField(() => User, { nullable: true })
     @Directive("@rule(ruleType: ReadOne, subject: User)")
     async lastKnownHandler(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<User> {
-        if (!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "lastKnownHandler")) {
-            ctx.req.passed = false;
-            return null;
-        }
         if (!asset.lastKnownHandlerId) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({
-            where: {
-                id: asset.lastKnownHandlerId
-            }
+            where: { id: asset.lastKnownHandlerId }
         });
     }
 
@@ -217,18 +211,41 @@ export class AssetResolver {
      * Virtual field resolver for the Asset corresponding to the Asset's {@link Asset#parentId}.
      */
     @ResolveField(() => Asset, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Asset)")
     async parent(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<Asset> {
-        if (!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "parent")) {
-            ctx.req.passed = false;
-            return null;
-        }
         if (!asset.parentId) {
             return null;
         }
         return ctx.req.prismaTx.asset.findFirst({
-            where: {
-                id: asset.parentId
-            }
+            where: { id: asset.parentId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Assets which have this Asset as their {@link Asset#parentId}.
+     */
+    @ResolveField(() => [Asset], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: Asset)")
+    async children(
+        @Context() ctx: { req: Request },
+        @Parent() asset: Asset,
+        @Args("filter", { type: () => FilterAssetInput, nullable: true }) filter?: FilterAssetInput,
+        @Args("order", { type: () => [OrderAssetInput], nullable: true }) order?: OrderAssetInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<Asset[]> {
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.asset.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }
