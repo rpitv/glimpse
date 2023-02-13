@@ -32,20 +32,23 @@ export class PrismaPlugin implements ApolloServerPlugin {
         let endTransaction: () => void;
 
         await new Promise<void>((continueRequest) => {
-            this.prisma.$transaction(async (tx) => {
-                ctx.context.req.prismaTx = tx;
-                this.logger.verbose("Prisma transaction created.");
-                continueRequest();
+            this.prisma.$transaction(
+                async (tx) => {
+                    ctx.context.req.prismaTx = tx;
+                    this.logger.verbose("Prisma transaction created.");
+                    continueRequest();
 
-                await new Promise<void>((resolve) => {
-                    endTransaction = () => {
-                        this.logger.verbose("Prisma transaction completed.");
-                        resolve();
-                    };
-                });
-            }, {
-                timeout: 5000
-            });
+                    await new Promise<void>((resolve) => {
+                        endTransaction = () => {
+                            this.logger.verbose("Prisma transaction completed.");
+                            resolve();
+                        };
+                    });
+                },
+                {
+                    timeout: 5000
+                }
+            );
         });
 
         return {
