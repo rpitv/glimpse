@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { AuditLogEntry, PrismaService } from "./prisma.service";
 import { PrismaInterceptor } from "./prisma.interceptor";
-import { AuditLog } from "../audit_log/audit_log.entity";
+import { AuditLog } from "../types/audit_log/audit_log.entity";
 import { PrismaPlugin } from "./prisma.plugin";
 
 @Module({

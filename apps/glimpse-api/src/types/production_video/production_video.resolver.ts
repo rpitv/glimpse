@@ -1,0 +1,168 @@
+import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { ProductionVideo } from "./production_video.entity";
+import { FilterProductionVideoInput } from "./dto/filter-production_video.input";
+import { CreateProductionVideoInput } from "./dto/create-production_video.input";
+import { UpdateProductionVideoInput } from "./dto/update-production_video.input";
+
+@Resolver(() => ProductionVideo)
+export class ProductionVideoResolver {
+    private logger: Logger = new Logger("ProductionVideoResolver");
+
+    // -------------------- Generic Resolvers --------------------
+
+    @Query(() => ProductionVideo, { nullable: true, complexity: Complexities.ReadOne })
+    @Directive("@rule(ruleType: ReadOne, subject: ProductionVideo)")
+    async findOneProductionVideo(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionVideo> {
+        this.logger.verbose("findOneProductionVideo resolver called");
+        return ctx.req.prismaTx.productionVideo.findFirst({
+            where: {
+                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionVideo]
+            }
+        });
+    }
+
+    @Mutation(() => ProductionVideo, { complexity: Complexities.Create })
+    @Directive("@rule(ruleType: Create, subject: ProductionVideo)")
+    async createProductionVideo(
+        @Context() ctx: { req: Request },
+        @Args("input", { type: () => CreateProductionVideoInput }) input: CreateProductionVideoInput
+    ): Promise<ProductionVideo> {
+        this.logger.verbose("createProductionVideo resolver called");
+        input = plainToClass(CreateProductionVideoInput, input);
+        const errors = await validate(input, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            throw new BadRequestException(firstErrorFirstConstraint);
+        }
+
+        const result = await ctx.req.prismaTx.productionVideo.create({
+            data: input
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            newValue: result,
+            subject: "ProductionVideo",
+            id: result.id
+        });
+
+        return result;
+    }
+
+    @Mutation(() => ProductionVideo, { complexity: Complexities.Update })
+    @Directive("@rule(ruleType: Update, subject: ProductionVideo)")
+    async updateProductionVideo(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number,
+        @Args("input", { type: () => UpdateProductionVideoInput }) input: UpdateProductionVideoInput
+    ): Promise<ProductionVideo> {
+        this.logger.verbose("updateProductionVideo resolver called");
+        input = plainToClass(UpdateProductionVideoInput, input);
+        const errors = await validate(input, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            throw new BadRequestException(firstErrorFirstConstraint);
+        }
+
+        const rowToUpdate = await ctx.req.prismaTx.productionVideo.findFirst({
+            where: {
+                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionVideo]
+            }
+        });
+
+        if (!rowToUpdate) {
+            throw new BadRequestException("ProductionVideo not found");
+        }
+
+        // Make sure the user has permission to update all the fields they are trying to update, given the object's
+        //  current state.
+        for (const field of Object.keys(input)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionVideo", rowToUpdate), field)) {
+                ctx.req.passed = false;
+                return null;
+            }
+        }
+
+        const result = await ctx.req.prismaTx.productionVideo.update({
+            where: {
+                id
+            },
+            data: input
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: rowToUpdate,
+            newValue: result,
+            subject: "ProductionVideo",
+            id: result.id
+        });
+
+        return result;
+    }
+
+    @Mutation(() => ProductionVideo, { complexity: Complexities.Delete })
+    @Directive("@rule(ruleType: Delete, subject: ProductionVideo)")
+    async deleteProductionVideo(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => Int }) id: number
+    ): Promise<ProductionVideo> {
+        this.logger.verbose("deleteProductionVideo resolver called");
+
+        const rowToDelete = await ctx.req.prismaTx.productionVideo.findFirst({
+            where: {
+                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionVideo]
+            }
+        });
+
+        if (!rowToDelete) {
+            throw new BadRequestException("ProductionVideo not found");
+        }
+
+        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
+        //  handle this after the object has been deleted, but this saves an extra database call.
+        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("ProductionVideo", rowToDelete))) {
+            ctx.req.passed = false;
+            return null;
+        }
+
+        const result = await ctx.req.prismaTx.productionVideo.delete({
+            where: {
+                id
+            }
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: result,
+            subject: "ProductionVideo",
+            id: result.id
+        });
+
+        return result;
+    }
+
+    @Query(() => Int, { complexity: Complexities.Count })
+    @Directive("@rule(ruleType: Count, subject: ProductionVideo)")
+    async productionVideoCount(
+        @Context() ctx: { req: Request },
+        @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput
+    ): Promise<number> {
+        return ctx.req.prismaTx.productionVideo.count({
+            where: {
+                AND: [accessibleBy(ctx.req.permissions).ProductionVideo, filter]
+            }
+        });
+    }
+}

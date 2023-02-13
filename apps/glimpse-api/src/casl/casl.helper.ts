@@ -5,10 +5,10 @@ import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLResolveInfo } from "graphql/type";
 import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
-import PaginationInput from "../generic/pagination.input";
+import PaginationInput from "../gql/pagination.input";
 import { map, Observable, of } from "rxjs";
 import { Request } from "express";
-import { GraphQLResolverArgs } from "../generic/graphql-resolver-args.class";
+import { GraphQLResolverArgs } from "../gql/graphql-resolver-args.class";
 
 @Injectable()
 export class CaslHelper {
