@@ -33,29 +33,31 @@ export class PrismaPlugin implements ApolloServerPlugin {
         let failTransaction: (err: any) => void;
 
         await new Promise<void>((continueRequest) => {
-            this.prisma.$transaction(
-                async (tx) => {
-                    ctx.context.req.prismaTx = tx;
-                    this.logger.verbose("Prisma transaction created.");
-                    continueRequest();
+            this.prisma
+                .$transaction(
+                    async (tx) => {
+                        ctx.context.req.prismaTx = tx;
+                        this.logger.verbose("Prisma transaction created.");
+                        continueRequest();
 
-                    await new Promise<void>((resolve, reject) => {
-                        endTransaction = () => {
-                            this.logger.verbose("Prisma transaction completed.");
-                            resolve();
-                        };
-                        failTransaction = (err) => {
-                            this.logger.error("Prisma transaction failed.", err);
-                            reject(err);
-                        }
-                    });
-                },
-                {
-                    timeout: 5000
-                }
-            ).catch((err) => {
-                failTransaction(err);
-            });
+                        await new Promise<void>((resolve, reject) => {
+                            endTransaction = () => {
+                                this.logger.verbose("Prisma transaction completed.");
+                                resolve();
+                            };
+                            failTransaction = (err) => {
+                                this.logger.error("Prisma transaction failed.", err);
+                                reject(err);
+                            };
+                        });
+                    },
+                    {
+                        timeout: 5000
+                    }
+                )
+                .catch((err) => {
+                    failTransaction(err);
+                });
         });
 
         return {
