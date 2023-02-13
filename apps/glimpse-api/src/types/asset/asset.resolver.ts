@@ -199,7 +199,10 @@ export class AssetResolver {
     @ResolveField(() => User, { nullable: true })
     @Directive("@rule(ruleType: ReadOne, subject: User)")
     async lastKnownHandler(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<User> {
-        if (!asset.lastKnownHandlerId) {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!asset.lastKnownHandlerId || asset["lastKnownHandler"] === null) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({
@@ -213,7 +216,10 @@ export class AssetResolver {
     @ResolveField(() => Asset, { nullable: true })
     @Directive("@rule(ruleType: ReadOne, subject: Asset)")
     async parent(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<Asset> {
-        if (!asset.parentId) {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!asset.parentId || asset["parent"] === null) {
             return null;
         }
         return ctx.req.prismaTx.asset.findFirst({
@@ -233,6 +239,12 @@ export class AssetResolver {
         @Args("order", { type: () => [OrderAssetInput], nullable: true }) order?: OrderAssetInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<Asset[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (asset["children"] === null) {
+            return null;
+        }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }, filter] }

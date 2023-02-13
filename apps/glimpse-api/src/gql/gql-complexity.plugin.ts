@@ -45,7 +45,7 @@ export class ComplexityPlugin implements ApolloServerPlugin {
     async requestDidStart(): Promise<GraphQLRequestListener> {
         // Complexity is quite subjective and cannot be outlined in a comment. Read the wiki page for more information
         //  on how complexity is calculated: https://github.com/rpitv/glimpse-api/wiki/Query-Complexity
-        const maxComplexity = 500;
+        const maxComplexity = 1000;
         const { schema } = this.gqlSchemaHost;
 
         return {
