@@ -8,7 +8,7 @@ import { CurrentUser } from "./current-user.decarator";
 export class AuthResolver {
     @UseGuards(GraphqlLocalAuthGuard)
     @Mutation(() => User)
-    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login" })') // FIXME
+    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login", defer: true })')
     async loginLocal(
         @Args("username") username: string,
         @Args("password") password: string,
