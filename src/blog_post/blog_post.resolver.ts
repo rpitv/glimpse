@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
