@@ -1,8 +1,8 @@
-import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rules.decorator";
+import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -14,7 +14,7 @@ import { FilterBlogPostInput } from "./dto/filter-blog_post.input";
 import { OrderBlogPostInput } from "./dto/order-blog_post.input";
 import { CreateBlogPostInput } from "./dto/create-blog_post.input";
 import { UpdateBlogPostInput } from "./dto/update-blog_post.input";
-import {Person} from "../person/person.entity";
+import { Person } from "../person/person.entity";
 
 @Resolver(() => BlogPost)
 export class BlogPostResolver {
@@ -204,15 +204,12 @@ export class BlogPostResolver {
      * Virtual field resolver for the BlogPost corresponding to the BlogPost's {@link BlogPost#authorId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    async author(
-        @Context() ctx: { req: Request },
-        @Parent() blogPost: BlogPost
-    ): Promise<Person> {
-        if(!ctx.req.permissions.can(AbilityAction.Read, subject("BlogPost", blogPost), "author")) {
+    async author(@Context() ctx: { req: Request }, @Parent() blogPost: BlogPost): Promise<Person> {
+        if (!ctx.req.permissions.can(AbilityAction.Read, subject("BlogPost", blogPost), "author")) {
             ctx.req.passed = false;
             return null;
         }
-        if(!blogPost.authorId) {
+        if (!blogPost.authorId) {
             return null;
         }
         return ctx.req.prismaTx.person.findFirst({

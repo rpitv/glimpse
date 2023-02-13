@@ -1,6 +1,8 @@
 import { AbilitySubjects } from "./casl-ability.factory";
 import { ExecutionContext, SetMetadata } from "@nestjs/common";
 import { Observable } from "rxjs";
+import {GraphQLEnumType} from "graphql/type";
+import {GraphQLResolverArgs} from "../generic/graphql-resolver-args.class";
 
 /**
  * Rule function that can be used to define a rule for a given resolver/controller handler. The rule function takes
@@ -13,7 +15,12 @@ import { Observable } from "rxjs";
  *  function. If {@link Express.Request#passed} is false or undefined, then {@link CaslInterceptor} will throw a
  *  ForbiddenException.
  */
-export type RuleFn<T = any> = (context: ExecutionContext, rule: RuleDef, handler: () => Observable<T>) => Observable<T>;
+export type RuleFn<T = any> = (
+    context: ExecutionContext | GraphQLResolverArgs,
+    rule: RuleDef,
+    handler: () => Observable<T>
+) => Observable<T>;
+
 /**
  * Valid rule definitions. Rules can either be defined as a {@link RuleType.Custom} rule that uses a function to
  *  check permissions, or as one of the built-in rule types that takes in an {@link AbilitySubjects} as the subject, so
@@ -38,6 +45,17 @@ export enum RuleType {
     Count = "Count",
     Custom = "Custom"
 }
+
+/**
+ * Create a GraphQL enum type for the {@link RuleType} enum.
+ */
+export const GraphQLRuleType = new GraphQLEnumType({
+    name: "RuleType",
+    values: Object.keys(RuleType).reduce((values, type) => {
+        values[type] = { value: type };
+        return values;
+    }, {})
+});
 
 /**
  * Options that can be passed to a rule decorator to configure the rule.

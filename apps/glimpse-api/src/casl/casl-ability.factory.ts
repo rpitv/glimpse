@@ -29,6 +29,9 @@ import { UserPermission } from "../user_permission/user_permission.entity";
 import { Video } from "../video/video.entity";
 import { Vote } from "../vote/vote.entity";
 import { VoteResponse } from "../vote_response/vote_response.entity";
+import {GraphQLEnumType} from "graphql/type";
+
+type ValueOf<T> = T[keyof T];
 
 export enum AbilityAction {
     Manage = "manage",
@@ -39,38 +42,46 @@ export enum AbilityAction {
     Update = "update",
     Delete = "delete"
 }
-export type AbilitySubjects =
-    | InferSubjects<
-          | typeof User
-          | typeof AccessLog
-          | typeof AlertLog
-          | typeof Asset
-          | typeof AuditLog
-          | typeof BlogPost
-          | typeof Category
-          | typeof ContactSubmission
-          | typeof Credit
-          | typeof Group
-          | typeof GroupPermission
-          | typeof Image
-          | typeof Person
-          | typeof PersonImage
-          | typeof PersonRole
-          | typeof ProductionImage
-          | typeof ProductionRSVP
-          | typeof ProductionTag
-          | typeof ProductionVideo
-          | typeof Production
-          | typeof Redirect
-          | typeof Role
-          | typeof UserGroup
-          | typeof UserPermission
-          | typeof Video
-          | typeof Vote
-          | typeof VoteResponse,
-          true
-      >
-    | "all";
+
+export const AbilitySubjectsMap = {
+        User,
+        AccessLog,
+        AlertLog,
+        Asset,
+        AuditLog,
+        BlogPost,
+        Category,
+        ContactSubmission,
+        Credit,
+        Group,
+        GroupPermission,
+        Image,
+        Person,
+        PersonImage,
+        PersonRole,
+        ProductionImage,
+        ProductionRSVP,
+        ProductionTag,
+        ProductionVideo,
+        Production,
+        Redirect,
+        Role,
+        UserGroup,
+        UserPermission,
+        Video,
+        Vote,
+        VoteResponse,
+}
+
+export const GraphQLAbilitySubjectsType = new GraphQLEnumType({
+    name: "AbilitySubjects",
+    values: Object.keys(AbilitySubjectsMap).reduce((acc, key) => {
+        acc[key] = {value: key}
+        return acc
+    }, {})
+})
+
+export type AbilitySubjects = InferSubjects<ValueOf<typeof AbilitySubjectsMap>, true> | "all";
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 
 @Injectable()
