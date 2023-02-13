@@ -1,19 +1,18 @@
 import { AbilitySubjects } from "./casl-ability.factory";
 import { ExecutionContext, SetMetadata } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { GraphQLEnumType } from "graphql/type";
-import { GraphQLResolverArgs } from "../generic/graphql-resolver-args.class";
+import { GraphQLResolverArgs } from "../gql/graphql-resolver-args.class";
 
 /**
- * Rule function that can be used to define a rule for a given resolver/controller handler. The rule function takes
- *  the current execution context, the rule definition, and the handler function as arguments. The handler function
- *  calls the next handler in the chain and returns an {@link Observable} that emits the result of the handler. This
- *  function is expected to then return an {@link Observable} which emits the result to be returned to the previous
- *  handler in the chain, or to the user if there are no handlers further up. If you want a rule to pass, then you
- *  must also set {@link Express.Request#passed} to true. This marks the request as having passed the rule check, and
- *  allows {@link CaslInterceptor} to call the next handler in the chain, and/or to return the value returned by this
- *  function. If {@link Express.Request#passed} is false or undefined, then {@link CaslInterceptor} will throw a
- *  ForbiddenException.
+ * Rule function that can be used to define a rule for a given controller handler. The rule function takes the current
+ *  execution context, the rule definition, and the handler function as arguments. The handler function calls the next
+ *  RuleFn in the chain, or the controller if there are no more RuleFns, and returns an {@link Observable} that emits
+ *  the result of the handler. This function is expected to then return an {@link Observable} which emits the result to
+ *  be returned to the previous handler in the chain, or to the user if there are no handlers further up. If you want a
+ *  rule to pass, then you must also set {@link Express.Request#passed} to true. This marks the request as having passed
+ *  the rule check, and allows {@link CaslInterceptor} to call the next handler in the chain, and/or to return the value
+ *  returned by this function. If {@link Express.Request#passed} is false or undefined, then {@link CaslInterceptor}
+ *  will throw a ForbiddenException.
  */
 export type RuleFn<T = any> = (
     context: ExecutionContext | GraphQLResolverArgs,
@@ -33,8 +32,9 @@ export type RuleDef =
 /**
  * Valid types of rules that can be defined. If you want to define a rule other than this, then you should use
  *  {@link RuleType.Custom} and define a custom rule function. If a custom rule is being used frequently, it can be
- *  added to this enum and the handler can be defined within {@link CaslHelper} and linked in {@link CaslInterceptor}.
- *  The method definitions for the built-in rules are the same as definitions for {@link RuleType.Custom} rules.
+ *  added to this enum and the handler can be defined and linked within {@link CaslHelper}. The method definitions for
+ *  the built-in rules are the same as definitions for {@link RuleType.Custom} rules (i.e., they are all valid
+ *  {@link RuleFn}s).
  */
 export enum RuleType {
     ReadOne = "ReadOne",
@@ -45,17 +45,6 @@ export enum RuleType {
     Count = "Count",
     Custom = "Custom"
 }
-
-/**
- * Create a GraphQL enum type for the {@link RuleType} enum.
- */
-export const GraphQLRuleType = new GraphQLEnumType({
-    name: "RuleType",
-    values: Object.keys(RuleType).reduce((values, type) => {
-        values[type] = { value: type };
-        return values;
-    }, {})
-});
 
 /**
  * Options that can be passed to a rule decorator to configure the rule.
@@ -127,11 +116,11 @@ export type RuleOptions = {
 export const RULES_METADATA_KEY = "casl_rule";
 
 /**
- * Decorator that defines a permission requirement (rule) for a given resolver/controller handler. The rule is defined
- *  as a function {@link RuleFn} which takes in the NestJS execution context, the rule definition {@link RuleDef}, and
- *  the handler function that calls the next rule, or the resolver/controller handler if this is the last rule. The
- *  handler function returns an {@link Observable} which can be used to modify the response before it is returned to
- *  the client/the previous rule that called this one.
+ * Decorator that defines a permission requirement (rule) for a given controller method. The rule is defined as a
+ *  function {@link RuleFn} which takes in the NestJS execution context, the rule definition {@link RuleDef}, and the
+ *  controller method that calls the next rule, or the controller method if this is the last rule. The handler function
+ *  returns an {@link Observable} which can be used to modify the response before it is returned to the client/the
+ *  previous rule that called this one.
  * @param type Type of rule to define. For custom rules, this must be {@link RuleType.Custom}.
  * @param fn {@link RuleFn} to run for this rule. If you want a rule to pass, then you must also set
  *  {@link Express.Request#passed} to true within this function. This marks the request as having passed the rule check,
@@ -143,17 +132,16 @@ export const RULES_METADATA_KEY = "casl_rule";
  */
 function Rule(type: RuleType.Custom, fn: RuleFn, options?: RuleOptions);
 /**
- * Decorator that defines a permission requirement (rule) for a given resolver/controller handler. The rule is defined
- *  as a {@link RuleType} and a {@link AbilitySubjects} subject. The rule will use the built-in rule handlers for the
- *  given {@link RuleType} to check if the user has permission to perform the given action on the given subject. If not,
- *  then a ForbiddenException will be thrown by {@link CaslInterceptor}.
+ * Decorator that defines a permission requirement (rule) for a given controller method. The rule is defined as a
+ *  {@link RuleType} and a {@link AbilitySubjects} subject. The rule will use the built-in rule handlers for the given
+ *  {@link RuleType} to check if the user has permission to perform the given action on the given subject. If not, then
+ *  a ForbiddenException will be thrown by {@link CaslInterceptor}.
  *
- *  The resolver/controller handler will be called by this rule handler. In the case of {@link RuleType.ReadMany},
- *  the value returned by the resolver/controller handler may be modified if {@link RuleOptions#strict} is set to
- *  false.
+ *  The controller method will be called by this rule handler. In the case of {@link RuleType.ReadMany}, the value
+ *  returned by the resolver/controller handler may be modified if {@link RuleOptions#strict} is set to false.
  *
- *  If you want to perform your own permission checks within the resolver/controller handler, you can set
- *  {@link Express.Request#passed} to <pre>false</pre> within the controller/handler. This will tell the rule handler
+ *  If you want to perform your own permission checks within the controller method, you can set
+ *  {@link Express.Request#passed} to <pre>false</pre> within the controller method. This will tell the rule handler
  *  that the rule check has failed, and a ForbiddenException will be thrown by {@link CaslInterceptor} as soon as the
  *  resolver/controller handler returns.
  * @param type Type of rule to define. For this overload, this must not be {@link RuleType.Custom}.
@@ -163,9 +151,9 @@ function Rule(type: RuleType.Custom, fn: RuleFn, options?: RuleOptions);
  */
 function Rule(type: Exclude<RuleType, RuleType.Custom>, subject: AbilitySubjects, options?: RuleOptions);
 /**
- * Define multiple rules for a given resolver/controller handler. The @Rule decorator cannot be used multiple times
- *  on a single method, so if you want to define multiple rule requirements, this is the primary way to do so. Rules are
- *  checked in the order that they are defined.
+ * Define multiple rules for a given controller method. The @Rule decorator cannot be used multiple times on a single
+ *  method, so if you want to define multiple rule requirements, this is the primary way to do so. Rules are checked in
+ *  the order that they are defined.
  * @example If you have two rules defined, then {@link CaslInterceptor} will call them as follows:
  * ... -> Rule 1 -> Rule 2 -> Resolver/Controller Handler -> Rule 2 -> Rule 1 -> ...
  * @param rules Array of {@link RuleDef} objects to define the rules.

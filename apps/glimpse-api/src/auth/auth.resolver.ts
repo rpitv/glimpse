@@ -1,14 +1,14 @@
 import { Args, Context, Directive, Mutation, Resolver } from "@nestjs/graphql";
-import { User } from "../user/user.entity";
+import { User } from "../types/user/user.entity";
 import { UseGuards } from "@nestjs/common";
-import { GraphqlLocalAuthGuard } from "./GraphqlLocalAuthGuard.guard";
+import { GraphqlLocalAuthGuard } from "./LocalAuthGuard.guard";
 import { CurrentUser } from "./current-user.decarator";
 
 @Resolver(() => User)
 export class AuthResolver {
     @UseGuards(GraphqlLocalAuthGuard)
     @Mutation(() => User)
-    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login" })')
+    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login" })') // FIXME
     async loginLocal(
         @Args("username") username: string,
         @Args("password") password: string,

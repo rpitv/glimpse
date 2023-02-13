@@ -1,38 +1,41 @@
 import { InferSubjects, RawRuleOf } from "@casl/ability";
-import { User } from "../user/user.entity";
+import { User } from "../types/user/user.entity";
 import { createPrismaAbility, PrismaAbility } from "@casl/prisma";
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { AccessLog } from "../access_log/access_log.entity";
-import { AlertLog } from "../alert_log/alert_log.entity";
-import { Asset } from "../asset/asset.entity";
-import { AuditLog } from "../audit_log/audit_log.entity";
-import { BlogPost } from "../blog_post/blog_post.entity";
-import { Category } from "../category/category.entity";
-import { ContactSubmission } from "../contact_submissions/contact_submission.entity";
-import { Credit } from "../credit/credit.entity";
-import { GroupPermission } from "../group_permission/group_permission.entity";
-import { Group } from "../group/group.entity";
-import { Image } from "../image/image.entity";
-import { Person } from "../person/person.entity";
-import { PersonImage } from "../person_image/person_image.entity";
-import { PersonRole } from "../person_role/person_role.entity";
-import { ProductionImage } from "../production_image/production_image.entity";
-import { ProductionRSVP } from "../production_rsvp/production_rsvp.entity";
-import { ProductionTag } from "../production_tag/production_tag.entity";
-import { ProductionVideo } from "../production_video/production_video.entity";
-import { Production } from "../production/production.entity";
-import { Redirect } from "../redirect/redirect.entity";
-import { Role } from "../role/role.entity";
-import { UserGroup } from "../user_group/user_group.entity";
-import { UserPermission } from "../user_permission/user_permission.entity";
-import { Video } from "../video/video.entity";
-import { Vote } from "../vote/vote.entity";
-import { VoteResponse } from "../vote_response/vote_response.entity";
+import { AccessLog } from "../types/access_log/access_log.entity";
+import { AlertLog } from "../types/alert_log/alert_log.entity";
+import { Asset } from "../types/asset/asset.entity";
+import { AuditLog } from "../types/audit_log/audit_log.entity";
+import { BlogPost } from "../types/blog_post/blog_post.entity";
+import { Category } from "../types/category/category.entity";
+import { ContactSubmission } from "../types/contact_submissions/contact_submission.entity";
+import { Credit } from "../types/credit/credit.entity";
+import { GroupPermission } from "../types/group_permission/group_permission.entity";
+import { Group } from "../types/group/group.entity";
+import { Image } from "../types/image/image.entity";
+import { Person } from "../types/person/person.entity";
+import { PersonImage } from "../types/person_image/person_image.entity";
+import { PersonRole } from "../types/person_role/person_role.entity";
+import { ProductionImage } from "../types/production_image/production_image.entity";
+import { ProductionRSVP } from "../types/production_rsvp/production_rsvp.entity";
+import { ProductionTag } from "../types/production_tag/production_tag.entity";
+import { ProductionVideo } from "../types/production_video/production_video.entity";
+import { Production } from "../types/production/production.entity";
+import { Redirect } from "../types/redirect/redirect.entity";
+import { Role } from "../types/role/role.entity";
+import { UserGroup } from "../types/user_group/user_group.entity";
+import { UserPermission } from "../types/user_permission/user_permission.entity";
+import { Video } from "../types/video/video.entity";
+import { Vote } from "../types/vote/vote.entity";
+import { VoteResponse } from "../types/vote_response/vote_response.entity";
 import { GraphQLEnumType } from "graphql/type";
 
 type ValueOf<T> = T[keyof T];
 
+/**
+ * Enum of available actions that can be passed to GlimpseAbility's can() method.
+ */
 export enum AbilityAction {
     Manage = "manage",
     Create = "create",
@@ -43,6 +46,10 @@ export enum AbilityAction {
     Delete = "delete"
 }
 
+/**
+ * Map of available subjects that can be passed to GlimpseAbility's can() method, mapping their string name to their
+ *  class.
+ */
 export const AbilitySubjectsMap = {
     User,
     AccessLog,
@@ -73,6 +80,9 @@ export const AbilitySubjectsMap = {
     VoteResponse
 };
 
+/**
+ * GraphQL enum type for the AbilitySubjectsMap.
+ */
 export const GraphQLAbilitySubjectsType = new GraphQLEnumType({
     name: "AbilitySubjects",
     values: Object.keys(AbilitySubjectsMap).reduce((acc, key) => {
@@ -81,9 +91,23 @@ export const GraphQLAbilitySubjectsType = new GraphQLEnumType({
     }, {})
 });
 
+/**
+ * Type definition for the subjects that can be passed to GlimpseAbility's can() method, which is passed to CASL as a
+ *  generic parameter.
+ */
 export type AbilitySubjects = InferSubjects<ValueOf<typeof AbilitySubjectsMap>, true> | "all";
+/**
+ * Type definition for Glimpse's CASL ability class.
+ */
 export type GlimpseAbility = PrismaAbility<[AbilityAction, AbilitySubjects]>;
 
+/**
+ * Injectable factory class for creating {@link GlimpseAbility} instances for a given user. This class also contains a
+ * method {@link getPermissions} for retrieving an array of permissions for a given user, without generating a full
+ * {@link GlimpseAbility}.
+ *
+ * This class is used to generate the {@link GlimpseAbility} assigned to {@link Request#permissions}.
+ */
 @Injectable()
 export class CaslAbilityFactory {
     private readonly logger: Logger = new Logger("CaslAbilityFactory");
@@ -153,7 +177,7 @@ export class CaslAbilityFactory {
      *  does not exist, then it's assumed the user has no permissions, and must log in to do anything.
      * @returns An array of either UserPermission or GroupPermission objects.
      */
-    async getPermissions(user?: User): Promise<(UserPermission | GroupPermission)[]> {
+    public async getPermissions(user?: User): Promise<(UserPermission | GroupPermission)[]> {
         // Raw queries are used here due to a quirk in Prisma which converts null arrays to empty arrays, which
         //  CASL does not like. See: https://github.com/prisma/prisma/issues/847
         if (user) {
@@ -199,7 +223,7 @@ export class CaslAbilityFactory {
      * @see {@link https://casl.js.org/v6/en/guide/intro}
      * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
      */
-    async createForUser(user?: User): Promise<GlimpseAbility> {
+    public async createForUser(user?: User): Promise<GlimpseAbility> {
         this.logger.debug(`Fetching rules for the current user (user ID: ${user?.id || null})`);
         const rawPermissions = <RawRuleOf<GlimpseAbility>[]>await this.getPermissions(user);
         return createPrismaAbility<GlimpseAbility>(rawPermissions);
