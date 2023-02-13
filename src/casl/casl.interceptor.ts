@@ -11,6 +11,17 @@ import { CaslHelper } from "./casl.helper";
  *  a ForbiddenException is thrown. If the user does have permission, then the request continues on as normal. In some
  *  situations, the request's response may be altered by the interceptor to remove fields that the user is not allowed
  *  to see.
+ *
+ *  The @Rule() decorator should only be used for HTTP contexts. For GraphQL contexts, use the @rule GraphQL directive.
+ *
+ *  This interceptor also initializes {@link Request#permissions} if it's not already initialized. For some reason,
+ *  this seems to not always work for GraphQL requests, so {@link CaslPlugin} does the same thing for GraphQL requests.
+ *
+ *  @see {@link RuleDirective} and {@link CaslPlugin} for GraphQL counterparts
+ *  @see {@link Rule} for @Rule() decorator
+ *  @see {@link CaslHelper} for implementations of rule checks
+ *  @see {@link CaslAbilityFactory} for how permissions are generated
+ *  @see {@link https://github.com/nestjs/graphql/issues/631}
  */
 @Injectable()
 export class CaslInterceptor implements NestInterceptor {
