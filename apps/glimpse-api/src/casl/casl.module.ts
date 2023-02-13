@@ -3,7 +3,7 @@ import { CaslAbilityFactory } from "./casl-ability.factory";
 import { CaslHelper } from "./casl.helper";
 import { PrismaModule } from "../prisma/prisma.module";
 import { RuleDirective } from "./rule.directive";
-import {CaslPlugin} from "./casl.plugin";
+import { CaslPlugin } from "./casl.plugin";
 
 @Module({
     providers: [CaslAbilityFactory, CaslHelper, RuleDirective, CaslPlugin],
