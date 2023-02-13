@@ -8,7 +8,7 @@ import {
     GraphQLList,
     GraphQLString
 } from "graphql/type";
-import {RuleDef, RuleType} from "./rule.decorator";
+import { RuleDef, RuleType } from "./rule.decorator";
 import { GraphQLAbilitySubjectsType } from "./casl-ability.factory";
 import { CaslHelper } from "./casl.helper";
 import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
@@ -49,7 +49,7 @@ export class RuleDirective {
                                 const result = resolve(source, args, context, info);
                                 // If the resolver explicitly said that the request should fail, throw a
                                 //  ForbiddenException.
-                                if(context.req.passed === false) {
+                                if (context.req.passed === false) {
                                     this.logger.debug(
                                         `Resolver failed (req.passed = ${context.req.passed}). Throwing 
                                         ForbiddenException.`
