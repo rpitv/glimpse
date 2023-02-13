@@ -8,8 +8,6 @@ import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
 import { User } from "../user/user.entity";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 
 @Resolver(() => AccessLog)
 export class AccessLogResolver {
@@ -78,18 +76,13 @@ export class AccessLogResolver {
      * Virtual field resolver for the User corresponding to the AccessLog's {@link AccessLog#userId}.
      */
     @ResolveField(() => User, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
     async user(@Context() ctx: { req: Request }, @Parent() accessLog: AccessLog): Promise<User> {
-        if (!ctx.req.permissions.can(AbilityAction.Read, subject("AccessLog", accessLog), "user")) {
-            ctx.req.passed = false;
-            return null;
-        }
         if (!accessLog.userId) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({
-            where: {
-                id: accessLog.userId
-            }
+            where: { id: accessLog.userId }
         });
     }
 }
