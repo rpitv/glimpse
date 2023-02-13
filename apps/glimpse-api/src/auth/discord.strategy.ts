@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Request } from "express";
 import { User } from "../types/user/user.entity";
-import {CaslAbilityFactory} from "../casl/casl-ability.factory";
+import { CaslAbilityFactory } from "../casl/casl-ability.factory";
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy) {

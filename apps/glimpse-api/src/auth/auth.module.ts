@@ -7,7 +7,7 @@ import { AuthSerializer } from "./auth.serializer";
 import { AuthController } from "./auth.controller";
 import { DiscordStrategy } from "./discord.strategy";
 import { PrismaModule } from "../prisma/prisma.module";
-import {CaslModule} from "../casl/casl.module";
+import { CaslModule } from "../casl/casl.module";
 
 @Module({
     imports: [PassportModule, PrismaModule, CaslModule],
