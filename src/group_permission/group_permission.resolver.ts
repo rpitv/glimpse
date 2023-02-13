@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rules.decorator";
+import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";

@@ -1,6 +1,6 @@
 import { Resolver, Query, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rules.decorator";
+import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -8,9 +8,9 @@ import { Request } from "express";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import {AbilityAction, AbilitySubjects} from "../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {User} from "../user/user.entity";
+import { AbilityAction, AbilitySubjects } from "../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { User } from "../user/user.entity";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -148,15 +148,12 @@ export class AuditLogResolver {
      * Virtual field resolver for the AuditLog corresponding to the AuditLog's {@link AuditLog#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    async user(
-        @Context() ctx: { req: Request },
-        @Parent() auditLog: AuditLog
-    ): Promise<User> {
-        if(!ctx.req.permissions.can(AbilityAction.Read, subject("AuditLog", auditLog), "user")) {
+    async user(@Context() ctx: { req: Request }, @Parent() auditLog: AuditLog): Promise<User> {
+        if (!ctx.req.permissions.can(AbilityAction.Read, subject("AuditLog", auditLog), "user")) {
             ctx.req.passed = false;
             return null;
         }
-        if(!auditLog.userId) {
+        if (!auditLog.userId) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({

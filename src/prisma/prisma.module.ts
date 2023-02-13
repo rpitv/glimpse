@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { AuditLogEntry, PrismaService } from "./prisma.service";
 import { PrismaInterceptor } from "./prisma.interceptor";
 import { AuditLog } from "../audit_log/audit_log.entity";
+import {PrismaPlugin} from "./prisma.plugin";
 
 @Module({
     providers: [
@@ -30,8 +31,8 @@ import { AuditLog } from "../audit_log/audit_log.entity";
                 });
             }
         },
-        PrismaInterceptor
+        PrismaInterceptor, PrismaPlugin
     ],
-    exports: [PrismaService, PrismaInterceptor]
+    exports: [PrismaService, PrismaInterceptor, PrismaPlugin]
 })
 export class PrismaModule {}

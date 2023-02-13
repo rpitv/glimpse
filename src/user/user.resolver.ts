@@ -5,7 +5,7 @@ import { UpdateUserInput } from "./dto/update-user.input";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger, Session } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rules.decorator";
+import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";

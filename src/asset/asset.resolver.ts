@@ -1,8 +1,8 @@
-import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent} from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {Rule, RuleType} from "../casl/rules.decorator";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -14,7 +14,7 @@ import { Asset } from "./asset.entity";
 import { UpdateAssetInput } from "./dto/update-asset.input";
 import { CreateAssetInput } from "./dto/create-asset.input";
 import { OrderAssetInput } from "./dto/order-asset.input";
-import {User} from "../user/user.entity";
+import { User } from "../user/user.entity";
 
 @Resolver(() => Asset)
 export class AssetResolver {
@@ -198,15 +198,13 @@ export class AssetResolver {
      * Virtual field resolver for the User corresponding to the Asset's {@link Asset#lastKnownHandlerId}.
      */
     @ResolveField(() => User, { nullable: true })
-    async lastKnownHandler(
-        @Context() ctx: { req: Request },
-        @Parent() asset: Asset
-    ): Promise<User> {
-        if(!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "lastKnownHandler")) {
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    async lastKnownHandler(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<User> {
+        if (!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "lastKnownHandler")) {
             ctx.req.passed = false;
             return null;
         }
-        if(!asset.lastKnownHandlerId) {
+        if (!asset.lastKnownHandlerId) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({
@@ -220,15 +218,12 @@ export class AssetResolver {
      * Virtual field resolver for the Asset corresponding to the Asset's {@link Asset#parentId}.
      */
     @ResolveField(() => Asset, { nullable: true })
-    async parent(
-        @Context() ctx: { req: Request },
-        @Parent() asset: Asset
-    ): Promise<Asset> {
-        if(!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "parent")) {
+    async parent(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<Asset> {
+        if (!ctx.req.permissions.can(AbilityAction.Read, subject("Asset", asset), "parent")) {
             ctx.req.passed = false;
             return null;
         }
-        if(!asset.parentId) {
+        if (!asset.parentId) {
             return null;
         }
         return ctx.req.prismaTx.asset.findFirst({

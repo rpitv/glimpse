@@ -14,6 +14,9 @@ export class MainExceptionFilter implements ExceptionFilter {
         if (typeof exception === "string") {
             return exception;
         }
+        if(exception instanceof Error) {
+            return exception.stack;
+        }
         return exception.toString();
     }
 

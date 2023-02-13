@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from "@nestjs/common";
 import { Observable, tap } from "rxjs";
 import { PrismaService } from "./prisma.service";
-import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
+import { GqlContextType } from "@nestjs/graphql";
 import { Request } from "express";
 
 /**
@@ -24,12 +24,15 @@ export class PrismaInterceptor implements NestInterceptor {
     constructor(private readonly prisma: PrismaService) {}
 
     async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-        // Get the request object from the context. Currently only HTTP and GraphQL are supported.
+        // Get the request object from the context. Currently only HTTP is supported.
         let req: Request;
-        if (context.getType<GqlContextType>() === "graphql") {
-            req = GqlExecutionContext.create(context).getContext().req;
-        } else if (context.getType<GqlContextType>() === "http") {
+        if (context.getType<GqlContextType>() === "http") {
             req = context.switchToHttp().getRequest();
+        } else if(context.getType<GqlContextType>() === "graphql") {
+            // For GraphQL contexts, an Apollo plugin is used due to the way interceptors work on GraphQL queries.
+            //  See: https://github.com/nestjs/graphql/issues/631
+            this.logger.verbose("Skipping PrismaInterceptor for GraphQL context. Using Apollo plugin instead.");
+            return next.handle();
         } else {
             this.logger.debug(`Context type ${context.getType<GqlContextType>()} not supported by PrismaInterceptor.`);
             throw new Error("Unsupported context type");
@@ -47,10 +50,10 @@ export class PrismaInterceptor implements NestInterceptor {
                 resolve(undefined);
 
                 // Create another Promise and save the resolve function to be called when closePrismaTx is called.
-                await new Promise((resolve) => {
+                await new Promise((closeTransaction) => {
                     closePrismaTx = () => {
                         this.logger.verbose("Prisma transaction completed.");
-                        resolve(undefined);
+                        closeTransaction(undefined);
                     };
                 });
                 // Transaction scope ends here, so transaction closes now.
@@ -62,6 +65,6 @@ export class PrismaInterceptor implements NestInterceptor {
             tap({
                 complete: () => closePrismaTx()
             })
-        );
+        )
     }
 }
