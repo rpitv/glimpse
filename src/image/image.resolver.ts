@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class ImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Image], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Image)
+    @Directive("@rule(ruleType: ReadMany, subject: Image)")
     async findManyImage(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterImageInput, nullable: true }) filter?: FilterImageInput,
@@ -50,7 +49,7 @@ export class ImageResolver {
     }
 
     @Query(() => Image, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Image)
+    @Directive("@rule(ruleType: ReadOne, subject: Image)")
     async findOneImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Image> {
         this.logger.verbose("findOneImage resolver called");
         return ctx.req.prismaTx.image.findFirst({
@@ -61,7 +60,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Image)
+    @Directive("@rule(ruleType: Create, subject: Image)")
     async createImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateImageInput }) input: CreateImageInput
@@ -89,7 +88,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Image)
+    @Directive("@rule(ruleType: Update, subject: Image)")
     async updateImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -141,7 +140,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Image)
+    @Directive("@rule(ruleType: Delete, subject: Image)")
     async deleteImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Image> {
         this.logger.verbose("deleteImage resolver called");
 
@@ -179,7 +178,7 @@ export class ImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Image)
+    @Directive("@rule(ruleType: Count, subject: Image)")
     async imageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterImageInput, nullable: true }) filter?: FilterImageInput

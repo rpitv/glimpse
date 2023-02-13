@@ -2,7 +2,6 @@ import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Di
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -23,7 +22,7 @@ export class AssetResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Asset], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Asset)
+    @Directive("@rule(ruleType: ReadMany, subject: Asset)")
     async findManyAsset(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAssetInput, nullable: true }) filter?: FilterAssetInput,
@@ -51,7 +50,7 @@ export class AssetResolver {
     }
 
     @Query(() => Asset, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Asset)
+    @Directive("@rule(ruleType: ReadOne, subject: Asset)")
     async findOneAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
         this.logger.verbose("findOneAsset resolver called");
         return ctx.req.prismaTx.asset.findFirst({
@@ -62,7 +61,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Asset)
+    @Directive("@rule(ruleType: Create, subject: Asset)")
     async createAsset(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateAssetInput }) input: CreateAssetInput
@@ -90,7 +89,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Asset)
+    @Directive("@rule(ruleType: Update, subject: Asset)")
     async updateAsset(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -142,7 +141,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Asset)
+    @Directive("@rule(ruleType: Delete, subject: Asset)")
     async deleteAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
         this.logger.verbose("deleteAsset resolver called");
 
@@ -180,7 +179,7 @@ export class AssetResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Asset)
+    @Directive("@rule(ruleType: Count, subject: Asset)")
     async assetCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAssetInput, nullable: true }) filter?: FilterAssetInput

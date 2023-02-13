@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class PersonRoleResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [PersonRole], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, PersonRole)
+    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
     async findManyPersonRole(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput,
@@ -50,7 +49,7 @@ export class PersonRoleResolver {
     }
 
     @Query(() => PersonRole, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, PersonRole)
+    @Directive("@rule(ruleType: ReadOne, subject: PersonRole)")
     async findOnePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, PersonRole)
+    @Directive("@rule(ruleType: Create, subject: PersonRole)")
     async createPersonRole(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreatePersonRoleInput }) input: CreatePersonRoleInput
@@ -92,7 +91,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, PersonRole)
+    @Directive("@rule(ruleType: Update, subject: PersonRole)")
     async updatePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, PersonRole)
+    @Directive("@rule(ruleType: Delete, subject: PersonRole)")
     async deletePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class PersonRoleResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, PersonRole)
+    @Directive("@rule(ruleType: Count, subject: PersonRole)")
     async personRoleCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput

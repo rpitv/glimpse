@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class ProductionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Production], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Production)
+    @Directive("@rule(ruleType: ReadMany, subject: Production)")
     async findManyProduction(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput,
@@ -50,7 +49,7 @@ export class ProductionResolver {
     }
 
     @Query(() => Production, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Production)
+    @Directive("@rule(ruleType: ReadOne, subject: Production)")
     async findOneProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Production)
+    @Directive("@rule(ruleType: Create, subject: Production)")
     async createProduction(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionInput }) input: CreateProductionInput
@@ -92,7 +91,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Production)
+    @Directive("@rule(ruleType: Update, subject: Production)")
     async updateProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Production)
+    @Directive("@rule(ruleType: Delete, subject: Production)")
     async deleteProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class ProductionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Production)
+    @Directive("@rule(ruleType: Count, subject: Production)")
     async productionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput

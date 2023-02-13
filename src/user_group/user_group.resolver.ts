@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
@@ -19,7 +18,7 @@ export class UserGroupResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => UserGroup, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, UserGroup)
+    @Directive("@rule(ruleType: ReadOne, subject: UserGroup)")
     async findOneUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -33,7 +32,7 @@ export class UserGroupResolver {
     }
 
     @Mutation(() => UserGroup, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, UserGroup)
+    @Directive("@rule(ruleType: Create, subject: UserGroup)")
     async createUserGroup(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserGroupInput }) input: CreateUserGroupInput
@@ -61,7 +60,7 @@ export class UserGroupResolver {
     }
 
     @Mutation(() => UserGroup, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, UserGroup)
+    @Directive("@rule(ruleType: Delete, subject: UserGroup)")
     async deleteUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -102,7 +101,7 @@ export class UserGroupResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, UserGroup)
+    @Directive("@rule(ruleType: Count, subject: UserGroup)")
     async userGroupCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserGroupInput, nullable: true }) filter?: FilterUserGroupInput

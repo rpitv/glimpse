@@ -1,6 +1,5 @@
-import { Resolver, Query, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive} from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -29,7 +28,7 @@ export class AuditLogResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [AuditLog], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, AuditLog)
+    @Directive("@rule(ruleType: ReadMany, subject: AuditLog)")
     async findManyAuditLog(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAuditLogInput, nullable: true }) filter?: FilterAuditLogInput,
@@ -57,7 +56,7 @@ export class AuditLogResolver {
     }
 
     @Query(() => AuditLog, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, AuditLog)
+    @Directive("@rule(ruleType: ReadOne, subject: AuditLog)")
     async findOneAuditLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -71,7 +70,7 @@ export class AuditLogResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, AuditLog)
+    @Directive("@rule(ruleType: Count, subject: AuditLog)")
     async auditLogCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAuditLogInput, nullable: true }) filter?: FilterAuditLogInput

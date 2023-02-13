@@ -1,7 +1,6 @@
-import { Resolver, Query, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive} from "@nestjs/graphql";
 import { AccessLog } from "./access_log.entity";
 import { Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { FilterAccessLogInput } from "./dto/filter-access_log.input";
 import { OrderAccessLogInput } from "./dto/order-access_log.input";
@@ -19,7 +18,7 @@ export class AccessLogResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [AccessLog], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, AccessLog)
+    @Directive("@rule(ruleType: ReadMany, subject: AccessLog)")
     async findManyAccessLog(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAccessLogInput, nullable: true }) filter?: FilterAccessLogInput,
@@ -47,7 +46,7 @@ export class AccessLogResolver {
     }
 
     @Query(() => AccessLog, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, AccessLog)
+    @Directive("@rule(ruleType: ReadOne, subject: AccessLog)")
     async findOneAccessLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -61,7 +60,7 @@ export class AccessLogResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, AccessLog)
+    @Directive("@rule(ruleType: Count, subject: AccessLog)")
     async accessLogCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAccessLogInput, nullable: true }) filter?: FilterAccessLogInput

@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class VoteResponseResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [VoteResponse], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, VoteResponse)
+    @Directive("@rule(ruleType: ReadMany, subject: VoteResponse)")
     async findManyVoteResponse(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput,
@@ -50,7 +49,7 @@ export class VoteResponseResolver {
     }
 
     @Query(() => VoteResponse, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, VoteResponse)
+    @Directive("@rule(ruleType: ReadOne, subject: VoteResponse)")
     async findOneVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, VoteResponse)
+    @Directive("@rule(ruleType: Create, subject: VoteResponse)")
     async createVoteResponse(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVoteResponseInput }) input: CreateVoteResponseInput
@@ -92,7 +91,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, VoteResponse)
+    @Directive("@rule(ruleType: Update, subject: VoteResponse)")
     async updateVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, VoteResponse)
+    @Directive("@rule(ruleType: Delete, subject: VoteResponse)")
     async deleteVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class VoteResponseResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, VoteResponse)
+    @Directive("@rule(ruleType: Count, subject: VoteResponse)")
     async voteResponseCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput

@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class CategoryResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Category], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Category)
+    @Directive("@rule(ruleType: ReadMany, subject: Category)")
     async findManyCategory(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCategoryInput, nullable: true }) filter?: FilterCategoryInput,
@@ -50,7 +49,7 @@ export class CategoryResolver {
     }
 
     @Query(() => Category, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Category)
+    @Directive("@rule(ruleType: ReadOne, subject: Category)")
     async findOneCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Category)
+    @Directive("@rule(ruleType: Create, subject: Category)")
     async createCategory(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateCategoryInput }) input: CreateCategoryInput
@@ -92,7 +91,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Category)
+    @Directive("@rule(ruleType: Update, subject: Category)")
     async updateCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Category)
+    @Directive("@rule(ruleType: Delete, subject: Category)")
     async deleteCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class CategoryResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Category)
+    @Directive("@rule(ruleType: Count, subject: Category)")
     async categoryCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCategoryInput, nullable: true }) filter?: FilterCategoryInput

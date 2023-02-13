@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
@@ -20,7 +19,7 @@ export class ProductionImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => ProductionImage, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionImage)
+    @Directive("@rule(ruleType: ReadOne, subject: ProductionImage)")
     async findOneProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -34,7 +33,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionImage)
+    @Directive("@rule(ruleType: Create, subject: ProductionImage)")
     async createProductionImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionImageInput }) input: CreateProductionImageInput
@@ -62,7 +61,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionImage)
+    @Directive("@rule(ruleType: Update, subject: ProductionImage)")
     async updateProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -114,7 +113,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionImage)
+    @Directive("@rule(ruleType: Delete, subject: ProductionImage)")
     async deleteProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -155,7 +154,7 @@ export class ProductionImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionImage)
+    @Directive("@rule(ruleType: Count, subject: ProductionImage)")
     async productionImageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionImageInput, nullable: true }) filter?: FilterProductionImageInput
