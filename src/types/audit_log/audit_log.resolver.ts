@@ -7,8 +7,7 @@ import { Request } from "express";
 import { AuditLog } from "./audit_log.entity";
 import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
 import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import { AbilityAction, AbilitySubjects } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
+import { AbilitySubjects } from "../../casl/casl-ability.factory";
 import { User } from "../user/user.entity";
 
 @Resolver(() => AuditLog)
@@ -144,21 +143,19 @@ export class AuditLogResolver {
     // -------------------- Relation Resolvers --------------------
 
     /**
-     * Virtual field resolver for the AuditLog corresponding to the AuditLog's {@link AuditLog#userId}.
+     * Virtual field resolver for the User corresponding to the AuditLog's {@link AuditLog#userId}.
      */
     @ResolveField(() => User, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
     async user(@Context() ctx: { req: Request }, @Parent() auditLog: AuditLog): Promise<User> {
-        if (!ctx.req.permissions.can(AbilityAction.Read, subject("AuditLog", auditLog), "user")) {
-            ctx.req.passed = false;
-            return null;
-        }
-        if (!auditLog.userId) {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!auditLog.userId || auditLog["user"] === null) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({
-            where: {
-                id: auditLog.userId
-            }
+            where: { id: auditLog.userId }
         });
     }
 }

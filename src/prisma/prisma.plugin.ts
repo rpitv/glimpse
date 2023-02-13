@@ -30,6 +30,7 @@ export class PrismaPlugin implements ApolloServerPlugin {
     async requestDidStart(ctx): Promise<GraphQLRequestListener> {
         this.logger.verbose("Creating Prisma transaction...");
         let endTransaction: () => void;
+        let failTransaction: (err: any) => void;
 
         await new Promise<void>((continueRequest) => {
             this.prisma.$transaction(
@@ -38,17 +39,23 @@ export class PrismaPlugin implements ApolloServerPlugin {
                     this.logger.verbose("Prisma transaction created.");
                     continueRequest();
 
-                    await new Promise<void>((resolve) => {
+                    await new Promise<void>((resolve, reject) => {
                         endTransaction = () => {
                             this.logger.verbose("Prisma transaction completed.");
                             resolve();
                         };
+                        failTransaction = (err) => {
+                            this.logger.error("Prisma transaction failed.", err);
+                            reject(err);
+                        }
                     });
                 },
                 {
                     timeout: 5000
                 }
-            );
+            ).catch((err) => {
+                failTransaction(err);
+            });
         });
 
         return {
