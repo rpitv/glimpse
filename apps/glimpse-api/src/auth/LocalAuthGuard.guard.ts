@@ -1,19 +1,19 @@
 import { AuthGuard } from "@nestjs/passport";
 import { ExecutionContext, Injectable } from "@nestjs/common";
-import {GqlContextType, GqlExecutionContext} from "@nestjs/graphql";
+import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 
 @Injectable()
 export class GraphqlLocalAuthGuard extends AuthGuard("local") {
     getRequest(context: ExecutionContext) {
-        if(context.getType() === "http") {
+        if (context.getType() === "http") {
             return context.switchToHttp().getRequest();
-        } else if(context.getType<GqlContextType>() === "graphql") {
+        } else if (context.getType<GqlContextType>() === "graphql") {
             const ctx = GqlExecutionContext.create(context);
             const request = ctx.getContext().req;
             request.body = ctx.getArgs();
             return request;
         } else {
-            throw new Error("Unsupported context type \"" + context.getType() + "\"");
+            throw new Error('Unsupported context type "' + context.getType() + '"');
         }
     }
 
