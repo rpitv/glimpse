@@ -78,7 +78,10 @@ export class AccessLogResolver {
     @ResolveField(() => User, { nullable: true })
     @Directive("@rule(ruleType: ReadOne, subject: User)")
     async user(@Context() ctx: { req: Request }, @Parent() accessLog: AccessLog): Promise<User> {
-        if (!accessLog.userId) {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!accessLog.userId || accessLog["user"] === null) {
             return null;
         }
         return ctx.req.prismaTx.user.findFirst({

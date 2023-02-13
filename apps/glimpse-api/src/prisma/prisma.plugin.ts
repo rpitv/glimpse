@@ -43,6 +43,8 @@ export class PrismaPlugin implements ApolloServerPlugin {
                         resolve();
                     };
                 });
+            }, {
+                timeout: 5000
             });
         });
 
