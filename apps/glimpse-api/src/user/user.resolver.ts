@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
 import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
@@ -206,7 +206,7 @@ export class UserResolver {
     // -------------------- Unique Resolvers --------------------
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: User, options: { name: \"Read self\" })")
+    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self" })')
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
