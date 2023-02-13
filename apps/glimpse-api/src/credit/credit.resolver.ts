@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class CreditResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Credit], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Credit)
+    @Directive("@rule(ruleType: ReadMany, subject: Credit)")
     async findManyCredit(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCreditInput, nullable: true }) filter?: FilterCreditInput,
@@ -50,7 +49,7 @@ export class CreditResolver {
     }
 
     @Query(() => Credit, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Credit)
+    @Directive("@rule(ruleType: ReadOne, subject: Credit)")
     async findOneCredit(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Credit)
+    @Directive("@rule(ruleType: Create, subject: Credit)")
     async createCredit(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateCreditInput }) input: CreateCreditInput
@@ -92,7 +91,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Credit)
+    @Directive("@rule(ruleType: Update, subject: Credit)")
     async updateCredit(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Credit)
+    @Directive("@rule(ruleType: Delete, subject: Credit)")
     async deleteCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Credit> {
         this.logger.verbose("deleteCredit resolver called");
 
@@ -182,7 +181,7 @@ export class CreditResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Credit)
+    @Directive("@rule(ruleType: Count, subject: Credit)")
     async creditCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCreditInput, nullable: true }) filter?: FilterCreditInput

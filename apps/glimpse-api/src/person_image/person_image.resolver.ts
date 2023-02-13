@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
@@ -20,7 +19,7 @@ export class PersonImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => PersonImage, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, PersonImage)
+    @Directive("@rule(ruleType: ReadOne, subject: PersonImage)")
     async findOnePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -34,7 +33,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, PersonImage)
+    @Directive("@rule(ruleType: Create, subject: PersonImage)")
     async createPersonImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreatePersonImageInput }) input: CreatePersonImageInput
@@ -62,7 +61,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, PersonImage)
+    @Directive("@rule(ruleType: Update, subject: PersonImage)")
     async updatePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -114,7 +113,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, PersonImage)
+    @Directive("@rule(ruleType: Delete, subject: PersonImage)")
     async deletePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -155,7 +154,7 @@ export class PersonImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, PersonImage)
+    @Directive("@rule(ruleType: Count, subject: PersonImage)")
     async personImageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonImageInput, nullable: true }) filter?: FilterPersonImageInput

@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class VoteResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Vote], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Vote)
+    @Directive("@rule(ruleType: ReadMany, subject: Vote)")
     async findManyVote(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteInput, nullable: true }) filter?: FilterVoteInput,
@@ -50,7 +49,7 @@ export class VoteResolver {
     }
 
     @Query(() => Vote, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Vote)
+    @Directive("@rule(ruleType: ReadOne, subject: Vote)")
     async findOneVote(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Vote> {
         this.logger.verbose("findOneVote resolver called");
         return ctx.req.prismaTx.vote.findFirst({
@@ -61,7 +60,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Vote)
+    @Directive("@rule(ruleType: Create, subject: Vote)")
     async createVote(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVoteInput }) input: CreateVoteInput
@@ -89,7 +88,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Vote)
+    @Directive("@rule(ruleType: Update, subject: Vote)")
     async updateVote(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -141,7 +140,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Vote)
+    @Directive("@rule(ruleType: Delete, subject: Vote)")
     async deleteVote(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Vote> {
         this.logger.verbose("deleteVote resolver called");
 
@@ -179,7 +178,7 @@ export class VoteResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Vote)
+    @Directive("@rule(ruleType: Count, subject: Vote)")
     async voteCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteInput, nullable: true }) filter?: FilterVoteInput

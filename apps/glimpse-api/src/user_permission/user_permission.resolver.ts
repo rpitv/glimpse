@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class UserPermissionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [UserPermission], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, UserPermission)
+    @Directive("@rule(ruleType: ReadMany, subject: UserPermission)")
     async findManyUserPermission(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput,
@@ -50,7 +49,7 @@ export class UserPermissionResolver {
     }
 
     @Query(() => UserPermission, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, UserPermission)
+    @Directive("@rule(ruleType: ReadOne, subject: UserPermission)")
     async findOneUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, UserPermission)
+    @Directive("@rule(ruleType: Create, subject: UserPermission)")
     async createUserPermission(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserPermissionInput }) input: CreateUserPermissionInput
@@ -92,7 +91,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, UserPermission)
+    @Directive("@rule(ruleType: Update, subject: UserPermission)")
     async updateUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, UserPermission)
+    @Directive("@rule(ruleType: Delete, subject: UserPermission)")
     async deleteUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class UserPermissionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, UserPermission)
+    @Directive("@rule(ruleType: Count, subject: UserPermission)")
     async userPermissionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput

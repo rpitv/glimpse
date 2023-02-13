@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -23,7 +22,7 @@ export class BlogPostResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [BlogPost], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, BlogPost)
+    @Directive("@rule(ruleType: ReadMany, subject: BlogPost)")
     async findManyBlogPost(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterBlogPostInput, nullable: true }) filter?: FilterBlogPostInput,
@@ -51,7 +50,7 @@ export class BlogPostResolver {
     }
 
     @Query(() => BlogPost, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, BlogPost)
+    @Directive("@rule(ruleType: ReadOne, subject: BlogPost)")
     async findOneBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -65,7 +64,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, BlogPost)
+    @Directive("@rule(ruleType: Create, subject: BlogPost)")
     async createBlogPost(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateBlogPostInput }) input: CreateBlogPostInput
@@ -93,7 +92,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, BlogPost)
+    @Directive("@rule(ruleType: Update, subject: BlogPost)")
     async updateBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -145,7 +144,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, BlogPost)
+    @Directive("@rule(ruleType: Delete, subject: BlogPost)")
     async deleteBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -186,7 +185,7 @@ export class BlogPostResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, BlogPost)
+    @Directive("@rule(ruleType: Count, subject: BlogPost)")
     async blogPostCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterBlogPostInput, nullable: true }) filter?: FilterBlogPostInput

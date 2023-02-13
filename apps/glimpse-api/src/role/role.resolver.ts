@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class RoleResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Role], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Role)
+    @Directive("@rule(ruleType: ReadMany, subject: Role)")
     async findManyRole(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRoleInput, nullable: true }) filter?: FilterRoleInput,
@@ -50,7 +49,7 @@ export class RoleResolver {
     }
 
     @Query(() => Role, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Role)
+    @Directive("@rule(ruleType: ReadOne, subject: Role)")
     async findOneRole(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Role> {
         this.logger.verbose("findOneRole resolver called");
         return ctx.req.prismaTx.role.findFirst({
@@ -61,7 +60,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Role)
+    @Directive("@rule(ruleType: Create, subject: Role)")
     async createRole(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateRoleInput }) input: CreateRoleInput
@@ -89,7 +88,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Role)
+    @Directive("@rule(ruleType: Update, subject: Role)")
     async updateRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -141,7 +140,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Role)
+    @Directive("@rule(ruleType: Delete, subject: Role)")
     async deleteRole(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Role> {
         this.logger.verbose("deleteRole resolver called");
 
@@ -179,7 +178,7 @@ export class RoleResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Role)
+    @Directive("@rule(ruleType: Count, subject: Role)")
     async roleCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRoleInput, nullable: true }) filter?: FilterRoleInput

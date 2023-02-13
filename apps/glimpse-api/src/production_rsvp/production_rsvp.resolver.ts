@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class ProductionRSVPResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [ProductionRSVP], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, ProductionRSVP)
+    @Directive("@rule(ruleType: ReadMany, subject: ProductionRSVP)")
     async findManyProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput,
@@ -50,7 +49,7 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionRSVP)
+    @Directive("@rule(ruleType: ReadOne, subject: ProductionRSVP)")
     async findOneProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionRSVP)
+    @Directive("@rule(ruleType: Create, subject: ProductionRSVP)")
     async createProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
@@ -92,7 +91,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionRSVP)
+    @Directive("@rule(ruleType: Update, subject: ProductionRSVP)")
     async updateProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionRSVP)
+    @Directive("@rule(ruleType: Delete, subject: ProductionRSVP)")
     async deleteProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionRSVP)
+    @Directive("@rule(ruleType: Count, subject: ProductionRSVP)")
     async productionRSVPCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput

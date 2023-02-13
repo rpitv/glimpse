@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class RedirectResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Redirect], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Redirect)
+    @Directive("@rule(ruleType: ReadMany, subject: Redirect)")
     async findManyRedirect(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRedirectInput, nullable: true }) filter?: FilterRedirectInput,
@@ -50,7 +49,7 @@ export class RedirectResolver {
     }
 
     @Query(() => Redirect, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Redirect)
+    @Directive("@rule(ruleType: ReadOne, subject: Redirect)")
     async findOneRedirect(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -64,7 +63,7 @@ export class RedirectResolver {
     }
 
     @Mutation(() => Redirect, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Redirect)
+    @Directive("@rule(ruleType: Create, subject: Redirect)")
     async createRedirect(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateRedirectInput }) input: CreateRedirectInput
@@ -92,7 +91,7 @@ export class RedirectResolver {
     }
 
     @Mutation(() => Redirect, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Redirect)
+    @Directive("@rule(ruleType: Update, subject: Redirect)")
     async updateRedirect(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -144,7 +143,7 @@ export class RedirectResolver {
     }
 
     @Mutation(() => Redirect, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Redirect)
+    @Directive("@rule(ruleType: Delete, subject: Redirect)")
     async deleteRedirect(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -185,7 +184,7 @@ export class RedirectResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Redirect)
+    @Directive("@rule(ruleType: Count, subject: Redirect)")
     async redirectCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRedirectInput, nullable: true }) filter?: FilterRedirectInput

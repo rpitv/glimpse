@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import { Complexities } from "../gql-complexity.plugin";
 import { Request } from "express";
@@ -20,7 +19,7 @@ export class ProductionVideoResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => ProductionVideo, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, ProductionVideo)
+    @Directive("@rule(ruleType: ReadOne, subject: ProductionVideo)")
     async findOneProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -34,7 +33,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ProductionVideo)
+    @Directive("@rule(ruleType: Create, subject: ProductionVideo)")
     async createProductionVideo(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionVideoInput }) input: CreateProductionVideoInput
@@ -62,7 +61,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ProductionVideo)
+    @Directive("@rule(ruleType: Update, subject: ProductionVideo)")
     async updateProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -114,7 +113,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, ProductionVideo)
+    @Directive("@rule(ruleType: Delete, subject: ProductionVideo)")
     async deleteProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number
@@ -155,7 +154,7 @@ export class ProductionVideoResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, ProductionVideo)
+    @Directive("@rule(ruleType: Count, subject: ProductionVideo)")
     async productionVideoCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput

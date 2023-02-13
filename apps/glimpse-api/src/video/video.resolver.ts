@@ -1,8 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { Rule, RuleType } from "../casl/rule.decorator";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../generic/pagination.input";
 import { Complexities } from "../gql-complexity.plugin";
@@ -22,7 +21,7 @@ export class VideoResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Video], { complexity: Complexities.ReadMany })
-    @Rule(RuleType.ReadMany, Video)
+    @Directive("@rule(ruleType: ReadMany, subject: Video)")
     async findManyVideo(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVideoInput, nullable: true }) filter?: FilterVideoInput,
@@ -50,7 +49,7 @@ export class VideoResolver {
     }
 
     @Query(() => Video, { nullable: true, complexity: Complexities.ReadOne })
-    @Rule(RuleType.ReadOne, Video)
+    @Directive("@rule(ruleType: ReadOne, subject: Video)")
     async findOneVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Video> {
         this.logger.verbose("findOneVideo resolver called");
         return ctx.req.prismaTx.video.findFirst({
@@ -61,7 +60,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, Video)
+    @Directive("@rule(ruleType: Create, subject: Video)")
     async createVideo(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVideoInput }) input: CreateVideoInput
@@ -89,7 +88,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, Video)
+    @Directive("@rule(ruleType: Update, subject: Video)")
     async updateVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => Int }) id: number,
@@ -141,7 +140,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Delete })
-    @Rule(RuleType.Delete, Video)
+    @Directive("@rule(ruleType: Delete, subject: Video)")
     async deleteVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Video> {
         this.logger.verbose("deleteVideo resolver called");
 
@@ -179,7 +178,7 @@ export class VideoResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Rule(RuleType.Count, Video)
+    @Directive("@rule(ruleType: Count, subject: Video)")
     async videoCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVideoInput, nullable: true }) filter?: FilterVideoInput
