@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,7 +13,7 @@ import { FilterUserPermissionInput } from "./dto/filter-user_permission.input";
 import { OrderUserPermissionInput } from "./dto/order-user_permission.input";
 import { CreateUserPermissionInput } from "./dto/create-user_permission.input";
 import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
-import {User} from "../user/user.entity";
+import { User } from "../user/user.entity";
 
 @Resolver(() => UserPermission)
 export class UserPermissionResolver {
