@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,9 @@ import { FilterRoleInput } from "./dto/filter-role.input";
 import { OrderRoleInput } from "./dto/order-role.input";
 import { CreateRoleInput } from "./dto/create-role.input";
 import { UpdateRoleInput } from "./dto/update-role.input";
+import { PersonRole } from "../person_role/person_role.entity";
+import { FilterPersonRoleInput } from "../person_role/dto/filter-person_role.input";
+import { OrderPersonRoleInput } from "../person_role/dto/order-person_role.input";
 
 @Resolver(() => Role)
 export class RoleResolver {
@@ -187,6 +190,42 @@ export class RoleResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for all PersonRoles which have this Role as their {@link PersonRole#roleId}.
+     */
+    @ResolveField(() => [PersonRole], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
+    async people(
+        @Context() ctx: { req: Request },
+        @Parent() role: Role,
+        @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput,
+        @Args("order", { type: () => [OrderPersonRoleInput], nullable: true }) order?: OrderPersonRoleInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<PersonRole[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (role["people"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { roleId: role.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).PersonRole, { roleId: role.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.personRole.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }

@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,11 +13,11 @@ import { FilterGroupInput } from "./dto/filter-group.input";
 import { OrderGroupInput } from "./dto/order-group.input";
 import { CreateGroupInput } from "./dto/create-group.input";
 import { UpdateGroupInput } from "./dto/update-group.input";
-import {GroupPermission} from "../group_permission/group_permission.entity";
-import {FilterGroupPermissionInput} from "../group_permission/dto/filter-group_permission.input";
-import {OrderGroupPermissionInput} from "../group_permission/dto/order-group_permission.input";
-import {UserGroup} from "../user_group/user_group.entity";
-import {FilterUserGroupInput} from "../user_group/dto/filter-user_group.input";
+import { GroupPermission } from "../group_permission/group_permission.entity";
+import { FilterGroupPermissionInput } from "../group_permission/dto/filter-group_permission.input";
+import { OrderGroupPermissionInput } from "../group_permission/dto/order-group_permission.input";
+import { UserGroup } from "../user_group/user_group.entity";
+import { FilterUserGroupInput } from "../user_group/dto/filter-user_group.input";
 
 @Resolver(() => Group)
 export class GroupResolver {

@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,16 +13,16 @@ import { FilterImageInput } from "./dto/filter-image.input";
 import { OrderImageInput } from "./dto/order-image.input";
 import { CreateImageInput } from "./dto/create-image.input";
 import { UpdateImageInput } from "./dto/update-image.input";
-import {PersonImage} from "../person_image/person_image.entity";
-import {ProductionImage} from "../production_image/production_image.entity";
-import {FilterPersonImageInput} from "../person_image/dto/filter-person_image.input";
-import {FilterProductionImageInput} from "../production_image/dto/filter-production_image.input";
-import {Production} from "../production/production.entity";
-import {FilterProductionInput} from "../production/dto/filter-production.input";
-import {OrderProductionInput} from "../production/dto/order-production.input";
-import {Person} from "../person/person.entity";
-import {FilterPersonInput} from "../person/dto/filter-person.input";
-import {OrderPersonInput} from "../person/dto/order-person.input";
+import { PersonImage } from "../person_image/person_image.entity";
+import { ProductionImage } from "../production_image/production_image.entity";
+import { FilterPersonImageInput } from "../person_image/dto/filter-person_image.input";
+import { FilterProductionImageInput } from "../production_image/dto/filter-production_image.input";
+import { Production } from "../production/production.entity";
+import { FilterProductionInput } from "../production/dto/filter-production.input";
+import { OrderProductionInput } from "../production/dto/order-production.input";
+import { Person } from "../person/person.entity";
+import { FilterPersonInput } from "../person/dto/filter-person.input";
+import { OrderPersonInput } from "../person/dto/order-person.input";
 
 @Resolver(() => Image)
 export class ImageResolver {

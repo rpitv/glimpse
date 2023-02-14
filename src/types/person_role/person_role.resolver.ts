@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,8 @@ import { FilterPersonRoleInput } from "./dto/filter-person_role.input";
 import { OrderPersonRoleInput } from "./dto/order-person_role.input";
 import { CreatePersonRoleInput } from "./dto/create-person_role.input";
 import { UpdatePersonRoleInput } from "./dto/update-person_role.input";
+import { Person } from "../person/person.entity";
+import { Role } from "../role/role.entity";
 
 @Resolver(() => PersonRole)
 export class PersonRoleResolver {
@@ -193,6 +195,42 @@ export class PersonRoleResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Person corresponding to the PersonRole's {@link PersonRole#personId}.
+     */
+    @ResolveField(() => Person, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    async person(@Context() ctx: { req: Request }, @Parent() personRole: PersonRole): Promise<Person> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!personRole.personId || personRole["person"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.person.findFirst({
+            where: { id: personRole.personId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Role corresponding to the PersonRole's {@link PersonRole#roleId}.
+     */
+    @ResolveField(() => Role, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Role)")
+    async role(@Context() ctx: { req: Request }, @Parent() personRole: PersonRole): Promise<Role> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!personRole.roleId || personRole["role"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.role.findFirst({
+            where: { id: personRole.roleId }
         });
     }
 }

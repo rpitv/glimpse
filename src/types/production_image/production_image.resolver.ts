@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -11,6 +11,8 @@ import { ProductionImage } from "./production_image.entity";
 import { FilterProductionImageInput } from "./dto/filter-production_image.input";
 import { CreateProductionImageInput } from "./dto/create-production_image.input";
 import { UpdateProductionImageInput } from "./dto/update-production_image.input";
+import { Production } from "../production/production.entity";
+import { Image } from "../image/image.entity";
 
 @Resolver(() => ProductionImage)
 export class ProductionImageResolver {
@@ -163,6 +165,45 @@ export class ProductionImageResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).ProductionImage, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Production corresponding to the ProductionImage's {@link ProductionImage#productionId}.
+     */
+    @ResolveField(() => Production, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    async production(
+        @Context() ctx: { req: Request },
+        @Parent() productionImage: ProductionImage
+    ): Promise<Production> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!productionImage.productionId || productionImage["production"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.production.findFirst({
+            where: { id: productionImage.productionId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Image corresponding to the ProductionImage's {@link ProductionImage#imageId}.
+     */
+    @ResolveField(() => Image, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    async image(@Context() ctx: { req: Request }, @Parent() productionImage: ProductionImage): Promise<Image> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!productionImage.imageId || productionImage["image"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.image.findFirst({
+            where: { id: productionImage.imageId }
         });
     }
 }

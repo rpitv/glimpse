@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,8 +13,8 @@ import { FilterCreditInput } from "./dto/filter-credit.input";
 import { OrderCreditInput } from "./dto/order-credit.input";
 import { CreateCreditInput } from "./dto/create-credit.input";
 import { UpdateCreditInput } from "./dto/update-credit.input";
-import {Person} from "../person/person.entity";
-import {Production} from "../production/production.entity";
+import { Person } from "../person/person.entity";
+import { Production } from "../production/production.entity";
 
 @Resolver(() => Credit)
 export class CreditResolver {
