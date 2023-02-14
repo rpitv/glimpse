@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,7 @@ import { FilterGroupPermissionInput } from "./dto/filter-group_permission.input"
 import { OrderGroupPermissionInput } from "./dto/order-group_permission.input";
 import { CreateGroupPermissionInput } from "./dto/create-group_permission.input";
 import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input";
+import {Group} from "../group/group.entity";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {
@@ -193,6 +194,25 @@ export class GroupPermissionResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).GroupPermission, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Group corresponding to the GroupPermission's {@link GroupPermission#groupId}.
+     */
+    @ResolveField(() => Group, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Group)")
+    async group(@Context() ctx: { req: Request }, @Parent() groupPermission: GroupPermission): Promise<Group> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!groupPermission.groupId || groupPermission["group"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.group.findFirst({
+            where: { id: groupPermission.groupId }
         });
     }
 }
