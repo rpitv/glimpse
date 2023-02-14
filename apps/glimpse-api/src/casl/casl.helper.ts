@@ -3,12 +3,13 @@ import { RuleDef, RuleFn, RuleType } from "./rule.decorator";
 import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
 import { subject } from "@casl/ability";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import { GraphQLResolveInfo } from "graphql/type";
-import { EnumValueNode, IntValueNode, Kind, visit } from "graphql/language";
+import { GraphQLList, GraphQLResolveInfo, GraphQLType } from "graphql/type";
+import { EnumValueNode, IntValueNode, Kind, SelectionNode, visit } from "graphql/language";
 import PaginationInput from "../gql/pagination.input";
 import { map, Observable, of } from "rxjs";
 import { Request } from "express";
 import { GraphQLResolverArgs } from "../gql/graphql-resolver-args.class";
+import { GraphQLNonNull } from "graphql";
 
 @Injectable()
 export class CaslHelper {
@@ -157,13 +158,52 @@ export class CaslHelper {
     }
 
     /**
+     * Get the field(s) selected within a GraphQL selection node and add them to the provided Set. This is used to
+     *  "unwrap" GraphQL fragments and get the fields that are actually being selected, along with their parent type.
+     * @param node The selection node to get the fields from.
+     * @param fields The Set to add the fields to.
+     * @param parentType The name of the parent type of the selected field(s).
+     * @todo Fragment spreads are not currently supported.
+     * @private
+     */
+    private addFieldsFromSelectionNode(node: SelectionNode, fields: Set<string>, parentType: string): void {
+        this.assertNodeKind(node, [Kind.FIELD, Kind.INLINE_FRAGMENT, Kind.FRAGMENT_SPREAD]);
+        if (node.kind === Kind.FIELD) {
+            fields.add(parentType + "." + node.name.value);
+        } else if (node.kind === Kind.INLINE_FRAGMENT) {
+            for (const selection of node.selectionSet.selections) {
+                this.addFieldsFromSelectionNode(selection, fields, node.typeCondition.name.value);
+            }
+        } else if (node.kind === Kind.FRAGMENT_SPREAD) {
+            // TODO
+            throw new Error('Unsupported selection Kind "FRAGMENT_SPREAD"');
+        }
+    }
+
+    /**
+     * Get the raw type name from a GraphQL type. GraphQL types can be wrapped in a non-null or list wrapper, so this
+     *  method recursively unwraps the type until it gets to the base type, and then returns that type's name.
+     * @param type GraphQL type to get the name of.
+     * @returns Name of the type, without the non-null or list wrappers/indicators.
+     * @private
+     */
+    private getRawType(type: GraphQLType): string {
+        if (type instanceof GraphQLNonNull) {
+            return this.getRawType(type.ofType);
+        } else if (type instanceof GraphQLList) {
+            return this.getRawType(type.ofType);
+        } else {
+            return type.name;
+        }
+    }
+
+    /**
      * Get the fields which the user is selecting from the GraphQL query info object. Resolvers will typically return
      *  the entire object, but the user may only be interested in a subset of the fields, which the GraphQL driver
-     *  filters out.
-     *  TODO basic field selection is supported, but inline fragments and fragment spreads are not. It will most likely
-     *   be easiest to implement this when doing UserPermissions and GroupPermissions, where unions are used.
+     *  filters out. Each field is prefixed with the parent type name, separated by a period (e.g. "User.id"). This is
+     *  useful for union types where the specific type may not already be known before this method is called.
      * @param context NestJS execution context.
-     * @returns Set containing the field names which the user is selecting.
+     * @returns Set containing the field names which the user is selecting, including the parent type.
      */
     public getSelectedFields(context: ExecutionContext | GraphQLResolverArgs): Set<string> {
         let info;
@@ -175,20 +215,12 @@ export class CaslHelper {
             }
             info = GqlExecutionContext.create(context).getInfo<GraphQLResolveInfo>();
         }
+        const parentType = this.getRawType(info.returnType);
 
         const fields = new Set<string>();
         for (const fieldNode of info.fieldNodes) {
             for (const selection of fieldNode.selectionSet?.selections || []) {
-                this.assertNodeKind(selection, [Kind.FIELD, Kind.INLINE_FRAGMENT, Kind.FRAGMENT_SPREAD]);
-                if (selection.kind === Kind.FIELD) {
-                    fields.add(selection.name.value);
-                } else if (selection.kind === Kind.INLINE_FRAGMENT) {
-                    // TODO
-                    throw new Error('Unsupported selection Kind "INLINE_FRAGMENT"');
-                } else if (selection.kind === Kind.FRAGMENT_SPREAD) {
-                    // TODO
-                    throw new Error('Unsupported selection Kind "FRAGMENT_SPREAD"');
-                }
+                this.addFieldsFromSelectionNode(selection, fields, parentType);
             }
         }
         this.logger.debug(`User requested the following fields in their query: ${JSON.stringify(Array.from(fields))}`);
@@ -698,7 +730,8 @@ export class CaslHelper {
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context instanceof GraphQLResolverArgs || context.getType<GqlContextType>() === "graphql") {
-            this.getSelectedFields(context).forEach((v) => fields.add(v));
+            // getSelectedFields includes type, but we only want the field name.
+            this.getSelectedFields(context).forEach((v) => fields.add(v.split(".", 2)[1]));
 
             // Remove any specifically excluded fields from the list of fields.
             if (rule[2]?.excludeFields) {
@@ -876,7 +909,8 @@ export class CaslHelper {
         // Field-based tests can only be done pre-resolver for GraphQL requests, since the request includes the
         //  fields to be returned. Non-GraphQL requests don't include this, as all fields are returned.
         if (context instanceof GraphQLResolverArgs || context.getType<GqlContextType>() === "graphql") {
-            this.getSelectedFields(context).forEach((v) => fields.add(v));
+            // getSelectedFields includes type, but we only want the field name.
+            this.getSelectedFields(context).forEach((v) => fields.add(v.split(".", 2)[1]));
 
             // Remove any specifically excluded fields from the list of fields.
             if (rule[2]?.excludeFields) {

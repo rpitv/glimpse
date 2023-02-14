@@ -479,19 +479,11 @@ export class UserResolver {
         });
     }
 
-    // -------------------- Unique Resolvers --------------------
+    // -------------------- Custom Resolvers --------------------
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
     @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self" })')
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
-        this.logger.verbose("self resolver called");
-        return ctx.req.user || null;
-    }
-
-    // TODO
-    @ResolveField(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self" })')
-    async allPermissions(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
     }
