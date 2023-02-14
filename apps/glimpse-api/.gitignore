@@ -36,3 +36,10 @@ lerna-debug.log*
 
 # .env File
 .env
+
+# Runtime data
+./.db-data
+./.redis-data
+
+# Generated files
+./generated
