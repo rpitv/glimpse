@@ -412,7 +412,7 @@ export class UserResolver {
     /**
      * Virtual field resolver for all UserPermissions which have this User as their {@link UserPermission#userId}.
      *  Note, this does NOT include permissions the user has inherited via groups. To get those, use the
-     *  User.allPermissions resolver.
+     *  Query.permissionsFor resolver.
      */
     @ResolveField(() => [UserPermission], { nullable: true })
     @Directive("@rule(ruleType: ReadMany, subject: UserPermission)")
