@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,9 +13,9 @@ import { FilterCategoryInput } from "./dto/filter-category.input";
 import { OrderCategoryInput } from "./dto/order-category.input";
 import { CreateCategoryInput } from "./dto/create-category.input";
 import { UpdateCategoryInput } from "./dto/update-category.input";
-import {Production} from "../production/production.entity";
-import {FilterProductionInput} from "../production/dto/filter-production.input";
-import {OrderProductionInput} from "../production/dto/order-production.input";
+import { Production } from "../production/production.entity";
+import { FilterProductionInput } from "../production/dto/filter-production.input";
+import { OrderProductionInput } from "../production/dto/order-production.input";
 
 @Resolver(() => Category)
 export class CategoryResolver {

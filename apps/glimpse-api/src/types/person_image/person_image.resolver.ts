@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -11,6 +11,8 @@ import { PersonImage } from "./person_image.entity";
 import { FilterPersonImageInput } from "./dto/filter-person_image.input";
 import { CreatePersonImageInput } from "./dto/create-person_image.input";
 import { UpdatePersonImageInput } from "./dto/update-person_image.input";
+import { Person } from "../person/person.entity";
+import { Image } from "../image/image.entity";
 
 @Resolver(() => PersonImage)
 export class PersonImageResolver {
@@ -163,6 +165,42 @@ export class PersonImageResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Person corresponding to the PersonImage's {@link PersonImage#personId}.
+     */
+    @ResolveField(() => Person, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    async person(@Context() ctx: { req: Request }, @Parent() personImage: PersonImage): Promise<Person> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!personImage.personId || personImage["person"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.person.findFirst({
+            where: { id: personImage.personId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Image corresponding to the PersonImage's {@link PersonImage#imageId}.
+     */
+    @ResolveField(() => Image, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    async image(@Context() ctx: { req: Request }, @Parent() personImage: PersonImage): Promise<Image> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!personImage.imageId || personImage["image"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.image.findFirst({
+            where: { id: personImage.imageId }
         });
     }
 }

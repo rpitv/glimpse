@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -12,6 +12,7 @@ import { ProductionTag } from "./production_tag.entity";
 import { FilterProductionTagInput } from "./dto/filter-production_tag.input";
 import { OrderProductionTagInput } from "./dto/order-production_tag.input";
 import { CreateProductionTagInput } from "./dto/create-production_tag.input";
+import { Production } from "../production/production.entity";
 
 @Resolver(() => ProductionTag)
 export class ProductionTagResolver {
@@ -140,6 +141,25 @@ export class ProductionTagResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).ProductionTag, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Production corresponding to the ProductionTag's {@link ProductionTag#productionId}.
+     */
+    @ResolveField(() => Production, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    async production(@Context() ctx: { req: Request }, @Parent() productionTag: ProductionTag): Promise<Production> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!productionTag.productionId || productionTag["production"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.production.findFirst({
+            where: { id: productionTag.productionId }
         });
     }
 }
