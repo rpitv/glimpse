@@ -200,21 +200,19 @@ export class BlogPostResolver {
     // -------------------- Relation Resolvers --------------------
 
     /**
-     * Virtual field resolver for the BlogPost corresponding to the BlogPost's {@link BlogPost#authorId}.
+     * Virtual field resolver for the Person corresponding to the BlogPost's {@link BlogPost#authorId}.
      */
     @ResolveField(() => Person, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Person)")
     async author(@Context() ctx: { req: Request }, @Parent() blogPost: BlogPost): Promise<Person> {
-        if (!ctx.req.permissions.can(AbilityAction.Read, subject("BlogPost", blogPost), "author")) {
-            ctx.req.passed = false;
-            return null;
-        }
-        if (!blogPost.authorId) {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!blogPost.authorId || blogPost["author"] === null) {
             return null;
         }
         return ctx.req.prismaTx.person.findFirst({
-            where: {
-                id: blogPost.authorId
-            }
+            where: { id: blogPost.authorId }
         });
     }
 }

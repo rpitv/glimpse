@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,9 @@ import { FilterCategoryInput } from "./dto/filter-category.input";
 import { OrderCategoryInput } from "./dto/order-category.input";
 import { CreateCategoryInput } from "./dto/create-category.input";
 import { UpdateCategoryInput } from "./dto/update-category.input";
+import {Production} from "../production/production.entity";
+import {FilterProductionInput} from "../production/dto/filter-production.input";
+import {OrderProductionInput} from "../production/dto/order-production.input";
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -193,6 +196,93 @@ export class CategoryResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Category, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Category corresponding to the Category's {@link Category#parentId}.
+     */
+    @ResolveField(() => Category, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Category)")
+    async parent(@Context() ctx: { req: Request }, @Parent() category: Category): Promise<Category> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!category.parentId || category["parent"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.category.findFirst({
+            where: { id: category.parentId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Categories which have this Category as their {@link Category#parentId}.
+     */
+    @ResolveField(() => [Category], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: Category)")
+    async children(
+        @Context() ctx: { req: Request },
+        @Parent() category: Category,
+        @Args("filter", { type: () => FilterCategoryInput, nullable: true }) filter?: FilterCategoryInput,
+        @Args("order", { type: () => [OrderCategoryInput], nullable: true }) order?: OrderCategoryInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<Category[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (category["children"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).Category, { parentId: category.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).Category, { parentId: category.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.category.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Productions which have this Category as their {@link Production#categoryId}.
+     */
+    @ResolveField(() => [Production], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: Production)")
+    async productions(
+        @Context() ctx: { req: Request },
+        @Parent() category: Category,
+        @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput,
+        @Args("order", { type: () => [OrderProductionInput], nullable: true }) order?: OrderProductionInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<Production[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (category["productions"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).Production, { categoryId: category.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).Production, { categoryId: category.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.production.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }
