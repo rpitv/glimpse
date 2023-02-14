@@ -33,7 +33,7 @@ CREATE TABLE "assets" (
     "purchase_date" DATE,
     "model_number" VARCHAR(100),
     "serial_number" VARCHAR(100),
-    "parent" INTEGER,
+    "parent" BIGINT,
 
     CONSTRAINT "assets_pk" PRIMARY KEY ("id")
 );
@@ -41,7 +41,7 @@ CREATE TABLE "assets" (
 -- CreateTable
 CREATE TABLE "audit_logs" (
     "id" BIGSERIAL NOT NULL,
-    "user" INTEGER,
+    "user" BIGINT,
     "timestamp" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "modification_type" VARCHAR(20) NOT NULL,
     "modified_table" VARCHAR(50),
@@ -58,7 +58,7 @@ CREATE TABLE "blog_posts" (
     "id" BIGSERIAL NOT NULL,
     "posted_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "content" TEXT NOT NULL,
-    "author" INTEGER NOT NULL,
+    "author" BIGINT NOT NULL,
     "author_display_name" VARCHAR(100),
     "title" VARCHAR(150) NOT NULL,
 
@@ -70,7 +70,7 @@ CREATE TABLE "categories" (
     "id" BIGSERIAL NOT NULL,
     "name" VARCHAR(50),
     "priority" INTEGER NOT NULL DEFAULT 0,
-    "parent" INTEGER,
+    "parent" BIGINT,
 
     CONSTRAINT "categories_pk" PRIMARY KEY ("id")
 );
@@ -89,8 +89,8 @@ CREATE TABLE "contact_submissions" (
 
 -- CreateTable
 CREATE TABLE "contact_submission_assignees" (
-    "submission" INTEGER NOT NULL,
-    "user" INTEGER NOT NULL,
+    "submission" BIGINT NOT NULL,
+    "user" BIGINT NOT NULL,
     "timestamp" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id" BIGSERIAL NOT NULL,
 
@@ -99,8 +99,8 @@ CREATE TABLE "contact_submission_assignees" (
 
 -- CreateTable
 CREATE TABLE "credits" (
-    "production" INTEGER NOT NULL,
-    "person" INTEGER NOT NULL,
+    "production" BIGINT NOT NULL,
+    "person" BIGINT NOT NULL,
     "title" VARCHAR(100),
     "priority" INTEGER NOT NULL DEFAULT 0,
     "id" BIGSERIAL NOT NULL,
@@ -112,7 +112,7 @@ CREATE TABLE "credits" (
 CREATE TABLE "groups" (
     "id" BIGSERIAL NOT NULL,
     "name" VARCHAR(50) NOT NULL,
-    "parent" INTEGER,
+    "parent" BIGINT,
     "priority" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "groups_pk" PRIMARY KEY ("id")
@@ -121,7 +121,7 @@ CREATE TABLE "groups" (
 -- CreateTable
 CREATE TABLE "group_permissions" (
     "id" BIGSERIAL NOT NULL,
-    "group" INTEGER NOT NULL,
+    "group" BIGINT NOT NULL,
     "action" VARCHAR(100) NOT NULL,
     "subject" VARCHAR(300)[],
     "fields" VARCHAR(100)[],
@@ -157,8 +157,8 @@ CREATE TABLE "people" (
 
 -- CreateTable
 CREATE TABLE "people_images" (
-    "image" INTEGER NOT NULL,
-    "person" INTEGER NOT NULL,
+    "image" BIGINT NOT NULL,
+    "person" BIGINT NOT NULL,
     "priority" INTEGER NOT NULL DEFAULT 0,
     "id" BIGSERIAL NOT NULL,
 
@@ -173,13 +173,13 @@ CREATE TABLE "productions" (
     "start_time" TIMESTAMP(6),
     "end_time" TIMESTAMP(6),
     "is_live" BOOLEAN NOT NULL DEFAULT true,
-    "category" INTEGER,
+    "category" BIGINT,
     "closet_location" VARCHAR(100),
     "event_location" VARCHAR(100),
     "team_notes" TEXT,
     "discord_server" CHAR(18),
     "discord_channel" CHAR(18),
-    "thumbnail" INTEGER,
+    "thumbnail" BIGINT,
     "closet_time" TIMESTAMP(6),
 
     CONSTRAINT "productions_pk" PRIMARY KEY ("id")
@@ -187,8 +187,8 @@ CREATE TABLE "productions" (
 
 -- CreateTable
 CREATE TABLE "production_images" (
-    "production" INTEGER NOT NULL,
-    "image" INTEGER NOT NULL,
+    "production" BIGINT NOT NULL,
+    "image" BIGINT NOT NULL,
     "priority" INTEGER NOT NULL DEFAULT 0,
     "id" BIGSERIAL NOT NULL,
 
@@ -197,8 +197,8 @@ CREATE TABLE "production_images" (
 
 -- CreateTable
 CREATE TABLE "production_rsvps" (
-    "production" INTEGER NOT NULL,
-    "user" INTEGER NOT NULL,
+    "production" BIGINT NOT NULL,
+    "user" BIGINT NOT NULL,
     "will_attend" VARCHAR(5),
     "notes" TEXT,
     "id" BIGSERIAL NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE "production_rsvps" (
 
 -- CreateTable
 CREATE TABLE "production_tags" (
-    "production" INTEGER NOT NULL,
+    "production" BIGINT NOT NULL,
     "tag" VARCHAR(50) NOT NULL,
     "id" BIGSERIAL NOT NULL,
 
@@ -217,8 +217,8 @@ CREATE TABLE "production_tags" (
 
 -- CreateTable
 CREATE TABLE "production_videos" (
-    "production" INTEGER NOT NULL,
-    "video" INTEGER NOT NULL,
+    "production" BIGINT NOT NULL,
+    "video" BIGINT NOT NULL,
     "priority" INTEGER NOT NULL DEFAULT 0,
     "id" BIGSERIAL NOT NULL,
 
@@ -238,7 +238,7 @@ CREATE TABLE "redirects" (
 -- CreateTable
 CREATE TABLE "roles" (
     "id" BIGSERIAL NOT NULL,
-    "person" INTEGER NOT NULL,
+    "person" BIGINT NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "start_time" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end_time" TIMESTAMP(6),
@@ -252,7 +252,7 @@ CREATE TABLE "users" (
     "id" BIGSERIAL NOT NULL,
     "username" VARCHAR(8) NOT NULL,
     "mail" VARCHAR(300) NOT NULL,
-    "person" INTEGER,
+    "person" BIGINT,
     "discord" CHAR(18),
     "password" VARCHAR(300),
     "joined" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -263,8 +263,8 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "user_groups" (
     "id" BIGSERIAL NOT NULL,
-    "user" INTEGER NOT NULL,
-    "group" INTEGER NOT NULL,
+    "user" BIGINT NOT NULL,
+    "group" BIGINT NOT NULL,
 
     CONSTRAINT "user_groups_pk" PRIMARY KEY ("id")
 );
@@ -272,7 +272,7 @@ CREATE TABLE "user_groups" (
 -- CreateTable
 CREATE TABLE "user_permissions" (
     "id" BIGSERIAL NOT NULL,
-    "user" INTEGER NOT NULL,
+    "user" BIGINT NOT NULL,
     "action" VARCHAR(100) NOT NULL,
     "subject" VARCHAR(300)[],
     "fields" VARCHAR(100)[],
@@ -295,7 +295,7 @@ CREATE TABLE "videos" (
 
 -- CreateTable
 CREATE TABLE "votes" (
-    "id" INTEGER NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "question" VARCHAR(200) NOT NULL,
     "options" VARCHAR(200)[],
     "expires" TIMESTAMP(6),
@@ -306,8 +306,8 @@ CREATE TABLE "votes" (
 
 -- CreateTable
 CREATE TABLE "vote_responses" (
-    "vote" INTEGER NOT NULL,
-    "user" INTEGER NOT NULL,
+    "vote" BIGINT NOT NULL,
+    "user" BIGINT NOT NULL,
     "timestamp" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "id" BIGSERIAL NOT NULL,
     "selection" VARCHAR(200) NOT NULL,

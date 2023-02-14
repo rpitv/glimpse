@@ -11,7 +11,7 @@ DROP INDEX "audit_logs_mtable_mf_mtype_index";
 -- AlterTable
 ALTER TABLE "audit_logs" DROP COLUMN "action",
 DROP COLUMN "field",
-ADD COLUMN     "identifier" INTEGER,
+ADD COLUMN     "identifier" BIGINT,
 ADD COLUMN     "message" VARCHAR(300),
 ADD COLUMN     "prev_value" JSON;
 

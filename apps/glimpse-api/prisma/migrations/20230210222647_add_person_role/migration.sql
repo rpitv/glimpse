@@ -22,9 +22,9 @@ ADD COLUMN     "description" VARCHAR(1000);
 
 -- CreateTable
 CREATE TABLE "people_roles" (
-    "id" SERIAL NOT NULL,
-    "person" INTEGER NOT NULL,
-    "role" INTEGER NOT NULL,
+    "id" BIGSERIAL NOT NULL,
+    "person" BIGINT NOT NULL,
+    "role" BIGINT NOT NULL,
     "start_time" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "end_time" TIMESTAMP(6),
 
