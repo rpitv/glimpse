@@ -8,6 +8,7 @@
   "scripts": {
     "prepare": "husky install",
     "build": "nest build",
+    "generate": "prisma generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
