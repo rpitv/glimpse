@@ -5,9 +5,7 @@ enum ProductionOrderableFields {
     id = "id",
     name = "name",
     startTime = "startTime",
-    endTime = "endTime",
-    closetTime = "closetTime",
-    eventLocation = "eventLocation"
+    categoryId = "categoryId",
 }
 
 registerEnumType(ProductionOrderableFields, {
