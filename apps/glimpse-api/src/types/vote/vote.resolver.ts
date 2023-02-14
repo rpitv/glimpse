@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,8 +14,8 @@ import { OrderVoteInput } from "./dto/order-vote.input";
 import { CreateVoteInput } from "./dto/create-vote.input";
 import { UpdateVoteInput } from "./dto/update-vote.input";
 import { VoteResponse } from "../vote_response/vote_response.entity";
-import {FilterVoteResponseInput} from "../vote_response/dto/filter-vote_response.input";
-import {OrderVoteResponseInput} from "../vote_response/dto/order-vote_response.input";
+import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_response.input";
+import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
 
 @Resolver(() => Vote)
 export class VoteResolver {
