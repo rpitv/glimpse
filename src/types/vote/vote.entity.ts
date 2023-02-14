@@ -17,7 +17,7 @@ export class Vote implements PrismaVote {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The question proposed in this vote.

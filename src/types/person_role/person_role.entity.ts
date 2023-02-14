@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsDate, IsInt, Min } from "class-validator";
 import { PersonRole as PrismaPersonRole } from "@prisma/client";
 
@@ -17,21 +17,21 @@ export class PersonRole implements PrismaPersonRole {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the person this PersonRole is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    personId: number | null;
+    @Field(() => ID, { nullable: true })
+    personId: bigint | null;
 
     /**
      * ID of the role this PersonRole is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    roleId: number | null;
+    @Field(() => ID, { nullable: true })
+    roleId: bigint | null;
 
     /**
      * Start date of when this PersonRole association should begin.

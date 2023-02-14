@@ -17,7 +17,7 @@ export class Credit implements PrismaCredit {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The title of this Credit
@@ -39,7 +39,7 @@ export class Credit implements PrismaCredit {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    personId: number | null;
+    personId: bigint | null;
 
     /**
      * The ID of the production this Credit is for.
@@ -47,5 +47,5 @@ export class Credit implements PrismaCredit {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    productionId: number | null;
+    productionId: bigint | null;
 }

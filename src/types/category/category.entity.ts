@@ -17,7 +17,7 @@ export class Category implements PrismaCategory {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The name of this category
@@ -39,5 +39,5 @@ export class Category implements PrismaCategory {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    parentId: number | null;
+    parentId: bigint | null;
 }

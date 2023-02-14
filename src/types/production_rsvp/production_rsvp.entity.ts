@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsInt, Min } from "class-validator";
 import { ProductionRSVP as PrismaProductionRSVP } from "@prisma/client";
 
@@ -17,21 +17,21 @@ export class ProductionRSVP implements PrismaProductionRSVP {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the Production that the User is RSVPing for.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    productionId: number | null;
+    @Field(() => ID, { nullable: true })
+    productionId: bigint | null;
 
     /**
      * ID of the User that is RSVPing for the Production.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    userId: number | null;
+    @Field(() => ID, { nullable: true })
+    userId: bigint | null;
 
     /**
      * The User's response to the Production's RSVP. Should be "yes", "no", or "maybe".

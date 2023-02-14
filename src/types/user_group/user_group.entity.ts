@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsInt, Min } from "class-validator";
 import { UserGroup as PrismaUserGroup } from "@prisma/client";
 
@@ -17,19 +17,19 @@ export class UserGroup implements PrismaUserGroup {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the user this UserGroup is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    userId: number | null;
+    @Field(() => ID, { nullable: true })
+    userId: bigint | null;
 
     /**
      * ID of the group this UserGroup is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    groupId: number | null;
+    @Field(() => ID, { nullable: true })
+    groupId: bigint | null;
 }

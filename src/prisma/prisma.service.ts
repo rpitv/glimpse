@@ -10,7 +10,7 @@ export type AuditLogEntry = {
     displayText?: string;
     user?: User;
     subject?: Extract<AbilitySubjects, string>;
-    id?: number;
+    id?: bigint;
     newValue?: any;
     oldValue?: any;
 };
