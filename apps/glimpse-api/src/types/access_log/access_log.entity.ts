@@ -17,7 +17,7 @@ export class AccessLog implements PrismaAccessLog {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the user who initiated this access log.
@@ -25,7 +25,7 @@ export class AccessLog implements PrismaAccessLog {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    userId: number | null;
+    userId: bigint | null;
 
     /**
      * Name of the service which this access log is a record for.

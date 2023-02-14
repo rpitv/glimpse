@@ -17,21 +17,21 @@ export class PersonImage implements PrismaPersonImage {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the person this PersonImage is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    personId: number | null;
+    @Field(() => ID, { nullable: true })
+    personId: bigint | null;
 
     /**
      * ID of the image this PersonImage is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    imageId: number | null;
+    @Field(() => ID, { nullable: true })
+    imageId: bigint | null;
 
     /**
      * Priority of this PersonImage. Higher priority images should be displayed first.

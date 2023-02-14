@@ -31,7 +31,7 @@ export class Asset implements PrismaAsset {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
@@ -64,7 +64,7 @@ export class Asset implements PrismaAsset {
      */
     @Min(0)
     @Field(() => ID, { nullable: true })
-    lastKnownHandlerId: number | null;
+    lastKnownHandlerId: bigint | null;
 
     /**
      * Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
@@ -137,5 +137,5 @@ export class Asset implements PrismaAsset {
      */
     @Min(0)
     @Field(() => ID, { nullable: true })
-    parentId: number | null;
+    parentId: bigint | null;
 }

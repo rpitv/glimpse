@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsBoolean, IsInt, IsObject, MaxLength, Min } from "class-validator";
 import { UserPermission as PrismaUserPermission, Prisma } from "@prisma/client";
-import JSON from "graphql-type-json";
+import { GraphQLJSON } from "graphql-scalars";
 
 @ObjectType()
 export class UserPermission implements PrismaUserPermission {
@@ -18,7 +18,7 @@ export class UserPermission implements PrismaUserPermission {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the user which this UserPermission is for.
@@ -26,7 +26,7 @@ export class UserPermission implements PrismaUserPermission {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    userId: number | null;
+    userId: bigint | null;
 
     /**
      * The action for this UserPermission. Should be a valid action within {@link AbilityAction}.
@@ -57,7 +57,7 @@ export class UserPermission implements PrismaUserPermission {
      * @see {@link https://casl.js.org/v6/en/guide/intro}
      */
     @IsObject()
-    @Field(() => JSON, { nullable: true })
+    @Field(() => GraphQLJSON, { nullable: true })
     conditions: Prisma.JsonValue | null;
 
     /**

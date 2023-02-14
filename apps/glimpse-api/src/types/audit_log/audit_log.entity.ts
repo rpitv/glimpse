@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int, HideField } from "@nestjs/graphql";
+import { ObjectType, Field, ID, HideField } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { AuditLog as PrismaAuditLog, Prisma } from "@prisma/client";
 
@@ -30,7 +30,7 @@ export class AuditLog implements PrismaAuditLog {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * User ID of the user that initiated this audit log.
@@ -38,7 +38,7 @@ export class AuditLog implements PrismaAuditLog {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    userId: number | null;
+    userId: bigint | null;
 
     /**
      * DateTime at which this audit log was created.
@@ -66,8 +66,8 @@ export class AuditLog implements PrismaAuditLog {
      */
     @IsInt()
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    identifier: number | null;
+    @Field(() => ID, { nullable: true })
+    identifier: bigint | null;
     /**
      * The new value of the resource after the change. Will be null if the resource was deleted, since there is no
      *  updated value. This value cannot be queried directly, and is used internally for constructing an audit log

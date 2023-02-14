@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { VoteResponse as PrismaVoteResponse } from "@prisma/client";
 
@@ -17,21 +17,21 @@ export class VoteResponse implements PrismaVoteResponse {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the user this VoteResponse is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    userId: number | null;
+    @Field(() => ID, { nullable: true })
+    userId: bigint | null;
 
     /**
      * ID of the vote this VoteResponse is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    voteId: number | null;
+    @Field(() => ID, { nullable: true })
+    voteId: bigint | null;
 
     /**
      * Timestamp at which this VoteResponse was submitted.

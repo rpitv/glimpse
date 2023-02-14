@@ -17,7 +17,7 @@ export class Image implements PrismaImage {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The display name for this image.

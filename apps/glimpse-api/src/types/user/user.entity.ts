@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, HideField, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID, HideField } from "@nestjs/graphql";
 import {
     IsAlphanumeric,
     IsDate,
@@ -28,7 +28,7 @@ export class User implements PrismaUser {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
@@ -52,8 +52,8 @@ export class User implements PrismaUser {
     @IsOptional()
     @IsInt()
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    personId: number | null;
+    @Field(() => ID, { nullable: true })
+    personId: bigint | null;
 
     /**
      * Discord account ID for this user, or null if the user does not have a linked Discord account.

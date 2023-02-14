@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { Production as PrismaProduction } from "@prisma/client";
 
@@ -17,7 +17,7 @@ export class Production implements PrismaProduction {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The title/name of this Production
@@ -53,8 +53,8 @@ export class Production implements PrismaProduction {
      */
     @IsInt()
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    categoryId: number | null;
+    @Field(() => ID, { nullable: true })
+    categoryId: bigint | null;
 
     /**
      * The closet meeting location for club members to meet at before the Production.
@@ -102,6 +102,6 @@ export class Production implements PrismaProduction {
      * The ID of the Image which should be used as the thumbnail for this Production.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    thumbnailId: number | null;
+    @Field(() => ID, { nullable: true })
+    thumbnailId: bigint | null;
 }

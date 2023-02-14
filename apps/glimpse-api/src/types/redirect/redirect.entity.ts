@@ -17,7 +17,7 @@ export class Redirect implements PrismaRedirect {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The key used in URLs to access this Redirect.

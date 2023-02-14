@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
+import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsInt, Min } from "class-validator";
 import { ProductionTag as PrismaProductionTag } from "@prisma/client";
 
@@ -17,14 +17,14 @@ export class ProductionTag implements PrismaProductionTag {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the Production that this tag is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    productionId: number | null;
+    @Field(() => ID, { nullable: true })
+    productionId: bigint | null;
 
     /**
      * This tag's value.

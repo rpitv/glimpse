@@ -17,21 +17,21 @@ export class ProductionVideo implements PrismaProductionVideo {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the person this ProductionVideo is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    productionId: number | null;
+    @Field(() => ID, { nullable: true })
+    productionId: bigint | null;
 
     /**
      * ID of the video this ProductionVideo is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    videoId: number | null;
+    @Field(() => ID, { nullable: true })
+    videoId: bigint | null;
 
     /**
      * The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones.

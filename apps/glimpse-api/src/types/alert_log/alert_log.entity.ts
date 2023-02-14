@@ -17,7 +17,7 @@ export class AlertLog implements PrismaAlertLog {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The message logged by this alert. This is what is displayed to the user(s) viewing alerts.

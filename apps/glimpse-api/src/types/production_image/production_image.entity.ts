@@ -17,21 +17,21 @@ export class ProductionImage implements PrismaProductionImage {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the production this ProductionImage is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    productionId: number | null;
+    @Field(() => ID, { nullable: true })
+    productionId: bigint | null;
 
     /**
      * ID of the image this ProductionImage is associated with.
      */
     @Min(0)
-    @Field(() => Int, { nullable: true })
-    imageId: number | null;
+    @Field(() => ID, { nullable: true })
+    imageId: bigint | null;
 
     /**
      * The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones.
