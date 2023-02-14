@@ -1,5 +1,17 @@
 version: '3.9'
 services:
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env.docker
+    networks:
+      - glimpse_network
+    profiles:
+      - api
+
   db:
     image: postgres:14
     restart: unless-stopped
@@ -8,7 +20,7 @@ services:
     volumes:
       - .db-data:/var/lib/postgresql/data
     env_file:
-      - .env
+      - .env.docker
     networks:
       - glimpse_network
 
