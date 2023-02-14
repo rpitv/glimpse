@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -10,6 +10,8 @@ import { subject } from "@casl/ability";
 import { UserGroup } from "./user_group.entity";
 import { FilterUserGroupInput } from "./dto/filter-user_group.input";
 import { CreateUserGroupInput } from "./dto/create-user_group.input";
+import { User } from "../user/user.entity";
+import {Group} from "../group/group.entity";
 
 @Resolver(() => UserGroup)
 export class UserGroupResolver {
@@ -112,4 +114,41 @@ export class UserGroupResolver {
             }
         });
     }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the User corresponding to the UserGroup's {@link UserGroup#userId}.
+     */
+    @ResolveField(() => User, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    async user(@Context() ctx: { req: Request }, @Parent() userGroup: UserGroup): Promise<User> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!userGroup.userId || userGroup["user"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.user.findFirst({
+            where: { id: userGroup.userId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Group corresponding to the UserGroup's {@link UserGroup#groupId}.
+     */
+    @ResolveField(() => Group, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Group)")
+    async group(@Context() ctx: { req: Request }, @Parent() userGroup: UserGroup): Promise<Group> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!userGroup.groupId || userGroup["group"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.group.findFirst({
+            where: { id: userGroup.groupId }
+        });
+    }
+
 }

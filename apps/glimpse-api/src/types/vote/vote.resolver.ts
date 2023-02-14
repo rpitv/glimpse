@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,9 @@ import { FilterVoteInput } from "./dto/filter-vote.input";
 import { OrderVoteInput } from "./dto/order-vote.input";
 import { CreateVoteInput } from "./dto/create-vote.input";
 import { UpdateVoteInput } from "./dto/update-vote.input";
+import { VoteResponse } from "../vote_response/vote_response.entity";
+import {FilterVoteResponseInput} from "../vote_response/dto/filter-vote_response.input";
+import {OrderVoteResponseInput} from "../vote_response/dto/order-vote_response.input";
 
 @Resolver(() => Vote)
 export class VoteResolver {
@@ -187,6 +190,42 @@ export class VoteResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for all VoteResponses which have this Vote as their {@link VoteResponse#voteId}.
+     */
+    @ResolveField(() => [VoteResponse], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: VoteResponse)")
+    async responses(
+        @Context() ctx: { req: Request },
+        @Parent() vote: Vote,
+        @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput,
+        @Args("order", { type: () => [OrderVoteResponseInput], nullable: true }) order?: OrderVoteResponseInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<VoteResponse[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (vote["responses"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { voteId: vote.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { voteId: vote.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.voteResponse.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }
