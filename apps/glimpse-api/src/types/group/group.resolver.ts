@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,11 @@ import { FilterGroupInput } from "./dto/filter-group.input";
 import { OrderGroupInput } from "./dto/order-group.input";
 import { CreateGroupInput } from "./dto/create-group.input";
 import { UpdateGroupInput } from "./dto/update-group.input";
+import {GroupPermission} from "../group_permission/group_permission.entity";
+import {FilterGroupPermissionInput} from "../group_permission/dto/filter-group_permission.input";
+import {OrderGroupPermissionInput} from "../group_permission/dto/order-group_permission.input";
+import {UserGroup} from "../user_group/user_group.entity";
+import {FilterUserGroupInput} from "../user_group/dto/filter-user_group.input";
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -187,6 +192,123 @@ export class GroupResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Group, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Group corresponding to the Group's {@link Group#parentId}.
+     */
+    @ResolveField(() => Group, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Group)")
+    async parent(@Context() ctx: { req: Request }, @Parent() group: Group): Promise<Group> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!group.parentId || group["parent"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.group.findFirst({
+            where: { id: group.parentId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for all GroupPermissions which have this Group as their {@link GroupPermission#groupId}.
+     */
+    @ResolveField(() => [GroupPermission], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: GroupPermission)")
+    async permissions(
+        @Context() ctx: { req: Request },
+        @Parent() group: Group,
+        @Args("filter", { type: () => FilterGroupPermissionInput, nullable: true }) filter?: FilterGroupPermissionInput,
+        @Args("order", { type: () => [OrderGroupPermissionInput], nullable: true }) order?: OrderGroupPermissionInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<GroupPermission[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (group["permissions"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).GroupPermission, { groupId: group.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).GroupPermission, { groupId: group.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.groupPermission.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Groups which have this Group as their {@link Group#parentId}.
+     */
+    @ResolveField(() => [Group], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: Group)")
+    async children(
+        @Context() ctx: { req: Request },
+        @Parent() group: Group,
+        @Args("filter", { type: () => FilterGroupInput, nullable: true }) filter?: FilterGroupInput,
+        @Args("order", { type: () => [OrderGroupInput], nullable: true }) order?: OrderGroupInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<Group[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (group["children"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).Group, { parentId: group.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).Group, { parentId: group.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.group.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all UserGroups which have this Group as their {@link UserGroup#groupId}.
+     */
+    @ResolveField(() => [UserGroup], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: UserGroup)")
+    async users(
+        @Context() ctx: { req: Request },
+        @Parent() group: Group,
+        @Args("filter", { type: () => FilterUserGroupInput, nullable: true }) filter?: FilterUserGroupInput,
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<UserGroup[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (group["users"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).UserGroup, { groupId: group.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).UserGroup, { groupId: group.id }] };
+
+        return ctx.req.prismaTx.userGroup.findMany({
+            where,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }
