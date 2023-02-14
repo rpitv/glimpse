@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -11,7 +11,7 @@ import { UserGroup } from "./user_group.entity";
 import { FilterUserGroupInput } from "./dto/filter-user_group.input";
 import { CreateUserGroupInput } from "./dto/create-user_group.input";
 import { User } from "../user/user.entity";
-import {Group} from "../group/group.entity";
+import { Group } from "../group/group.entity";
 
 @Resolver(() => UserGroup)
 export class UserGroupResolver {
@@ -150,5 +150,4 @@ export class UserGroupResolver {
             where: { id: userGroup.groupId }
         });
     }
-
 }

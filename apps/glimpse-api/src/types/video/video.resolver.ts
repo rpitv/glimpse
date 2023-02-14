@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,8 +13,8 @@ import { FilterVideoInput } from "./dto/filter-video.input";
 import { OrderVideoInput } from "./dto/order-video.input";
 import { CreateVideoInput } from "./dto/create-video.input";
 import { UpdateVideoInput } from "./dto/update-video.input";
-import {ProductionVideo} from "../production_video/production_video.entity";
-import {FilterProductionVideoInput} from "../production_video/dto/filter-production_video.input";
+import { ProductionVideo } from "../production_video/production_video.entity";
+import { FilterProductionVideoInput } from "../production_video/dto/filter-production_video.input";
 
 @Resolver(() => Video)
 export class VideoResolver {
