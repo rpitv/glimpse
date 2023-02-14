@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,8 @@ import { FilterVoteResponseInput } from "./dto/filter-vote_response.input";
 import { OrderVoteResponseInput } from "./dto/order-vote_response.input";
 import { CreateVoteResponseInput } from "./dto/create-vote_response.input";
 import { UpdateVoteResponseInput } from "./dto/update-vote_response.input";
+import {User} from "../user/user.entity";
+import {Vote} from "../vote/vote.entity";
 
 @Resolver(() => VoteResponse)
 export class VoteResponseResolver {
@@ -193,6 +195,42 @@ export class VoteResponseResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the User corresponding to the VoteResponse's {@link VoteResponse#userId}.
+     */
+    @ResolveField(() => User, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    async user(@Context() ctx: { req: Request }, @Parent() voteResponse: VoteResponse): Promise<User> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!voteResponse.userId || voteResponse["user"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.user.findFirst({
+            where: { id: voteResponse.userId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Vote corresponding to the VoteResponse's {@link VoteResponse#voteId}.
+     */
+    @ResolveField(() => Vote, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Vote)")
+    async vote(@Context() ctx: { req: Request }, @Parent() voteResponse: VoteResponse): Promise<Vote> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!voteResponse.voteId || voteResponse["vote"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.vote.findFirst({
+            where: { id: voteResponse.voteId }
         });
     }
 }
