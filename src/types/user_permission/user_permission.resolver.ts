@@ -1,4 +1,16 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {
+    Args,
+    ComplexityEstimatorArgs,
+    Context,
+    createUnionType,
+    Directive,
+    Int,
+    Mutation,
+    Parent,
+    Query,
+    ResolveField,
+    Resolver
+} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -6,7 +18,7 @@ import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
+import { AbilityAction, CaslAbilityFactory } from "../../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
 import { UserPermission } from "./user_permission.entity";
 import { FilterUserPermissionInput } from "./dto/filter-user_permission.input";
@@ -14,10 +26,27 @@ import { OrderUserPermissionInput } from "./dto/order-user_permission.input";
 import { CreateUserPermissionInput } from "./dto/create-user_permission.input";
 import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
 import { User } from "../user/user.entity";
+import { GroupPermission } from "../group_permission/group_permission.entity";
+
+const PermissionUnion = createUnionType({
+    name: "Permission",
+    types: () => [UserPermission, GroupPermission],
+    resolveType: (value) => {
+        if ("userId" in value) {
+            return UserPermission;
+        }
+        if ("groupId" in value) {
+            return GroupPermission;
+        }
+        return undefined;
+    }
+});
 
 @Resolver(() => UserPermission)
 export class UserPermissionResolver {
     private logger: Logger = new Logger("UserPermissionResolver");
+
+    constructor(private readonly caslAbilityFactory: CaslAbilityFactory) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -214,5 +243,32 @@ export class UserPermissionResolver {
         return ctx.req.prismaTx.user.findFirst({
             where: { id: userPermission.userId }
         });
+    }
+
+    // -------------------- Special Resolvers --------------------
+
+    // TODO
+    @Query(() => [PermissionUnion], {
+        nullable: true,
+        complexity: (options: ComplexityEstimatorArgs) => 50 + options.childComplexity
+    })
+    @Directive('@custom_rule(name: "permissionsFor", options: { name: "Permissions for user" })')
+    async permissionsFor(
+        @Context() ctx: { req: Request },
+        @Args("userId", { type: () => Int, nullable: true }) userId: number
+    ): Promise<(typeof PermissionUnion)[] | null> {
+        this.logger.verbose("permissionsFor resolver called");
+        let user = null;
+        if (userId !== null) {
+            user = await ctx.req.prismaTx.user.findFirst({
+                where: {
+                    id: userId
+                }
+            });
+            if (!user) {
+                throw new BadRequestException("User not found");
+            }
+        }
+        return await this.caslAbilityFactory.getPermissions(user);
     }
 }
