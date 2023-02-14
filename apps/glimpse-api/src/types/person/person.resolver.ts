@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,20 @@ import { FilterPersonInput } from "./dto/filter-person.input";
 import { OrderPersonInput } from "./dto/order-person.input";
 import { CreatePersonInput } from "./dto/create-person.input";
 import { UpdatePersonInput } from "./dto/update-person.input";
+import { BlogPost } from "../blog_post/blog_post.entity";
+import { FilterBlogPostInput } from "../blog_post/dto/filter-blog_post.input";
+import { OrderBlogPostInput } from "../blog_post/dto/order-blog_post.input";
+import { Credit } from "../credit/credit.entity";
+import { FilterCreditInput } from "../credit/dto/filter-credit.input";
+import { OrderCreditInput } from "../credit/dto/order-credit.input";
+import { FilterPersonImageInput } from "../person_image/dto/filter-person_image.input";
+import { PersonImage } from "../person_image/person_image.entity";
+import { PersonRole } from "../person_role/person_role.entity";
+import { FilterPersonRoleInput } from "../person_role/dto/filter-person_role.input";
+import { OrderPersonRoleInput } from "../person_role/dto/order-person_role.input";
+import { User } from "../user/user.entity";
+import { FilterUserInput } from "../user/dto/filter-user.input";
+import { OrderUserInput } from "../user/dto/order-user.input";
 
 @Resolver(() => Person)
 export class PersonResolver {
@@ -190,6 +204,174 @@ export class PersonResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for all BlogPosts which have this Person as their {@link BlogPost#authorId}.
+     */
+    @ResolveField(() => [BlogPost], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: BlogPost)")
+    async blogPosts(
+        @Context() ctx: { req: Request },
+        @Parent() person: Person,
+        @Args("filter", { type: () => FilterBlogPostInput, nullable: true }) filter?: FilterBlogPostInput,
+        @Args("order", { type: () => [OrderBlogPostInput], nullable: true }) order?: OrderBlogPostInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<BlogPost[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (person["blogPosts"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).BlogPost, { authorId: person.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).BlogPost, { authorId: person.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.blogPost.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Credits which have this Person as their {@link Credit#personId}.
+     */
+    @ResolveField(() => [Credit], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: Credit)")
+    async credits(
+        @Context() ctx: { req: Request },
+        @Parent() person: Person,
+        @Args("filter", { type: () => FilterCreditInput, nullable: true }) filter?: FilterCreditInput,
+        @Args("order", { type: () => [OrderCreditInput], nullable: true }) order?: OrderCreditInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<Credit[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (person["credits"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).Credit, { personId: person.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).Credit, { personId: person.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.credit.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all PersonImages which have this Person as their {@link PersonImage#personId}.
+     */
+    @ResolveField(() => [PersonImage], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: PersonImage)")
+    async images(
+        @Context() ctx: { req: Request },
+        @Parent() person: Person,
+        @Args("filter", { type: () => FilterPersonImageInput, nullable: true }) filter?: FilterPersonImageInput,
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<PersonImage[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (person["images"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonImage, { personId: person.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).PersonImage, { personId: person.id }] };
+
+        return ctx.req.prismaTx.personImage.findMany({
+            where,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all PersonRoles which have this Person as their {@link PersonRole#personId}.
+     */
+    @ResolveField(() => [PersonRole], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
+    async roles(
+        @Context() ctx: { req: Request },
+        @Parent() person: Person,
+        @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput,
+        @Args("order", { type: () => [OrderPersonRoleInput], nullable: true }) order?: OrderPersonRoleInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<PersonRole[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (person["roles"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { personId: person.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).PersonRole, { personId: person.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.personRole.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+        });
+    }
+
+    /**
+     * Virtual field resolver for all Users which have this Person as their {@link User#personId}.
+     */
+    @ResolveField(() => [User], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: User)")
+    async users(
+        @Context() ctx: { req: Request },
+        @Parent() person: Person,
+        @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
+        @Args("order", { type: () => [OrderUserInput], nullable: true }) order?: OrderUserInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<User[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (person["users"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).User, { personId: person.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).User, { personId: person.id }] };
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+        return ctx.req.prismaTx.user.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }

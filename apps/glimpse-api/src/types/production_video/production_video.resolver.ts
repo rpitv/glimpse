@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -11,6 +11,8 @@ import { ProductionVideo } from "./production_video.entity";
 import { FilterProductionVideoInput } from "./dto/filter-production_video.input";
 import { CreateProductionVideoInput } from "./dto/create-production_video.input";
 import { UpdateProductionVideoInput } from "./dto/update-production_video.input";
+import { Production } from "../production/production.entity";
+import { Video } from "../video/video.entity";
 
 @Resolver(() => ProductionVideo)
 export class ProductionVideoResolver {
@@ -163,6 +165,45 @@ export class ProductionVideoResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).ProductionVideo, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the Production corresponding to the ProductionVideo's {@link ProductionVideo#productionId}.
+     */
+    @ResolveField(() => Production, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    async production(
+        @Context() ctx: { req: Request },
+        @Parent() productionVideo: ProductionVideo
+    ): Promise<Production> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!productionVideo.productionId || productionVideo["production"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.production.findFirst({
+            where: { id: productionVideo.productionId }
+        });
+    }
+
+    /**
+     * Virtual field resolver for the Video corresponding to the ProductionVideo's {@link ProductionVideo#videoId}.
+     */
+    @ResolveField(() => Video, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: Video)")
+    async video(@Context() ctx: { req: Request }, @Parent() productionVideo: ProductionVideo): Promise<Video> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!productionVideo.videoId || productionVideo["video"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.video.findFirst({
+            where: { id: productionVideo.videoId }
         });
     }
 }

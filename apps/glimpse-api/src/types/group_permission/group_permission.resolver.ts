@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,7 +13,7 @@ import { FilterGroupPermissionInput } from "./dto/filter-group_permission.input"
 import { OrderGroupPermissionInput } from "./dto/order-group_permission.input";
 import { CreateGroupPermissionInput } from "./dto/create-group_permission.input";
 import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input";
-import {Group} from "../group/group.entity";
+import { Group } from "../group/group.entity";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {
