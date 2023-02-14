@@ -34,8 +34,9 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# .env File
-.env
+# .env File(s)
+.env*
+!.env.sample
 
 # Runtime data
 ./.db-data
