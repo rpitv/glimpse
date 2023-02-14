@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min, MinLength } from "class-validator";
 import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
-import JSON from "graphql-type-json";
+import { GraphQLJSON } from "graphql-scalars";
 
 @ObjectType()
 export class ContactSubmission implements PrismaContactSubmission {
@@ -18,7 +18,7 @@ export class ContactSubmission implements PrismaContactSubmission {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The email address for how to reach the person who submitted this ContactSubmission.
@@ -68,6 +68,6 @@ export class ContactSubmission implements PrismaContactSubmission {
      * Additional metadata about this ContactSubmission. Unstructured JSON data.
      */
     @IsObject()
-    @Field(() => JSON, { nullable: true })
+    @Field(() => GraphQLJSON, { nullable: true })
     additionalData: Prisma.JsonValue | null;
 }

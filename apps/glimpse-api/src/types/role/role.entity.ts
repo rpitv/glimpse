@@ -17,7 +17,7 @@ export class Role implements PrismaRole {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * The name of this role.

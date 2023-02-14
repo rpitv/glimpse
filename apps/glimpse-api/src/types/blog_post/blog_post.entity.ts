@@ -17,7 +17,7 @@ export class BlogPost implements PrismaBlogPost {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * DateTime at which this blog post was posted.
@@ -43,7 +43,7 @@ export class BlogPost implements PrismaBlogPost {
      * The User ID of the author of this blog post.
      */
     @Field(() => ID, { nullable: true })
-    authorId: number | null;
+    authorId: bigint | null;
 
     /**
      * The name to display for the author, as opposed to the actual username/person name. This allows for posting

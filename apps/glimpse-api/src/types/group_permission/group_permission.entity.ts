@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { IsBoolean, IsInt, IsObject, MaxLength, Min } from "class-validator";
 import { GroupPermission as PrismaGroupPermission, Prisma } from "@prisma/client";
-import JSON from "graphql-type-json";
+import { GraphQLJSON } from "graphql-scalars";
 
 @ObjectType()
 export class GroupPermission implements PrismaGroupPermission {
@@ -18,7 +18,7 @@ export class GroupPermission implements PrismaGroupPermission {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    id: number | null;
+    id: bigint | null;
 
     /**
      * ID of the group which this GroupPermission is for.
@@ -26,7 +26,7 @@ export class GroupPermission implements PrismaGroupPermission {
     @IsInt()
     @Min(0)
     @Field(() => ID, { nullable: true })
-    groupId: number | null;
+    groupId: bigint | null;
 
     /**
      * The action for this GroupPermission. Should be a valid action within {@link AbilityAction}.
@@ -57,7 +57,7 @@ export class GroupPermission implements PrismaGroupPermission {
      * @see {@link https://casl.js.org/v6/en/guide/intro}
      */
     @IsObject()
-    @Field(() => JSON, { nullable: true })
+    @Field(() => GraphQLJSON, { nullable: true })
     conditions: Prisma.JsonValue | null;
 
     /**
