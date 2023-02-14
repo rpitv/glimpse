@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,7 @@ import { FilterUserPermissionInput } from "./dto/filter-user_permission.input";
 import { OrderUserPermissionInput } from "./dto/order-user_permission.input";
 import { CreateUserPermissionInput } from "./dto/create-user_permission.input";
 import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
+import {User} from "../user/user.entity";
 
 @Resolver(() => UserPermission)
 export class UserPermissionResolver {
@@ -193,6 +194,25 @@ export class UserPermissionResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).UserPermission, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for the User corresponding to the UserPermission's {@link UserPermission#userId}.
+     */
+    @ResolveField(() => User, { nullable: true })
+    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    async user(@Context() ctx: { req: Request }, @Parent() userPermission: UserPermission): Promise<User> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (!userPermission.userId || userPermission["user"] === null) {
+            return null;
+        }
+        return ctx.req.prismaTx.user.findFirst({
+            where: { id: userPermission.userId }
         });
     }
 }

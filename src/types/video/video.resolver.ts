@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,8 @@ import { FilterVideoInput } from "./dto/filter-video.input";
 import { OrderVideoInput } from "./dto/order-video.input";
 import { CreateVideoInput } from "./dto/create-video.input";
 import { UpdateVideoInput } from "./dto/update-video.input";
+import {ProductionVideo} from "../production_video/production_video.entity";
+import {FilterProductionVideoInput} from "../production_video/dto/filter-production_video.input";
 
 @Resolver(() => Video)
 export class VideoResolver {
@@ -187,6 +189,38 @@ export class VideoResolver {
             where: {
                 AND: [accessibleBy(ctx.req.permissions).Credit, filter]
             }
+        });
+    }
+
+    // -------------------- Relation Resolvers --------------------
+
+    /**
+     * Virtual field resolver for all ProductionVideos which have this Video as their {@link ProductionVideo#videoId}.
+     */
+    @ResolveField(() => [ProductionVideo], { nullable: true })
+    @Directive("@rule(ruleType: ReadMany, subject: ProductionVideo)")
+    async videoFor(
+        @Context() ctx: { req: Request },
+        @Parent() video: Video,
+        @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput,
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    ): Promise<ProductionVideo[]> {
+        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
+        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
+        //  An alternative solution would be to re-check the permissions for this field.
+        if (video["videoFor"] === null) {
+            return null;
+        }
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }, filter] }
+            : { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }] };
+
+        return ctx.req.prismaTx.productionVideo.findMany({
+            where,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
         });
     }
 }
