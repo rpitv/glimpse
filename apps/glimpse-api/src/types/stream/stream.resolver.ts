@@ -9,7 +9,7 @@ import { AbilityAction } from "../../casl/casl-ability.factory";
 import { subject } from "@casl/ability";
 import { Stream } from "./stream.entity";
 import { CreateStreamInput } from "./dto/create-stream.input";
-import {connect, ConsumeMessage, Connection} from "amqplib";
+import { connect, ConsumeMessage, Connection } from "amqplib";
 
 @Resolver(() => Stream)
 export class StreamResolver {
@@ -49,7 +49,7 @@ export class StreamResolver {
             await channel.assertExchange("video:state", "fanout", { durable: true });
             await channel.bindQueue(queue.queue, "video:state", "");
 
-            await channel.consume(queue.queue, async (rmqMessage: ConsumeMessage|null) => {
+            await channel.consume(queue.queue, async (rmqMessage: ConsumeMessage | null) => {
                 this.logger.verbose("Received message from RabbitMQ");
                 if (!rmqMessage) {
                     return; // TODO throw error
@@ -74,13 +74,13 @@ export class StreamResolver {
 
         // Periodically clear dead streams from list of streams
         setInterval(() => {
-            this.logger.verbose("Sweeping list of streams")
-            for(let i = 0; i < this.streams.length; i++) {
+            this.logger.verbose("Sweeping list of streams");
+            for (let i = 0; i < this.streams.length; i++) {
                 const stream = this.streams[i];
                 // Delete after 5 minutes instead of 10 seconds as a temporary partial fix for the issue where streams are still
                 //  running after the "from" location has stopped sending data.
                 if (!this.streamLastSeen[stream.id] || Date.now() - this.streamLastSeen[stream.id] > 300000) {
-                    this.logger.verbose(`Deleting stream ${stream.id} from list of streams`)
+                    this.logger.verbose(`Deleting stream ${stream.id} from list of streams`);
                     this.streams.splice(i, 1);
                     delete this.streamLastSeen[stream.id];
                     i--;
@@ -112,10 +112,7 @@ export class StreamResolver {
 
     @Query(() => Stream, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Stream)")
-    async findOneStream(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: string
-    ): Promise<Stream> {
+    async findOneStream(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: string): Promise<Stream> {
         this.logger.verbose("findOneStream resolver called");
         return this.streams.find((stream) => stream.id === id);
     }
@@ -139,7 +136,7 @@ export class StreamResolver {
         const client = await connect(<string>process.env.RABBITMQ_URL);
         const channel = await client.createChannel();
 
-        await channel.assertQueue("video:control:start", {durable: true});
+        await channel.assertQueue("video:control:start", { durable: true });
         channel.sendToQueue("video:control:start", Buffer.from(JSON.stringify(newStream)));
 
         await channel.close();
@@ -156,10 +153,7 @@ export class StreamResolver {
 
     @Mutation(() => Stream, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Stream)")
-    async deleteStream(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: string
-    ): Promise<Stream> {
+    async deleteStream(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: string): Promise<Stream> {
         this.logger.verbose("deleteStream resolver called");
 
         const streamToDelete = this.streams.find((stream) => stream.id === id);
@@ -175,10 +169,7 @@ export class StreamResolver {
         const channel = await client.createChannel();
 
         // Intentionally don't assert queue here, because we don't want to create it if it doesn't exist
-        channel.sendToQueue(
-            "video:control:" + id,
-            Buffer.from("stop")
-        );
+        channel.sendToQueue("video:control:" + id, Buffer.from("stop"));
         await channel.close();
         await client.close();
 

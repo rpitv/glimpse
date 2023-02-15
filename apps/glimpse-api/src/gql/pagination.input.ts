@@ -1,4 +1,4 @@
-import {Field, ID, InputType, Int} from "@nestjs/graphql";
+import { Field, ID, InputType, Int } from "@nestjs/graphql";
 
 @InputType()
 export default class PaginationInput {
