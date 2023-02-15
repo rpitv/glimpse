@@ -45,7 +45,7 @@ export class AssetResolver {
             orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
         });
     }
 
@@ -257,7 +257,7 @@ export class AssetResolver {
             orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: pagination.cursor } : undefined
+            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
         });
     }
 }

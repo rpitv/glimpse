@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { RedirectResolver } from "./redirect.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("RedirectResolver", () => {
     let resolver: RedirectResolver;
 
     beforeEach(async () => {

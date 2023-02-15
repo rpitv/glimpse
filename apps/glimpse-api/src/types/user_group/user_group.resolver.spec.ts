@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserGroupResolver } from "./user_group.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("UserGroupResolver", () => {
     let resolver: UserGroupResolver;
 
     beforeEach(async () => {
