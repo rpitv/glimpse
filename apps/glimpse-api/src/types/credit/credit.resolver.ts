@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -52,10 +52,7 @@ export class CreditResolver {
 
     @Query(() => Credit, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Credit)")
-    async findOneCredit(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
-    ): Promise<Credit> {
+    async findOneCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Credit> {
         this.logger.verbose("findOneCredit resolver called");
         return ctx.req.prismaTx.credit.findFirst({
             where: {

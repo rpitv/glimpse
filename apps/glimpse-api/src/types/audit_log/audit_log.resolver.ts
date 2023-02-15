@@ -1,4 +1,4 @@
-import {Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive, ID} from "@nestjs/graphql";
+import { Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive, ID } from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";

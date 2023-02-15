@@ -1,4 +1,4 @@
-import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -64,10 +64,7 @@ export class PersonResolver {
 
     @Query(() => Person, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Person)")
-    async findOnePerson(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
-    ): Promise<Person> {
+    async findOnePerson(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Person> {
         this.logger.verbose("findOnePerson resolver called");
         return ctx.req.prismaTx.person.findFirst({
             where: {
