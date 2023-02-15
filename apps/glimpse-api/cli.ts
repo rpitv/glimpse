@@ -1,8 +1,17 @@
 import { Group, GroupPermission, PrismaClient } from "@prisma/client";
 import * as readline from "node:readline/promises";
 import { Writable } from "node:stream";
+import { argon2id, hash } from "argon2";
 
 const prisma = new PrismaClient();
+
+// These are copy-pasted from src/auth/auth.service.ts. If you change them here, change them there too.
+const hashOptions = {
+    type: argon2id,
+    memoryCost: 32768, // 32MiB
+    timeCost: 4,
+    parallelism: 1
+};
 
 // Stdout is "mutable" so we can hide password inputs.
 const mutableStdout: Writable & { muted?: boolean } = new Writable({
@@ -114,8 +123,8 @@ commands.set(["groups", "g"], {
 
 // Create user command
 commands.set(["user", "u"], {
-    name: "Create User",
-    description: "Create a new User, with the option to make them an admin.",
+    name: "Create Admin User",
+    description: "Create a new User and put them in the Admin group",
     run: async () => {
         const users = await userCount();
         if (users > 0) {
@@ -123,55 +132,58 @@ commands.set(["user", "u"], {
             return;
         }
 
+        const group = await getGroup("Admin");
+
+        if (!group) {
+            console.error(`Admin Group does not exist. Please create it first with the "g" command.`);
+            return;
+        }
+
         let username = null;
         let password = null;
+        let confirmPassword = null;
         let email = null;
-        let admin = null;
 
         console.log(
-            "NOTE! This command can only be ran once. Once a user exists in the database, this command will" +
-                " no longer work for security reasons."
+            "WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
+                " database, this command will no longer work."
         );
         while (!username) {
             username = await rl.question("Username: ");
         }
 
-        while (!password) {
-            const passwordPromise = rl.question("Password: ");
-            mutableStdout.muted = true;
-            password = await passwordPromise;
-            mutableStdout.muted = false;
-            mutableStdout.write("\n");
+        while (!password || password !== confirmPassword) {
+            while (!password) {
+                const passwordPromise = rl.question("Password: ");
+                mutableStdout.muted = true;
+                password = await passwordPromise;
+                mutableStdout.muted = false;
+                mutableStdout.write("\n");
+            }
+
+            while (!confirmPassword) {
+                const confirmPasswordPromise = rl.question("Confirm Password: ");
+                mutableStdout.muted = true;
+                confirmPassword = await confirmPasswordPromise;
+                mutableStdout.muted = false;
+                mutableStdout.write("\n");
+            }
+
+            if (password !== confirmPassword) {
+                console.error("Passwords do not match.\n");
+                password = null;
+                confirmPassword = null;
+            }
         }
 
         while (!email) {
             email = await rl.question("Email: ");
         }
 
-        while (admin === null) {
-            admin = await rl.question("Admin? (y/n): ");
-            if (admin === "y") {
-                admin = true;
-            } else if (admin === "n") {
-                admin = false;
-            } else {
-                admin = null;
-                console.log("Please enter 'y' or 'n'.");
-            }
-        }
-
-        const groupName = admin ? "Admin" : "Member";
-        const group = await getGroup(groupName);
-
-        if (!group) {
-            console.error(`${groupName} Group does not exist. Please create it first with the "g" command.`);
-            return;
-        }
-
         const user = await prisma.user.create({
             data: {
                 username: username,
-                password: password,
+                password: await hash(password, hashOptions),
                 mail: email,
                 groups: {
                     create: {
