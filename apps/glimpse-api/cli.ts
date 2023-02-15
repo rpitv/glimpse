@@ -141,7 +141,6 @@ commands.set(["user", "u"], {
 
         let username = null;
         let password = null;
-        let confirmPassword = null;
         let email = null;
 
         console.log(
@@ -150,34 +149,35 @@ commands.set(["user", "u"], {
         );
         while (!username) {
             username = await rl.question("Username: ");
+            if (username?.length > 8) {
+                console.error("Username must be 8 characters or less.");
+                username = null;
+            }
         }
 
-        while (!password || password !== confirmPassword) {
-            while (!password) {
-                const passwordPromise = rl.question("Password: ");
+        let passwords: [string?, string?] = [];
+        while (passwords.length === 0) {
+            for (let i = 0; i < 2; i++) {
+                const pwPromise = rl.question(i === 0 ? "Password: " : "Confirm Password: ");
                 mutableStdout.muted = true;
-                password = await passwordPromise;
+                passwords[i] = await pwPromise;
                 mutableStdout.muted = false;
                 mutableStdout.write("\n");
             }
 
-            while (!confirmPassword) {
-                const confirmPasswordPromise = rl.question("Confirm Password: ");
-                mutableStdout.muted = true;
-                confirmPassword = await confirmPasswordPromise;
-                mutableStdout.muted = false;
-                mutableStdout.write("\n");
-            }
-
-            if (password !== confirmPassword) {
+            if (passwords[0] !== passwords[1]) {
                 console.error("Passwords do not match.\n");
-                password = null;
-                confirmPassword = null;
+                passwords = [];
             }
         }
+        password = passwords[0];
 
         while (!email) {
             email = await rl.question("Email: ");
+            if (email?.length > 300) {
+                console.error("Email must be 300 characters or less.");
+                email = null;
+            }
         }
 
         const user = await prisma.user.create({
