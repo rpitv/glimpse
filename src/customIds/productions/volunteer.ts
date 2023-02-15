@@ -39,7 +39,7 @@ export const volunteer: CustomId = {
                 productions: FieldValue.arrayUnion(currentProduction)
             }).catch(() => interaction.reply({content: "Could not update user", ephemeral: true}));
 
-            const volChl = interaction.guild?.channels.cache.get(proChannel) as BaseGuildTextChannel;
+            const volChl = await interaction.guild?.channels.fetch(proChannel) as BaseGuildTextChannel;
             const volunteerMsg = await volChl.messages.fetch(currentProduction.volunteerMsgId);
             let volunteers = `(${currentProduction.volunteers.length}) `;
             for (let i = 0; i < currentProduction.volunteers.length; i++)
@@ -49,14 +49,14 @@ export const volunteer: CustomId = {
                 name: "Volunteers",
                 value: volunteers
             }
-            const unVolChl = interaction.guild?.channels.cache.get(currentProduction.channelId) as BaseGuildTextChannel;
+            const unVolChl = await interaction.guild?.channels.fetch(currentProduction.channelId) as BaseGuildTextChannel;
             const unVolunteerMsg = await unVolChl.messages.fetch(currentProduction.unVolunteerMsgId);
 
             const updatedProduction = EmbedBuilder.from(volunteerMsg.embeds[0]).setFields(field);
             await volunteerMsg.edit({embeds: [updatedProduction]});
             await unVolunteerMsg.edit({embeds: [updatedProduction]});
 
-            const currProChannel = await interaction.guild?.channels.cache.find((ch) => ch.id === currentProduction.channelId) as BaseGuildTextChannel;
+            const currProChannel = await interaction.guild?.channels.fetch(currentProduction.channelId) as BaseGuildTextChannel;
             await currProChannel.permissionOverwrites.edit(interaction.user.id, { ViewChannel: true } );
             await interaction.reply({
                 content: "Successfully volunteered!",

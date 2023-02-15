@@ -26,10 +26,10 @@ export const productionCancellation: CustomId = {
             productions: FieldValue.arrayRemove(currentProduction)
         }).catch(() => interaction.reply({content: "Could not update user", ephemeral: true}));
 
-        const productionChannel = await interaction.guild?.channels.cache.get(proChannel) as GuildTextBasedChannel;
+        const productionChannel = await interaction.guild?.channels.fetch(proChannel) as GuildTextBasedChannel;
         productionChannel.messages.fetch(currentProduction.volunteerMsgId).then(msg => msg.delete());
 
-        const currentProductionChannel = await interaction.guild?.channels.cache.get(currentProduction.channelId) as GuildTextBasedChannel;
+        const currentProductionChannel = await interaction.guild?.channels.fetch(currentProduction.channelId) as GuildTextBasedChannel;
         await currentProductionChannel.delete();
     }
 }

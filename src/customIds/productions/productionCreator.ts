@@ -71,7 +71,7 @@ export const productionCreator: CustomId = {
             production.addFields(
                 { name: "Channel", value: `${channelMention(channel.id)}`},
                 { name: "Volunteers", value: "(0) 🦗"})
-            const volChl = await interaction.guild?.channels.cache.get(proChannel) as GuildTextBasedChannel;
+            const volChl = await interaction.guild?.channels.fetch(proChannel) as GuildTextBasedChannel;
             const volunteerMsg = await volChl.send({
                 embeds: [production],
                 components: [volunteerBtn]

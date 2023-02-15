@@ -14,7 +14,7 @@ export const proCategorySelection: CustomId = {
         const setupDashboard = await setup?.messages.fetch(interaction.message.reference?.messageId as string);
         const setupField = setupDashboard?.embeds[0].fields;
 
-        const category = await interaction.guild?.channels.cache.find((cat) => cat.id === categoryId) as CategoryChannel;
+        const category = await interaction.guild?.channels.fetch(categoryId) as CategoryChannel;
         setupField[1] = {
             name: "2️⃣ Productions Category",
             value: category.name

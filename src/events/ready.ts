@@ -13,7 +13,6 @@ export const ready: Event = {
             name: "Tetris",
             type: ActivityType.Playing
         });
-
         // Checks if productions have passed their closet date
         setInterval(async () => {
             await db.collection("rpi-tv").doc("productions").get().then(async (snapshot) => {

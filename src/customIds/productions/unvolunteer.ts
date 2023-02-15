@@ -43,7 +43,7 @@ export const unvolunteer: CustomId = {
             await productionsRef.update({
                 productions: FieldValue.arrayUnion(currentProduction)
             }).catch(() => interaction.reply({ content: 'Could not update user', ephemeral: true}));
-            const volChl = await interaction.guild?.channels.cache.get(proChannel) as BaseGuildTextChannel;
+            const volChl = await interaction.guild?.channels.fetch(proChannel) as BaseGuildTextChannel;
             const volunteerMsg = await volChl.messages.fetch(currentProduction.volunteerMsgId);
 
             let volunteers = `(${currentProduction.volunteers.length}) `;
@@ -56,13 +56,13 @@ export const unvolunteer: CustomId = {
                 name: 'Volunteers',
                 value: volunteers
             }
-            const unVolCh = await interaction.guild?.channels.cache.find((ch) => ch.id === currentProduction.channelId) as BaseGuildTextChannel;
+            const unVolCh = await interaction.guild?.channels.fetch(currentProduction.channelId) as BaseGuildTextChannel;
             const unVolunteerMsg = await unVolCh.messages.fetch(currentProduction.unVolunteerMsgId);
 
             let updatedProduction = EmbedBuilder.from(volunteerMsg.embeds[0]).setFields(field);
             await volunteerMsg.edit({embeds: [updatedProduction]});
             await unVolunteerMsg.edit({embeds: [updatedProduction]});
-            const currProChannel = await interaction.guild?.channels.cache.find(ch => ch.id === currentProduction.channelId) as BaseGuildTextChannel;
+            const currProChannel = await interaction.guild?.channels.fetch(currentProduction.channelId) as BaseGuildTextChannel;
             await currProChannel.permissionOverwrites.delete(interaction.user.id);
             await interaction.reply(`${userMention(interaction.user.id)} has unvolunteered this production!`);
         });

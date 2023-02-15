@@ -60,11 +60,12 @@ export const productionEditor: CustomId = {
         else
             production.addFields({ name: "Volunteers", value: `${volunteers}`});
 
-        const volChl = interaction.guild?.channels.cache.find(ch => ch.id === proChannel) as GuildTextBasedChannel;
+        const volChl = await interaction.guild?.channels.fetch(proChannel) as GuildTextBasedChannel;
         const volunteerMsg = await volChl.messages.fetch(currentProduction.volunteerMsgId);
 
-        const unVolChl = interaction.guild?.channels.cache.find(ch => ch.id === currentProduction.channelId) as GuildTextBasedChannel;
+        const unVolChl = await interaction.guild?.channels.fetch(currentProduction.channelId) as GuildTextBasedChannel;
         const unVolunteerMsg = await unVolChl.messages.fetch(currentProduction.unVolunteerMsgId);
+
         await productionsRef.update({
             productions: FieldValue.arrayRemove(currentProduction)
         })
