@@ -1,5 +1,5 @@
 import { ObjectType, Field } from "@nestjs/graphql";
-import {IsString, IsUUID} from "class-validator";
+import { IsString, IsUUID } from "class-validator";
 import { GraphQLUUID } from "graphql-scalars";
 
 @ObjectType()
@@ -38,5 +38,4 @@ export class Stream {
     @IsString()
     @Field(() => String, { nullable: true })
     message: string | null;
-
 }

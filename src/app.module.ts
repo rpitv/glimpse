@@ -40,7 +40,7 @@ import { VideoModule } from "./types/video/video.module";
 import { VoteModule } from "./types/vote/vote.module";
 import { VoteResponseModule } from "./types/vote_response/vote_response.module";
 import { GraphQLCustomRuleDirective, GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
-import {StreamModule} from "./types/stream/stream.module";
+import { StreamModule } from "./types/stream/stream.module";
 
 @Module({
     imports: [
