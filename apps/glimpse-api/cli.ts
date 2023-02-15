@@ -298,34 +298,4 @@ async function userCount(): Promise<number> {
             }
         }
     }
-
-    // const rl = readline.createInterface({ input, output });
-    // let answer = null;
-    //
-    // while(answer !== "y" && answer !== "n") {
-    //     answer = (await rl.question("This script will create the Guest group with permissions to manage all " +
-    //         "resources. This should only be used in setup, and the Guest group's permissions should be modified " +
-    //         "manually immediately after. Are you sure you want to continue? (y/N)")).toLowerCase();
-    //
-    //     if(answer === "") {
-    //         answer = "n";
-    //     } else if(answer !== "y" && answer !== "n") {
-    //         console.log("Invalid answer. Please enter 'y' or 'n'.");
-    //     }
-    // }
-    //
-    // if(answer === "n") {
-    //     return await exit();
-    // }
-    //
-    // const guestGroup = await getGroup(1);
-    // if (guestGroup) {
-    //     console.log("Guest group already exists.");
-    //     return await exit();
-    // }
-    //
-    // await createGuestGroup("Guest");
-    //
-    // console.log("Created Guest group with permissions to manage all resources. Please create an admin account and " +
-    //     "modify the guest permissions as soon as possible.");
 })();
