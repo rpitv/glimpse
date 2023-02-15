@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { CreditResolver } from "./credit.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("CreditResolver", () => {
     let resolver: CreditResolver;
 
     beforeEach(async () => {

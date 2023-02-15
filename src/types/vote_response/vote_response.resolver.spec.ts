@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { VoteResponseResolver } from "./vote_response.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("VoteResponseResolver", () => {
     let resolver: VoteResponseResolver;
 
     beforeEach(async () => {

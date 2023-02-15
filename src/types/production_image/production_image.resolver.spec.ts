@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ProductionImageResolver } from "./production_image.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("ProductionImageResolver", () => {
     let resolver: ProductionImageResolver;
 
     beforeEach(async () => {
