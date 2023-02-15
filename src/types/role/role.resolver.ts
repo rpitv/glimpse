@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -53,7 +53,7 @@ export class RoleResolver {
 
     @Query(() => Role, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Role)")
-    async findOneRole(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Role> {
+    async findOneRole(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Role> {
         this.logger.verbose("findOneRole resolver called");
         return ctx.req.prismaTx.role.findFirst({
             where: {
@@ -94,7 +94,7 @@ export class RoleResolver {
     @Directive("@rule(ruleType: Update, subject: Role)")
     async updateRole(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateRoleInput }) input: UpdateRoleInput
     ): Promise<Role> {
         this.logger.verbose("updateRole resolver called");
@@ -144,7 +144,7 @@ export class RoleResolver {
 
     @Mutation(() => Role, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Role)")
-    async deleteRole(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Role> {
+    async deleteRole(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Role> {
         this.logger.verbose("deleteRole resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.role.findFirst({

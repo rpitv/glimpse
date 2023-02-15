@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -54,7 +54,7 @@ export class CreditResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Credit)")
     async findOneCredit(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Credit> {
         this.logger.verbose("findOneCredit resolver called");
         return ctx.req.prismaTx.credit.findFirst({
@@ -96,7 +96,7 @@ export class CreditResolver {
     @Directive("@rule(ruleType: Update, subject: Credit)")
     async updateCredit(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateCreditInput }) input: UpdateCreditInput
     ): Promise<Credit> {
         this.logger.verbose("updateCredit resolver called");
@@ -146,7 +146,7 @@ export class CreditResolver {
 
     @Mutation(() => Credit, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Credit)")
-    async deleteCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Credit> {
+    async deleteCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Credit> {
         this.logger.verbose("deleteCredit resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.credit.findFirst({

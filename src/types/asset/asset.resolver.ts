@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -51,7 +51,7 @@ export class AssetResolver {
 
     @Query(() => Asset, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Asset)")
-    async findOneAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
+    async findOneAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Asset> {
         this.logger.verbose("findOneAsset resolver called");
         return ctx.req.prismaTx.asset.findFirst({
             where: {
@@ -92,7 +92,7 @@ export class AssetResolver {
     @Directive("@rule(ruleType: Update, subject: Asset)")
     async updateAsset(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateAssetInput }) input: UpdateAssetInput
     ): Promise<Asset> {
         this.logger.verbose("updateAsset resolver called");
@@ -142,7 +142,7 @@ export class AssetResolver {
 
     @Mutation(() => Asset, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Asset)")
-    async deleteAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Asset> {
+    async deleteAsset(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Asset> {
         this.logger.verbose("deleteAsset resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.asset.findFirst({

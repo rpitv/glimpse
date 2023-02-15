@@ -3,7 +3,7 @@ import {
     ComplexityEstimatorArgs,
     Context,
     createUnionType,
-    Directive,
+    Directive, ID,
     Int,
     Mutation,
     Parent,
@@ -82,7 +82,7 @@ export class UserPermissionResolver {
     @Directive("@rule(ruleType: ReadOne, subject: UserPermission)")
     async findOneUserPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<UserPermission> {
         this.logger.verbose("findOneUserPermission resolver called");
         return ctx.req.prismaTx.userPermission.findFirst({
@@ -124,7 +124,7 @@ export class UserPermissionResolver {
     @Directive("@rule(ruleType: Update, subject: UserPermission)")
     async updateUserPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateUserPermissionInput }) input: UpdateUserPermissionInput
     ): Promise<UserPermission> {
         this.logger.verbose("updateUserPermission resolver called");
@@ -176,7 +176,7 @@ export class UserPermissionResolver {
     @Directive("@rule(ruleType: Delete, subject: UserPermission)")
     async deleteUserPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<UserPermission> {
         this.logger.verbose("deleteUserPermission resolver called");
 
@@ -255,7 +255,7 @@ export class UserPermissionResolver {
     @Directive('@custom_rule(name: "permissionsFor", options: { name: "Permissions for user" })')
     async permissionsFor(
         @Context() ctx: { req: Request },
-        @Args("userId", { type: () => Int, nullable: true }) userId: number
+        @Args("userId", { type: () => ID, nullable: true }) userId: number
     ): Promise<(typeof PermissionUnion)[] | null> {
         this.logger.verbose("permissionsFor resolver called");
         let user = null;

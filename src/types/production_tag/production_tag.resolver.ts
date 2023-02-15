@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -52,7 +52,7 @@ export class ProductionTagResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionTag)")
     async findOneProductionTag(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionTag> {
         this.logger.verbose("findOneProductionTag resolver called");
         return ctx.req.prismaTx.productionTag.findFirst({
@@ -94,7 +94,7 @@ export class ProductionTagResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionTag)")
     async deleteProductionTag(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionTag> {
         this.logger.verbose("deleteProductionTag resolver called");
 

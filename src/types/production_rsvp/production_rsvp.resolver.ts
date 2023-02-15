@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -54,7 +54,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionRSVP)")
     async findOneProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionRSVP> {
         this.logger.verbose("findOneProductionRSVP resolver called");
         return ctx.req.prismaTx.productionRSVP.findFirst({
@@ -96,7 +96,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: Update, subject: ProductionRSVP)")
     async updateProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
     ): Promise<ProductionRSVP> {
         this.logger.verbose("updateProductionRSVP resolver called");
@@ -148,7 +148,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionRSVP)")
     async deleteProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionRSVP> {
         this.logger.verbose("deleteProductionRSVP resolver called");
 

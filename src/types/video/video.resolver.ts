@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -52,7 +52,7 @@ export class VideoResolver {
 
     @Query(() => Video, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Video)")
-    async findOneVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Video> {
+    async findOneVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Video> {
         this.logger.verbose("findOneVideo resolver called");
         return ctx.req.prismaTx.video.findFirst({
             where: {
@@ -93,7 +93,7 @@ export class VideoResolver {
     @Directive("@rule(ruleType: Update, subject: Video)")
     async updateVideo(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateVideoInput }) input: UpdateVideoInput
     ): Promise<Video> {
         this.logger.verbose("updateVideo resolver called");
@@ -143,7 +143,7 @@ export class VideoResolver {
 
     @Mutation(() => Video, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Video)")
-    async deleteVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Video> {
+    async deleteVideo(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Video> {
         this.logger.verbose("deleteVideo resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.video.findFirst({

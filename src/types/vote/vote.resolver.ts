@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -53,7 +53,7 @@ export class VoteResolver {
 
     @Query(() => Vote, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Vote)")
-    async findOneVote(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Vote> {
+    async findOneVote(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Vote> {
         this.logger.verbose("findOneVote resolver called");
         return ctx.req.prismaTx.vote.findFirst({
             where: {
@@ -94,7 +94,7 @@ export class VoteResolver {
     @Directive("@rule(ruleType: Update, subject: Vote)")
     async updateVote(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateVoteInput }) input: UpdateVoteInput
     ): Promise<Vote> {
         this.logger.verbose("updateVote resolver called");
@@ -144,7 +144,7 @@ export class VoteResolver {
 
     @Mutation(() => Vote, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Vote)")
-    async deleteVote(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Vote> {
+    async deleteVote(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Vote> {
         this.logger.verbose("deleteVote resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.vote.findFirst({

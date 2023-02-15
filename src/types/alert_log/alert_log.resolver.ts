@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -52,7 +52,7 @@ export class AlertLogResolver {
     @Directive("@rule(ruleType: ReadOne, subject: AlertLog)")
     async findOneAlertLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<AlertLog> {
         this.logger.verbose("findOneAlertLog resolver called");
         return ctx.req.prismaTx.alertLog.findFirst({
@@ -94,7 +94,7 @@ export class AlertLogResolver {
     @Directive("@rule(ruleType: Update, subject: AlertLog)")
     async updateAlertLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateAlertLogInput }) input: UpdateAlertLogInput
     ): Promise<AlertLog> {
         this.logger.verbose("updateAlertLog resolver called");
