@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -55,7 +55,7 @@ export class GroupResolver {
 
     @Query(() => Group, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Group)")
-    async findOneGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Group> {
+    async findOneGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Group> {
         this.logger.verbose("findOneGroup resolver called");
         return ctx.req.prismaTx.group.findFirst({
             where: {
@@ -96,7 +96,7 @@ export class GroupResolver {
     @Directive("@rule(ruleType: Update, subject: Group)")
     async updateGroup(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateGroupInput }) input: UpdateGroupInput
     ): Promise<Group> {
         this.logger.verbose("updateGroup resolver called");
@@ -146,7 +146,7 @@ export class GroupResolver {
 
     @Mutation(() => Group, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Group)")
-    async deleteGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Group> {
+    async deleteGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Group> {
         this.logger.verbose("deleteGroup resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.group.findFirst({

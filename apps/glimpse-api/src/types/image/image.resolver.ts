@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -60,7 +60,7 @@ export class ImageResolver {
 
     @Query(() => Image, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Image)")
-    async findOneImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Image> {
+    async findOneImage(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Image> {
         this.logger.verbose("findOneImage resolver called");
         return ctx.req.prismaTx.image.findFirst({
             where: {
@@ -101,7 +101,7 @@ export class ImageResolver {
     @Directive("@rule(ruleType: Update, subject: Image)")
     async updateImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateImageInput }) input: UpdateImageInput
     ): Promise<Image> {
         this.logger.verbose("updateImage resolver called");
@@ -151,7 +151,7 @@ export class ImageResolver {
 
     @Mutation(() => Image, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Image)")
-    async deleteImage(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Image> {
+    async deleteImage(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Image> {
         this.logger.verbose("deleteImage resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.image.findFirst({

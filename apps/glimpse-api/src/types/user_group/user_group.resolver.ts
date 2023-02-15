@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -23,7 +23,7 @@ export class UserGroupResolver {
     @Directive("@rule(ruleType: ReadOne, subject: UserGroup)")
     async findOneUserGroup(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<UserGroup> {
         this.logger.verbose("findOneUserGroup resolver called");
         return ctx.req.prismaTx.userGroup.findFirst({
@@ -65,7 +65,7 @@ export class UserGroupResolver {
     @Directive("@rule(ruleType: Delete, subject: UserGroup)")
     async deleteUserGroup(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<UserGroup> {
         this.logger.verbose("deleteUserGroup resolver called");
 

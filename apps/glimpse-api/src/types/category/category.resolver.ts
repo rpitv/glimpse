@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -55,7 +55,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Category)")
     async findOneCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Category> {
         this.logger.verbose("findOneCategory resolver called");
         return ctx.req.prismaTx.category.findFirst({
@@ -97,7 +97,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: Update, subject: Category)")
     async updateCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateCategoryInput }) input: UpdateCategoryInput
     ): Promise<Category> {
         this.logger.verbose("updateCategory resolver called");
@@ -149,7 +149,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: Delete, subject: Category)")
     async deleteCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Category> {
         this.logger.verbose("deleteCategory resolver called");
 

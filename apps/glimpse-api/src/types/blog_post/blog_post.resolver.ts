@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -53,7 +53,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: ReadOne, subject: BlogPost)")
     async findOneBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<BlogPost> {
         this.logger.verbose("findOneBlogPost resolver called");
         return ctx.req.prismaTx.blogPost.findFirst({
@@ -95,7 +95,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: Update, subject: BlogPost)")
     async updateBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateBlogPostInput }) input: UpdateBlogPostInput
     ): Promise<BlogPost> {
         this.logger.verbose("updateBlogPost resolver called");
@@ -147,7 +147,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: Delete, subject: BlogPost)")
     async deleteBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<BlogPost> {
         this.logger.verbose("deleteBlogPost resolver called");
 

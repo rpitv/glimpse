@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -53,7 +53,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: ReadOne, subject: GroupPermission)")
     async findOneGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<GroupPermission> {
         this.logger.verbose("findOneGroupPermission resolver called");
         return ctx.req.prismaTx.groupPermission.findFirst({
@@ -95,7 +95,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: Update, subject: GroupPermission)")
     async updateGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateGroupPermissionInput }) input: UpdateGroupPermissionInput
     ): Promise<GroupPermission> {
         this.logger.verbose("updateGroupPermission resolver called");
@@ -147,7 +147,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: Delete, subject: GroupPermission)")
     async deleteGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<GroupPermission> {
         this.logger.verbose("deleteGroupPermission resolver called");
 

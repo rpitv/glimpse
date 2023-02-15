@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive, ID} from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
@@ -58,7 +58,7 @@ export class AuditLogResolver {
     @Directive("@rule(ruleType: ReadOne, subject: AuditLog)")
     async findOneAuditLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<AuditLog> {
         this.logger.verbose("findOneAuditLog resolver called");
         return ctx.req.prismaTx.auditLog.findFirst({

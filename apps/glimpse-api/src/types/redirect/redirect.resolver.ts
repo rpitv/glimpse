@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -52,7 +52,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Redirect)")
     async findOneRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Redirect> {
         this.logger.verbose("findOneRedirect resolver called");
         return ctx.req.prismaTx.redirect.findFirst({
@@ -94,7 +94,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: Update, subject: Redirect)")
     async updateRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateRedirectInput }) input: UpdateRedirectInput
     ): Promise<Redirect> {
         this.logger.verbose("updateRedirect resolver called");
@@ -146,7 +146,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: Delete, subject: Redirect)")
     async deleteRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Redirect> {
         this.logger.verbose("deleteRedirect resolver called");
 
