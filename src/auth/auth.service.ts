@@ -4,6 +4,7 @@ import { argon2id, verify, hash } from "argon2";
 import { User } from "@prisma/client";
 import { Request } from "express";
 
+// These are duplicated in /cli.ts. If you change them here, change them there too.
 export const PASSWORD_HASH_OPTIONS = {
     type: argon2id,
     memoryCost: 32768, // 32MiB
