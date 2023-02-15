@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ProductionTagResolver } from "./production_tag.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("ProductionTagResolver", () => {
     let resolver: ProductionTagResolver;
 
     beforeEach(async () => {

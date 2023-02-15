@@ -32,6 +32,7 @@
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.9.0",
+    "amqplib": "^0.10.3",
     "apollo-server-express": "^3.11.1",
     "argon2": "^0.30.3",
     "class-transformer": "^0.5.1",

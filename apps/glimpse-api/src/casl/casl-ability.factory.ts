@@ -30,6 +30,7 @@ import { Video } from "../types/video/video.entity";
 import { Vote } from "../types/vote/vote.entity";
 import { VoteResponse } from "../types/vote_response/vote_response.entity";
 import { GraphQLEnumType } from "graphql/type";
+import {Stream} from "../types/stream/stream.entity";
 
 type ValueOf<T> = T[keyof T];
 
@@ -73,6 +74,7 @@ export const AbilitySubjectsMap = {
     Production,
     Redirect,
     Role,
+    Stream,
     UserGroup,
     UserPermission,
     Video,

@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { RoleResolver } from "./role.resolver";
 import { PrismaService } from "../../prisma/prisma.service";
 
-describe("AlertLogResolver", () => {
+describe("RoleResolver", () => {
     let resolver: RoleResolver;
 
     beforeEach(async () => {
