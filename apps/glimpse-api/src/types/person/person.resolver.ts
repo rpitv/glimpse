@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -66,7 +66,7 @@ export class PersonResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Person)")
     async findOnePerson(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<Person> {
         this.logger.verbose("findOnePerson resolver called");
         return ctx.req.prismaTx.person.findFirst({
@@ -108,7 +108,7 @@ export class PersonResolver {
     @Directive("@rule(ruleType: Update, subject: Person)")
     async updatePerson(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdatePersonInput }) input: UpdatePersonInput
     ): Promise<Person> {
         this.logger.verbose("updatePerson resolver called");
@@ -158,7 +158,7 @@ export class PersonResolver {
 
     @Mutation(() => Person, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Person)")
-    async deletePerson(@Context() ctx: { req: Request }, @Args("id", { type: () => Int }) id: number): Promise<Person> {
+    async deletePerson(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Person> {
         this.logger.verbose("deletePerson resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.person.findFirst({

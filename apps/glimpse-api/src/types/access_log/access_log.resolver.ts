@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive } from "@nestjs/graphql";
+import {Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive, ID} from "@nestjs/graphql";
 import { AccessLog } from "./access_log.entity";
 import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
@@ -47,7 +47,7 @@ export class AccessLogResolver {
     @Directive("@rule(ruleType: ReadOne, subject: AccessLog)")
     async findOneAccessLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<AccessLog> {
         this.logger.verbose("findOneAccessLog resolver called");
         return ctx.req.prismaTx.accessLog.findFirst({

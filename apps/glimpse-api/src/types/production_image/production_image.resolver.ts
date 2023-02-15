@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent } from "@nestjs/graphql";
+import {Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID} from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -24,7 +24,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionImage)")
     async findOneProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionImage> {
         this.logger.verbose("findOneProductionImage resolver called");
         return ctx.req.prismaTx.productionImage.findFirst({
@@ -66,7 +66,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: Update, subject: ProductionImage)")
     async updateProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number,
+        @Args("id", { type: () => ID }) id: number,
         @Args("input", { type: () => UpdateProductionImageInput }) input: UpdateProductionImageInput
     ): Promise<ProductionImage> {
         this.logger.verbose("updateProductionImage resolver called");
@@ -118,7 +118,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionImage)")
     async deleteProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => ID }) id: number
     ): Promise<ProductionImage> {
         this.logger.verbose("deleteProductionImage resolver called");
 
