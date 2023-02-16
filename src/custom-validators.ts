@@ -30,7 +30,7 @@ THE SOFTWARE.
  * Checks if the first number is a BigInt and greater than or equal to the second.
  */
 export function bigIntMin(num: unknown, min: bigint): boolean {
-    return typeof num === "bigint" && typeof min === "bigint" && num >= min;
+    return typeof num === "bigint" && num >= min;
 }
 
 /**
