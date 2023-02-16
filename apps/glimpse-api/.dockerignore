@@ -1,6 +1,7 @@
 .db-data
 .husky
 .redis-data
+.github
 
 cert
 dist
