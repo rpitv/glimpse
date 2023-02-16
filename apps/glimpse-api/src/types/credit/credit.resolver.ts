@@ -1,20 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Credit } from "./credit.entity";
-import { FilterCreditInput } from "./dto/filter-credit.input";
-import { OrderCreditInput } from "./dto/order-credit.input";
-import { CreateCreditInput } from "./dto/create-credit.input";
-import { UpdateCreditInput } from "./dto/update-credit.input";
-import { Person } from "../person/person.entity";
-import { Production } from "../production/production.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Credit} from "./credit.entity";
+import {FilterCreditInput} from "./dto/filter-credit.input";
+import {OrderCreditInput} from "./dto/order-credit.input";
+import {CreateCreditInput} from "./dto/create-credit.input";
+import {UpdateCreditInput} from "./dto/update-credit.input";
+import {Person} from "../person/person.entity";
+import {Production} from "../production/production.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Credit)
 export class CreditResolver {
@@ -52,7 +53,10 @@ export class CreditResolver {
 
     @Query(() => Credit, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Credit)")
-    async findOneCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Credit> {
+    async findOneCredit(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Credit> {
         this.logger.verbose("findOneCredit resolver called");
         return ctx.req.prismaTx.credit.findFirst({
             where: {
@@ -93,7 +97,7 @@ export class CreditResolver {
     @Directive("@rule(ruleType: Update, subject: Credit)")
     async updateCredit(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateCreditInput }) input: UpdateCreditInput
     ): Promise<Credit> {
         this.logger.verbose("updateCredit resolver called");
@@ -143,7 +147,10 @@ export class CreditResolver {
 
     @Mutation(() => Credit, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Credit)")
-    async deleteCredit(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Credit> {
+    async deleteCredit(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Credit> {
         this.logger.verbose("deleteCredit resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.credit.findFirst({

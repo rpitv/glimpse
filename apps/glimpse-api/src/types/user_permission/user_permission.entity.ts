@@ -1,7 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsBoolean, IsInt, IsObject, MaxLength, Min } from "class-validator";
-import { UserPermission as PrismaUserPermission, Prisma } from "@prisma/client";
-import { GraphQLJSON } from "graphql-scalars";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsBoolean, IsObject, MaxLength} from "class-validator";
+import {Prisma, UserPermission as PrismaUserPermission} from "@prisma/client";
+import {GraphQLBigInt, GraphQLJSON} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class UserPermission implements PrismaUserPermission {
@@ -15,17 +16,15 @@ export class UserPermission implements PrismaUserPermission {
     /**
      * Unique ID for this UserPermission. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the user which this UserPermission is for.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     userId: bigint | null;
 
     /**

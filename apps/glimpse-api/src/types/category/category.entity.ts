@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsInt, MaxLength, Min } from "class-validator";
-import { Category as PrismaCategory } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {IsInt, MaxLength} from "class-validator";
+import {Category as PrismaCategory} from "@prisma/client";
+import {BigIntMin} from "../../custom-validators";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @ObjectType()
 export class Category implements PrismaCategory {
@@ -14,9 +16,8 @@ export class Category implements PrismaCategory {
     /**
      * Unique ID for this category. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -36,8 +37,7 @@ export class Category implements PrismaCategory {
     /**
      * The ID of the parent category, or null if this is a top-level category.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     parentId: bigint | null;
 }

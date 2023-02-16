@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { Asset as PrismaAsset } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {IsDate, IsInt, MaxLength, Min} from "class-validator";
+import {Asset as PrismaAsset} from "@prisma/client";
+import {BigIntMin} from "../../custom-validators";
+import {GraphQLBigInt} from "graphql-scalars";
 
 /**
  * Assets are the physical objects that are property of RPI TV, or are otherwise managed and tracked by RPI TV.
@@ -28,9 +30,8 @@ export class Asset implements PrismaAsset {
     /**
      * Unique ID for this asset. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -62,8 +63,8 @@ export class Asset implements PrismaAsset {
     /**
      * The user ID of the user who last checked this asset out/in.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     lastKnownHandlerId: bigint | null;
 
     /**
@@ -135,7 +136,7 @@ export class Asset implements PrismaAsset {
      * scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
      * set to null.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     parentId: bigint | null;
 }

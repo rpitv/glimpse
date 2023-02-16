@@ -1,21 +1,22 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Vote } from "./vote.entity";
-import { FilterVoteInput } from "./dto/filter-vote.input";
-import { OrderVoteInput } from "./dto/order-vote.input";
-import { CreateVoteInput } from "./dto/create-vote.input";
-import { UpdateVoteInput } from "./dto/update-vote.input";
-import { VoteResponse } from "../vote_response/vote_response.entity";
-import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_response.input";
-import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Vote} from "./vote.entity";
+import {FilterVoteInput} from "./dto/filter-vote.input";
+import {OrderVoteInput} from "./dto/order-vote.input";
+import {CreateVoteInput} from "./dto/create-vote.input";
+import {UpdateVoteInput} from "./dto/update-vote.input";
+import {VoteResponse} from "../vote_response/vote_response.entity";
+import {FilterVoteResponseInput} from "../vote_response/dto/filter-vote_response.input";
+import {OrderVoteResponseInput} from "../vote_response/dto/order-vote_response.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Vote)
 export class VoteResolver {
@@ -53,7 +54,10 @@ export class VoteResolver {
 
     @Query(() => Vote, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Vote)")
-    async findOneVote(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Vote> {
+    async findOneVote(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Vote> {
         this.logger.verbose("findOneVote resolver called");
         return ctx.req.prismaTx.vote.findFirst({
             where: {
@@ -94,7 +98,7 @@ export class VoteResolver {
     @Directive("@rule(ruleType: Update, subject: Vote)")
     async updateVote(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateVoteInput }) input: UpdateVoteInput
     ): Promise<Vote> {
         this.logger.verbose("updateVote resolver called");
@@ -144,7 +148,10 @@ export class VoteResolver {
 
     @Mutation(() => Vote, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Vote)")
-    async deleteVote(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Vote> {
+    async deleteVote(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Vote> {
         this.logger.verbose("deleteVote resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.vote.findFirst({

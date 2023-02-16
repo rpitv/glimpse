@@ -1,7 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsInt, IsObject, MaxLength, Min } from "class-validator";
-import { Prisma, Video as PrismaVideo } from "@prisma/client";
-import { GraphQLJSON } from "graphql-scalars";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsObject, MaxLength} from "class-validator";
+import {Prisma, Video as PrismaVideo} from "@prisma/client";
+import {GraphQLBigInt, GraphQLJSON} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class Video implements PrismaVideo {
@@ -15,9 +16,8 @@ export class Video implements PrismaVideo {
     /**
      * Unique ID for this Video. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**

@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { BlogPost as PrismaBlogPost } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsDate, MaxLength} from "class-validator";
+import {BlogPost as PrismaBlogPost} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class BlogPost implements PrismaBlogPost {
@@ -14,9 +16,8 @@ export class BlogPost implements PrismaBlogPost {
     /**
      * Unique ID for this blog post. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -42,7 +43,8 @@ export class BlogPost implements PrismaBlogPost {
     /**
      * The User ID of the author of this blog post.
      */
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     authorId: bigint | null;
 
     /**

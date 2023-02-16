@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { ContactSubmission } from "./contact_submission.entity";
-import { FilterContactSubmissionInput } from "./dto/filter-contact_submission.input";
-import { OrderContactSubmissionInput } from "./dto/order-contact_submission.input";
-import { CreateContactSubmissionInput } from "./dto/create-contact_submission.input";
-import { UpdateContactSubmissionInput } from "./dto/update-contact_submission.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {ContactSubmission} from "./contact_submission.entity";
+import {FilterContactSubmissionInput} from "./dto/filter-contact_submission.input";
+import {OrderContactSubmissionInput} from "./dto/order-contact_submission.input";
+import {CreateContactSubmissionInput} from "./dto/create-contact_submission.input";
+import {UpdateContactSubmissionInput} from "./dto/update-contact_submission.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
@@ -54,7 +55,7 @@ export class ContactSubmissionResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ContactSubmission)")
     async findOneContactSubmission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ContactSubmission> {
         this.logger.verbose("findOneContactSubmission resolver called");
         return ctx.req.prismaTx.contactSubmission.findFirst({
@@ -96,7 +97,7 @@ export class ContactSubmissionResolver {
     @Directive("@rule(ruleType: Update, subject: ContactSubmission)")
     async updateContactSubmission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateContactSubmissionInput }) input: UpdateContactSubmissionInput
     ): Promise<ContactSubmission> {
         this.logger.verbose("updateContactSubmission resolver called");
@@ -148,7 +149,7 @@ export class ContactSubmissionResolver {
     @Directive("@rule(ruleType: Delete, subject: ContactSubmission)")
     async deleteContactSubmission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ContactSubmission> {
         this.logger.verbose("deleteContactSubmission resolver called");
 

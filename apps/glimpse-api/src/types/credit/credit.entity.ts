@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsInt, MaxLength, Min } from "class-validator";
-import { Credit as PrismaCredit } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {IsInt, MaxLength} from "class-validator";
+import {Credit as PrismaCredit} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class Credit implements PrismaCredit {
@@ -14,9 +16,8 @@ export class Credit implements PrismaCredit {
     /**
      * Unique ID for this Credit. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -36,16 +37,14 @@ export class Credit implements PrismaCredit {
     /**
      * The ID of the person this Credit belongs to.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     personId: bigint | null;
 
     /**
      * The ID of the production this Credit is for.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     productionId: bigint | null;
 }

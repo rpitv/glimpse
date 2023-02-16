@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { ProductionVideo } from "./production_video.entity";
-import { FilterProductionVideoInput } from "./dto/filter-production_video.input";
-import { CreateProductionVideoInput } from "./dto/create-production_video.input";
-import { UpdateProductionVideoInput } from "./dto/update-production_video.input";
-import { Production } from "../production/production.entity";
-import { Video } from "../video/video.entity";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {ProductionVideo} from "./production_video.entity";
+import {FilterProductionVideoInput} from "./dto/filter-production_video.input";
+import {CreateProductionVideoInput} from "./dto/create-production_video.input";
+import {UpdateProductionVideoInput} from "./dto/update-production_video.input";
+import {Production} from "../production/production.entity";
+import {Video} from "../video/video.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => ProductionVideo)
 export class ProductionVideoResolver {
@@ -24,7 +25,7 @@ export class ProductionVideoResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionVideo)")
     async findOneProductionVideo(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionVideo> {
         this.logger.verbose("findOneProductionVideo resolver called");
         return ctx.req.prismaTx.productionVideo.findFirst({
@@ -66,7 +67,7 @@ export class ProductionVideoResolver {
     @Directive("@rule(ruleType: Update, subject: ProductionVideo)")
     async updateProductionVideo(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateProductionVideoInput }) input: UpdateProductionVideoInput
     ): Promise<ProductionVideo> {
         this.logger.verbose("updateProductionVideo resolver called");
@@ -118,7 +119,7 @@ export class ProductionVideoResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionVideo)")
     async deleteProductionVideo(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionVideo> {
         this.logger.verbose("deleteProductionVideo resolver called");
 

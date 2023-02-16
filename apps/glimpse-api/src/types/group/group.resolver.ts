@@ -1,23 +1,24 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Group } from "./group.entity";
-import { FilterGroupInput } from "./dto/filter-group.input";
-import { OrderGroupInput } from "./dto/order-group.input";
-import { CreateGroupInput } from "./dto/create-group.input";
-import { UpdateGroupInput } from "./dto/update-group.input";
-import { GroupPermission } from "../group_permission/group_permission.entity";
-import { FilterGroupPermissionInput } from "../group_permission/dto/filter-group_permission.input";
-import { OrderGroupPermissionInput } from "../group_permission/dto/order-group_permission.input";
-import { UserGroup } from "../user_group/user_group.entity";
-import { FilterUserGroupInput } from "../user_group/dto/filter-user_group.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Group} from "./group.entity";
+import {FilterGroupInput} from "./dto/filter-group.input";
+import {OrderGroupInput} from "./dto/order-group.input";
+import {CreateGroupInput} from "./dto/create-group.input";
+import {UpdateGroupInput} from "./dto/update-group.input";
+import {GroupPermission} from "../group_permission/group_permission.entity";
+import {FilterGroupPermissionInput} from "../group_permission/dto/filter-group_permission.input";
+import {OrderGroupPermissionInput} from "../group_permission/dto/order-group_permission.input";
+import {UserGroup} from "../user_group/user_group.entity";
+import {FilterUserGroupInput} from "../user_group/dto/filter-user_group.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Group)
 export class GroupResolver {
@@ -55,7 +56,10 @@ export class GroupResolver {
 
     @Query(() => Group, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Group)")
-    async findOneGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Group> {
+    async findOneGroup(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Group> {
         this.logger.verbose("findOneGroup resolver called");
         return ctx.req.prismaTx.group.findFirst({
             where: {
@@ -96,7 +100,7 @@ export class GroupResolver {
     @Directive("@rule(ruleType: Update, subject: Group)")
     async updateGroup(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateGroupInput }) input: UpdateGroupInput
     ): Promise<Group> {
         this.logger.verbose("updateGroup resolver called");
@@ -146,7 +150,10 @@ export class GroupResolver {
 
     @Mutation(() => Group, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Group)")
-    async deleteGroup(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Group> {
+    async deleteGroup(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Group> {
         this.logger.verbose("deleteGroup resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.group.findFirst({

@@ -1,6 +1,7 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsInt, Min } from "class-validator";
-import { PersonImage as PrismaPersonImage } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {PersonImage as PrismaPersonImage} from "@prisma/client";
+import {BigIntMin} from "../../custom-validators";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @ObjectType()
 export class PersonImage implements PrismaPersonImage {
@@ -14,23 +15,22 @@ export class PersonImage implements PrismaPersonImage {
     /**
      * Unique ID for this PersonImage. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the person this PersonImage is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     personId: bigint | null;
 
     /**
      * ID of the image this PersonImage is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     imageId: bigint | null;
 
     /**

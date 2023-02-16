@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { Production as PrismaProduction } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsDate, MaxLength} from "class-validator";
+import {Production as PrismaProduction} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class Production implements PrismaProduction {
@@ -14,9 +16,8 @@ export class Production implements PrismaProduction {
     /**
      * Unique ID for this Production. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -51,9 +52,8 @@ export class Production implements PrismaProduction {
     /**
      * The ID of the category which this Production belongs to.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     categoryId: bigint | null;
 
     /**
@@ -101,7 +101,7 @@ export class Production implements PrismaProduction {
     /**
      * The ID of the Image which should be used as the thumbnail for this Production.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     thumbnailId: bigint | null;
 }

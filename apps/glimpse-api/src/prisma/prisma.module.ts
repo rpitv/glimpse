@@ -1,8 +1,8 @@
-import { Module } from "@nestjs/common";
-import { AuditLogEntry, PrismaService } from "./prisma.service";
-import { PrismaInterceptor } from "./prisma.interceptor";
-import { AuditLog } from "../types/audit_log/audit_log.entity";
-import { PrismaPlugin } from "./prisma.plugin";
+import {Module} from "@nestjs/common";
+import {AuditLogEntry, PrismaService} from "./prisma.service";
+import {PrismaInterceptor} from "./prisma.interceptor";
+import {AuditLog} from "../types/audit_log/audit_log.entity";
+import {PrismaPlugin} from "./prisma.plugin";
 
 @Module({
     providers: [
@@ -11,6 +11,9 @@ import { PrismaPlugin } from "./prisma.plugin";
             useFactory: () => {
                 return new PrismaService().$extends({
                     client: {
+                        isTransaction(): boolean {
+                            return typeof this.$use !== "function";
+                        },
                         async genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
                             if (Array.isArray(entry)) {
                                 return Promise.all(entry.map((entry) => this.genAuditLog(entry)));
