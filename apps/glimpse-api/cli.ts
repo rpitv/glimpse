@@ -3,6 +3,44 @@ import * as readline from "node:readline/promises";
 import { Writable } from "node:stream";
 import { argon2id, hash } from "argon2";
 
+enum Color {
+    Reset = "0",
+    Bold = "1",
+    Dim = "2",
+    Italic = "3",
+    Underline = "4",
+    Red = "31",
+    Green = "32",
+    Yellow = "33",
+    Blue = "34",
+    Magenta = "35",
+    Cyan = "36",
+    White = "37",
+}
+
+let asciiArt = "" +
+    "                                          *******************                     \n" +
+    "                              ****             ****************************       \n" +
+    "                                                            ******************    \n" +
+    "                                      ▄▄      ██      ██           ************** \n" +
+    "          *     ▄ ▄▄▄▄   ▄ ▄▄▄▄▄▄             ██     ████              ***********\n" +
+    "      ***       ▀██  ██  ▀██▀   ██   ▀██      ██      ██    ▀█▀  █▀      ******** \n" +
+    "    *****        ██       ██    ██    ██      ██      ██     █████        ******  \n" +
+    "  ********      ▄██▄      ███████   ██████    ██      ████    ███         ***     \n" +
+    "  **********              ██                  ██                        *         \n" +
+    "  ***************       ▄████▄                ██                                  \n" +
+    "    *******************                                                           \n" +
+    "         *******************************************                              \n" +
+    "                      ************                                                \n" +
+    "                                               ";
+
+asciiArt = asciiArt.replace(/(\*+)/g, style("$1", [Color.Red, Color.Bold]));
+
+function style(text: string, color: Color|Color[]): string {
+    const control = Array.isArray(color) ? color.join(";") : color;
+    return `\x1b[${control}m${text}\x1b[${Color.Reset}m`;
+}
+
 const prisma = new PrismaClient();
 
 // These are copy-pasted from src/auth/auth.service.ts. If you change them here, change them there too.
@@ -49,20 +87,18 @@ commands.set(["help", "h"], {
     name: "Help",
     description: "Display this help message.",
     run: async () => {
-        console.log("\tUsage");
-        console.log("\t------");
-        console.log('\t"npm run cli" for interactive mode.');
-        console.log('\t"npm run cli -- <commands>" for non-interactive mode.');
-        console.log("");
-        console.log("\tCommands\t\tDescription");
-        console.log("\t------------------------------------");
-
         let minTabCount = 1;
         for (const [names] of commands) {
             const namesLength = names.join(", ").length;
             const tabCount = Math.ceil(namesLength / 8);
             minTabCount = Math.max(minTabCount, tabCount);
         }
+
+        console.log(style("\tUsage", [Color.Cyan, Color.Underline, Color.Bold]));
+        console.log('\t"npm run cli" for interactive mode.');
+        console.log('\t"npm run cli -- <commands>" for non-interactive mode.');
+        console.log("");
+        console.log(style(`\tCommands${"\t".repeat(minTabCount)}Description`, [Color.Cyan, Color.Underline, Color.Bold]));
 
         const descriptionWidth = process.stdout.columns - (minTabCount + 3) * 8 - 5;
 
@@ -82,7 +118,7 @@ commands.set(["help", "h"], {
             }
             descriptionLines.push(nextLine);
 
-            mutableStdout.write(`\t${commandsString}${tabStr}`);
+            mutableStdout.write(style(`\t${commandsString}${tabStr}`, [Color.Bold]));
             for (let i = 0; i < descriptionLines.length; i++) {
                 if (i > 0) {
                     mutableStdout.write("\t".repeat(minTabCount + 2));
@@ -112,7 +148,7 @@ commands.set(["groups", "g"], {
     run: async () => {
         const users = await userCount();
         if (users > 0) {
-            console.error("For security reasons, this command can only be ran when there are no users.");
+            console.error(style("For security reasons, this command can only be ran when there are no users.", Color.Red));
             return;
         }
         await createGroup(1, "Guest", guestPermissions);
@@ -128,14 +164,14 @@ commands.set(["user", "u"], {
     run: async () => {
         const users = await userCount();
         if (users > 0) {
-            console.error("For security reasons, this command can only be ran when there are no users.");
+            console.error(style("For security reasons, this command can only be ran when there are no users.", Color.Red));
             return;
         }
 
         const group = await getGroup("Admin");
 
         if (!group) {
-            console.error(`Admin Group does not exist. Please create it first with the "g" command.`);
+            console.error(style(`Admin Group does not exist. Please create it first with the "g" command.`, Color.Red));
             return;
         }
 
@@ -144,13 +180,13 @@ commands.set(["user", "u"], {
         let email = null;
 
         console.log(
-            "WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
-                " database, this command will no longer work."
+            style("WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
+                " database, this command will no longer work.", [Color.Yellow, Color.Bold, Color.Italic])
         );
         while (!username) {
-            username = await rl.question("Username: ");
+            username = await rl.question(style("Username: ", Color.Bold));
             if (username?.length > 8) {
-                console.error("Username must be 8 characters or less.");
+                console.error(style("Username must be 8 characters or less.", Color.Red));
                 username = null;
             }
         }
@@ -158,7 +194,7 @@ commands.set(["user", "u"], {
         let passwords: [string?, string?] = [];
         while (passwords.length === 0) {
             for (let i = 0; i < 2; i++) {
-                const pwPromise = rl.question(i === 0 ? "Password: " : "Confirm Password: ");
+                const pwPromise = rl.question(style(i === 0 ? "Password: " : "Confirm Password: ", Color.Bold));
                 mutableStdout.muted = true;
                 passwords[i] = await pwPromise;
                 mutableStdout.muted = false;
@@ -166,16 +202,16 @@ commands.set(["user", "u"], {
             }
 
             if (passwords[0] !== passwords[1]) {
-                console.error("Passwords do not match.\n");
+                console.error(style("Passwords do not match.", Color.Red));
                 passwords = [];
             }
         }
         password = passwords[0];
 
         while (!email) {
-            email = await rl.question("Email: ");
+            email = await rl.question(style("Email: ", Color.Bold));
             if (email?.length > 300) {
-                console.error("Email must be 300 characters or less.");
+                console.error(style("Email must be 300 characters or less.", Color.Red));
                 email = null;
             }
         }
@@ -196,7 +232,7 @@ commands.set(["user", "u"], {
             }
         });
 
-        console.log(`User (ID: ${user.id}) created.`);
+        console.log(style(`User (ID: ${user.id}) created.`, Color.Green));
     }
 });
 
@@ -212,7 +248,7 @@ function getCommand(name: string): Command {
 
 async function exit() {
     await prisma.$disconnect();
-    console.log("Exiting");
+    console.log(style("Exiting", [Color.Dim, Color.Italic]));
     process.exit(0); // Graceful exit not working for me
 }
 
@@ -246,7 +282,7 @@ async function createGroup(id: number, name: string, permissions: GroupPermissio
     const group = await getGroup(id);
     if (group) {
         console.error(
-            `Group with ID ${id} already exists. Please manually delete it first if you want to recreate it.`
+            style(`Group with ID ${id} already exists. Please manually delete it first if you want to recreate it.`, Color.Red)
         );
     } else {
         const group = await prisma.group.create({
@@ -262,7 +298,7 @@ async function createGroup(id: number, name: string, permissions: GroupPermissio
             }
         });
         console.log(
-            `${name} group (ID: ${group.id}) created with default permissions. You can change these with an admin account.`
+            style(`${name} group (ID: ${group.id}) created with default permissions. You can change these with an admin account.`, Color.Green)
         );
         return group;
     }
@@ -281,20 +317,23 @@ async function userCount(): Promise<number> {
         if (command) {
             await command.run();
         } else {
-            console.log(`Command '${args[2]}' not found.`);
+            console.log(style(`Command '${args[2]}' not found.`, Color.Red));
         }
         await exit();
     } else {
-        console.log("Starting interactive mode. Type 'help' for a list of commands or 'exit' to exit.");
+        if(process.stdout.columns >= 80) {
+            console.log(asciiArt)
+        }
+        console.log(style("Starting interactive mode. Type 'help' for a list of commands or 'exit' to exit.", [Color.Blue, Color.Bold]));
         let command;
         // noinspection InfiniteLoopJS
         while (true) {
-            command = (await rl.question("> ")).toLowerCase();
+            command = (await rl.question(style("> ", [Color.Dim, Color.Blue]))).toLowerCase();
             const commandObj = getCommand(command);
             if (commandObj) {
                 await commandObj.run();
             } else {
-                console.log(`Command '${command}' not found.`);
+                console.log(style(`Command '${command}' not found.`, Color.Red));
             }
         }
     }
