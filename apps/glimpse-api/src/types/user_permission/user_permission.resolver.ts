@@ -4,7 +4,6 @@ import {
     Context,
     createUnionType,
     Directive,
-    ID,
     Int,
     Mutation,
     Parent,
@@ -257,7 +256,7 @@ export class UserPermissionResolver {
     @Directive('@custom_rule(name: "permissionsFor", options: { name: "Permissions for user" })')
     async permissionsFor(
         @Context() ctx: { req: Request },
-        @Args("userId", { type: () => ID, nullable: true }) userId: number
+        @Args("userId", { type: () => GraphQLBigInt, nullable: true }) userId: bigint
     ): Promise<(typeof PermissionUnion)[] | null> {
         this.logger.verbose("permissionsFor resolver called");
         let user = null;
