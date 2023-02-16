@@ -1,20 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { ProductionRSVP } from "./production_rsvp.entity";
-import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
-import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
-import { CreateProductionRSVPInput } from "./dto/create-production_rsvp.input";
-import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
-import { Production } from "../production/production.entity";
-import { User } from "../user/user.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {ProductionRSVP} from "./production_rsvp.entity";
+import {FilterProductionRSVPInput} from "./dto/filter-production_rsvp.input";
+import {OrderProductionRSVPInput} from "./dto/order-production_rsvp.input";
+import {CreateProductionRSVPInput} from "./dto/create-production_rsvp.input";
+import {UpdateProductionRSVPInput} from "./dto/update-production_rsvp.input";
+import {Production} from "../production/production.entity";
+import {User} from "../user/user.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => ProductionRSVP)
 export class ProductionRSVPResolver {
@@ -54,7 +55,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionRSVP)")
     async findOneProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionRSVP> {
         this.logger.verbose("findOneProductionRSVP resolver called");
         return ctx.req.prismaTx.productionRSVP.findFirst({
@@ -96,7 +97,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: Update, subject: ProductionRSVP)")
     async updateProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
     ): Promise<ProductionRSVP> {
         this.logger.verbose("updateProductionRSVP resolver called");
@@ -148,7 +149,7 @@ export class ProductionRSVPResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionRSVP)")
     async deleteProductionRSVP(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionRSVP> {
         this.logger.verbose("deleteProductionRSVP resolver called");
 

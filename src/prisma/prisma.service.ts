@@ -1,10 +1,8 @@
-import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
-import { PrismaClient } from "@prisma/client";
-import { Prisma, PrismaPromise, UnwrapTuple } from ".prisma/client";
-import { Request } from "express";
-import { AuditLog } from "../types/audit_log/audit_log.entity";
-import { AbilitySubjects } from "../casl/casl-ability.factory";
-import { User } from "../types/user/user.entity";
+import {INestApplication, Injectable, OnModuleInit} from "@nestjs/common";
+import {PrismaClient} from "@prisma/client";
+import {AuditLog} from "../types/audit_log/audit_log.entity";
+import {AbilitySubjects} from "../casl/casl-ability.factory";
+import {User} from "../types/user/user.entity";
 
 export type AuditLogEntry = {
     displayText?: string;
@@ -43,33 +41,6 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
         super();
     }
 
-    // Override $transaction so that interactive transactions will expect an ExtendedTransactionClient.
-    override $transaction<P extends PrismaPromise<any>[]>(
-        arg: [...P],
-        options?: { isolationLevel?: Prisma.TransactionIsolationLevel }
-    ): Promise<UnwrapTuple<P>>;
-    override $transaction<R>(
-        fn: (prisma: ExtendedTransactionClient) => Promise<R>,
-        options?: {
-            maxWait?: number;
-            timeout?: number;
-            isolationLevel?: Prisma.TransactionIsolationLevel;
-            req?: Request;
-        }
-    ): Promise<R>;
-    override async $transaction(...args: any[]): Promise<any> {
-        if (typeof args[0] === "function") {
-            const [fn, options] = args;
-            return super.$transaction(async (tx) => {
-                const extendedTx = tx as ExtendedTransactionClient;
-                // Any necessary extension assignments can go here, if they don't work in the Prisma extension...
-                return await fn(extendedTx);
-            }, options);
-        } else {
-            return super.$transaction(args);
-        }
-    }
-
     genAuditLog(entries: AuditLogEntry[]): Promise<AuditLog[]>;
     genAuditLog(entry: AuditLogEntry): Promise<AuditLog>;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -97,5 +68,3 @@ export class PrismaService extends BasePrismaService implements AuditLogGenerato
          */
     }
 }
-
-export interface ExtendedTransactionClient extends Prisma.TransactionClient, AuditLogGenerator {}

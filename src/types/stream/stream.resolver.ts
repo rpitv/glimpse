@@ -1,15 +1,16 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
+import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Stream } from "./stream.entity";
-import { CreateStreamInput } from "./dto/create-stream.input";
-import { connect, ConsumeMessage, Connection } from "amqplib";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Stream} from "./stream.entity";
+import {CreateStreamInput} from "./dto/create-stream.input";
+import {connect, Connection, ConsumeMessage} from "amqplib";
+import {GraphQLUUID} from "graphql-scalars";
 
 @Resolver(() => Stream)
 export class StreamResolver {
@@ -112,7 +113,10 @@ export class StreamResolver {
 
     @Query(() => Stream, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Stream)")
-    async findOneStream(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: string): Promise<Stream> {
+    async findOneStream(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLUUID }) id: string
+    ): Promise<Stream> {
         this.logger.verbose("findOneStream resolver called");
         return this.streams.find((stream) => stream.id === id);
     }
@@ -153,7 +157,10 @@ export class StreamResolver {
 
     @Mutation(() => Stream, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Stream)")
-    async deleteStream(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: string): Promise<Stream> {
+    async deleteStream(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLUUID }) id: string
+    ): Promise<Stream> {
         this.logger.verbose("deleteStream resolver called");
 
         const streamToDelete = this.streams.find((stream) => stream.id === id);

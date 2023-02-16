@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsDate, IsInt, Min } from "class-validator";
-import { PersonRole as PrismaPersonRole } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsDate} from "class-validator";
+import {PersonRole as PrismaPersonRole} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class PersonRole implements PrismaPersonRole {
@@ -14,23 +16,22 @@ export class PersonRole implements PrismaPersonRole {
     /**
      * Unique ID for this PersonRole. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the person this PersonRole is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     personId: bigint | null;
 
     /**
      * ID of the role this PersonRole is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     roleId: bigint | null;
 
     /**

@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsInt, Min } from "class-validator";
-import { ProductionVideo as PrismaProductionVideo } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {IsInt} from "class-validator";
+import {ProductionVideo as PrismaProductionVideo} from "@prisma/client";
+import {BigIntMin} from "../../custom-validators";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @ObjectType()
 export class ProductionVideo implements PrismaProductionVideo {
@@ -14,23 +16,22 @@ export class ProductionVideo implements PrismaProductionVideo {
     /**
      * Unique ID for this ProductionVideo. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the person this ProductionVideo is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     productionId: bigint | null;
 
     /**
      * ID of the video this ProductionVideo is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     videoId: bigint | null;
 
     /**

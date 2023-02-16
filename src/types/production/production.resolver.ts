@@ -1,33 +1,34 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Production } from "./production.entity";
-import { FilterProductionInput } from "./dto/filter-production.input";
-import { OrderProductionInput } from "./dto/order-production.input";
-import { CreateProductionInput } from "./dto/create-production.input";
-import { UpdateProductionInput } from "./dto/update-production.input";
-import { Category } from "../category/category.entity";
-import { Image } from "../image/image.entity";
-import { Credit } from "../credit/credit.entity";
-import { FilterCreditInput } from "../credit/dto/filter-credit.input";
-import { OrderCreditInput } from "../credit/dto/order-credit.input";
-import { ProductionImage } from "../production_image/production_image.entity";
-import { FilterProductionImageInput } from "../production_image/dto/filter-production_image.input";
-import { ProductionVideo } from "../production_video/production_video.entity";
-import { FilterProductionVideoInput } from "../production_video/dto/filter-production_video.input";
-import { ProductionRSVP } from "../production_rsvp/production_rsvp.entity";
-import { FilterProductionRSVPInput } from "../production_rsvp/dto/filter-production_rsvp.input";
-import { OrderProductionRSVPInput } from "../production_rsvp/dto/order-production_rsvp.input";
-import { ProductionTag } from "../production_tag/production_tag.entity";
-import { FilterProductionTagInput } from "../production_tag/dto/filter-production_tag.input";
-import { OrderProductionTagInput } from "../production_tag/dto/order-production_tag.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Production} from "./production.entity";
+import {FilterProductionInput} from "./dto/filter-production.input";
+import {OrderProductionInput} from "./dto/order-production.input";
+import {CreateProductionInput} from "./dto/create-production.input";
+import {UpdateProductionInput} from "./dto/update-production.input";
+import {Category} from "../category/category.entity";
+import {Image} from "../image/image.entity";
+import {Credit} from "../credit/credit.entity";
+import {FilterCreditInput} from "../credit/dto/filter-credit.input";
+import {OrderCreditInput} from "../credit/dto/order-credit.input";
+import {ProductionImage} from "../production_image/production_image.entity";
+import {FilterProductionImageInput} from "../production_image/dto/filter-production_image.input";
+import {ProductionVideo} from "../production_video/production_video.entity";
+import {FilterProductionVideoInput} from "../production_video/dto/filter-production_video.input";
+import {ProductionRSVP} from "../production_rsvp/production_rsvp.entity";
+import {FilterProductionRSVPInput} from "../production_rsvp/dto/filter-production_rsvp.input";
+import {OrderProductionRSVPInput} from "../production_rsvp/dto/order-production_rsvp.input";
+import {ProductionTag} from "../production_tag/production_tag.entity";
+import {FilterProductionTagInput} from "../production_tag/dto/filter-production_tag.input";
+import {OrderProductionTagInput} from "../production_tag/dto/order-production_tag.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Production)
 export class ProductionResolver {
@@ -67,7 +68,7 @@ export class ProductionResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Production)")
     async findOneProduction(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Production> {
         this.logger.verbose("findOneProduction resolver called");
         return ctx.req.prismaTx.production.findFirst({
@@ -109,7 +110,7 @@ export class ProductionResolver {
     @Directive("@rule(ruleType: Update, subject: Production)")
     async updateProduction(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateProductionInput }) input: UpdateProductionInput
     ): Promise<Production> {
         this.logger.verbose("updateProduction resolver called");
@@ -161,7 +162,7 @@ export class ProductionResolver {
     @Directive("@rule(ruleType: Delete, subject: Production)")
     async deleteProduction(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Production> {
         this.logger.verbose("deleteProduction resolver called");
 

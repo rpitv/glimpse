@@ -1,7 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsBoolean, IsDate, IsInt, IsObject, MaxLength, Min, MinLength } from "class-validator";
-import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
-import { GraphQLJSON } from "graphql-scalars";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsBoolean, IsDate, IsObject, MaxLength, MinLength} from "class-validator";
+import {ContactSubmission as PrismaContactSubmission, Prisma} from "@prisma/client";
+import {GraphQLBigInt, GraphQLJSON} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class ContactSubmission implements PrismaContactSubmission {
@@ -15,9 +16,8 @@ export class ContactSubmission implements PrismaContactSubmission {
     /**
      * Unique ID for this ContactSubmission. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**

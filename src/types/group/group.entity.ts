@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
-import { IsInt, MaxLength, Min } from "class-validator";
-import { Group as PrismaGroup } from "@prisma/client";
+import {Field, Int, ObjectType} from "@nestjs/graphql";
+import {IsInt, MaxLength} from "class-validator";
+import {Group as PrismaGroup} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class Group implements PrismaGroup {
@@ -14,9 +16,8 @@ export class Group implements PrismaGroup {
     /**
      * Unique ID for this Group. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -37,8 +38,7 @@ export class Group implements PrismaGroup {
     /**
      * The ID of the parent of this Group. If null, this Group is a top-level Group.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     parentId: bigint | null;
 }

@@ -1,19 +1,20 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { GroupPermission } from "./group_permission.entity";
-import { FilterGroupPermissionInput } from "./dto/filter-group_permission.input";
-import { OrderGroupPermissionInput } from "./dto/order-group_permission.input";
-import { CreateGroupPermissionInput } from "./dto/create-group_permission.input";
-import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input";
-import { Group } from "../group/group.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {GroupPermission} from "./group_permission.entity";
+import {FilterGroupPermissionInput} from "./dto/filter-group_permission.input";
+import {OrderGroupPermissionInput} from "./dto/order-group_permission.input";
+import {CreateGroupPermissionInput} from "./dto/create-group_permission.input";
+import {UpdateGroupPermissionInput} from "./dto/update-group_permission.input";
+import {Group} from "../group/group.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {
@@ -53,7 +54,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: ReadOne, subject: GroupPermission)")
     async findOneGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<GroupPermission> {
         this.logger.verbose("findOneGroupPermission resolver called");
         return ctx.req.prismaTx.groupPermission.findFirst({
@@ -95,7 +96,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: Update, subject: GroupPermission)")
     async updateGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateGroupPermissionInput }) input: UpdateGroupPermissionInput
     ): Promise<GroupPermission> {
         this.logger.verbose("updateGroupPermission resolver called");
@@ -147,7 +148,7 @@ export class GroupPermissionResolver {
     @Directive("@rule(ruleType: Delete, subject: GroupPermission)")
     async deleteGroupPermission(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<GroupPermission> {
         this.logger.verbose("deleteGroupPermission resolver called");
 

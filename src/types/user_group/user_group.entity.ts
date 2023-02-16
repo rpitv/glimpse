@@ -1,6 +1,7 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsInt, Min } from "class-validator";
-import { UserGroup as PrismaUserGroup } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {UserGroup as PrismaUserGroup} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class UserGroup implements PrismaUserGroup {
@@ -14,22 +15,21 @@ export class UserGroup implements PrismaUserGroup {
     /**
      * Unique ID for this UserGroup. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the user this UserGroup is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     userId: bigint | null;
 
     /**
      * ID of the group this UserGroup is associated with.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     groupId: bigint | null;
 }

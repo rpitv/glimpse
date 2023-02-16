@@ -1,21 +1,22 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Category } from "./category.entity";
-import { FilterCategoryInput } from "./dto/filter-category.input";
-import { OrderCategoryInput } from "./dto/order-category.input";
-import { CreateCategoryInput } from "./dto/create-category.input";
-import { UpdateCategoryInput } from "./dto/update-category.input";
-import { Production } from "../production/production.entity";
-import { FilterProductionInput } from "../production/dto/filter-production.input";
-import { OrderProductionInput } from "../production/dto/order-production.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Category} from "./category.entity";
+import {FilterCategoryInput} from "./dto/filter-category.input";
+import {OrderCategoryInput} from "./dto/order-category.input";
+import {CreateCategoryInput} from "./dto/create-category.input";
+import {UpdateCategoryInput} from "./dto/update-category.input";
+import {Production} from "../production/production.entity";
+import {FilterProductionInput} from "../production/dto/filter-production.input";
+import {OrderProductionInput} from "../production/dto/order-production.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -55,7 +56,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Category)")
     async findOneCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Category> {
         this.logger.verbose("findOneCategory resolver called");
         return ctx.req.prismaTx.category.findFirst({
@@ -97,7 +98,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: Update, subject: Category)")
     async updateCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateCategoryInput }) input: UpdateCategoryInput
     ): Promise<Category> {
         this.logger.verbose("updateCategory resolver called");
@@ -149,7 +150,7 @@ export class CategoryResolver {
     @Directive("@rule(ruleType: Delete, subject: Category)")
     async deleteCategory(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Category> {
         this.logger.verbose("deleteCategory resolver called");
 

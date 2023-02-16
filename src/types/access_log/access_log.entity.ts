@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { AccessLog as PrismaAccessLog } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {IsDate, MaxLength} from "class-validator";
+import {AccessLog as PrismaAccessLog} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class AccessLog implements PrismaAccessLog {
@@ -14,17 +16,15 @@ export class AccessLog implements PrismaAccessLog {
     /**
      * Unique ID for this AccessLog. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the user who initiated this access log.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     userId: bigint | null;
 
     /**

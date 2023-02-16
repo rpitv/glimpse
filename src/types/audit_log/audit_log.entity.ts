@@ -1,6 +1,8 @@
-import { ObjectType, Field, ID, HideField } from "@nestjs/graphql";
-import { IsDate, IsInt, MaxLength, Min } from "class-validator";
-import { AuditLog as PrismaAuditLog, Prisma } from "@prisma/client";
+import {Field, HideField, ID, ObjectType} from "@nestjs/graphql";
+import {IsDate, IsInt, MaxLength, Min} from "class-validator";
+import {AuditLog as PrismaAuditLog, Prisma} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 /**
  * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
@@ -27,17 +29,15 @@ export class AuditLog implements PrismaAuditLog {
     /**
      * Unique ID for this audit log. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * User ID of the user that initiated this audit log.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     userId: bigint | null;
 
     /**

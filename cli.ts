@@ -1,7 +1,7 @@
-import { Group, GroupPermission, PrismaClient } from "@prisma/client";
+import {Group, GroupPermission, PrismaClient} from "@prisma/client";
 import * as readline from "node:readline/promises";
-import { Writable } from "node:stream";
-import { argon2id, hash } from "argon2";
+import {Writable} from "node:stream";
+import {argon2id, hash} from "argon2";
 
 enum Color {
     Reset = "0",
@@ -151,9 +151,9 @@ commands.set(["groups", "g"], {
             console.error(style("For security reasons, this command can only be ran when there are no users.", Color.Red));
             return;
         }
-        await createGroup(1, "Guest", guestPermissions);
-        await createGroup(2, "Member", memberPermissions);
-        await createGroup(3, "Admin", adminPermissions);
+        await createGroup(1n, "Guest", guestPermissions);
+        await createGroup(2n, "Member", memberPermissions);
+        await createGroup(3n, "Admin", adminPermissions);
     }
 });
 
@@ -252,10 +252,10 @@ async function exit() {
     process.exit(0); // Graceful exit not working for me
 }
 
-async function getGroup(id: number): Promise<Pick<Group, "id" | "name">>;
+async function getGroup(id: bigint): Promise<Pick<Group, "id" | "name">>;
 async function getGroup(name: string): Promise<Pick<Group, "id" | "name">>;
-async function getGroup(idOrName: number | string): Promise<Pick<Group, "id" | "name">> {
-    if (typeof idOrName === "number") {
+async function getGroup(idOrName: bigint | string): Promise<Pick<Group, "id" | "name">> {
+    if (typeof idOrName === "bigint") {
         return await prisma.group.findFirst({
             where: {
                 id: idOrName
@@ -278,7 +278,7 @@ async function getGroup(idOrName: number | string): Promise<Pick<Group, "id" | "
     }
 }
 
-async function createGroup(id: number, name: string, permissions: GroupPermissionInput[]): Promise<Pick<Group, "id">> {
+async function createGroup(id: bigint, name: string, permissions: GroupPermissionInput[]): Promise<Pick<Group, "id">> {
     const group = await getGroup(id);
     if (group) {
         console.error(

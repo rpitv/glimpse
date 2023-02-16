@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { PersonImage } from "./person_image.entity";
-import { FilterPersonImageInput } from "./dto/filter-person_image.input";
-import { CreatePersonImageInput } from "./dto/create-person_image.input";
-import { UpdatePersonImageInput } from "./dto/update-person_image.input";
-import { Person } from "../person/person.entity";
-import { Image } from "../image/image.entity";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {PersonImage} from "./person_image.entity";
+import {FilterPersonImageInput} from "./dto/filter-person_image.input";
+import {CreatePersonImageInput} from "./dto/create-person_image.input";
+import {UpdatePersonImageInput} from "./dto/update-person_image.input";
+import {Person} from "../person/person.entity";
+import {Image} from "../image/image.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => PersonImage)
 export class PersonImageResolver {
@@ -24,7 +25,7 @@ export class PersonImageResolver {
     @Directive("@rule(ruleType: ReadOne, subject: PersonImage)")
     async findOnePersonImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<PersonImage> {
         this.logger.verbose("findOnePersonImage resolver called");
         return ctx.req.prismaTx.personImage.findFirst({
@@ -66,7 +67,7 @@ export class PersonImageResolver {
     @Directive("@rule(ruleType: Update, subject: PersonImage)")
     async updatePersonImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdatePersonImageInput }) input: UpdatePersonImageInput
     ): Promise<PersonImage> {
         this.logger.verbose("updatePersonImage resolver called");
@@ -118,7 +119,7 @@ export class PersonImageResolver {
     @Directive("@rule(ruleType: Delete, subject: PersonImage)")
     async deletePersonImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<PersonImage> {
         this.logger.verbose("deletePersonImage resolver called");
 

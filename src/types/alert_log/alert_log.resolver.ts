@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { AlertLog } from "./alert_log.entity";
-import { FilterAlertLogInput } from "./dto/filter-alert_log.input";
-import { OrderAlertLogInput } from "./dto/order-alert_log.input";
-import { CreateAlertLogInput } from "./dto/create-alert_log.input";
-import { UpdateAlertLogInput } from "./dto/update-alert_log.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {AlertLog} from "./alert_log.entity";
+import {FilterAlertLogInput} from "./dto/filter-alert_log.input";
+import {OrderAlertLogInput} from "./dto/order-alert_log.input";
+import {CreateAlertLogInput} from "./dto/create-alert_log.input";
+import {UpdateAlertLogInput} from "./dto/update-alert_log.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => AlertLog)
 export class AlertLogResolver {
@@ -52,7 +53,7 @@ export class AlertLogResolver {
     @Directive("@rule(ruleType: ReadOne, subject: AlertLog)")
     async findOneAlertLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<AlertLog> {
         this.logger.verbose("findOneAlertLog resolver called");
         return ctx.req.prismaTx.alertLog.findFirst({
@@ -94,7 +95,7 @@ export class AlertLogResolver {
     @Directive("@rule(ruleType: Update, subject: AlertLog)")
     async updateAlertLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateAlertLogInput }) input: UpdateAlertLogInput
     ): Promise<AlertLog> {
         this.logger.verbose("updateAlertLog resolver called");
@@ -146,7 +147,7 @@ export class AlertLogResolver {
     @Directive("@rule(ruleType: Delete, subject: AlertLog)")
     async deleteAlertLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => Int }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<AlertLog> {
         this.logger.verbose("deleteAlertLog resolver called");
 

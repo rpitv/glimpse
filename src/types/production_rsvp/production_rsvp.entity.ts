@@ -1,6 +1,7 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { IsInt, Min } from "class-validator";
-import { ProductionRSVP as PrismaProductionRSVP } from "@prisma/client";
+import {Field, ObjectType} from "@nestjs/graphql";
+import {ProductionRSVP as PrismaProductionRSVP} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class ProductionRSVP implements PrismaProductionRSVP {
@@ -14,23 +15,22 @@ export class ProductionRSVP implements PrismaProductionRSVP {
     /**
      * Unique ID for this ProductionRSVP. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
      * ID of the Production that the User is RSVPing for.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     productionId: bigint | null;
 
     /**
      * ID of the User that is RSVPing for the Production.
      */
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     userId: bigint | null;
 
     /**
