@@ -1,21 +1,21 @@
-import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
+import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {Video} from "./video.entity";
-import {FilterVideoInput} from "./dto/filter-video.input";
-import {OrderVideoInput} from "./dto/order-video.input";
-import {CreateVideoInput} from "./dto/create-video.input";
-import {UpdateVideoInput} from "./dto/update-video.input";
-import {ProductionVideo} from "../production_video/production_video.entity";
-import {FilterProductionVideoInput} from "../production_video/dto/filter-production_video.input";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { Video } from "./video.entity";
+import { FilterVideoInput } from "./dto/filter-video.input";
+import { OrderVideoInput } from "./dto/order-video.input";
+import { CreateVideoInput } from "./dto/create-video.input";
+import { UpdateVideoInput } from "./dto/update-video.input";
+import { ProductionVideo } from "../production_video/production_video.entity";
+import { FilterProductionVideoInput } from "../production_video/dto/filter-production_video.input";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => Video)
 export class VideoResolver {

@@ -1,8 +1,8 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {IsDate, MaxLength} from "class-validator";
-import {Person as PrismaPerson} from "@prisma/client";
-import {BigIntMin} from "../../custom-validators";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Field, ObjectType } from "@nestjs/graphql";
+import { IsDate, MaxLength } from "class-validator";
+import { Person as PrismaPerson } from "@prisma/client";
+import { BigIntMin } from "../../custom-validators";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @ObjectType()
 export class Person implements PrismaPerson {

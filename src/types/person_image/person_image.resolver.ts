@@ -1,19 +1,19 @@
-import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {PersonImage} from "./person_image.entity";
-import {FilterPersonImageInput} from "./dto/filter-person_image.input";
-import {CreatePersonImageInput} from "./dto/create-person_image.input";
-import {UpdatePersonImageInput} from "./dto/update-person_image.input";
-import {Person} from "../person/person.entity";
-import {Image} from "../image/image.entity";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { PersonImage } from "./person_image.entity";
+import { FilterPersonImageInput } from "./dto/filter-person_image.input";
+import { CreatePersonImageInput } from "./dto/create-person_image.input";
+import { UpdatePersonImageInput } from "./dto/update-person_image.input";
+import { Person } from "../person/person.entity";
+import { Image } from "../image/image.entity";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => PersonImage)
 export class PersonImageResolver {

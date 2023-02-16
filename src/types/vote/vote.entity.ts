@@ -1,8 +1,8 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {IsDate, MaxLength} from "class-validator";
-import {Vote as PrismaVote} from "@prisma/client";
-import {GraphQLBigInt} from "graphql-scalars";
-import {BigIntMin} from "../../custom-validators";
+import { Field, ObjectType } from "@nestjs/graphql";
+import { IsDate, MaxLength } from "class-validator";
+import { Vote as PrismaVote } from "@prisma/client";
+import { GraphQLBigInt } from "graphql-scalars";
+import { BigIntMin } from "../../custom-validators";
 
 @ObjectType()
 export class Vote implements PrismaVote {

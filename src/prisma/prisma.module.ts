@@ -1,7 +1,7 @@
-import {Module} from "@nestjs/common";
-import {PrismaService} from "./prisma.service";
-import {PrismaInterceptor} from "./prisma.interceptor";
-import {PrismaPlugin} from "./prisma.plugin";
+import { Module } from "@nestjs/common";
+import { PrismaService } from "./prisma.service";
+import { PrismaInterceptor } from "./prisma.interceptor";
+import { PrismaPlugin } from "./prisma.plugin";
 
 @Module({
     providers: [PrismaService, PrismaInterceptor, PrismaPlugin],

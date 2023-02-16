@@ -1,8 +1,8 @@
-import {Field, ObjectType} from "@nestjs/graphql";
-import {IsBoolean, IsObject, MaxLength} from "class-validator";
-import {GroupPermission as PrismaGroupPermission, Prisma} from "@prisma/client";
-import {GraphQLBigInt, GraphQLJSON} from "graphql-scalars";
-import {BigIntMin} from "../../custom-validators";
+import { Field, ObjectType } from "@nestjs/graphql";
+import { IsBoolean, IsObject, MaxLength } from "class-validator";
+import { GroupPermission as PrismaGroupPermission, Prisma } from "@prisma/client";
+import { GraphQLBigInt, GraphQLJSON } from "graphql-scalars";
+import { BigIntMin } from "../../custom-validators";
 
 @ObjectType()
 export class GroupPermission implements PrismaGroupPermission {

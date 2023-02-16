@@ -1,8 +1,8 @@
-import {Field, Int, ObjectType} from "@nestjs/graphql";
-import {IsDate, IsInt, MaxLength, Min} from "class-validator";
-import {Asset as PrismaAsset} from "@prisma/client";
-import {BigIntMin} from "../../custom-validators";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { IsDate, IsInt, MaxLength, Min } from "class-validator";
+import { Asset as PrismaAsset } from "@prisma/client";
+import { BigIntMin } from "../../custom-validators";
+import { GraphQLBigInt } from "graphql-scalars";
 
 /**
  * Assets are the physical objects that are property of RPI TV, or are otherwise managed and tracked by RPI TV.

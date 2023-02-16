@@ -1,8 +1,8 @@
-import {Field, Int, ObjectType} from "@nestjs/graphql";
-import {IsInt} from "class-validator";
-import {ProductionImage as PrismaProductionImage} from "@prisma/client";
-import {GraphQLBigInt} from "graphql-scalars";
-import {BigIntMin} from "../../custom-validators";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { IsInt } from "class-validator";
+import { ProductionImage as PrismaProductionImage } from "@prisma/client";
+import { GraphQLBigInt } from "graphql-scalars";
+import { BigIntMin } from "../../custom-validators";
 
 @ObjectType()
 export class ProductionImage implements PrismaProductionImage {

@@ -1,8 +1,8 @@
-import {Injectable} from "@nestjs/common";
-import {PrismaService} from "../prisma/prisma.service";
-import {argon2id, hash, verify} from "argon2";
-import {User} from "@prisma/client";
-import {Request} from "express";
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { argon2id, hash, verify } from "argon2";
+import { User } from "@prisma/client";
+import { Request } from "express";
 
 // These are duplicated in /cli.ts. If you change them here, change them there too.
 export const PASSWORD_HASH_OPTIONS = {

@@ -1,18 +1,18 @@
-import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {UserGroup} from "./user_group.entity";
-import {FilterUserGroupInput} from "./dto/filter-user_group.input";
-import {CreateUserGroupInput} from "./dto/create-user_group.input";
-import {User} from "../user/user.entity";
-import {Group} from "../group/group.entity";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { UserGroup } from "./user_group.entity";
+import { FilterUserGroupInput } from "./dto/filter-user_group.input";
+import { CreateUserGroupInput } from "./dto/create-user_group.input";
+import { User } from "../user/user.entity";
+import { Group } from "../group/group.entity";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => UserGroup)
 export class UserGroupResolver {

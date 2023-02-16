@@ -12,23 +12,23 @@ import {
     ResolveField,
     Resolver
 } from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction, CaslAbilityFactory} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {UserPermission} from "./user_permission.entity";
-import {FilterUserPermissionInput} from "./dto/filter-user_permission.input";
-import {OrderUserPermissionInput} from "./dto/order-user_permission.input";
-import {CreateUserPermissionInput} from "./dto/create-user_permission.input";
-import {UpdateUserPermissionInput} from "./dto/update-user_permission.input";
-import {User} from "../user/user.entity";
-import {GroupPermission} from "../group_permission/group_permission.entity";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction, CaslAbilityFactory } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { UserPermission } from "./user_permission.entity";
+import { FilterUserPermissionInput } from "./dto/filter-user_permission.input";
+import { OrderUserPermissionInput } from "./dto/order-user_permission.input";
+import { CreateUserPermissionInput } from "./dto/create-user_permission.input";
+import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
+import { User } from "../user/user.entity";
+import { GroupPermission } from "../group_permission/group_permission.entity";
+import { GraphQLBigInt } from "graphql-scalars";
 
 const PermissionUnion = createUnionType({
     name: "Permission",
