@@ -36,7 +36,7 @@ RUN npm run generate
 FROM node:18 AS production
 
 # Initialize environment
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
 EXPOSE 4000
 USER node
 ENV NODE_ENV=production
