@@ -135,13 +135,17 @@ export class CaslAbilityFactory {
      * Replace variables within a permission's conditions with their actual values.
      *  Currently supported variables:
      *  - $id: Replaced with the ID of the user that is logged in. Throws an error if no user is logged in.
+     *  - $groups: Replaced with an array of the IDs of the groups that the user is a member of.
      * @param permission Permission to replace variables in.
      * @param user User that is currently logged in, or undefined or null if no user is logged in.
+     * @param groupIds Array of IDs of the groups that the user is a member of. If the user is a guest, this should be
+     *  an array with a single element: the ID of the guest group.
      * @returns An updated Permission object with the variables replaced.
      */
     private replaceConditionVariables<T extends UserPermission | GroupPermission>(
         permission: T,
-        user?: User | null
+        user?: User | null,
+        groupIds?: bigint[]
     ): T {
         const conditions = permission.conditions;
 
@@ -155,9 +159,17 @@ export class CaslAbilityFactory {
                     return user.id;
                 }
 
+                if (value === "$groups") {
+                    this.logger.verbose(`Replacing $groups variable in conditions with user group IDs ${groupIds}.`);
+                    return groupIds;
+                }
+
                 // Replace escaped variables with their unescaped versions
                 if (value === "\\$id") {
                     return "$id";
+                }
+                if (value === "\\$groups") {
+                    return "$groups";
                 }
 
                 return value;
@@ -194,8 +206,19 @@ export class CaslAbilityFactory {
                         FROM group_permissions WHERE "group" IN (SELECT "group" FROM user_groups WHERE 
                         "user" = ${user.id})`;
 
+            const groups = (
+                await this.prisma.userGroup.findMany({
+                    where: {
+                        userId: user.id
+                    },
+                    select: {
+                        groupId: true
+                    }
+                })
+            ).map((ug) => ug.groupId);
+
             const permissions = [...userPermissions, ...groupPermissions].map((permission) =>
-                this.replaceConditionVariables(permission, user)
+                this.replaceConditionVariables(permission, user, groups)
             );
 
             delete (<any>user).password; // Hide password from logs
@@ -203,18 +226,29 @@ export class CaslAbilityFactory {
                 `Retrieved permissions for user ${user.id} from database: ${JSON.stringify({ user, permissions })}`
             );
 
-            // Must make an assumption that the database has correct values due to raw query.
-            return <(UserPermission | GroupPermission)[]>permissions;
+            return permissions;
         } else {
-            const guestPermissions = await this.prisma
-                .$queryRaw`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
-                                        FROM group_permissions WHERE "group" = (SELECT id FROM groups WHERE 
-                                                              name = 'Guest' LIMIT 1)`;
+            const guestGroupId = (
+                await this.prisma.group.findFirst({
+                    where: { name: "Guest" },
+                    select: { id: true }
+                })
+            )?.id;
+
+            if (!guestGroupId) {
+                throw new Error("Guest group does not exist.");
+            }
+
+            const guestPermissions = await this.prisma.$queryRaw<
+                GroupPermission[]
+            >`SELECT id, "group" as "groupId", action, subject, fields, conditions, inverted, reason 
+                                        FROM group_permissions WHERE "group" = ${guestGroupId}`;
 
             this.logger.debug("Retrieved guest permissions from database", guestPermissions);
 
-            // Must make an assumption that the database has correct values due to raw query.
-            return <GroupPermission[]>guestPermissions;
+            return guestPermissions.map((permission) =>
+                this.replaceConditionVariables(permission, null, [guestGroupId])
+            );
         }
     }
 

@@ -8,5 +8,6 @@ export class StringComparisonInput {
     contains?: string;
     startsWith?: string;
     endsWith?: string;
+    in?: string[];
     mode?: CaseSensitivity;
 }
