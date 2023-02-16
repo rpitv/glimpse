@@ -166,7 +166,7 @@ export class UserResolver {
             data: input
         });
 
-        await ctx.req.prismaTx.genAuditLog({
+        await ctx.req.prismaTx.genAuditLog.bind(ctx.req.prismaTx)({
             user: ctx.req.user,
             oldValue: rowToUpdate,
             newValue: result,
