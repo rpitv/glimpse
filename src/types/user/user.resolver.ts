@@ -489,7 +489,7 @@ export class UserResolver {
     // -------------------- Custom Resolvers --------------------
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self" })')
+    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self", defer: true })')
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
