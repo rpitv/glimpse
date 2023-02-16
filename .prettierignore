@@ -1,9 +1,9 @@
 node_modules
-coverage
 dist
-src/generated
 .db-data
-.redis-data
-.meili-data
-cert
 .husky
+.redis-data
+cert
+generated
+.idea
+.env*
