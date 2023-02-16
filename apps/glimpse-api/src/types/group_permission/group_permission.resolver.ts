@@ -1,20 +1,20 @@
-import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
+import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {GroupPermission} from "./group_permission.entity";
-import {FilterGroupPermissionInput} from "./dto/filter-group_permission.input";
-import {OrderGroupPermissionInput} from "./dto/order-group_permission.input";
-import {CreateGroupPermissionInput} from "./dto/create-group_permission.input";
-import {UpdateGroupPermissionInput} from "./dto/update-group_permission.input";
-import {Group} from "../group/group.entity";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { GroupPermission } from "./group_permission.entity";
+import { FilterGroupPermissionInput } from "./dto/filter-group_permission.input";
+import { OrderGroupPermissionInput } from "./dto/order-group_permission.input";
+import { CreateGroupPermissionInput } from "./dto/create-group_permission.input";
+import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input";
+import { Group } from "../group/group.entity";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {

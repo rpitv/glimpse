@@ -1,10 +1,10 @@
-import {NestFactory} from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import * as session from "express-session";
-import {AppModule} from "./app.module";
-import {createClient} from "redis";
+import { AppModule } from "./app.module";
+import { createClient } from "redis";
 import * as connectRedis from "connect-redis";
 import * as passport from "passport";
-import {NestExpressApplication} from "@nestjs/platform-express";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import * as cookieParser from "cookie-parser";
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json

@@ -1,15 +1,15 @@
-import {Args, Context, Directive, Int, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
-import {Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
+import { Args, Context, Directive, Int, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AuditLog} from "./audit_log.entity";
-import {FilterAuditLogInput} from "./dto/filter-audit_log.input";
-import {OrderAuditLogInput} from "./dto/order-audit_log.input";
-import {AbilitySubjects} from "../../casl/casl-ability.factory";
-import {User} from "../user/user.entity";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AuditLog } from "./audit_log.entity";
+import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
+import { OrderAuditLogInput } from "./dto/order-audit_log.input";
+import { AbilitySubjects } from "../../casl/casl-ability.factory";
+import { User } from "../user/user.entity";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {

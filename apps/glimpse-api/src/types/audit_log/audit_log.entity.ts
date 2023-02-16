@@ -1,15 +1,14 @@
-import {Field, HideField, ID, ObjectType} from "@nestjs/graphql";
-import {IsDate, IsInt, MaxLength, Min} from "class-validator";
-import {AuditLog as PrismaAuditLog, Prisma} from "@prisma/client";
-import {GraphQLBigInt} from "graphql-scalars";
-import {BigIntMin} from "../../custom-validators";
+import { Field, HideField, ID, ObjectType } from "@nestjs/graphql";
+import { IsDate, IsInt, MaxLength, Min } from "class-validator";
+import { AuditLog as PrismaAuditLog, Prisma } from "@prisma/client";
+import { GraphQLBigInt } from "graphql-scalars";
+import { BigIntMin } from "../../custom-validators";
 
 /**
  * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
  *  way of generating these automatically with the user's ID. It would be possible to generate automatically if we
  *  weren't logging the user who made the change using Prisma middleware or extensions. For now, they have to be
- *  logged manually using {@link PrismaService#genAuditLog}. This method is also available on transactions via
- *  {@link ExtendedTransactionClient}.
+ *  logged manually using {@link PrismaService#genAuditLog}.
  *
  *  All automatic generation solutions that I came up with involved violating type safety, relying on private Prisma
  *  interfaces, and/or were so obtuse and hacky that it wasn't worth it.

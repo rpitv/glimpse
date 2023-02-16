@@ -1,8 +1,8 @@
-import {INestApplication, Injectable, OnModuleInit} from "@nestjs/common";
-import {Prisma, PrismaClient, UnwrapTuple} from "@prisma/client";
-import {AuditLog} from "../types/audit_log/audit_log.entity";
-import {AbilitySubjects} from "../casl/casl-ability.factory";
-import {User} from "../types/user/user.entity";
+import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
+import { Prisma, PrismaClient, UnwrapTuple } from "@prisma/client";
+import { AuditLog } from "../types/audit_log/audit_log.entity";
+import { AbilitySubjects } from "../casl/casl-ability.factory";
+import { User } from "../types/user/user.entity";
 
 export type AuditLogEntry = {
     displayText?: string;

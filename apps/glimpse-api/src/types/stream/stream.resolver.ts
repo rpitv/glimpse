@@ -1,16 +1,16 @@
-import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
+import { Args, Context, Directive, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {Stream} from "./stream.entity";
-import {CreateStreamInput} from "./dto/create-stream.input";
-import {connect, Connection, ConsumeMessage} from "amqplib";
-import {GraphQLUUID} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { Stream } from "./stream.entity";
+import { CreateStreamInput } from "./dto/create-stream.input";
+import { connect, Connection, ConsumeMessage } from "amqplib";
+import { GraphQLUUID } from "graphql-scalars";
 
 @Resolver(() => Stream)
 export class StreamResolver {

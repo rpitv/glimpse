@@ -1,19 +1,19 @@
-import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import {BadRequestException, Logger} from "@nestjs/common";
-import {accessibleBy} from "@casl/prisma";
+import { Args, Context, Directive, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { BadRequestException, Logger } from "@nestjs/common";
+import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import {Complexities} from "../../gql/gql-complexity.plugin";
-import {Request} from "express";
-import {AbilityAction} from "../../casl/casl-ability.factory";
-import {subject} from "@casl/ability";
-import {Redirect} from "./redirect.entity";
-import {FilterRedirectInput} from "./dto/filter-redirect.input";
-import {OrderRedirectInput} from "./dto/order-redirect.input";
-import {CreateRedirectInput} from "./dto/create-redirect.input";
-import {UpdateRedirectInput} from "./dto/update-redirect.input";
-import {GraphQLBigInt} from "graphql-scalars";
+import { Complexities } from "../../gql/gql-complexity.plugin";
+import { Request } from "express";
+import { AbilityAction } from "../../casl/casl-ability.factory";
+import { subject } from "@casl/ability";
+import { Redirect } from "./redirect.entity";
+import { FilterRedirectInput } from "./dto/filter-redirect.input";
+import { OrderRedirectInput } from "./dto/order-redirect.input";
+import { CreateRedirectInput } from "./dto/create-redirect.input";
+import { UpdateRedirectInput } from "./dto/update-redirect.input";
+import { GraphQLBigInt } from "graphql-scalars";
 
 @Resolver(() => Redirect)
 export class RedirectResolver {
