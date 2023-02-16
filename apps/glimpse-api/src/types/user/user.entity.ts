@@ -1,4 +1,4 @@
-import {Field, HideField, ObjectType} from "@nestjs/graphql";
+import { Field, HideField, ObjectType } from "@nestjs/graphql";
 import {
     IsAlphanumeric,
     IsDate,
@@ -9,9 +9,9 @@ import {
     Length,
     MinLength
 } from "class-validator";
-import {User as PrismaUser} from "@prisma/client";
-import {GraphQLBigInt} from "graphql-scalars";
-import {BigIntMin} from "../../custom-validators";
+import { User as PrismaUser } from "@prisma/client";
+import { GraphQLBigInt } from "graphql-scalars";
+import { BigIntMin } from "../../custom-validators";
 
 @ObjectType()
 export class User implements PrismaUser {

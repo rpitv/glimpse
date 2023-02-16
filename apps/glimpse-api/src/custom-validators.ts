@@ -1,4 +1,4 @@
-import {buildMessage, ValidateBy, ValidationOptions} from "class-validator";
+import { buildMessage, ValidateBy, ValidationOptions } from "class-validator";
 
 /* Source: https://github.com/typestack/class-validator/blob/ca92d5719feeb595901042043b6488a038ae1a14/src/decorator/number/Min.ts
 
