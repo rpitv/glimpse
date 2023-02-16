@@ -11,6 +11,26 @@ services:
       - glimpse_network
     profiles:
       - api
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
+
+  api-production:
+    image: ghcr.io/rpitv/glimpse-api:latest
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env.docker
+    networks:
+      - glimpse_network
+    profiles:
+      - production
+    depends_on:
+      - db
+      - redis
+      - rabbitmq
 
   db:
     image: postgres:14
