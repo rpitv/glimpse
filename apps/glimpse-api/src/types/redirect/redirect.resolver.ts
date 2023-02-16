@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Query, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Redirect } from "./redirect.entity";
-import { FilterRedirectInput } from "./dto/filter-redirect.input";
-import { OrderRedirectInput } from "./dto/order-redirect.input";
-import { CreateRedirectInput } from "./dto/create-redirect.input";
-import { UpdateRedirectInput } from "./dto/update-redirect.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Redirect} from "./redirect.entity";
+import {FilterRedirectInput} from "./dto/filter-redirect.input";
+import {OrderRedirectInput} from "./dto/order-redirect.input";
+import {CreateRedirectInput} from "./dto/create-redirect.input";
+import {UpdateRedirectInput} from "./dto/update-redirect.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Redirect)
 export class RedirectResolver {
@@ -52,7 +53,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: ReadOne, subject: Redirect)")
     async findOneRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Redirect> {
         this.logger.verbose("findOneRedirect resolver called");
         return ctx.req.prismaTx.redirect.findFirst({
@@ -94,7 +95,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: Update, subject: Redirect)")
     async updateRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateRedirectInput }) input: UpdateRedirectInput
     ): Promise<Redirect> {
         this.logger.verbose("updateRedirect resolver called");
@@ -146,7 +147,7 @@ export class RedirectResolver {
     @Directive("@rule(ruleType: Delete, subject: Redirect)")
     async deleteRedirect(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Redirect> {
         this.logger.verbose("deleteRedirect resolver called");
 

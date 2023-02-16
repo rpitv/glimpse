@@ -1,17 +1,17 @@
-import { ObjectType, Field, ID, HideField } from "@nestjs/graphql";
+import {Field, HideField, ObjectType} from "@nestjs/graphql";
 import {
     IsAlphanumeric,
     IsDate,
     IsEmail,
-    IsInt,
     IsNumberString,
     IsOptional,
     IsString,
     Length,
-    Min,
     MinLength
 } from "class-validator";
-import { User as PrismaUser } from "@prisma/client";
+import {User as PrismaUser} from "@prisma/client";
+import {GraphQLBigInt} from "graphql-scalars";
+import {BigIntMin} from "../../custom-validators";
 
 @ObjectType()
 export class User implements PrismaUser {
@@ -25,9 +25,8 @@ export class User implements PrismaUser {
     /**
      * Unique ID for this User. Automatically generated.
      */
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     id: bigint | null;
 
     /**
@@ -50,9 +49,8 @@ export class User implements PrismaUser {
      * Attached Person's ID, or null if this user does not have a linked Person.
      */
     @IsOptional()
-    @IsInt()
-    @Min(0)
-    @Field(() => ID, { nullable: true })
+    @BigIntMin(0)
+    @Field(() => GraphQLBigInt, { nullable: true })
     personId: bigint | null;
 
     /**

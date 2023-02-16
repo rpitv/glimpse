@@ -1,32 +1,33 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Person } from "./person.entity";
-import { FilterPersonInput } from "./dto/filter-person.input";
-import { OrderPersonInput } from "./dto/order-person.input";
-import { CreatePersonInput } from "./dto/create-person.input";
-import { UpdatePersonInput } from "./dto/update-person.input";
-import { BlogPost } from "../blog_post/blog_post.entity";
-import { FilterBlogPostInput } from "../blog_post/dto/filter-blog_post.input";
-import { OrderBlogPostInput } from "../blog_post/dto/order-blog_post.input";
-import { Credit } from "../credit/credit.entity";
-import { FilterCreditInput } from "../credit/dto/filter-credit.input";
-import { OrderCreditInput } from "../credit/dto/order-credit.input";
-import { FilterPersonImageInput } from "../person_image/dto/filter-person_image.input";
-import { PersonImage } from "../person_image/person_image.entity";
-import { PersonRole } from "../person_role/person_role.entity";
-import { FilterPersonRoleInput } from "../person_role/dto/filter-person_role.input";
-import { OrderPersonRoleInput } from "../person_role/dto/order-person_role.input";
-import { User } from "../user/user.entity";
-import { FilterUserInput } from "../user/dto/filter-user.input";
-import { OrderUserInput } from "../user/dto/order-user.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Person} from "./person.entity";
+import {FilterPersonInput} from "./dto/filter-person.input";
+import {OrderPersonInput} from "./dto/order-person.input";
+import {CreatePersonInput} from "./dto/create-person.input";
+import {UpdatePersonInput} from "./dto/update-person.input";
+import {BlogPost} from "../blog_post/blog_post.entity";
+import {FilterBlogPostInput} from "../blog_post/dto/filter-blog_post.input";
+import {OrderBlogPostInput} from "../blog_post/dto/order-blog_post.input";
+import {Credit} from "../credit/credit.entity";
+import {FilterCreditInput} from "../credit/dto/filter-credit.input";
+import {OrderCreditInput} from "../credit/dto/order-credit.input";
+import {FilterPersonImageInput} from "../person_image/dto/filter-person_image.input";
+import {PersonImage} from "../person_image/person_image.entity";
+import {PersonRole} from "../person_role/person_role.entity";
+import {FilterPersonRoleInput} from "../person_role/dto/filter-person_role.input";
+import {OrderPersonRoleInput} from "../person_role/dto/order-person_role.input";
+import {User} from "../user/user.entity";
+import {FilterUserInput} from "../user/dto/filter-user.input";
+import {OrderUserInput} from "../user/dto/order-user.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Person)
 export class PersonResolver {
@@ -64,7 +65,10 @@ export class PersonResolver {
 
     @Query(() => Person, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Person)")
-    async findOnePerson(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Person> {
+    async findOnePerson(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Person> {
         this.logger.verbose("findOnePerson resolver called");
         return ctx.req.prismaTx.person.findFirst({
             where: {
@@ -105,7 +109,7 @@ export class PersonResolver {
     @Directive("@rule(ruleType: Update, subject: Person)")
     async updatePerson(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdatePersonInput }) input: UpdatePersonInput
     ): Promise<Person> {
         this.logger.verbose("updatePerson resolver called");
@@ -155,7 +159,10 @@ export class PersonResolver {
 
     @Mutation(() => Person, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Person)")
-    async deletePerson(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Person> {
+    async deletePerson(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Person> {
         this.logger.verbose("deletePerson resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.person.findFirst({

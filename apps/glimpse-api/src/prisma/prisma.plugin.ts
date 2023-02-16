@@ -1,7 +1,7 @@
-import { ApolloServerPlugin, GraphQLRequestListener } from "apollo-server-plugin-base";
-import { Plugin } from "@nestjs/apollo";
-import { PrismaService } from "./prisma.service";
-import { Logger } from "@nestjs/common";
+import {ApolloServerPlugin, GraphQLRequestListener} from "apollo-server-plugin-base";
+import {Plugin} from "@nestjs/apollo";
+import {PrismaService} from "./prisma.service";
+import {Logger} from "@nestjs/common";
 
 /**
  * Apollo plugin that creates a Prisma transaction for the duration of the request. This allows us to easily revert any
@@ -52,7 +52,7 @@ export class PrismaPlugin implements ApolloServerPlugin {
                         });
                     },
                     {
-                        timeout: 5000
+                        timeout: 2000
                     }
                 )
                 .catch((err) => {

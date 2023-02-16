@@ -1,19 +1,20 @@
-import { Resolver, Query, Mutation, Args, Int, Context, ResolveField, Parent, Directive, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { BlogPost } from "./blog_post.entity";
-import { FilterBlogPostInput } from "./dto/filter-blog_post.input";
-import { OrderBlogPostInput } from "./dto/order-blog_post.input";
-import { CreateBlogPostInput } from "./dto/create-blog_post.input";
-import { UpdateBlogPostInput } from "./dto/update-blog_post.input";
-import { Person } from "../person/person.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {BlogPost} from "./blog_post.entity";
+import {FilterBlogPostInput} from "./dto/filter-blog_post.input";
+import {OrderBlogPostInput} from "./dto/order-blog_post.input";
+import {CreateBlogPostInput} from "./dto/create-blog_post.input";
+import {UpdateBlogPostInput} from "./dto/update-blog_post.input";
+import {Person} from "../person/person.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => BlogPost)
 export class BlogPostResolver {
@@ -53,7 +54,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: ReadOne, subject: BlogPost)")
     async findOneBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<BlogPost> {
         this.logger.verbose("findOneBlogPost resolver called");
         return ctx.req.prismaTx.blogPost.findFirst({
@@ -95,7 +96,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: Update, subject: BlogPost)")
     async updateBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateBlogPostInput }) input: UpdateBlogPostInput
     ): Promise<BlogPost> {
         this.logger.verbose("updateBlogPost resolver called");
@@ -147,7 +148,7 @@ export class BlogPostResolver {
     @Directive("@rule(ruleType: Delete, subject: BlogPost)")
     async deleteBlogPost(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<BlogPost> {
         this.logger.verbose("deleteBlogPost resolver called");
 

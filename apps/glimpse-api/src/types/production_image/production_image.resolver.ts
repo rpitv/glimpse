@@ -1,18 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { ProductionImage } from "./production_image.entity";
-import { FilterProductionImageInput } from "./dto/filter-production_image.input";
-import { CreateProductionImageInput } from "./dto/create-production_image.input";
-import { UpdateProductionImageInput } from "./dto/update-production_image.input";
-import { Production } from "../production/production.entity";
-import { Image } from "../image/image.entity";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {ProductionImage} from "./production_image.entity";
+import {FilterProductionImageInput} from "./dto/filter-production_image.input";
+import {CreateProductionImageInput} from "./dto/create-production_image.input";
+import {UpdateProductionImageInput} from "./dto/update-production_image.input";
+import {Production} from "../production/production.entity";
+import {Image} from "../image/image.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => ProductionImage)
 export class ProductionImageResolver {
@@ -24,7 +25,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: ReadOne, subject: ProductionImage)")
     async findOneProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionImage> {
         this.logger.verbose("findOneProductionImage resolver called");
         return ctx.req.prismaTx.productionImage.findFirst({
@@ -66,7 +67,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: Update, subject: ProductionImage)")
     async updateProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateProductionImageInput }) input: UpdateProductionImageInput
     ): Promise<ProductionImage> {
         this.logger.verbose("updateProductionImage resolver called");
@@ -118,7 +119,7 @@ export class ProductionImageResolver {
     @Directive("@rule(ruleType: Delete, subject: ProductionImage)")
     async deleteProductionImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionImage> {
         this.logger.verbose("deleteProductionImage resolver called");
 

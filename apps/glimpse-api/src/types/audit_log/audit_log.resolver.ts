@@ -1,14 +1,15 @@
-import { Resolver, Query, Args, Int, Context, ResolveField, Parent, Directive, ID } from "@nestjs/graphql";
-import { Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AuditLog } from "./audit_log.entity";
-import { FilterAuditLogInput } from "./dto/filter-audit_log.input";
-import { OrderAuditLogInput } from "./dto/order-audit_log.input";
-import { AbilitySubjects } from "../../casl/casl-ability.factory";
-import { User } from "../user/user.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AuditLog} from "./audit_log.entity";
+import {FilterAuditLogInput} from "./dto/filter-audit_log.input";
+import {OrderAuditLogInput} from "./dto/order-audit_log.input";
+import {AbilitySubjects} from "../../casl/casl-ability.factory";
+import {User} from "../user/user.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -58,7 +59,7 @@ export class AuditLogResolver {
     @Directive("@rule(ruleType: ReadOne, subject: AuditLog)")
     async findOneAuditLog(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<AuditLog> {
         this.logger.verbose("findOneAuditLog resolver called");
         return ctx.req.prismaTx.auditLog.findFirst({

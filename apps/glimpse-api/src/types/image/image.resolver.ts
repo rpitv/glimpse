@@ -1,28 +1,29 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { Image } from "./image.entity";
-import { FilterImageInput } from "./dto/filter-image.input";
-import { OrderImageInput } from "./dto/order-image.input";
-import { CreateImageInput } from "./dto/create-image.input";
-import { UpdateImageInput } from "./dto/update-image.input";
-import { PersonImage } from "../person_image/person_image.entity";
-import { ProductionImage } from "../production_image/production_image.entity";
-import { FilterPersonImageInput } from "../person_image/dto/filter-person_image.input";
-import { FilterProductionImageInput } from "../production_image/dto/filter-production_image.input";
-import { Production } from "../production/production.entity";
-import { FilterProductionInput } from "../production/dto/filter-production.input";
-import { OrderProductionInput } from "../production/dto/order-production.input";
-import { Person } from "../person/person.entity";
-import { FilterPersonInput } from "../person/dto/filter-person.input";
-import { OrderPersonInput } from "../person/dto/order-person.input";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {Image} from "./image.entity";
+import {FilterImageInput} from "./dto/filter-image.input";
+import {OrderImageInput} from "./dto/order-image.input";
+import {CreateImageInput} from "./dto/create-image.input";
+import {UpdateImageInput} from "./dto/update-image.input";
+import {PersonImage} from "../person_image/person_image.entity";
+import {ProductionImage} from "../production_image/production_image.entity";
+import {FilterPersonImageInput} from "../person_image/dto/filter-person_image.input";
+import {FilterProductionImageInput} from "../production_image/dto/filter-production_image.input";
+import {Production} from "../production/production.entity";
+import {FilterProductionInput} from "../production/dto/filter-production.input";
+import {OrderProductionInput} from "../production/dto/order-production.input";
+import {Person} from "../person/person.entity";
+import {FilterPersonInput} from "../person/dto/filter-person.input";
+import {OrderPersonInput} from "../person/dto/order-person.input";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => Image)
 export class ImageResolver {
@@ -60,7 +61,10 @@ export class ImageResolver {
 
     @Query(() => Image, { nullable: true, complexity: Complexities.ReadOne })
     @Directive("@rule(ruleType: ReadOne, subject: Image)")
-    async findOneImage(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Image> {
+    async findOneImage(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Image> {
         this.logger.verbose("findOneImage resolver called");
         return ctx.req.prismaTx.image.findFirst({
             where: {
@@ -101,7 +105,7 @@ export class ImageResolver {
     @Directive("@rule(ruleType: Update, subject: Image)")
     async updateImage(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateImageInput }) input: UpdateImageInput
     ): Promise<Image> {
         this.logger.verbose("updateImage resolver called");
@@ -151,7 +155,10 @@ export class ImageResolver {
 
     @Mutation(() => Image, { complexity: Complexities.Delete })
     @Directive("@rule(ruleType: Delete, subject: Image)")
-    async deleteImage(@Context() ctx: { req: Request }, @Args("id", { type: () => ID }) id: number): Promise<Image> {
+    async deleteImage(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
+    ): Promise<Image> {
         this.logger.verbose("deleteImage resolver called");
 
         const rowToDelete = await ctx.req.prismaTx.image.findFirst({

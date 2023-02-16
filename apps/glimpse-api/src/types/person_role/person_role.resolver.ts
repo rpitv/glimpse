@@ -1,20 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { PersonRole } from "./person_role.entity";
-import { FilterPersonRoleInput } from "./dto/filter-person_role.input";
-import { OrderPersonRoleInput } from "./dto/order-person_role.input";
-import { CreatePersonRoleInput } from "./dto/create-person_role.input";
-import { UpdatePersonRoleInput } from "./dto/update-person_role.input";
-import { Person } from "../person/person.entity";
-import { Role } from "../role/role.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {PersonRole} from "./person_role.entity";
+import {FilterPersonRoleInput} from "./dto/filter-person_role.input";
+import {OrderPersonRoleInput} from "./dto/order-person_role.input";
+import {CreatePersonRoleInput} from "./dto/create-person_role.input";
+import {UpdatePersonRoleInput} from "./dto/update-person_role.input";
+import {Person} from "../person/person.entity";
+import {Role} from "../role/role.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => PersonRole)
 export class PersonRoleResolver {
@@ -54,7 +55,7 @@ export class PersonRoleResolver {
     @Directive("@rule(ruleType: ReadOne, subject: PersonRole)")
     async findOnePersonRole(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<PersonRole> {
         this.logger.verbose("findOnePersonRole resolver called");
         return ctx.req.prismaTx.personRole.findFirst({
@@ -96,7 +97,7 @@ export class PersonRoleResolver {
     @Directive("@rule(ruleType: Update, subject: PersonRole)")
     async updatePersonRole(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdatePersonRoleInput }) input: UpdatePersonRoleInput
     ): Promise<PersonRole> {
         this.logger.verbose("updatePersonRole resolver called");
@@ -148,7 +149,7 @@ export class PersonRoleResolver {
     @Directive("@rule(ruleType: Delete, subject: PersonRole)")
     async deletePersonRole(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<PersonRole> {
         this.logger.verbose("deletePersonRole resolver called");
 

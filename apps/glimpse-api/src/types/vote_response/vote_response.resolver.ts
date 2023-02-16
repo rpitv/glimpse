@@ -1,20 +1,21 @@
-import { Resolver, Query, Mutation, Args, Int, Context, Directive, ResolveField, Parent, ID } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import {Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver} from "@nestjs/graphql";
+import {validate} from "class-validator";
+import {plainToClass} from "class-transformer";
+import {BadRequestException, Logger} from "@nestjs/common";
+import {accessibleBy} from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
-import { Complexities } from "../../gql/gql-complexity.plugin";
-import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
-import { VoteResponse } from "./vote_response.entity";
-import { FilterVoteResponseInput } from "./dto/filter-vote_response.input";
-import { OrderVoteResponseInput } from "./dto/order-vote_response.input";
-import { CreateVoteResponseInput } from "./dto/create-vote_response.input";
-import { UpdateVoteResponseInput } from "./dto/update-vote_response.input";
-import { User } from "../user/user.entity";
-import { Vote } from "../vote/vote.entity";
+import {Complexities} from "../../gql/gql-complexity.plugin";
+import {Request} from "express";
+import {AbilityAction} from "../../casl/casl-ability.factory";
+import {subject} from "@casl/ability";
+import {VoteResponse} from "./vote_response.entity";
+import {FilterVoteResponseInput} from "./dto/filter-vote_response.input";
+import {OrderVoteResponseInput} from "./dto/order-vote_response.input";
+import {CreateVoteResponseInput} from "./dto/create-vote_response.input";
+import {UpdateVoteResponseInput} from "./dto/update-vote_response.input";
+import {User} from "../user/user.entity";
+import {Vote} from "../vote/vote.entity";
+import {GraphQLBigInt} from "graphql-scalars";
 
 @Resolver(() => VoteResponse)
 export class VoteResponseResolver {
@@ -54,7 +55,7 @@ export class VoteResponseResolver {
     @Directive("@rule(ruleType: ReadOne, subject: VoteResponse)")
     async findOneVoteResponse(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<VoteResponse> {
         this.logger.verbose("findOneVoteResponse resolver called");
         return ctx.req.prismaTx.voteResponse.findFirst({
@@ -96,7 +97,7 @@ export class VoteResponseResolver {
     @Directive("@rule(ruleType: Update, subject: VoteResponse)")
     async updateVoteResponse(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number,
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
         @Args("input", { type: () => UpdateVoteResponseInput }) input: UpdateVoteResponseInput
     ): Promise<VoteResponse> {
         this.logger.verbose("updateVoteResponse resolver called");
@@ -148,7 +149,7 @@ export class VoteResponseResolver {
     @Directive("@rule(ruleType: Delete, subject: VoteResponse)")
     async deleteVoteResponse(
         @Context() ctx: { req: Request },
-        @Args("id", { type: () => ID }) id: number
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<VoteResponse> {
         this.logger.verbose("deleteVoteResponse resolver called");
 
