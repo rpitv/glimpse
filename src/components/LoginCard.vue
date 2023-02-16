@@ -44,7 +44,7 @@ import type {FormInst, FormItemRule, FormValidationError} from "naive-ui";
 import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin, NDivider} from "naive-ui";
 import {ref} from "vue";
 import {useMutation} from "@vue/apollo-composable";
-import {UsernameLoginDocument} from "@/graphql/types";
+import {LoginLocalDocument} from "@/graphql/types";
 import {useAuthStore} from "@/stores/auth";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
@@ -64,7 +64,7 @@ const props = defineProps(["closable"]);
 defineExpose({focus})
 
 // Import composables
-const {mutate: login} = useMutation(UsernameLoginDocument, () => ({
+const {mutate: login} = useMutation(LoginLocalDocument, () => ({
   variables: {
     username: formValue.value.username,
     password: formValue.value.password
@@ -133,7 +133,7 @@ async function submit() {
         try {
           const result = await login();
           // If login was successful, then emit success. Otherwise, show an unknown error message (should never happen).
-          if (result?.data?.loginSuccess) {
+          if (result?.data?.loginLocal?.id) {
             emit("success");
             authStore.isLoggedIn = true;
             authStore.permissions = null;

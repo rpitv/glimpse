@@ -11,22 +11,15 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
+  /** The `BigInt` scalar type represents non-fractional signed whole numeric values. */
+  BigInt: any;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
-  /** A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/. */
-  EmailAddress: any;
-  File: any;
-  /** The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSONObject: any;
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: any;
+  /** A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier. */
+  UUID: any;
 };
-
-export enum AbilityActions {
-  Create = 'create',
-  Delete = 'delete',
-  Manage = 'manage',
-  Read = 'read',
-  Update = 'update'
-}
 
 export enum AbilitySubjects {
   AccessLog = 'AccessLog',
@@ -36,13 +29,13 @@ export enum AbilitySubjects {
   BlogPost = 'BlogPost',
   Category = 'Category',
   ContactSubmission = 'ContactSubmission',
-  ContactSubmissionAssignee = 'ContactSubmissionAssignee',
   Credit = 'Credit',
   Group = 'Group',
   GroupPermission = 'GroupPermission',
   Image = 'Image',
   Person = 'Person',
   PersonImage = 'PersonImage',
+  PersonRole = 'PersonRole',
   Production = 'Production',
   ProductionImage = 'ProductionImage',
   ProductionRsvp = 'ProductionRSVP',
@@ -61,1649 +54,3490 @@ export enum AbilitySubjects {
 
 export type AccessLog = {
   __typename?: 'AccessLog';
-  id: Scalars['ID'];
+  /** Unique ID for this AccessLog. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** IP address which the access that generated this access log originated from. */
   ip?: Maybe<Scalars['String']>;
-  service: Scalars['String'];
-  timestamp: Scalars['DateTime'];
-  user: User;
+  /** Name of the service which this access log is a record for. */
+  service?: Maybe<Scalars['String']>;
+  /** DateTime at which this access log was generated. */
+  timestamp?: Maybe<Scalars['DateTime']>;
+  user?: Maybe<User>;
+  /** ID of the user who initiated this access log. */
+  userId?: Maybe<Scalars['BigInt']>;
 };
+
+export enum AccessLogOrderableFields {
+  Id = 'id',
+  Service = 'service',
+  Timestamp = 'timestamp'
+}
 
 export type AlertLog = {
   __typename?: 'AlertLog';
-  id: Scalars['ID'];
-  message: Scalars['String'];
-  severity: AlertLogSeverity;
-  timestamp: Scalars['DateTime'];
+  /** Unique ID for this alert. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The message logged by this alert. This is what is displayed to the user(s) viewing alerts. */
+  message?: Maybe<Scalars['String']>;
+  /**
+   * Severity of this alert. Currently can be any value, but should probably be one of the following:
+   * - "INFO"
+   * - "WARN"
+   * - "ERROR"
+   * A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
+   * for easier filtering of alerts by severity.
+   */
+  severity?: Maybe<Scalars['String']>;
+  /** DateTime at which this alert was generated. */
+  timestamp?: Maybe<Scalars['DateTime']>;
 };
 
-export type AlertLogCreateInput = {
-  message: Scalars['String'];
-  severity: AlertLogSeverity;
-};
-
-export enum AlertLogSeverity {
-  Critical = 'CRITICAL',
-  High = 'HIGH',
-  Info = 'INFO',
-  Low = 'LOW',
-  Medium = 'MEDIUM'
+export enum AlertLogOrderableFields {
+  Id = 'id',
+  Message = 'message',
+  Severity = 'severity',
+  Timestamp = 'timestamp'
 }
 
+/**
+ * Assets are the physical objects that are property of RPI TV, or are otherwise managed and tracked by RPI TV.
+ *
+ * Due to the club's rapidly revolving door of members, it's easy for equipment to get lost or forgotten about. The
+ * Asset system is intended to assist in keeping track of what assets RPI TV owns, where they were purchased, how
+ * much they were purchased for, and where they are being used (and by whom).
+ *
+ * Assets currently do not have a "checked in" or "checked out" status. Instead, each asset has a last known location,
+ * as well as the last known user who was using the asset. When an asset is "checked out", the user will scan the
+ * location's bar code and the asset's QR code, which will update the asset's last known location and last known
+ * handler. It is presumed that an asset will not be checked out for long, or if it is, the user who checked it out
+ * will have it in their possession at all times, so they will know the status of it while it is in their possession.
+ * When the user wants to "check in" the asset, the same process is done as when they checked it out.
+ */
 export type Asset = {
   __typename?: 'Asset';
   children?: Maybe<Array<Asset>>;
-  id: Scalars['ID'];
-  isLost: Scalars['Boolean'];
+  /** Unique ID for this asset. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /**
+   * Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
+   * known location and the last known handler cannot account for its current location.
+   */
+  isLost?: Maybe<Scalars['Boolean']>;
   lastKnownHandler?: Maybe<User>;
+  /** The user ID of the user who last checked this asset out/in. */
+  lastKnownHandlerId?: Maybe<Scalars['BigInt']>;
+  /**
+   * The last known location of this asset. This should be the last location that the asset was checked out
+   * from/checked into.
+   */
   lastKnownLocation?: Maybe<Scalars['String']>;
+  /**
+   * The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
+   * asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
+   * asset. This is useful for future club members who wish to re-purchase an asset or find out more information
+   * about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
+   */
   modelNumber?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
+  /** The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable */
+  name?: Maybe<Scalars['String']>;
+  /** Optional notes about this asset. */
   notes?: Maybe<Scalars['String']>;
   parent?: Maybe<Asset>;
+  /**
+   * Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
+   * includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
+   * for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
+   * scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
+   * set to null.
+   */
+  parentId?: Maybe<Scalars['BigInt']>;
+  /**
+   * DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
+   * members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
+   * should be the date that the asset was purchased, not the date that it was received. If the purchase date is
+   * unknown, it can be set to null.
+   */
   purchaseDate?: Maybe<Scalars['DateTime']>;
+  /**
+   * The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
+   * asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
+   * Purchase location should be as specific as possible, and can be either a physical location or a website URL.
+   */
   purchaseLocation?: Maybe<Scalars['String']>;
+  /**
+   * The price which this asset was purchased for in pennies. This is useful for new club members who wish to
+   * re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
+   * (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
+   * to null.
+   */
   purchasePrice?: Maybe<Scalars['Int']>;
+  /**
+   * The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
+   * Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
+   * make sense to log it. In this case, the serial number can be set to null.
+   */
   serialNumber?: Maybe<Scalars['String']>;
+  /**
+   * Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
+   * are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
+   */
   tag?: Maybe<Scalars['Int']>;
 };
 
-export type AssetCreateInput = {
-  /** Defaults to false. */
-  isLost?: Scalars['Boolean'];
-  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
-  lastKnownLocation?: InputMaybe<Scalars['String']>;
-  modelNumber?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  notes?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['ID']>;
-  purchaseDate?: InputMaybe<Scalars['DateTime']>;
-  purchaseLocation?: InputMaybe<Scalars['String']>;
-  purchasePrice?: InputMaybe<Scalars['Int']>;
-  serialNumber?: InputMaybe<Scalars['String']>;
-  tag?: InputMaybe<Scalars['Int']>;
+
+/**
+ * Assets are the physical objects that are property of RPI TV, or are otherwise managed and tracked by RPI TV.
+ *
+ * Due to the club's rapidly revolving door of members, it's easy for equipment to get lost or forgotten about. The
+ * Asset system is intended to assist in keeping track of what assets RPI TV owns, where they were purchased, how
+ * much they were purchased for, and where they are being used (and by whom).
+ *
+ * Assets currently do not have a "checked in" or "checked out" status. Instead, each asset has a last known location,
+ * as well as the last known user who was using the asset. When an asset is "checked out", the user will scan the
+ * location's bar code and the asset's QR code, which will update the asset's last known location and last known
+ * handler. It is presumed that an asset will not be checked out for long, or if it is, the user who checked it out
+ * will have it in their possession at all times, so they will know the status of it while it is in their possession.
+ * When the user wants to "check in" the asset, the same process is done as when they checked it out.
+ */
+export type AssetChildrenArgs = {
+  filter?: InputMaybe<FilterAssetInput>;
+  order?: InputMaybe<Array<OrderAssetInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
-export type AssetUpdateInput = {
-  isLost?: InputMaybe<Scalars['Boolean']>;
-  lastKnownHandlerId?: InputMaybe<Scalars['ID']>;
-  lastKnownLocation?: InputMaybe<Scalars['String']>;
-  modelNumber?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  notes?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['ID']>;
-  purchaseDate?: InputMaybe<Scalars['DateTime']>;
-  purchaseLocation?: InputMaybe<Scalars['String']>;
-  purchasePrice?: InputMaybe<Scalars['Int']>;
-  serialNumber?: InputMaybe<Scalars['String']>;
-  tag?: InputMaybe<Scalars['Int']>;
-};
+export enum AssetOrderableFields {
+  Id = 'id',
+  Name = 'name',
+  PurchaseDate = 'purchaseDate',
+  PurchasePrice = 'purchasePrice',
+  Tag = 'tag'
+}
 
+/**
+ * Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
+ * way of generating these automatically with the user's ID. It would be possible to generate automatically if we
+ * weren't logging the user who made the change using Prisma middleware or extensions. For now, they have to be
+ * logged manually using {@link PrismaServicegenAuditLog }.
+ *
+ * All automatic generation solutions that I came up with involved violating type safety, relying on private Prisma
+ * interfaces, and/or were so obtuse and hacky that it wasn't worth it.
+ */
 export type AuditLog = {
   __typename?: 'AuditLog';
-  comment?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  metadata?: Maybe<Scalars['JSONObject']>;
-  modificationType: Scalars['String'];
-  modifiedField: Scalars['String'];
-  modifiedTable?: Maybe<Scalars['String']>;
-  previousValue?: Maybe<Scalars['String']>;
-  timestamp: Scalars['DateTime'];
+  action: Scalars['String'];
+  details: Array<Scalars['String']>;
+  /** Unique ID for this audit log. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /**
+   * Identifier of the resource that was changed. This should be the ID of the resource. If {@link  #subject} is null,
+   * then this should also be null.
+   */
+  identifier?: Maybe<Scalars['ID']>;
+  /**
+   * Custom message to display to the user when this audit log is displayed. This should be a human-readable message.
+   * This will be combined with the automatically generated message based on {@link  #prevValue}.
+   */
+  message?: Maybe<Scalars['String']>;
+  /**
+   * The type of subject which was changed. This should be one of the values in {@link AbilitySubjects }. If the change
+   * was to a resource that is not a subject, this should be null.
+   */
+  subject?: Maybe<Scalars['String']>;
+  /** DateTime at which this audit log was created. */
+  timestamp?: Maybe<Scalars['DateTime']>;
   user?: Maybe<User>;
+  /** User ID of the user that initiated this audit log. */
+  userId?: Maybe<Scalars['BigInt']>;
 };
+
+export enum AuditLogOrderableFields {
+  Id = 'id',
+  Identifier = 'identifier',
+  Message = 'message',
+  Subject = 'subject',
+  Timestamp = 'timestamp'
+}
 
 export type BlogPost = {
   __typename?: 'BlogPost';
-  author: Person;
+  author?: Maybe<Person>;
+  /**
+   * The name to display for the author, as opposed to the actual username/person name. This allows for posting
+   * blogs as a "group".
+   */
   authorDisplayName?: Maybe<Scalars['String']>;
-  content: Scalars['String'];
-  id: Scalars['ID'];
-  postedAt: Scalars['DateTime'];
-  title: Scalars['String'];
+  /** The User ID of the author of this blog post. */
+  authorId?: Maybe<Scalars['BigInt']>;
+  /** The actual body of the blog post. */
+  content?: Maybe<Scalars['String']>;
+  /** Unique ID for this blog post. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** DateTime at which this blog post was posted. */
+  postedAt?: Maybe<Scalars['DateTime']>;
+  /** The title of the blog post. */
+  title?: Maybe<Scalars['String']>;
 };
 
-export type BlogPostCreateInput = {
-  authorDisplayName?: InputMaybe<Scalars['String']>;
-  authorId: Scalars['ID'];
-  content: Scalars['String'];
-  title: Scalars['String'];
+export enum BlogPostOrderableFields {
+  Id = 'id',
+  PostedAt = 'postedAt',
+  Title = 'title'
+}
+
+export type BooleanComparisonInput = {
+  equals?: InputMaybe<Scalars['Boolean']>;
 };
 
-export type BlogPostUpdateInput = {
-  authorDisplayName?: InputMaybe<Scalars['String']>;
-  authorId?: InputMaybe<Scalars['ID']>;
-  content?: InputMaybe<Scalars['String']>;
-  title?: InputMaybe<Scalars['String']>;
-};
+export enum CaseSensitivity {
+  Default = 'Default',
+  Insensitive = 'Insensitive'
+}
 
 export type Category = {
   __typename?: 'Category';
   children?: Maybe<Array<Category>>;
-  id: Scalars['ID'];
+  /** Unique ID for this category. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The name of this category */
   name?: Maybe<Scalars['String']>;
   parent?: Maybe<Category>;
-  priority: Scalars['Int'];
+  /** The ID of the parent category, or null if this is a top-level category. */
+  parentId?: Maybe<Scalars['BigInt']>;
+  /** The priority of this category. Categories with a higher priority should be displayed first. */
+  priority?: Maybe<Scalars['Int']>;
   productions?: Maybe<Array<Production>>;
 };
 
-export type CategoryCreateInput = {
-  name?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['ID']>;
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
+
+export type CategoryChildrenArgs = {
+  filter?: InputMaybe<FilterCategoryInput>;
+  order?: InputMaybe<Array<OrderCategoryInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
-export type CategoryUpdateInput = {
-  name?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['ID']>;
-  priority?: InputMaybe<Scalars['Int']>;
+
+export type CategoryProductionsArgs = {
+  filter?: InputMaybe<FilterProductionInput>;
+  order?: InputMaybe<Array<OrderProductionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
+
+export enum CategoryOrderableFields {
+  Id = 'id',
+  Name = 'name',
+  Priority = 'priority'
+}
 
 export type ContactSubmission = {
   __typename?: 'ContactSubmission';
-  additionalData?: Maybe<Scalars['JSONObject']>;
-  assignees?: Maybe<Array<ContactSubmissionAssignee>>;
-  email: Scalars['EmailAddress'];
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  resolved: Scalars['Boolean'];
-  timestamp: Scalars['DateTime'];
+  /** Additional metadata about this ContactSubmission. Unstructured JSON data. */
+  additionalData?: Maybe<Scalars['JSON']>;
+  /** The main body of the ContactSubmission. */
+  body?: Maybe<Scalars['String']>;
+  /** The email address for how to reach the person who submitted this ContactSubmission. */
+  email?: Maybe<Scalars['String']>;
+  /** Unique ID for this ContactSubmission. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The name of the person who submitted this ContactSubmission. */
+  name?: Maybe<Scalars['String']>;
+  /** Flag whether this contact submission has been resolved or not. */
+  resolved?: Maybe<Scalars['Boolean']>;
+  /** The subject/title of the ContactSubmission. */
+  subject?: Maybe<Scalars['String']>;
+  /** Timestamp at which this ContactSubmission was submitted. */
+  timestamp?: Maybe<Scalars['DateTime']>;
 };
 
-export type ContactSubmissionAssignee = {
-  __typename?: 'ContactSubmissionAssignee';
-  id: Scalars['ID'];
-  submission: ContactSubmission;
-  timestamp: Scalars['DateTime'];
-  user: User;
+export enum ContactSubmissionOrderableFields {
+  Id = 'id',
+  Timestamp = 'timestamp'
+}
+
+/** Input type for createAlertLog mutation */
+export type CreateAlertLogInput = {
+  /** The message logged by this alert. This is what is displayed to the user(s) viewing alerts. */
+  message?: InputMaybe<Scalars['String']>;
+  /**
+   * Severity of this alert. Currently can be any value, but should probably be one of the following:
+   * - "INFO"
+   * - "WARN"
+   * - "ERROR"
+   * A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
+   * for easier filtering of alerts by severity.
+   */
+  severity?: InputMaybe<Scalars['String']>;
 };
 
-export type ContactSubmissionAssigneeCreateInput = {
-  submissionId: Scalars['ID'];
-  userId: Scalars['ID'];
+/** Input type for createAsset mutation */
+export type CreateAssetInput = {
+  /**
+   * Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
+   * known location and the last known handler cannot account for its current location.
+   */
+  isLost?: InputMaybe<Scalars['Boolean']>;
+  /** The user ID of the user who last checked this asset out/in. */
+  lastKnownHandlerId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * The last known location of this asset. This should be the last location that the asset was checked out
+   * from/checked into.
+   */
+  lastKnownLocation?: InputMaybe<Scalars['String']>;
+  /**
+   * The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
+   * asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
+   * asset. This is useful for future club members who wish to re-purchase an asset or find out more information
+   * about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
+   */
+  modelNumber?: InputMaybe<Scalars['String']>;
+  /** The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable */
+  name?: InputMaybe<Scalars['String']>;
+  /** Optional notes about this asset. */
+  notes?: InputMaybe<Scalars['String']>;
+  /**
+   * Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
+   * includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
+   * for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
+   * scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
+   * set to null.
+   */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
+   * members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
+   * should be the date that the asset was purchased, not the date that it was received. If the purchase date is
+   * unknown, it can be set to null.
+   */
+  purchaseDate?: InputMaybe<Scalars['DateTime']>;
+  /**
+   * The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
+   * asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
+   * Purchase location should be as specific as possible, and can be either a physical location or a website URL.
+   */
+  purchaseLocation?: InputMaybe<Scalars['String']>;
+  /**
+   * The price which this asset was purchased for in pennies. This is useful for new club members who wish to
+   * re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
+   * (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
+   * to null.
+   */
+  purchasePrice?: InputMaybe<Scalars['Int']>;
+  /**
+   * The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
+   * Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
+   * make sense to log it. In this case, the serial number can be set to null.
+   */
+  serialNumber?: InputMaybe<Scalars['String']>;
+  /**
+   * Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
+   * are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
+   */
+  tag?: InputMaybe<Scalars['Int']>;
 };
 
-export type ContactSubmissionCreateInput = {
-  additionalData?: InputMaybe<Scalars['JSONObject']>;
-  email: Scalars['EmailAddress'];
-  name: Scalars['String'];
+/** Input type for createBlogPost mutation */
+export type CreateBlogPostInput = {
+  /**
+   * The name to display for the author, as opposed to the actual username/person name. This allows for posting
+   * blogs as a "group".
+   */
+  authorDisplayName?: InputMaybe<Scalars['String']>;
+  /** The User ID of the author of this blog post. */
+  authorId?: InputMaybe<Scalars['BigInt']>;
+  /** The actual body of the blog post. */
+  content?: InputMaybe<Scalars['String']>;
+  /** DateTime at which this blog post was posted. */
+  postedAt?: InputMaybe<Scalars['DateTime']>;
+  /** The title of the blog post. */
+  title?: InputMaybe<Scalars['String']>;
 };
 
-export type ContactSubmissionUpdateInput = {
-  additionalData?: InputMaybe<Scalars['JSONObject']>;
+/** Input type for createCategory mutation */
+export type CreateCategoryInput = {
+  /** The name of this category */
+  name?: InputMaybe<Scalars['String']>;
+  /** The ID of the parent category, or null if this is a top-level category. */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /** The priority of this category. Categories with a higher priority should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/** Input type for createContactSubmission mutation */
+export type CreateContactSubmissionInput = {
+  /** Additional metadata about this ContactSubmission. Unstructured JSON data. */
+  additionalData?: InputMaybe<Scalars['JSON']>;
+  /** The main body of the ContactSubmission. */
+  body?: InputMaybe<Scalars['String']>;
+  /** The email address for how to reach the person who submitted this ContactSubmission. */
+  email?: InputMaybe<Scalars['String']>;
+  /** The name of the person who submitted this ContactSubmission. */
+  name?: InputMaybe<Scalars['String']>;
+  /** Flag whether this contact submission has been resolved or not. */
   resolved?: InputMaybe<Scalars['Boolean']>;
+  /** The subject/title of the ContactSubmission. */
+  subject?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createCredit mutation */
+export type CreateCreditInput = {
+  /** The ID of the person this Credit belongs to. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /** The priority of this Credit. Credits with a higher priority should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+  /** The ID of the production this Credit is for. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+  /** The title of this Credit */
+  title?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createGroup mutation */
+export type CreateGroupInput = {
+  /** The display name for this Group */
+  name?: InputMaybe<Scalars['String']>;
+  /** The ID of the parent of this Group. If null, this Group is a top-level Group. */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
+   * priority.
+   */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/** Input type for createGroupPermission mutation */
+export type CreateGroupPermissionInput = {
+  /** The action for this GroupPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: InputMaybe<Scalars['String']>;
+  /** Any conditional checks for this GroupPermission. */
+  conditions?: InputMaybe<Scalars['JSON']>;
+  /** The set of fields for this GroupPermission. */
+  fields?: InputMaybe<Array<Scalars['String']>>;
+  /** ID of the group which this GroupPermission is for. */
+  groupId?: InputMaybe<Scalars['BigInt']>;
+  /** True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission. */
+  inverted?: InputMaybe<Scalars['Boolean']>;
+  /** The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true. */
+  reason?: InputMaybe<Scalars['String']>;
+  /** The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: InputMaybe<Array<Scalars['String']>>;
+};
+
+/** Input type for createImage mutation */
+export type CreateImageInput = {
+  /** The description for this image. */
+  description?: InputMaybe<Scalars['String']>;
+  /** The display name for this image. */
+  name?: InputMaybe<Scalars['String']>;
+  /** The path/URI for this image. */
+  path?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createPersonImage mutation */
+export type CreatePersonImageInput = {
+  /** ID of the image this PersonImage is associated with. */
+  imageId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the person this PersonImage is associated with. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /** Priority of this PersonImage. Higher priority images should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/** Input type for createPerson mutation */
+export type CreatePersonInput = {
+  /** An "about me" section for this Person. */
+  description?: InputMaybe<Scalars['String']>;
+  /**
+   * The date that this Person intends on graduating from the university. This allows for automated role removals,
+   * as well as displaying the Person's class year on their profile.
+   */
+  graduation?: InputMaybe<Scalars['DateTime']>;
+  /** The name (or pseudonym) for this Person. Should likely be in the format "First Last". */
+  name?: InputMaybe<Scalars['String']>;
+  /** ID of the image which should be used for this Person's profile picture. */
+  profilePictureId?: InputMaybe<Scalars['BigInt']>;
+  /** The pronouns for this Person. Should likely be in the format "they/them". Optional. */
+  pronouns?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createPersonRole mutation */
+export type CreatePersonRoleInput = {
+  /** End date of when this PersonRole association should no longer be active. */
+  endTime?: InputMaybe<Scalars['DateTime']>;
+  /** ID of the person this PersonRole is associated with. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the role this PersonRole is associated with. */
+  roleId?: InputMaybe<Scalars['BigInt']>;
+  /** Start date of when this PersonRole association should begin. */
+  startTime?: InputMaybe<Scalars['DateTime']>;
+};
+
+/** Input type for createProductionImage mutation */
+export type CreateProductionImageInput = {
+  /** ID of the image this ProductionImage is associated with. */
+  imageId?: InputMaybe<Scalars['BigInt']>;
+  /** The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones. */
+  priority?: InputMaybe<Scalars['Int']>;
+  /** ID of the production this ProductionImage is associated with. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/** Input type for createProduction mutation */
+export type CreateProductionInput = {
+  /** The ID of the category which this Production belongs to. */
+  categoryId?: InputMaybe<Scalars['BigInt']>;
+  /** The closet meeting location for club members to meet at before the Production. */
+  closetLocation?: InputMaybe<Scalars['String']>;
+  /** The time that club members should meet at the closet location before the Production. */
+  closetTime?: InputMaybe<Scalars['DateTime']>;
+  /** The Description of this Production */
+  description?: InputMaybe<Scalars['String']>;
+  /**
+   * The ID of the Discord channel within the Discord server that messages related to this Production should be sent
+   * to.
+   */
+  discordChannel?: InputMaybe<Scalars['String']>;
+  /** The ID of the Discord server that messages related to this Production should be sent to. */
+  discordServer?: InputMaybe<Scalars['String']>;
+  /**
+   * The expected end time of this Production. This is used, in combination with start time, to determine which
+   * Productions are live.
+   */
+  endTime?: InputMaybe<Scalars['DateTime']>;
+  /** The location of the event for this Production. */
+  eventLocation?: InputMaybe<Scalars['String']>;
+  /** The title/name of this Production */
+  name?: InputMaybe<Scalars['String']>;
+  /**
+   * The expected start time of this Production. This is used, in combination with end time, to determine which
+   * Productions are live.
+   */
+  startTime?: InputMaybe<Scalars['DateTime']>;
+  /** Any notes that the team has about this Production. Can be markup. */
+  teamNotes?: InputMaybe<Scalars['String']>;
+  /** The ID of the Image which should be used as the thumbnail for this Production. */
+  thumbnailId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/** Input type for createProductionRSVP mutation */
+export type CreateProductionRsvpInput = {
+  /** Any additional notes provided by the User, officers, or producers. */
+  notes?: InputMaybe<Scalars['String']>;
+  /** ID of the Production that the User is RSVPing for. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the User that is RSVPing for the Production. */
+  userId?: InputMaybe<Scalars['BigInt']>;
+  /** The User's response to the Production's RSVP. Should be "yes", "no", or "maybe". */
+  willAttend?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createProductionTag mutation */
+export type CreateProductionTagInput = {
+  /** ID of the Production that this tag is associated with. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+  /** This tag's value. */
+  tag?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createProductionVideo mutation */
+export type CreateProductionVideoInput = {
+  /** The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones. */
+  priority?: InputMaybe<Scalars['Int']>;
+  /** ID of the person this ProductionVideo is associated with. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the video this ProductionVideo is associated with. */
+  videoId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/** Input type for createRedirect mutation */
+export type CreateRedirectInput = {
+  /** The date and time at which this Redirect expires. If null, this Redirect never expires. */
+  expires?: InputMaybe<Scalars['DateTime']>;
+  /** The key used in URLs to access this Redirect. */
+  key?: InputMaybe<Scalars['String']>;
+  /** The URL which this Redirect redirects to. */
+  location?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createRole mutation */
+export type CreateRoleInput = {
+  /** The optional description of this role. May be what people within this role are responsible for, for example. */
+  description?: InputMaybe<Scalars['String']>;
+  /** The name of this role. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createCategory mutation */
+export type CreateStreamInput = {
+  /** The location this stream is being pulled from. */
+  from?: InputMaybe<Scalars['String']>;
+  /** The location this stream is being pushed to. */
+  to?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createUserGroup mutation */
+export type CreateUserGroupInput = {
+  /** ID of the group this UserGroup is associated with. */
+  groupId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the user this UserGroup is associated with. */
+  userId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/** Input type for createUser mutation */
+export type CreateUserInput = {
+  /** Discord account ID for this user, or null if the user does not have a linked Discord account. */
+  discord?: InputMaybe<Scalars['String']>;
+  /** Email address for this user. */
+  mail?: InputMaybe<Scalars['String']>;
+  /** The password to set for this user */
+  password?: InputMaybe<Scalars['String']>;
+  /** Attached Person's ID, or null if this user does not have a linked Person. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
+   * Recommended to be the user's RCS ID.
+   */
+  username?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createUserPermission mutation */
+export type CreateUserPermissionInput = {
+  /** The action for this UserPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: InputMaybe<Scalars['String']>;
+  /** Any conditional checks for this UserPermission. */
+  conditions?: InputMaybe<Scalars['JSON']>;
+  /** The set of fields for this UserPermission. */
+  fields?: InputMaybe<Array<Scalars['String']>>;
+  /** True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission. */
+  inverted?: InputMaybe<Scalars['Boolean']>;
+  /** The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true. */
+  reason?: InputMaybe<Scalars['String']>;
+  /** The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: InputMaybe<Array<Scalars['String']>>;
+  /** ID of the user which this UserPermission is for. */
+  userId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/** Input type for createVideo mutation */
+export type CreateVideoInput = {
+  /** The format for this Video. Probably either "EMBED", "RTMP", or "HLS". */
+  format?: InputMaybe<Scalars['String']>;
+  /**
+   * All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
+   * format of the video.
+   */
+  metadata?: InputMaybe<Scalars['JSON']>;
+  /** The display name for this Video. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createVote mutation */
+export type CreateVoteInput = {
+  /** Additional describing information about this vote. */
+  description?: InputMaybe<Scalars['String']>;
+  /** Timestamp at which this vote closes and no more responses will be accepted. */
+  expires?: InputMaybe<Scalars['DateTime']>;
+  /** An array of available options for responses to this vote. */
+  options?: InputMaybe<Array<Scalars['String']>>;
+  /** The question proposed in this vote. */
+  question?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for createVoteResponse mutation */
+export type CreateVoteResponseInput = {
+  /**
+   * The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
+   * unchanged unless the user updates their vote.
+   */
+  selection?: InputMaybe<Scalars['String']>;
+  /** Timestamp at which this VoteResponse was submitted. */
+  timestamp?: InputMaybe<Scalars['DateTime']>;
+  /** ID of the user this VoteResponse is associated with. */
+  userId?: InputMaybe<Scalars['BigInt']>;
+  /** ID of the vote this VoteResponse is associated with. */
+  voteId?: InputMaybe<Scalars['BigInt']>;
 };
 
 export type Credit = {
   __typename?: 'Credit';
-  id: Scalars['ID'];
-  person: Person;
-  priority: Scalars['Int'];
-  production: Production;
+  /** Unique ID for this Credit. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  person?: Maybe<Person>;
+  /** The ID of the person this Credit belongs to. */
+  personId?: Maybe<Scalars['BigInt']>;
+  /** The priority of this Credit. Credits with a higher priority should be displayed first. */
+  priority?: Maybe<Scalars['Int']>;
+  production?: Maybe<Production>;
+  /** The ID of the production this Credit is for. */
+  productionId?: Maybe<Scalars['BigInt']>;
+  /** The title of this Credit */
   title?: Maybe<Scalars['String']>;
 };
 
-export type CreditCreateInput = {
-  personId: Scalars['ID'];
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
-  productionId: Scalars['ID'];
-  title?: InputMaybe<Scalars['String']>;
+export enum CreditOrderableFields {
+  Id = 'id',
+  Priority = 'priority',
+  Title = 'title'
+}
+
+export type DateComparisonInput = {
+  equals?: InputMaybe<Scalars['DateTime']>;
+  gt?: InputMaybe<Scalars['DateTime']>;
+  gte?: InputMaybe<Scalars['DateTime']>;
+  lt?: InputMaybe<Scalars['DateTime']>;
+  lte?: InputMaybe<Scalars['DateTime']>;
+  not?: InputMaybe<Scalars['DateTime']>;
 };
 
-export type CreditUpdateInput = {
-  personId?: InputMaybe<Scalars['ID']>;
-  priority?: InputMaybe<Scalars['Int']>;
-  productionId?: InputMaybe<Scalars['ID']>;
-  title?: InputMaybe<Scalars['String']>;
+/** Input type for filtering AccessLogs in ReadMany queries. */
+export type FilterAccessLogInput = {
+  AND?: InputMaybe<Array<FilterAccessLogInput>>;
+  NOT?: InputMaybe<FilterAccessLogInput>;
+  OR?: InputMaybe<Array<FilterAccessLogInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by IP address */
+  ip?: InputMaybe<StringComparisonInput>;
+  /** Filter by service name */
+  service?: InputMaybe<StringComparisonInput>;
+  /** Filter by timestamp */
+  timestamp?: InputMaybe<DateComparisonInput>;
+  /** Filter by User ID */
+  userId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering AlertLogs in ReadMany queries. */
+export type FilterAlertLogInput = {
+  AND?: InputMaybe<Array<FilterAlertLogInput>>;
+  NOT?: InputMaybe<FilterAlertLogInput>;
+  OR?: InputMaybe<Array<FilterAlertLogInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by message */
+  message?: InputMaybe<StringComparisonInput>;
+  /** Filter by severity */
+  severity?: InputMaybe<StringComparisonInput>;
+  /** Filter by timestamp */
+  timestamp?: InputMaybe<DateComparisonInput>;
+};
+
+/** Input type for filtering Assets in ReadMany queries. */
+export type FilterAssetInput = {
+  AND?: InputMaybe<Array<FilterAssetInput>>;
+  NOT?: InputMaybe<FilterAssetInput>;
+  OR?: InputMaybe<Array<FilterAssetInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by whether the asset is lost or not */
+  isLost?: InputMaybe<BooleanComparisonInput>;
+  /** Filter by the last known handler of the asset */
+  lastKnownHandlerId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the last known location of the asset */
+  lastKnownLocation?: InputMaybe<StringComparisonInput>;
+  /** Filter by the model number of the asset */
+  modelNumber?: InputMaybe<StringComparisonInput>;
+  /** Filter by human-readable name */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by the notes associated with the asset */
+  notes?: InputMaybe<StringComparisonInput>;
+  /** Filter by the parent asset of the asset */
+  parentId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by when the asset was purchased */
+  purchaseDate?: InputMaybe<DateComparisonInput>;
+  /** Filter by where the asset was purchased */
+  purchaseLocation?: InputMaybe<StringComparisonInput>;
+  /** Filter by the purchase price of the asset */
+  purchasePrice?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the serial number of the asset */
+  serialNumber?: InputMaybe<StringComparisonInput>;
+  /** Filter by tag number */
+  tag?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering AuditLogs in ReadMany queries. */
+export type FilterAuditLogInput = {
+  AND?: InputMaybe<Array<FilterAuditLogInput>>;
+  NOT?: InputMaybe<FilterAuditLogInput>;
+  OR?: InputMaybe<Array<FilterAuditLogInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the identifier of the object within the subject type (e.g. the ID of the user) */
+  identifier?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the changed subject type */
+  subject?: InputMaybe<StringComparisonInput>;
+  /** Filter by the time the change was made */
+  timestamp?: InputMaybe<DateComparisonInput>;
+  /** Filter by the user who made the change */
+  userId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering BlogPosts in ReadMany queries. */
+export type FilterBlogPostInput = {
+  AND?: InputMaybe<Array<FilterBlogPostInput>>;
+  NOT?: InputMaybe<FilterBlogPostInput>;
+  OR?: InputMaybe<Array<FilterBlogPostInput>>;
+  /** Filter by author display name */
+  authorDisplayName?: InputMaybe<StringComparisonInput>;
+  /** Filter by author ID */
+  authorId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by when the blog post was posted. */
+  postedAt?: InputMaybe<DateComparisonInput>;
+  /** Filter by title */
+  title?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering Categories in ReadMany queries. */
+export type FilterCategoryInput = {
+  AND?: InputMaybe<Array<FilterCategoryInput>>;
+  NOT?: InputMaybe<FilterCategoryInput>;
+  OR?: InputMaybe<Array<FilterCategoryInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by parent category ID */
+  parentId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by priority */
+  priority?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering ContactSubmissions in ReadMany queries. */
+export type FilterContactSubmissionInput = {
+  AND?: InputMaybe<Array<FilterContactSubmissionInput>>;
+  NOT?: InputMaybe<FilterContactSubmissionInput>;
+  OR?: InputMaybe<Array<FilterContactSubmissionInput>>;
+  /** Filter by the email of the person who submitted the ContactSubmission. */
+  email?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the name of the person who submitted the ContactSubmission. */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by resolved status */
+  resolved?: InputMaybe<BooleanComparisonInput>;
+  /** Filter by timestamp */
+  timestamp?: InputMaybe<DateComparisonInput>;
+};
+
+/** Input type for filtering Credits in ReadMany queries. */
+export type FilterCreditInput = {
+  AND?: InputMaybe<Array<FilterCreditInput>>;
+  NOT?: InputMaybe<FilterCreditInput>;
+  OR?: InputMaybe<Array<FilterCreditInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by ID of the Person the Credit is for */
+  personId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by ID of the Production the Credit is for */
+  productionId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by position title */
+  title?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering Groups in ReadMany queries. */
+export type FilterGroupInput = {
+  AND?: InputMaybe<Array<FilterGroupInput>>;
+  NOT?: InputMaybe<FilterGroupInput>;
+  OR?: InputMaybe<Array<FilterGroupInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by parent group ID */
+  parentId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering GroupPermissions in ReadMany queries. */
+export type FilterGroupPermissionInput = {
+  AND?: InputMaybe<Array<FilterGroupPermissionInput>>;
+  NOT?: InputMaybe<FilterGroupPermissionInput>;
+  OR?: InputMaybe<Array<FilterGroupPermissionInput>>;
+  /** Filter by permission action */
+  action?: InputMaybe<StringComparisonInput>;
+  /** Filter by group ID */
+  groupId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by inverted status */
+  inverted?: InputMaybe<BooleanComparisonInput>;
+  /** Filter by inverted permissions denial reason */
+  reason?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering Images in ReadMany queries. */
+export type FilterImageInput = {
+  AND?: InputMaybe<Array<FilterImageInput>>;
+  NOT?: InputMaybe<FilterImageInput>;
+  OR?: InputMaybe<Array<FilterImageInput>>;
+  /** Filter by the description of this Image. */
+  description?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the name of this Image. */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by the path of this Image. */
+  path?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering PersonImages in ReadMany queries. */
+export type FilterPersonImageInput = {
+  AND?: InputMaybe<Array<FilterPersonImageInput>>;
+  NOT?: InputMaybe<FilterPersonImageInput>;
+  OR?: InputMaybe<Array<FilterPersonImageInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by image ID */
+  imageId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by person ID */
+  personId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering Persons in ReadMany queries. */
+export type FilterPersonInput = {
+  AND?: InputMaybe<Array<FilterPersonInput>>;
+  NOT?: InputMaybe<FilterPersonInput>;
+  OR?: InputMaybe<Array<FilterPersonInput>>;
+  /** Filter by graduation */
+  graduation?: InputMaybe<DateComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering PersonRoles in ReadMany queries. */
+export type FilterPersonRoleInput = {
+  AND?: InputMaybe<Array<FilterPersonRoleInput>>;
+  NOT?: InputMaybe<FilterPersonRoleInput>;
+  OR?: InputMaybe<Array<FilterPersonRoleInput>>;
+  /** Filter by the end time of the PersonRole */
+  endTime?: InputMaybe<DateComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Person ID */
+  personId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Role ID */
+  roleId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the start time of the PersonRole */
+  startTime?: InputMaybe<DateComparisonInput>;
+};
+
+/** Input type for filtering ProductionImages in ReadMany queries. */
+export type FilterProductionImageInput = {
+  AND?: InputMaybe<Array<FilterProductionImageInput>>;
+  NOT?: InputMaybe<FilterProductionImageInput>;
+  OR?: InputMaybe<Array<FilterProductionImageInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Image ID */
+  imageId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Production ID */
+  productionId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering Productions in ReadMany queries. */
+export type FilterProductionInput = {
+  AND?: InputMaybe<Array<FilterProductionInput>>;
+  NOT?: InputMaybe<FilterProductionInput>;
+  OR?: InputMaybe<Array<FilterProductionInput>>;
+  /** Filter by category ID */
+  categoryId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by closet location */
+  closetLocation?: InputMaybe<StringComparisonInput>;
+  /** Filter by closet time */
+  closetTime?: InputMaybe<DateComparisonInput>;
+  /** Filter by description */
+  description?: InputMaybe<StringComparisonInput>;
+  /** Filter by end time */
+  endTime?: InputMaybe<DateComparisonInput>;
+  /** Filter by event location */
+  eventLocation?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringComparisonInput>;
+  /** Filter by start time */
+  startTime?: InputMaybe<DateComparisonInput>;
+  /** Filter by team notes */
+  teamNotes?: InputMaybe<StringComparisonInput>;
+  /** Filter by thumbnail Image ID */
+  thumbnailId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering ProductionRSVPs in ReadMany queries. */
+export type FilterProductionRsvpInput = {
+  AND?: InputMaybe<Array<FilterProductionRsvpInput>>;
+  NOT?: InputMaybe<FilterProductionRsvpInput>;
+  OR?: InputMaybe<Array<FilterProductionRsvpInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by any additional notes provided by the User, officers, or producers */
+  notes?: InputMaybe<StringComparisonInput>;
+  /** Filter by Production ID */
+  productionId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by User ID */
+  userId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by whether the User will attend the Production */
+  willAttend?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering ProductionTags in ReadMany queries. */
+export type FilterProductionTagInput = {
+  AND?: InputMaybe<Array<FilterProductionTagInput>>;
+  NOT?: InputMaybe<FilterProductionTagInput>;
+  OR?: InputMaybe<Array<FilterProductionTagInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Production ID */
+  productionId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by tag */
+  tag?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering ProductionVideos in ReadMany queries. */
+export type FilterProductionVideoInput = {
+  AND?: InputMaybe<Array<FilterProductionVideoInput>>;
+  NOT?: InputMaybe<FilterProductionVideoInput>;
+  OR?: InputMaybe<Array<FilterProductionVideoInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Production ID */
+  productionId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Video ID */
+  videoId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering Redirects in ReadMany queries. */
+export type FilterRedirectInput = {
+  AND?: InputMaybe<Array<FilterRedirectInput>>;
+  NOT?: InputMaybe<FilterRedirectInput>;
+  OR?: InputMaybe<Array<FilterRedirectInput>>;
+  /** Filter by when the Redirect expires. */
+  expires?: InputMaybe<DateComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by Redirect key, used in URLs. */
+  key?: InputMaybe<StringComparisonInput>;
+  /** Filter by Redirect location. User is redirected to this URL. */
+  location?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering Roles in ReadMany queries. */
+export type FilterRoleInput = {
+  AND?: InputMaybe<Array<FilterRoleInput>>;
+  NOT?: InputMaybe<FilterRoleInput>;
+  OR?: InputMaybe<Array<FilterRoleInput>>;
+  /** Filter by the description of this Role. */
+  description?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by the name of this Role. */
+  name?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering UserGroups in ReadMany queries. */
+export type FilterUserGroupInput = {
+  AND?: InputMaybe<Array<FilterUserGroupInput>>;
+  NOT?: InputMaybe<FilterUserGroupInput>;
+  OR?: InputMaybe<Array<FilterUserGroupInput>>;
+  /** Filter by Group ID */
+  groupId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by User ID */
+  userId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering Users in ReadMany queries. */
+export type FilterUserInput = {
+  AND?: InputMaybe<Array<FilterUserInput>>;
+  NOT?: InputMaybe<FilterUserInput>;
+  OR?: InputMaybe<Array<FilterUserInput>>;
+  /** Filter by Discord ID */
+  discord?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by joined date */
+  joined?: InputMaybe<DateComparisonInput>;
+  /** Filter by email address */
+  mail?: InputMaybe<StringComparisonInput>;
+  /** Filter by Person ID */
+  personId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by username */
+  username?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering UserPermissions in ReadMany queries. */
+export type FilterUserPermissionInput = {
+  AND?: InputMaybe<Array<FilterUserPermissionInput>>;
+  NOT?: InputMaybe<FilterUserPermissionInput>;
+  OR?: InputMaybe<Array<FilterUserPermissionInput>>;
+  /** Filter by permission action */
+  action?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by inverted status */
+  inverted?: InputMaybe<BooleanComparisonInput>;
+  /** Filter by inverted permissions denial reason */
+  reason?: InputMaybe<StringComparisonInput>;
+  /** Filter by User ID */
+  userId?: InputMaybe<NumberComparisonInput>;
+};
+
+/** Input type for filtering Videos in ReadMany queries. */
+export type FilterVideoInput = {
+  AND?: InputMaybe<Array<FilterVideoInput>>;
+  NOT?: InputMaybe<FilterVideoInput>;
+  OR?: InputMaybe<Array<FilterVideoInput>>;
+  /** Filter by format */
+  format?: InputMaybe<StringComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering Votes in ReadMany queries. */
+export type FilterVoteInput = {
+  AND?: InputMaybe<Array<FilterVoteInput>>;
+  NOT?: InputMaybe<FilterVoteInput>;
+  OR?: InputMaybe<Array<FilterVoteInput>>;
+  /** Filter by description */
+  description?: InputMaybe<StringComparisonInput>;
+  /** Filter by expiry datetime */
+  expires?: InputMaybe<DateComparisonInput>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by question */
+  question?: InputMaybe<StringComparisonInput>;
+};
+
+/** Input type for filtering VoteResponses in ReadMany queries. */
+export type FilterVoteResponseInput = {
+  AND?: InputMaybe<Array<FilterVoteResponseInput>>;
+  NOT?: InputMaybe<FilterVoteResponseInput>;
+  OR?: InputMaybe<Array<FilterVoteResponseInput>>;
+  /** Filter by ID */
+  id?: InputMaybe<NumberComparisonInput>;
+  /** Filter by their selection */
+  selection?: InputMaybe<StringComparisonInput>;
+  /** Filter by when they voted */
+  timestamp?: InputMaybe<DateComparisonInput>;
+  /** Filter by user ID */
+  userId?: InputMaybe<NumberComparisonInput>;
+  /** Filter by vote ID */
+  voteId?: InputMaybe<NumberComparisonInput>;
 };
 
 export type Group = {
   __typename?: 'Group';
   children?: Maybe<Array<Group>>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  /** Unique ID for this Group. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The display name for this Group */
+  name?: Maybe<Scalars['String']>;
   parent?: Maybe<Group>;
+  /** The ID of the parent of this Group. If null, this Group is a top-level Group. */
+  parentId?: Maybe<Scalars['BigInt']>;
   permissions?: Maybe<Array<GroupPermission>>;
-  priority: Scalars['Int'];
+  /**
+   * The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
+   * priority.
+   */
+  priority?: Maybe<Scalars['Int']>;
   users?: Maybe<Array<UserGroup>>;
 };
 
-export type GroupCreateInput = {
-  name: Scalars['String'];
-  parentId?: InputMaybe<Scalars['ID']>;
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
+
+export type GroupChildrenArgs = {
+  filter?: InputMaybe<FilterGroupInput>;
+  order?: InputMaybe<Array<OrderGroupInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
+
+
+export type GroupPermissionsArgs = {
+  filter?: InputMaybe<FilterGroupPermissionInput>;
+  order?: InputMaybe<Array<OrderGroupPermissionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type GroupUsersArgs = {
+  filter?: InputMaybe<FilterUserGroupInput>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+export enum GroupOrderableFields {
+  Id = 'id',
+  Name = 'name',
+  Priority = 'priority'
+}
 
 export type GroupPermission = {
   __typename?: 'GroupPermission';
-  action: Scalars['String'];
-  conditions?: Maybe<Scalars['JSONObject']>;
+  /** The action for this GroupPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: Maybe<Scalars['String']>;
+  /** Any conditional checks for this GroupPermission. */
+  conditions?: Maybe<Scalars['JSON']>;
+  /** The set of fields for this GroupPermission. */
   fields?: Maybe<Array<Scalars['String']>>;
-  group: Group;
-  id: Scalars['ID'];
-  inverted: Scalars['Boolean'];
+  group?: Maybe<Group>;
+  /** ID of the group which this GroupPermission is for. */
+  groupId?: Maybe<Scalars['BigInt']>;
+  /** Unique ID for this GroupPermission. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission. */
+  inverted?: Maybe<Scalars['Boolean']>;
+  /** The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true. */
   reason?: Maybe<Scalars['String']>;
-  subject: Array<Scalars['String']>;
+  /** The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: Maybe<Array<Scalars['String']>>;
 };
 
-export type GroupPermissionCreateInput = {
-  action: Scalars['String'];
-  conditions?: InputMaybe<Scalars['JSONObject']>;
-  fields?: InputMaybe<Array<Scalars['String']>>;
-  groupId: Scalars['ID'];
-  inverted?: InputMaybe<Scalars['Boolean']>;
-  reason?: InputMaybe<Scalars['String']>;
-  subject: Array<Scalars['String']>;
-};
-
-export type GroupPermissionUpdateInput = {
-  action?: InputMaybe<Scalars['String']>;
-  conditions?: InputMaybe<Scalars['JSONObject']>;
-  fields?: InputMaybe<Array<Scalars['String']>>;
-  inverted?: InputMaybe<Scalars['Boolean']>;
-  reason?: InputMaybe<Scalars['String']>;
-  subject?: InputMaybe<Array<Scalars['String']>>;
-};
-
-export type GroupUpdateInput = {
-  name?: InputMaybe<Scalars['String']>;
-  parentId?: InputMaybe<Scalars['ID']>;
-  priority?: InputMaybe<Scalars['Int']>;
-};
+export enum GroupPermissionOrderableFields {
+  Action = 'action',
+  Id = 'id'
+}
 
 export type Image = {
   __typename?: 'Image';
+  /** The description for this image. */
   description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  imageFor?: Maybe<Array<ProductionImage>>;
-  name: Scalars['String'];
-  path: Scalars['String'];
+  /** Unique ID for this Image. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The display name for this image. */
+  name?: Maybe<Scalars['String']>;
+  /** The path/URI for this image. */
+  path?: Maybe<Scalars['String']>;
   people?: Maybe<Array<PersonImage>>;
+  productions?: Maybe<Array<ProductionImage>>;
+  profilePictureFor?: Maybe<Array<Person>>;
   thumbnailFor?: Maybe<Array<Production>>;
 };
 
-export type ImageCreateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  name: Scalars['String'];
-  path: Scalars['String'];
+
+export type ImagePeopleArgs = {
+  filter?: InputMaybe<FilterPersonImageInput>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
-export type ImageUpdateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  path?: InputMaybe<Scalars['String']>;
+
+export type ImageProductionsArgs = {
+  filter?: InputMaybe<FilterProductionImageInput>;
+  pagination?: InputMaybe<PaginationInput>;
 };
+
+
+export type ImageProfilePictureForArgs = {
+  filter?: InputMaybe<FilterPersonInput>;
+  order?: InputMaybe<Array<OrderPersonInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type ImageThumbnailForArgs = {
+  filter?: InputMaybe<FilterProductionInput>;
+  order?: InputMaybe<Array<OrderProductionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+export enum ImageOrderableFields {
+  Id = 'id',
+  Name = 'name'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
-  /** Create a new AlertLog with the given input values. */
   createAlertLog: AlertLog;
-  /** Create a new Asset with the given input values. */
   createAsset: Asset;
-  /** Create a new BlogPost with the given input values. */
   createBlogPost: BlogPost;
-  /** Create a new Category with the given input values. */
   createCategory: Category;
-  /** Create a new ContactSubmission with the given input values. */
   createContactSubmission: ContactSubmission;
-  /** Create a new ContactSubmissionAssignee with the given input values. */
-  createContactSubmissionAssignee: ContactSubmissionAssignee;
-  /** Create a new Credit with the given input values. */
   createCredit: Credit;
-  /** Create a new Group with the given input values. */
   createGroup: Group;
-  /** Create a new GroupPermission with the given input values. */
   createGroupPermission: GroupPermission;
-  /** Create a new Image with the given input values. */
   createImage: Image;
-  /** Create a new Person with the given input values. */
   createPerson: Person;
-  /** Create a new PersonImage with the given input values. */
   createPersonImage: PersonImage;
-  /** Create a new Production with the given input values. */
+  createPersonRole: PersonRole;
   createProduction: Production;
-  /** Create a new ProductionImage with the given input values. */
   createProductionImage: ProductionImage;
-  /** Create a new ProductionRSVP with the given input values. */
   createProductionRSVP: ProductionRsvp;
-  /** Create a new ProductionTag with the given input values. */
   createProductionTag: ProductionTag;
-  /** Create a new ProductionVideo with the given input values. */
   createProductionVideo: ProductionVideo;
-  /** Create a new Redirect with the given input values. */
   createRedirect: Redirect;
-  /** Create a new Role with the given input values. */
   createRole: Role;
-  createStream: Scalars['Boolean'];
-  /** Create a new User with the given input values. */
+  createStream: Stream;
   createUser: User;
-  /** Create a new user-group pair with the given input values. */
   createUserGroup: UserGroup;
-  /** Create a new UserPermission with the given input values. The User creating the Permission must also have the Permission that's being created. */
   createUserPermission: UserPermission;
-  /** Create a new Video with the given input values. */
   createVideo: Video;
-  /** Create a new Vote with the given input values. */
   createVote: Vote;
-  /** Create a new VoteResponse with the given input values. */
   createVoteResponse: VoteResponse;
-  /** Delete the Asset with the provided ID, if it exists. Returns null if the Asset does not exist, otherwise returns the deleted object. */
-  deleteAsset?: Maybe<Asset>;
-  /** Delete the BlogPost with the provided ID, if it exists. Returns null if the BlogPost does not exist, otherwise returns the deleted object. */
-  deleteBlogPost?: Maybe<BlogPost>;
-  /** Delete the Category with the provided ID, if it exists. Returns null if the Category does not exist, otherwise returns the deleted object. */
-  deleteCategory?: Maybe<Category>;
-  /** Delete the ContactSubmission with the provided ID, if it exists. Returns null if the ContactSubmission does not exist, otherwise returns the deleted object. */
-  deleteContactSubmission?: Maybe<ContactSubmission>;
-  /** Delete the ContactSubmissionAssignee with the provided ID, if it exists. Returns null if the ContactSubmissionAssignee does not exist, otherwise returns the deleted object. */
-  deleteContactSubmissionAssignee?: Maybe<ContactSubmissionAssignee>;
-  /** Delete the Credit with the provided ID, if it exists. Returns null if the Credit does not exist, otherwise returns the deleted object. */
-  deleteCredit?: Maybe<Credit>;
-  /** Delete the Group with the provided ID, if it exists. Returns null if the Group does not exist, otherwise returns the deleted object. */
-  deleteGroup?: Maybe<Group>;
-  /** Delete the GroupPermission with the provided ID, if it exists. Returns null if the GroupPermission does not exist, otherwise returns the deleted object. */
-  deleteGroupPermission?: Maybe<GroupPermission>;
-  /** Delete the Image with the provided ID, if it exists. Returns null if the Image does not exist, otherwise returns the deleted object. */
-  deleteImage?: Maybe<Image>;
-  /** Delete the Person with the provided ID, if it exists. Returns null if the Person does not exist, otherwise returns the deleted object. */
-  deletePerson?: Maybe<Person>;
-  /** Delete the PersonImage with the provided ID, if it exists. Returns null if the PersonImage does not exist, otherwise returns the deleted object. */
-  deletePersonImage?: Maybe<PersonImage>;
-  /** Delete the Production with the provided ID, if it exists. Returns null if the Production does not exist, otherwise returns the deleted object. */
-  deleteProduction?: Maybe<Production>;
-  /** Delete the ProductionImage with the provided ID, if it exists. Returns null if the ProductionImage does not exist, otherwise returns the deleted object. */
-  deleteProductionImage?: Maybe<ProductionImage>;
-  /** Delete the ProductionRSVP with the provided ID, if it exists. Returns null if the ProductionRSVP does not exist, otherwise returns the deleted object. */
-  deleteProductionRSVP?: Maybe<ProductionRsvp>;
-  /** Delete the ProductionTag with the provided ID, if it exists. Returns null if the ProductionTag does not exist, otherwise returns the deleted object. */
-  deleteProductionTag?: Maybe<ProductionTag>;
-  /** Delete the ProductionVideo with the provided ID, if it exists. Returns null if the ProductionVideo does not exist, otherwise returns the deleted object. */
-  deleteProductionVideo?: Maybe<ProductionVideo>;
-  /** Delete the Redirect with the provided ID, if it exists. Returns null if the Redirect does not exist, otherwise returns the deleted object. */
-  deleteRedirect?: Maybe<Redirect>;
-  /** Delete the Role with the provided ID, if it exists. Returns null if the Role does not exist, otherwise returns the deleted object. */
-  deleteRole?: Maybe<Role>;
-  deleteStream: Scalars['Boolean'];
-  /** Delete the User with the provided ID, if it exists. Returns null if the User does not exist, otherwise returns the deleted object. */
-  deleteUser?: Maybe<User>;
-  /** Delete the UserGroup with the provided ID, if it exists. Returns null if the UserGroup does not exist, otherwise returns the deleted object. */
-  deleteUserGroup?: Maybe<UserGroup>;
-  /** Delete the UserPermission with the provided ID, if it exists. Returns null if the UserPermission does not exist, otherwise returns the deleted object. */
-  deleteUserPermission?: Maybe<UserPermission>;
-  /** Delete the Video with the provided ID, if it exists. Returns null if the Video does not exist, otherwise returns the deleted object. */
-  deleteVideo?: Maybe<Video>;
-  /** Delete the Vote with the provided ID, if it exists. Returns null if the Vote does not exist, otherwise returns the deleted object. */
-  deleteVote?: Maybe<Vote>;
-  /** Delete the VoteResponse with the provided ID, if it exists. Returns null if the VoteResponse does not exist, otherwise returns the deleted object. */
-  deleteVoteResponse?: Maybe<VoteResponse>;
-  /** Log out the current user. The current session cookie is deleted, even if the user wasn't logged in. Returns true if successful, false otherwise. */
+  deleteAlertLog: AlertLog;
+  deleteAsset: Asset;
+  deleteBlogPost: BlogPost;
+  deleteCategory: Category;
+  deleteContactSubmission: ContactSubmission;
+  deleteCredit: Credit;
+  deleteGroup: Group;
+  deleteGroupPermission: GroupPermission;
+  deleteImage: Image;
+  deletePerson: Person;
+  deletePersonImage: PersonImage;
+  deletePersonRole: PersonRole;
+  deleteProduction: Production;
+  deleteProductionImage: ProductionImage;
+  deleteProductionRSVP: ProductionRsvp;
+  deleteProductionTag: ProductionTag;
+  deleteProductionVideo: ProductionVideo;
+  deleteRedirect: Redirect;
+  deleteRole: Role;
+  deleteStream: Stream;
+  deleteUser: User;
+  deleteUserGroup: UserGroup;
+  deleteUserPermission: UserPermission;
+  deleteVideo: Video;
+  deleteVote: Vote;
+  deleteVoteResponse: VoteResponse;
+  loginLocal: User;
   logout: Scalars['Boolean'];
-  /** Update the Asset with the provided ID to have the passed values. Throws an error if Asset with ID does not exist. */
+  updateAlertLog: AlertLog;
   updateAsset: Asset;
-  /** Update the BlogPost with the provided ID to have the passed values. Throws an error if BlogPost with ID does not exist. */
   updateBlogPost: BlogPost;
-  /** Update the Category with the provided ID to have the passed values. Throws an error if Category with ID does not exist. */
   updateCategory: Category;
-  /** Update the ContactSubmission with the provided ID to have the passed values. Throws an error if ContactSubmission with ID does not exist. */
   updateContactSubmission: ContactSubmission;
-  /** Update the Credit with the provided ID to have the passed values. Throws an error if Credit with ID does not exist. */
   updateCredit: Credit;
-  /** Update the Group with the provided ID to have the passed values. Throws an error if Group with ID does not exist. */
   updateGroup: Group;
-  /** Update the GroupPermission with the provided ID to have the passed values. Throws an error if GroupPermission with ID does not exist. */
   updateGroupPermission: GroupPermission;
-  /** Update the Image with the provided ID to have the passed values. Throws an error if Image with ID does not exist. */
   updateImage: Image;
-  /** Update the Person with the provided ID to have the passed values. Throws an error if Person with ID does not exist. */
   updatePerson: Person;
-  /** Update the PersonImage with the provided ID to have the passed values. Throws an error if PersonImage with ID does not exist. */
   updatePersonImage: PersonImage;
-  /** Update the Production with the provided ID to have the passed values. Throws an error if Production with ID does not exist. */
+  updatePersonRole: PersonRole;
   updateProduction: Production;
-  /** Update the ProductionImage with the provided ID to have the passed values. Throws an error if ProductionImage with ID does not exist. */
   updateProductionImage: ProductionImage;
-  /** Update the ProductionRSVP with the provided ID to have the passed values. Throws an error if ProductionRSVP with ID does not exist. */
   updateProductionRSVP: ProductionRsvp;
-  /** Update the ProductionVideo with the provided ID to have the passed values. Throws an error if ProductionVideo with ID does not exist. */
   updateProductionVideo: ProductionVideo;
-  /** Update the Redirect with the provided ID to have the passed values. Throws an error if Redirect with ID does not exist. */
   updateRedirect: Redirect;
-  /** Update the Role with the provided ID to have the passed values. Throws an error if Role with ID does not exist. */
   updateRole: Role;
-  /** Update the User with the provided ID to have the passed values. Throws an error if User with ID does not exist. */
   updateUser: User;
-  /** Update the UserPermission with the provided ID to have the passed values. Throws an error if UserPermission with ID does not exist. The User updating the Permission must also have the Permission that's being update to and from.. */
   updateUserPermission: UserPermission;
-  /** Update the Video with the provided ID to have the passed values. Throws an error if Video with ID does not exist. */
   updateVideo: Video;
-  /** Update the Vote with the provided ID to have the passed values. Throws an error if Vote with ID does not exist. */
   updateVote: Vote;
-  /** Update the VoteResponse with the provided ID to have the passed values. Throws an error if VoteResponse with ID does not exist. */
   updateVoteResponse: VoteResponse;
-  /** Attempt to login with the given credentials. Returns true if successful, false otherwise. The current session cookie is updated to be for the newly logged in user, or a new cookie is created if one wasn't sent with the request. */
-  usernameLogin: Scalars['Boolean'];
 };
 
 
 export type MutationCreateAlertLogArgs = {
-  input: AlertLogCreateInput;
+  input: CreateAlertLogInput;
 };
 
 
 export type MutationCreateAssetArgs = {
-  input: AssetCreateInput;
+  input: CreateAssetInput;
 };
 
 
 export type MutationCreateBlogPostArgs = {
-  input: BlogPostCreateInput;
+  input: CreateBlogPostInput;
 };
 
 
 export type MutationCreateCategoryArgs = {
-  input: CategoryCreateInput;
+  input: CreateCategoryInput;
 };
 
 
 export type MutationCreateContactSubmissionArgs = {
-  input: ContactSubmissionCreateInput;
-};
-
-
-export type MutationCreateContactSubmissionAssigneeArgs = {
-  input: ContactSubmissionAssigneeCreateInput;
+  input: CreateContactSubmissionInput;
 };
 
 
 export type MutationCreateCreditArgs = {
-  input: CreditCreateInput;
+  input: CreateCreditInput;
 };
 
 
 export type MutationCreateGroupArgs = {
-  input: GroupCreateInput;
+  input: CreateGroupInput;
 };
 
 
 export type MutationCreateGroupPermissionArgs = {
-  input: GroupPermissionCreateInput;
+  input: CreateGroupPermissionInput;
 };
 
 
 export type MutationCreateImageArgs = {
-  input: ImageCreateInput;
+  input: CreateImageInput;
 };
 
 
 export type MutationCreatePersonArgs = {
-  input: PersonCreateInput;
+  input: CreatePersonInput;
 };
 
 
 export type MutationCreatePersonImageArgs = {
-  input: PersonImageCreateInput;
+  input: CreatePersonImageInput;
+};
+
+
+export type MutationCreatePersonRoleArgs = {
+  input: CreatePersonRoleInput;
 };
 
 
 export type MutationCreateProductionArgs = {
-  input: ProductionCreateInput;
+  input: CreateProductionInput;
 };
 
 
 export type MutationCreateProductionImageArgs = {
-  input: ProductionImageCreateInput;
+  input: CreateProductionImageInput;
 };
 
 
 export type MutationCreateProductionRsvpArgs = {
-  input: ProductionRsvpCreateInput;
+  input: CreateProductionRsvpInput;
 };
 
 
 export type MutationCreateProductionTagArgs = {
-  input: ProductionTagCreateInput;
+  input: CreateProductionTagInput;
 };
 
 
 export type MutationCreateProductionVideoArgs = {
-  input: ProductionVideoCreateInput;
+  input: CreateProductionVideoInput;
 };
 
 
 export type MutationCreateRedirectArgs = {
-  input: RedirectCreateInput;
+  input: CreateRedirectInput;
 };
 
 
 export type MutationCreateRoleArgs = {
-  input: RoleCreateInput;
+  input: CreateRoleInput;
 };
 
 
 export type MutationCreateStreamArgs = {
-  input: StreamCreateInput;
+  input: CreateStreamInput;
 };
 
 
 export type MutationCreateUserArgs = {
-  input: UserCreateInput;
+  input: CreateUserInput;
 };
 
 
 export type MutationCreateUserGroupArgs = {
-  input: UserGroupCreateInput;
+  input: CreateUserGroupInput;
 };
 
 
 export type MutationCreateUserPermissionArgs = {
-  input: UserPermissionCreateInput;
+  input: CreateUserPermissionInput;
 };
 
 
 export type MutationCreateVideoArgs = {
-  input: VideoCreateInput;
+  input: CreateVideoInput;
 };
 
 
 export type MutationCreateVoteArgs = {
-  input: VoteCreateInput;
+  input: CreateVoteInput;
 };
 
 
 export type MutationCreateVoteResponseArgs = {
-  input: VoteResponseCreateInput;
+  input: CreateVoteResponseInput;
+};
+
+
+export type MutationDeleteAlertLogArgs = {
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteAssetArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteBlogPostArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteCategoryArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteContactSubmissionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteContactSubmissionAssigneeArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteCreditArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteGroupArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteGroupPermissionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeletePersonArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeletePersonImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
+};
+
+
+export type MutationDeletePersonRoleArgs = {
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteProductionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteProductionImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteProductionRsvpArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteProductionTagArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteProductionVideoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteRedirectArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteRoleArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteStreamArgs = {
-  id: Scalars['ID'];
+  id: Scalars['UUID'];
 };
 
 
 export type MutationDeleteUserArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteUserGroupArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteUserPermissionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteVideoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteVoteArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type MutationDeleteVoteResponseArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
-export type MutationUpdateAssetArgs = {
-  id: Scalars['ID'];
-  input: AssetUpdateInput;
-};
-
-
-export type MutationUpdateBlogPostArgs = {
-  id: Scalars['ID'];
-  input: BlogPostUpdateInput;
-};
-
-
-export type MutationUpdateCategoryArgs = {
-  id: Scalars['ID'];
-  input: CategoryUpdateInput;
-};
-
-
-export type MutationUpdateContactSubmissionArgs = {
-  id: Scalars['ID'];
-  input: ContactSubmissionUpdateInput;
-};
-
-
-export type MutationUpdateCreditArgs = {
-  id: Scalars['ID'];
-  input: CreditUpdateInput;
-};
-
-
-export type MutationUpdateGroupArgs = {
-  id: Scalars['ID'];
-  input: GroupUpdateInput;
-};
-
-
-export type MutationUpdateGroupPermissionArgs = {
-  id: Scalars['ID'];
-  input: GroupPermissionUpdateInput;
-};
-
-
-export type MutationUpdateImageArgs = {
-  id: Scalars['ID'];
-  input: ImageUpdateInput;
-};
-
-
-export type MutationUpdatePersonArgs = {
-  id: Scalars['ID'];
-  input: PersonUpdateInput;
-};
-
-
-export type MutationUpdatePersonImageArgs = {
-  id: Scalars['ID'];
-  input: PersonImageUpdateInput;
-};
-
-
-export type MutationUpdateProductionArgs = {
-  id: Scalars['ID'];
-  input: ProductionUpdateInput;
-};
-
-
-export type MutationUpdateProductionImageArgs = {
-  id: Scalars['ID'];
-  input: ProductionImageUpdateInput;
-};
-
-
-export type MutationUpdateProductionRsvpArgs = {
-  id: Scalars['ID'];
-  input: ProductionRsvpUpdateInput;
-};
-
-
-export type MutationUpdateProductionVideoArgs = {
-  id: Scalars['ID'];
-  input: ProductionVideoUpdateInput;
-};
-
-
-export type MutationUpdateRedirectArgs = {
-  id: Scalars['ID'];
-  input: RedirectUpdateInput;
-};
-
-
-export type MutationUpdateRoleArgs = {
-  id: Scalars['ID'];
-  input: RoleUpdateInput;
-};
-
-
-export type MutationUpdateUserArgs = {
-  id: Scalars['ID'];
-  input: UserUpdateInput;
-};
-
-
-export type MutationUpdateUserPermissionArgs = {
-  id: Scalars['ID'];
-  input: UserPermissionUpdateInput;
-};
-
-
-export type MutationUpdateVideoArgs = {
-  id: Scalars['ID'];
-  input: VideoUpdateInput;
-};
-
-
-export type MutationUpdateVoteArgs = {
-  id: Scalars['ID'];
-  input: VoteUpdateInput;
-};
-
-
-export type MutationUpdateVoteResponseArgs = {
-  id: Scalars['ID'];
-  input: VoteResponseUpdateInput;
-};
-
-
-export type MutationUsernameLoginArgs = {
+export type MutationLoginLocalArgs = {
   password: Scalars['String'];
   username: Scalars['String'];
 };
 
-/**
- * Input type used for pagination in multi-document searches. Offset-based OR cursor-based pagination can be
- * used, or both. This is fed to Prisma. https://www.prisma.io/docs/concepts/components/prisma-client/pagination
- */
-export type Pagination = {
-  /**
-   * ID of the first document to fetch. If the document doesn't exist or you don't have permission, then it's location
-   * is "unknown", and an empty list will always be returned, since we cannot determine what comes before/after it. As
-   * an example, if you have 10 documents numbered 1-10 and pass {cursor: 5, take: 3}, then you will receive documents
-   * 5-7.
-   */
+
+export type MutationUpdateAlertLogArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateAlertLogInput;
+};
+
+
+export type MutationUpdateAssetArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateAssetInput;
+};
+
+
+export type MutationUpdateBlogPostArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateBlogPostInput;
+};
+
+
+export type MutationUpdateCategoryArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateCategoryInput;
+};
+
+
+export type MutationUpdateContactSubmissionArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateContactSubmissionInput;
+};
+
+
+export type MutationUpdateCreditArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateCreditInput;
+};
+
+
+export type MutationUpdateGroupArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateGroupInput;
+};
+
+
+export type MutationUpdateGroupPermissionArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateGroupPermissionInput;
+};
+
+
+export type MutationUpdateImageArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateImageInput;
+};
+
+
+export type MutationUpdatePersonArgs = {
+  id: Scalars['BigInt'];
+  input: UpdatePersonInput;
+};
+
+
+export type MutationUpdatePersonImageArgs = {
+  id: Scalars['BigInt'];
+  input: UpdatePersonImageInput;
+};
+
+
+export type MutationUpdatePersonRoleArgs = {
+  id: Scalars['BigInt'];
+  input: UpdatePersonRoleInput;
+};
+
+
+export type MutationUpdateProductionArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateProductionInput;
+};
+
+
+export type MutationUpdateProductionImageArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateProductionImageInput;
+};
+
+
+export type MutationUpdateProductionRsvpArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateProductionRsvpInput;
+};
+
+
+export type MutationUpdateProductionVideoArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateProductionVideoInput;
+};
+
+
+export type MutationUpdateRedirectArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateRedirectInput;
+};
+
+
+export type MutationUpdateRoleArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateRoleInput;
+};
+
+
+export type MutationUpdateUserArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateUserInput;
+};
+
+
+export type MutationUpdateUserPermissionArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateUserPermissionInput;
+};
+
+
+export type MutationUpdateVideoArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateVideoInput;
+};
+
+
+export type MutationUpdateVoteArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateVoteInput;
+};
+
+
+export type MutationUpdateVoteResponseArgs = {
+  id: Scalars['BigInt'];
+  input: UpdateVoteResponseInput;
+};
+
+export type NumberComparisonInput = {
+  equals?: InputMaybe<Scalars['Float']>;
+  gt?: InputMaybe<Scalars['Float']>;
+  gte?: InputMaybe<Scalars['Float']>;
+  lt?: InputMaybe<Scalars['Float']>;
+  lte?: InputMaybe<Scalars['Float']>;
+  not?: InputMaybe<Scalars['Float']>;
+};
+
+/** Input type for ordering AccessLogs in ReadMany queries. */
+export type OrderAccessLogInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: AccessLogOrderableFields;
+};
+
+/** Input type for ordering AlertLogs in ReadMany queries. */
+export type OrderAlertLogInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: AlertLogOrderableFields;
+};
+
+/** Input type for ordering Assets in ReadMany queries. */
+export type OrderAssetInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: AssetOrderableFields;
+};
+
+/** Input type for ordering AuditLogs in ReadMany queries. */
+export type OrderAuditLogInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: AuditLogOrderableFields;
+};
+
+/** Input type for ordering BlogPosts in ReadMany queries. */
+export type OrderBlogPostInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: BlogPostOrderableFields;
+};
+
+/** Input type for ordering Categories in ReadMany queries. */
+export type OrderCategoryInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: CategoryOrderableFields;
+};
+
+/** Input type for ordering ContactSubmissions in ReadMany queries. */
+export type OrderContactSubmissionInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ContactSubmissionOrderableFields;
+};
+
+/** Input type for ordering Credits in ReadMany queries. */
+export type OrderCreditInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: CreditOrderableFields;
+};
+
+export enum OrderDirection {
+  Asc = 'Asc',
+  Desc = 'Desc'
+}
+
+/** Input type for ordering Groups in ReadMany queries. */
+export type OrderGroupInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: GroupOrderableFields;
+};
+
+/** Input type for ordering GroupPermissions in ReadMany queries. */
+export type OrderGroupPermissionInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: GroupPermissionOrderableFields;
+};
+
+/** Input type for ordering Images in ReadMany queries. */
+export type OrderImageInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ImageOrderableFields;
+};
+
+/** Input type for ordering Persons in ReadMany queries. */
+export type OrderPersonInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: PersonOrderableFields;
+};
+
+/** Input type for ordering PersonRoles in ReadMany queries. */
+export type OrderPersonRoleInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: PersonRoleOrderableFields;
+};
+
+/** Input type for ordering Productions in ReadMany queries. */
+export type OrderProductionInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ProductionOrderableFields;
+};
+
+/** Input type for ordering ProductionRSVPs in ReadMany queries. */
+export type OrderProductionRsvpInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ProductionRsvpOrderableFields;
+};
+
+/** Input type for ordering ProductionTags in ReadMany queries. */
+export type OrderProductionTagInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ProductionTagOrderableFields;
+};
+
+/** Input type for ordering Redirects in ReadMany queries. */
+export type OrderRedirectInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: RedirectOrderableFields;
+};
+
+/** Input type for ordering Roles in ReadMany queries. */
+export type OrderRoleInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: RoleOrderableFields;
+};
+
+/** Input type for ordering Users in ReadMany queries. */
+export type OrderUserInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: UserOrderableFields;
+};
+
+/** Input type for ordering UserPermissions in ReadMany queries. */
+export type OrderUserPermissionInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: UserPermissionOrderableFields;
+};
+
+/** Input type for ordering Videos in ReadMany queries. */
+export type OrderVideoInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: VideoOrderableFields;
+};
+
+/** Input type for ordering Votes in ReadMany queries. */
+export type OrderVoteInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: VoteOrderableFields;
+};
+
+/** Input type for ordering VoteResponses in ReadMany queries. */
+export type OrderVoteResponseInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: VoteResponseOrderableFields;
+};
+
+export type PaginationInput = {
   cursor?: InputMaybe<Scalars['ID']>;
-  /**
-   * Number of documents to skip over. Must be an integer greater than or equal to 0 when used. As an example, if you
-   * have 10 documents numbered 1-10 and pass {skip: 5, take: 3}, then you will receive documents 6-8.
-   */
   skip?: InputMaybe<Scalars['Int']>;
-  /** Number of documents to fetch. Must be an integer greater than or equal to 1 when used. */
   take: Scalars['Int'];
 };
 
-/**
- * A Permission is either a UserPermission or a GroupPermission. This is useful when retrieving what permissions
- * a user has if you don't care whether they're inherited from a group or not.
- */
 export type Permission = GroupPermission | UserPermission;
 
 export type Person = {
   __typename?: 'Person';
   blogPosts?: Maybe<Array<BlogPost>>;
   credits?: Maybe<Array<Credit>>;
+  /** An "about me" section for this Person. */
   description?: Maybe<Scalars['String']>;
-  end?: Maybe<Scalars['DateTime']>;
+  /**
+   * The date that this Person intends on graduating from the university. This allows for automated role removals,
+   * as well as displaying the Person's class year on their profile.
+   */
   graduation?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
+  /** Unique ID for this Person. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
   images?: Maybe<Array<PersonImage>>;
-  name: Scalars['String'];
+  /** The name (or pseudonym) for this Person. Should likely be in the format "First Last". */
+  name?: Maybe<Scalars['String']>;
+  /** ID of the image which should be used for this Person's profile picture. */
+  profilePictureId?: Maybe<Scalars['BigInt']>;
+  /** The pronouns for this Person. Should likely be in the format "they/them". Optional. */
   pronouns?: Maybe<Scalars['String']>;
-  roles?: Maybe<Array<Role>>;
-  start: Scalars['DateTime'];
+  roles?: Maybe<Array<PersonRole>>;
   users?: Maybe<Array<User>>;
 };
 
-export type PersonCreateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  end?: InputMaybe<Scalars['DateTime']>;
-  graduation?: InputMaybe<Scalars['DateTime']>;
-  name: Scalars['String'];
-  pronouns?: InputMaybe<Scalars['String']>;
-  /** Defaults to now. */
-  start?: InputMaybe<Scalars['DateTime']>;
+
+export type PersonBlogPostsArgs = {
+  filter?: InputMaybe<FilterBlogPostInput>;
+  order?: InputMaybe<Array<OrderBlogPostInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type PersonCreditsArgs = {
+  filter?: InputMaybe<FilterCreditInput>;
+  order?: InputMaybe<Array<OrderCreditInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type PersonImagesArgs = {
+  filter?: InputMaybe<FilterPersonImageInput>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type PersonRolesArgs = {
+  filter?: InputMaybe<FilterPersonRoleInput>;
+  order?: InputMaybe<Array<OrderPersonRoleInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type PersonUsersArgs = {
+  filter?: InputMaybe<FilterUserInput>;
+  order?: InputMaybe<Array<OrderUserInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type PersonImage = {
   __typename?: 'PersonImage';
-  id: Scalars['ID'];
-  image: Image;
-  person: Person;
-  priority: Scalars['Int'];
+  /** Unique ID for this PersonImage. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  image?: Maybe<Image>;
+  /** ID of the image this PersonImage is associated with. */
+  imageId?: Maybe<Scalars['BigInt']>;
+  person?: Maybe<Person>;
+  /** ID of the person this PersonImage is associated with. */
+  personId?: Maybe<Scalars['BigInt']>;
+  /** Priority of this PersonImage. Higher priority images should be displayed first. */
+  priority?: Maybe<Scalars['Int']>;
 };
 
-export type PersonImageCreateInput = {
-  imageId: Scalars['ID'];
-  personId: Scalars['ID'];
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
+export enum PersonOrderableFields {
+  Graduation = 'graduation',
+  Id = 'id',
+  Name = 'name'
+}
+
+export type PersonRole = {
+  __typename?: 'PersonRole';
+  /** End date of when this PersonRole association should no longer be active. */
+  endTime?: Maybe<Scalars['DateTime']>;
+  /** Unique ID for this PersonRole. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  person?: Maybe<Person>;
+  /** ID of the person this PersonRole is associated with. */
+  personId?: Maybe<Scalars['BigInt']>;
+  role?: Maybe<Role>;
+  /** ID of the role this PersonRole is associated with. */
+  roleId?: Maybe<Scalars['BigInt']>;
+  /** Start date of when this PersonRole association should begin. */
+  startTime?: Maybe<Scalars['DateTime']>;
 };
 
-export type PersonImageUpdateInput = {
-  priority?: InputMaybe<Scalars['Int']>;
-};
-
-export type PersonUpdateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  end?: InputMaybe<Scalars['DateTime']>;
-  graduation?: InputMaybe<Scalars['DateTime']>;
-  name?: InputMaybe<Scalars['String']>;
-  pronouns?: InputMaybe<Scalars['String']>;
-  start?: InputMaybe<Scalars['DateTime']>;
-};
+export enum PersonRoleOrderableFields {
+  Id = 'id',
+  StartTime = 'startTime'
+}
 
 export type Production = {
   __typename?: 'Production';
   category?: Maybe<Category>;
+  /** The ID of the category which this Production belongs to. */
+  categoryId?: Maybe<Scalars['BigInt']>;
+  /** The closet meeting location for club members to meet at before the Production. */
   closetLocation?: Maybe<Scalars['String']>;
+  /** The time that club members should meet at the closet location before the Production. */
   closetTime?: Maybe<Scalars['DateTime']>;
+  credits?: Maybe<Array<Credit>>;
+  /** The Description of this Production */
   description?: Maybe<Scalars['String']>;
+  /**
+   * The ID of the Discord channel within the Discord server that messages related to this Production should be sent
+   * to.
+   */
   discordChannel?: Maybe<Scalars['String']>;
+  /** The ID of the Discord server that messages related to this Production should be sent to. */
   discordServer?: Maybe<Scalars['String']>;
+  /**
+   * The expected end time of this Production. This is used, in combination with start time, to determine which
+   * Productions are live.
+   */
   endTime?: Maybe<Scalars['DateTime']>;
+  /** The location of the event for this Production. */
   eventLocation?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  /** Unique ID for this Production. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
   images?: Maybe<Array<ProductionImage>>;
-  isLive: Scalars['Boolean'];
-  name: Scalars['String'];
+  /** The title/name of this Production */
+  name?: Maybe<Scalars['String']>;
   rsvps?: Maybe<Array<ProductionRsvp>>;
+  /**
+   * The expected start time of this Production. This is used, in combination with end time, to determine which
+   * Productions are live.
+   */
   startTime?: Maybe<Scalars['DateTime']>;
   tags?: Maybe<Array<ProductionTag>>;
+  /** Any notes that the team has about this Production. Can be markup. */
   teamNotes?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Image>;
+  /** The ID of the Image which should be used as the thumbnail for this Production. */
+  thumbnailId?: Maybe<Scalars['BigInt']>;
   videos?: Maybe<Array<ProductionVideo>>;
 };
 
-export type ProductionCreateInput = {
-  categoryId?: InputMaybe<Scalars['ID']>;
-  closetLocation?: InputMaybe<Scalars['String']>;
-  closetTime?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  discordChannel?: InputMaybe<Scalars['String']>;
-  discordServer?: InputMaybe<Scalars['String']>;
-  endTime?: InputMaybe<Scalars['DateTime']>;
-  eventLocation?: InputMaybe<Scalars['String']>;
-  /** Defaults to false. */
-  isLive?: Scalars['Boolean'];
-  name: Scalars['String'];
-  startTime?: InputMaybe<Scalars['DateTime']>;
-  teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnailId?: InputMaybe<Scalars['ID']>;
+
+export type ProductionCreditsArgs = {
+  filter?: InputMaybe<FilterCreditInput>;
+  order?: InputMaybe<Array<OrderCreditInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type ProductionImagesArgs = {
+  filter?: InputMaybe<FilterProductionImageInput>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type ProductionRsvpsArgs = {
+  filter?: InputMaybe<FilterProductionRsvpInput>;
+  order?: InputMaybe<Array<OrderProductionRsvpInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type ProductionTagsArgs = {
+  filter?: InputMaybe<FilterProductionTagInput>;
+  order?: InputMaybe<Array<OrderProductionTagInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type ProductionVideosArgs = {
+  filter?: InputMaybe<FilterProductionVideoInput>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type ProductionImage = {
   __typename?: 'ProductionImage';
-  id: Scalars['ID'];
-  image: Image;
-  priority: Scalars['Int'];
-  production: Production;
+  /** Unique ID for this ProductionImage. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  image?: Maybe<Image>;
+  /** ID of the image this ProductionImage is associated with. */
+  imageId?: Maybe<Scalars['BigInt']>;
+  /** The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones. */
+  priority?: Maybe<Scalars['Int']>;
+  production?: Maybe<Production>;
+  /** ID of the production this ProductionImage is associated with. */
+  productionId?: Maybe<Scalars['BigInt']>;
 };
 
-export type ProductionImageCreateInput = {
-  imageId: Scalars['ID'];
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
-  productionId: Scalars['ID'];
-};
-
-export type ProductionImageUpdateInput = {
-  priority?: InputMaybe<Scalars['Int']>;
-};
+export enum ProductionOrderableFields {
+  CategoryId = 'categoryId',
+  Id = 'id',
+  Name = 'name',
+  StartTime = 'startTime'
+}
 
 export type ProductionRsvp = {
   __typename?: 'ProductionRSVP';
-  id: Scalars['ID'];
+  /** Unique ID for this ProductionRSVP. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** Any additional notes provided by the User, officers, or producers. */
   notes?: Maybe<Scalars['String']>;
-  production: Production;
-  user: User;
-  willAttend?: Maybe<ProductionRsvpAttendanceState>;
+  production?: Maybe<Production>;
+  /** ID of the Production that the User is RSVPing for. */
+  productionId?: Maybe<Scalars['BigInt']>;
+  user?: Maybe<User>;
+  /** ID of the User that is RSVPing for the Production. */
+  userId?: Maybe<Scalars['BigInt']>;
+  /** The User's response to the Production's RSVP. Should be "yes", "no", or "maybe". */
+  willAttend?: Maybe<Scalars['String']>;
 };
 
-export enum ProductionRsvpAttendanceState {
-  Maybe = 'MAYBE',
-  No = 'NO',
-  Yes = 'YES'
+export enum ProductionRsvpOrderableFields {
+  Id = 'id',
+  WillAttend = 'willAttend'
 }
-
-export type ProductionRsvpCreateInput = {
-  notes?: InputMaybe<Scalars['String']>;
-  productionId: Scalars['ID'];
-  userId: Scalars['ID'];
-  willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
-};
-
-export type ProductionRsvpUpdateInput = {
-  notes?: InputMaybe<Scalars['String']>;
-  willAttend?: InputMaybe<ProductionRsvpAttendanceState>;
-};
 
 export type ProductionTag = {
   __typename?: 'ProductionTag';
-  id: Scalars['ID'];
-  production: Production;
-  tag: Scalars['String'];
+  /** Unique ID for this ProductionTag. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  production?: Maybe<Production>;
+  /** ID of the Production that this tag is associated with. */
+  productionId?: Maybe<Scalars['BigInt']>;
+  /** This tag's value. */
+  tag?: Maybe<Scalars['String']>;
 };
 
-export type ProductionTagCreateInput = {
-  productionId: Scalars['ID'];
-  tag: Scalars['String'];
-};
-
-export type ProductionUpdateInput = {
-  categoryId?: InputMaybe<Scalars['ID']>;
-  closetLocation?: InputMaybe<Scalars['String']>;
-  closetTime?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  discordChannel?: InputMaybe<Scalars['String']>;
-  discordServer?: InputMaybe<Scalars['String']>;
-  endTime?: InputMaybe<Scalars['DateTime']>;
-  eventLocation?: InputMaybe<Scalars['String']>;
-  isLive?: InputMaybe<Scalars['Boolean']>;
-  name?: InputMaybe<Scalars['String']>;
-  startTime?: InputMaybe<Scalars['DateTime']>;
-  teamNotes?: InputMaybe<Scalars['String']>;
-  thumbnailId?: InputMaybe<Scalars['ID']>;
-};
+export enum ProductionTagOrderableFields {
+  Id = 'id',
+  Tag = 'tag'
+}
 
 export type ProductionVideo = {
   __typename?: 'ProductionVideo';
-  id: Scalars['ID'];
-  priority: Scalars['Int'];
-  production: Production;
-  video: Video;
-};
-
-export type ProductionVideoCreateInput = {
-  priority?: Scalars['Int'];
-  productionId: Scalars['ID'];
-  videoId: Scalars['ID'];
-};
-
-export type ProductionVideoUpdateInput = {
-  priority?: InputMaybe<Scalars['Int']>;
+  /** Unique ID for this ProductionVideo. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones. */
+  priority?: Maybe<Scalars['Int']>;
+  production?: Maybe<Production>;
+  /** ID of the person this ProductionVideo is associated with. */
+  productionId?: Maybe<Scalars['BigInt']>;
+  video?: Maybe<Video>;
+  /** ID of the video this ProductionVideo is associated with. */
+  videoId?: Maybe<Scalars['BigInt']>;
 };
 
 export type Query = {
   __typename?: 'Query';
-  /** Count the number of access logs which the user currently has access to read. */
-  countAccessLog: Scalars['Int'];
-  /** Count the number of alert logs which the user currently has access to read. */
-  countAlertLog: Scalars['Int'];
-  /** Count the number of assets which the user currently has access to read. */
-  countAsset: Scalars['Int'];
-  /** Count the number of audit logs which the user currently has access to read. */
-  countAuditLog: Scalars['Int'];
-  /** Count the number of blog posts which the user currently has access to read. */
-  countBlogPost: Scalars['Int'];
-  /** Count the number of categories which the user currently has access to read. */
-  countCategory: Scalars['Int'];
-  /** Count the number of contact submissions which the user currently has access to read. */
-  countContactSubmission: Scalars['Int'];
-  /** Count the number of contact submission assignees which the user currently has access to read. */
-  countContactSubmissionAssignee: Scalars['Int'];
-  /** Count the number of credits which the user currently has access to read. */
-  countCredit: Scalars['Int'];
-  /** Count the number of groups which the user currently has access to read. */
-  countGroup: Scalars['Int'];
-  /** Count the number of images which the user currently has access to read. */
-  countImage: Scalars['Int'];
-  /** Count the number of people which the user currently has access to read. */
-  countPerson: Scalars['Int'];
-  /** Count the number of person-image pairs which the user currently has access to read. */
-  countPersonImage: Scalars['Int'];
-  /** Count the number of productions which the user currently has access to read. */
-  countProduction: Scalars['Int'];
-  /** Count the number of production-image pairs which the user currently has access to read. */
-  countProductionImage: Scalars['Int'];
-  /** Count the number of production RSVPs which the user currently has access to read. */
-  countProductionRSVP: Scalars['Int'];
-  /** Count the number of production-video pairs which the user currently has access to read. */
-  countProductionVideo: Scalars['Int'];
-  /** Count the number of redirects which the user currently has access to read. */
-  countRedirect: Scalars['Int'];
-  /** Count the number of roles which the user currently has access to read. */
-  countRole: Scalars['Int'];
-  /** Count the number of users which the user currently has access to read. */
-  countUser: Scalars['Int'];
-  /** Count the number of videos which the user currently has access to read. */
-  countVideo: Scalars['Int'];
-  /** Count the number of votes which the user currently has access to read. */
-  countVote: Scalars['Int'];
-  /** Get a list of access logs which the user currently has access to read. */
+  accessLogCount: Scalars['Int'];
+  alertLogCount: Scalars['Int'];
+  assetCount: Scalars['Int'];
+  auditLogCount: Scalars['Int'];
+  blogPostCount: Scalars['Int'];
+  categoryCount: Scalars['Int'];
+  contactSubmissionCount: Scalars['Int'];
+  creditCount: Scalars['Int'];
   findManyAccessLog: Array<AccessLog>;
-  /** Get a list of alert logs which the user currently has access to read. */
   findManyAlertLog: Array<AlertLog>;
-  /** Get a list of assets which the user currently has access to read. */
   findManyAsset: Array<Asset>;
-  /** Get a list of audit logs which the user currently has access to read. */
   findManyAuditLog: Array<AuditLog>;
-  /** Get a list of blog posts which the user currently has access to read. */
   findManyBlogPost: Array<BlogPost>;
-  /** Get a list of categories which the user currently has access to read. */
   findManyCategory: Array<Category>;
-  /** Get a list of contact submissions which the user currently has access to read. */
   findManyContactSubmission: Array<ContactSubmission>;
-  /** Get a list of contact submission assignees which the user currently has access to read. */
-  findManyContactSubmissionAssignee: Array<ContactSubmissionAssignee>;
-  /** Get a list of credits which the user currently has access to read. */
   findManyCredit: Array<Credit>;
-  /** Get a list of groups which the user currently has access to read. */
   findManyGroup: Array<Group>;
-  /** Get a list of images which the user currently has access to read. */
+  findManyGroupPermission: Array<GroupPermission>;
   findManyImage: Array<Image>;
-  /** Get a list of people which the user currently has access to read. */
   findManyPerson: Array<Person>;
-  /** Get a list of person-image pairs which the user currently has access to read. */
-  findManyPersonImage: Array<PersonImage>;
-  /** Get a list of productions which the user currently has access to read. */
+  findManyPersonRole: Array<PersonRole>;
   findManyProduction: Array<Production>;
-  /** Get a list of production-image pairs which the user currently has access to read. */
-  findManyProductionImage: Array<ProductionImage>;
-  /** Get a list of production RSVPs which the user currently has access to read. */
   findManyProductionRSVP: Array<ProductionRsvp>;
-  /** Get a list of production-video pairs which the user currently has access to read. */
-  findManyProductionVideo: Array<ProductionVideo>;
-  /** Get a list of redirects which the user currently has access to read. */
+  findManyProductionTag: Array<ProductionTag>;
   findManyRedirect: Array<Redirect>;
-  /** Get a list of roles which the user currently has access to read. */
   findManyRole: Array<Role>;
-  /** Get a list of users which the user currently has access to read. */
+  findManyStream: Array<Stream>;
   findManyUser: Array<User>;
-  /** Get a list of videos which the user currently has access to read. */
+  findManyUserPermission: Array<UserPermission>;
   findManyVideo: Array<Video>;
-  /** Get a list of votes which the user currently has access to read. */
   findManyVote: Array<Vote>;
-  /** Get a single access log, given its ID, or null if that access log does not exist. */
+  findManyVoteResponse: Array<VoteResponse>;
   findOneAccessLog?: Maybe<AccessLog>;
-  /** Get a single alert log, given its ID, or null if that alert log does not exist. */
   findOneAlertLog?: Maybe<AlertLog>;
-  /** Get a single asset, given its ID, or null if that asset does not exist. */
   findOneAsset?: Maybe<Asset>;
-  /** Get a single audit log, given its ID, or null if that audit log does not exist. */
   findOneAuditLog?: Maybe<AuditLog>;
-  /** Get a single blog post, given its ID, or null if that blog post does not exist. */
   findOneBlogPost?: Maybe<BlogPost>;
-  /** Get a single category, given its ID, or null if that category does not exist. */
   findOneCategory?: Maybe<Category>;
-  /** Get a single contact submission, given its ID, or null if that contact submission does not exist. */
   findOneContactSubmission?: Maybe<ContactSubmission>;
-  /** Get a single contact submission assignee, given its ID, or null if that contact submission assignee does not exist. */
-  findOneContactSubmissionAssignee?: Maybe<ContactSubmissionAssignee>;
-  /** Get a single credit, given its ID, or null if that credit does not exist. */
   findOneCredit?: Maybe<Credit>;
-  /** Get a single group, given its ID, or null if that group does not exist. */
   findOneGroup?: Maybe<Group>;
-  /** Get a single group permission, given its ID, or null if that group permission does not exist. */
   findOneGroupPermission?: Maybe<GroupPermission>;
-  /** Get a single image, given its ID, or null if that image does not exist. */
   findOneImage?: Maybe<Image>;
-  /** Get a single person, given its ID, or null if that person does not exist. */
   findOnePerson?: Maybe<Person>;
-  /** Get a single person-image pair, given its ID, or null if that person-image pair does not exist. */
   findOnePersonImage?: Maybe<PersonImage>;
-  /** Get a single production, given its ID, or null if that production does not exist. */
+  findOnePersonRole?: Maybe<PersonRole>;
   findOneProduction?: Maybe<Production>;
-  /** Get a single production-image pair, given its ID, or null if that production-image pair does not exist. */
   findOneProductionImage?: Maybe<ProductionImage>;
-  /** Get a single production RSVP, given its ID, or null if that production RSVP does not exist. */
   findOneProductionRSVP?: Maybe<ProductionRsvp>;
-  /** Get a single production tag, given its ID, or null if that production tag does not exist. */
   findOneProductionTag?: Maybe<ProductionTag>;
-  /** Get a single production-video pair, given its ID, or null if that production-video pair does not exist. */
   findOneProductionVideo?: Maybe<ProductionVideo>;
-  /** Get a single production, given its ID, or null if that redirect does not exist. */
   findOneRedirect?: Maybe<Redirect>;
-  /** Get a single role, given its ID, or null if that role does not exist. */
   findOneRole?: Maybe<Role>;
-  /** Get a single user given their ID, or null if that user does not exist. */
+  findOneStream?: Maybe<Stream>;
   findOneUser?: Maybe<User>;
-  /** Get a single user-group pair, given its ID, or null if that user-group pair does not exist. */
   findOneUserGroup?: Maybe<UserGroup>;
-  /** Get a single user permission, given its ID, or null if that user permission does not exist. */
   findOneUserPermission?: Maybe<UserPermission>;
-  /** Get a single video, given its ID, or null if that video does not exist. */
   findOneVideo?: Maybe<Video>;
-  /** Get a single vote, given its ID, or null if that vote does not exist. */
   findOneVote?: Maybe<Vote>;
-  /** Get a single vote response, given its ID, or null if that vote response does not exist. */
   findOneVoteResponse?: Maybe<VoteResponse>;
-  /** Get the permissions that the current user has, including permissions inherited from groups. */
-  permissionsFor: Array<Permission>;
-  /** Get the currently signed in User. Null if the user is not signed in. */
+  groupCount: Scalars['Int'];
+  groupPermissionCount: Scalars['Int'];
+  imageCount: Scalars['Int'];
+  permissionsFor?: Maybe<Array<Permission>>;
+  personCount: Scalars['Int'];
+  personImageCount: Scalars['Int'];
+  personRoleCount: Scalars['Int'];
+  productionCount: Scalars['Int'];
+  productionImageCount: Scalars['Int'];
+  productionRSVPCount: Scalars['Int'];
+  productionTagCount: Scalars['Int'];
+  productionVideoCount: Scalars['Int'];
+  redirectCount: Scalars['Int'];
+  roleCount: Scalars['Int'];
   self?: Maybe<User>;
-  /** Get the list of currently running RTMP streams. */
-  streams: Array<Stream>;
+  streamCount: Scalars['Int'];
+  userCount: Scalars['Int'];
+  userGroupCount: Scalars['Int'];
+  userPermissionCount: Scalars['Int'];
+  videoCount: Scalars['Int'];
+  voteCount: Scalars['Int'];
+  voteResponseCount: Scalars['Int'];
+};
+
+
+export type QueryAccessLogCountArgs = {
+  filter?: InputMaybe<FilterAccessLogInput>;
+};
+
+
+export type QueryAlertLogCountArgs = {
+  filter?: InputMaybe<FilterAlertLogInput>;
+};
+
+
+export type QueryAssetCountArgs = {
+  filter?: InputMaybe<FilterAssetInput>;
+};
+
+
+export type QueryAuditLogCountArgs = {
+  filter?: InputMaybe<FilterAuditLogInput>;
+};
+
+
+export type QueryBlogPostCountArgs = {
+  filter?: InputMaybe<FilterBlogPostInput>;
+};
+
+
+export type QueryCategoryCountArgs = {
+  filter?: InputMaybe<FilterCategoryInput>;
+};
+
+
+export type QueryContactSubmissionCountArgs = {
+  filter?: InputMaybe<FilterContactSubmissionInput>;
+};
+
+
+export type QueryCreditCountArgs = {
+  filter?: InputMaybe<FilterCreditInput>;
 };
 
 
 export type QueryFindManyAccessLogArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterAccessLogInput>;
+  order?: InputMaybe<Array<OrderAccessLogInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyAlertLogArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterAlertLogInput>;
+  order?: InputMaybe<Array<OrderAlertLogInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyAssetArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterAssetInput>;
+  order?: InputMaybe<Array<OrderAssetInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyAuditLogArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterAuditLogInput>;
+  order?: InputMaybe<Array<OrderAuditLogInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyBlogPostArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterBlogPostInput>;
+  order?: InputMaybe<Array<OrderBlogPostInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyCategoryArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterCategoryInput>;
+  order?: InputMaybe<Array<OrderCategoryInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyContactSubmissionArgs = {
-  pagination?: InputMaybe<Pagination>;
-};
-
-
-export type QueryFindManyContactSubmissionAssigneeArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterContactSubmissionInput>;
+  order?: InputMaybe<Array<OrderContactSubmissionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyCreditArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterCreditInput>;
+  order?: InputMaybe<Array<OrderCreditInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyGroupArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterGroupInput>;
+  order?: InputMaybe<Array<OrderGroupInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryFindManyGroupPermissionArgs = {
+  filter?: InputMaybe<FilterGroupPermissionInput>;
+  order?: InputMaybe<Array<OrderGroupPermissionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyImageArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterImageInput>;
+  order?: InputMaybe<Array<OrderImageInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyPersonArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterPersonInput>;
+  order?: InputMaybe<Array<OrderPersonInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
-export type QueryFindManyPersonImageArgs = {
-  pagination?: InputMaybe<Pagination>;
+export type QueryFindManyPersonRoleArgs = {
+  filter?: InputMaybe<FilterPersonRoleInput>;
+  order?: InputMaybe<Array<OrderPersonRoleInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyProductionArgs = {
-  pagination?: InputMaybe<Pagination>;
-};
-
-
-export type QueryFindManyProductionImageArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterProductionInput>;
+  order?: InputMaybe<Array<OrderProductionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyProductionRsvpArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterProductionRsvpInput>;
+  order?: InputMaybe<Array<OrderProductionRsvpInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
-export type QueryFindManyProductionVideoArgs = {
-  pagination?: InputMaybe<Pagination>;
+export type QueryFindManyProductionTagArgs = {
+  filter?: InputMaybe<FilterProductionTagInput>;
+  order?: InputMaybe<Array<OrderProductionTagInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyRedirectArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterRedirectInput>;
+  order?: InputMaybe<Array<OrderRedirectInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyRoleArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterRoleInput>;
+  order?: InputMaybe<Array<OrderRoleInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryFindManyStreamArgs = {
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyUserArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterUserInput>;
+  order?: InputMaybe<Array<OrderUserInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryFindManyUserPermissionArgs = {
+  filter?: InputMaybe<FilterUserPermissionInput>;
+  order?: InputMaybe<Array<OrderUserPermissionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyVideoArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterVideoInput>;
+  order?: InputMaybe<Array<OrderVideoInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindManyVoteArgs = {
-  pagination?: InputMaybe<Pagination>;
+  filter?: InputMaybe<FilterVoteInput>;
+  order?: InputMaybe<Array<OrderVoteInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryFindManyVoteResponseArgs = {
+  filter?: InputMaybe<FilterVoteResponseInput>;
+  order?: InputMaybe<Array<OrderVoteResponseInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
 export type QueryFindOneAccessLogArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneAlertLogArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneAssetArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneAuditLogArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneBlogPostArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneCategoryArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneContactSubmissionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type QueryFindOneContactSubmissionAssigneeArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneCreditArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneGroupArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneGroupPermissionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOnePersonArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOnePersonImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
+};
+
+
+export type QueryFindOnePersonRoleArgs = {
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneProductionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneProductionImageArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneProductionRsvpArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneProductionTagArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneProductionVideoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneRedirectArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneRoleArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
+};
+
+
+export type QueryFindOneStreamArgs = {
+  id: Scalars['UUID'];
 };
 
 
 export type QueryFindOneUserArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneUserGroupArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneUserPermissionArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneVideoArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneVoteArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
 };
 
 
 export type QueryFindOneVoteResponseArgs = {
-  id: Scalars['ID'];
+  id: Scalars['BigInt'];
+};
+
+
+export type QueryGroupCountArgs = {
+  filter?: InputMaybe<FilterGroupInput>;
+};
+
+
+export type QueryGroupPermissionCountArgs = {
+  filter?: InputMaybe<FilterGroupPermissionInput>;
+};
+
+
+export type QueryImageCountArgs = {
+  filter?: InputMaybe<FilterImageInput>;
 };
 
 
 export type QueryPermissionsForArgs = {
-  user?: InputMaybe<Scalars['ID']>;
+  userId?: InputMaybe<Scalars['BigInt']>;
+};
+
+
+export type QueryPersonCountArgs = {
+  filter?: InputMaybe<FilterPersonInput>;
+};
+
+
+export type QueryPersonImageCountArgs = {
+  filter?: InputMaybe<FilterPersonImageInput>;
+};
+
+
+export type QueryPersonRoleCountArgs = {
+  filter?: InputMaybe<FilterPersonRoleInput>;
+};
+
+
+export type QueryProductionCountArgs = {
+  filter?: InputMaybe<FilterProductionInput>;
+};
+
+
+export type QueryProductionImageCountArgs = {
+  filter?: InputMaybe<FilterProductionImageInput>;
+};
+
+
+export type QueryProductionRsvpCountArgs = {
+  filter?: InputMaybe<FilterProductionRsvpInput>;
+};
+
+
+export type QueryProductionTagCountArgs = {
+  filter?: InputMaybe<FilterProductionTagInput>;
+};
+
+
+export type QueryProductionVideoCountArgs = {
+  filter?: InputMaybe<FilterProductionVideoInput>;
+};
+
+
+export type QueryRedirectCountArgs = {
+  filter?: InputMaybe<FilterRedirectInput>;
+};
+
+
+export type QueryRoleCountArgs = {
+  filter?: InputMaybe<FilterRoleInput>;
+};
+
+
+export type QueryUserCountArgs = {
+  filter?: InputMaybe<FilterUserInput>;
+};
+
+
+export type QueryUserGroupCountArgs = {
+  filter?: InputMaybe<FilterUserGroupInput>;
+};
+
+
+export type QueryUserPermissionCountArgs = {
+  filter?: InputMaybe<FilterUserPermissionInput>;
+};
+
+
+export type QueryVideoCountArgs = {
+  filter?: InputMaybe<FilterVideoInput>;
+};
+
+
+export type QueryVoteCountArgs = {
+  filter?: InputMaybe<FilterVoteInput>;
+};
+
+
+export type QueryVoteResponseCountArgs = {
+  filter?: InputMaybe<FilterVoteResponseInput>;
 };
 
 export type Redirect = {
   __typename?: 'Redirect';
+  /** The date and time at which this Redirect expires. If null, this Redirect never expires. */
   expires?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  key: Scalars['String'];
-  location: Scalars['String'];
+  /** Unique ID for this Redirect. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The key used in URLs to access this Redirect. */
+  key?: Maybe<Scalars['String']>;
+  /** The URL which this Redirect redirects to. */
+  location?: Maybe<Scalars['String']>;
 };
 
-export type RedirectCreateInput = {
-  expires?: InputMaybe<Scalars['DateTime']>;
-  key: Scalars['String'];
-  location: Scalars['String'];
-};
-
-export type RedirectUpdateInput = {
-  expires?: InputMaybe<Scalars['DateTime']>;
-  key?: InputMaybe<Scalars['String']>;
-  location?: InputMaybe<Scalars['String']>;
-};
+export enum RedirectOrderableFields {
+  Expires = 'expires',
+  Id = 'id',
+  Key = 'key'
+}
 
 export type Role = {
   __typename?: 'Role';
-  endTime?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  person: Person;
-  priority: Scalars['Int'];
-  startTime: Scalars['DateTime'];
+  /** The optional description of this role. May be what people within this role are responsible for, for example. */
+  description?: Maybe<Scalars['String']>;
+  /** Unique ID for this Role. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** The name of this role. */
+  name?: Maybe<Scalars['String']>;
+  people?: Maybe<Array<PersonRole>>;
 };
 
-export type RoleCreateInput = {
-  endTime?: InputMaybe<Scalars['DateTime']>;
-  name: Scalars['String'];
-  personId: Scalars['ID'];
-  /** Defaults to 0. */
-  priority?: Scalars['Int'];
-  startTime?: InputMaybe<Scalars['DateTime']>;
+
+export type RolePeopleArgs = {
+  filter?: InputMaybe<FilterPersonRoleInput>;
+  order?: InputMaybe<Array<OrderPersonRoleInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
-export type RoleUpdateInput = {
-  endTime?: InputMaybe<Scalars['DateTime']>;
+export enum RoleOrderableFields {
+  Id = 'id',
+  Name = 'name'
+}
+
+export type RuleOptions = {
+  defer?: InputMaybe<Scalars['Boolean']>;
+  excludeFields?: InputMaybe<Array<Scalars['String']>>;
+  filterInputName?: InputMaybe<Scalars['String']>;
+  inputName?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
-  personId?: InputMaybe<Scalars['ID']>;
-  priority?: InputMaybe<Scalars['Int']>;
-  startTime?: InputMaybe<Scalars['DateTime']>;
+  orderInputName?: InputMaybe<Scalars['String']>;
+  paginationInputName?: InputMaybe<Scalars['String']>;
+  strict?: InputMaybe<Scalars['Boolean']>;
 };
+
+export enum RuleType {
+  Count = 'Count',
+  Create = 'Create',
+  Delete = 'Delete',
+  ReadMany = 'ReadMany',
+  ReadOne = 'ReadOne',
+  Update = 'Update'
+}
 
 export type Stream = {
   __typename?: 'Stream';
-  from: Scalars['String'];
-  id: Scalars['ID'];
+  /** The location this stream is being pulled from. */
+  from?: Maybe<Scalars['String']>;
+  /** Unique ID for this stream. Automatically generated. */
+  id?: Maybe<Scalars['UUID']>;
+  /** The latest message from this stream. */
   message?: Maybe<Scalars['String']>;
-  to: Scalars['String'];
+  /** The location this stream is being pushed to. */
+  to?: Maybe<Scalars['String']>;
 };
 
-export type StreamCreateInput = {
-  from: Scalars['String'];
-  to: Scalars['String'];
+export type StringComparisonInput = {
+  contains?: InputMaybe<Scalars['String']>;
+  endsWith?: InputMaybe<Scalars['String']>;
+  equals?: InputMaybe<Scalars['String']>;
+  mode?: InputMaybe<CaseSensitivity>;
+  not?: InputMaybe<Scalars['String']>;
+  startsWith?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateAlertLog mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateAlertLogInput = {
+  /** The message logged by this alert. This is what is displayed to the user(s) viewing alerts. */
+  message?: InputMaybe<Scalars['String']>;
+  /**
+   * Severity of this alert. Currently can be any value, but should probably be one of the following:
+   * - "INFO"
+   * - "WARN"
+   * - "ERROR"
+   * A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
+   * for easier filtering of alerts by severity.
+   */
+  severity?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateAsset mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateAssetInput = {
+  /**
+   * Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
+   * known location and the last known handler cannot account for its current location.
+   */
+  isLost?: InputMaybe<Scalars['Boolean']>;
+  /** The user ID of the user who last checked this asset out/in. */
+  lastKnownHandlerId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * The last known location of this asset. This should be the last location that the asset was checked out
+   * from/checked into.
+   */
+  lastKnownLocation?: InputMaybe<Scalars['String']>;
+  /**
+   * The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
+   * asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
+   * asset. This is useful for future club members who wish to re-purchase an asset or find out more information
+   * about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
+   */
+  modelNumber?: InputMaybe<Scalars['String']>;
+  /** The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable */
+  name?: InputMaybe<Scalars['String']>;
+  /** Optional notes about this asset. */
+  notes?: InputMaybe<Scalars['String']>;
+  /**
+   * Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
+   * includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
+   * for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
+   * scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
+   * set to null.
+   */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
+   * members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
+   * should be the date that the asset was purchased, not the date that it was received. If the purchase date is
+   * unknown, it can be set to null.
+   */
+  purchaseDate?: InputMaybe<Scalars['DateTime']>;
+  /**
+   * The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
+   * asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
+   * Purchase location should be as specific as possible, and can be either a physical location or a website URL.
+   */
+  purchaseLocation?: InputMaybe<Scalars['String']>;
+  /**
+   * The price which this asset was purchased for in pennies. This is useful for new club members who wish to
+   * re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
+   * (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
+   * to null.
+   */
+  purchasePrice?: InputMaybe<Scalars['Int']>;
+  /**
+   * The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
+   * Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
+   * make sense to log it. In this case, the serial number can be set to null.
+   */
+  serialNumber?: InputMaybe<Scalars['String']>;
+  /**
+   * Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
+   * are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
+   */
+  tag?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updateBlogPost mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateBlogPostInput = {
+  /**
+   * The name to display for the author, as opposed to the actual username/person name. This allows for posting
+   * blogs as a "group".
+   */
+  authorDisplayName?: InputMaybe<Scalars['String']>;
+  /** The User ID of the author of this blog post. */
+  authorId?: InputMaybe<Scalars['BigInt']>;
+  /** The actual body of the blog post. */
+  content?: InputMaybe<Scalars['String']>;
+  /** DateTime at which this blog post was posted. */
+  postedAt?: InputMaybe<Scalars['DateTime']>;
+  /** The title of the blog post. */
+  title?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateCategory mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateCategoryInput = {
+  /** The name of this category */
+  name?: InputMaybe<Scalars['String']>;
+  /** The ID of the parent category, or null if this is a top-level category. */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /** The priority of this category. Categories with a higher priority should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updateContactSubmission mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateContactSubmissionInput = {
+  /** Additional metadata about this ContactSubmission. Unstructured JSON data. */
+  additionalData?: InputMaybe<Scalars['JSON']>;
+  /** The main body of the ContactSubmission. */
+  body?: InputMaybe<Scalars['String']>;
+  /** The email address for how to reach the person who submitted this ContactSubmission. */
+  email?: InputMaybe<Scalars['String']>;
+  /** The name of the person who submitted this ContactSubmission. */
+  name?: InputMaybe<Scalars['String']>;
+  /** Flag whether this contact submission has been resolved or not. */
+  resolved?: InputMaybe<Scalars['Boolean']>;
+  /** The subject/title of the ContactSubmission. */
+  subject?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateCredit mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateCreditInput = {
+  /** The ID of the person this Credit belongs to. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /** The priority of this Credit. Credits with a higher priority should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+  /** The ID of the production this Credit is for. */
+  productionId?: InputMaybe<Scalars['BigInt']>;
+  /** The title of this Credit */
+  title?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateGroup mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateGroupInput = {
+  /** The display name for this Group */
+  name?: InputMaybe<Scalars['String']>;
+  /** The ID of the parent of this Group. If null, this Group is a top-level Group. */
+  parentId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
+   * priority.
+   */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updateGroupPermission mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateGroupPermissionInput = {
+  /** The action for this GroupPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: InputMaybe<Scalars['String']>;
+  /** Any conditional checks for this GroupPermission. */
+  conditions?: InputMaybe<Scalars['JSON']>;
+  /** The set of fields for this GroupPermission. */
+  fields?: InputMaybe<Array<Scalars['String']>>;
+  /** ID of the group which this GroupPermission is for. */
+  groupId?: InputMaybe<Scalars['BigInt']>;
+  /** True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission. */
+  inverted?: InputMaybe<Scalars['Boolean']>;
+  /** The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true. */
+  reason?: InputMaybe<Scalars['String']>;
+  /** The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: InputMaybe<Array<Scalars['String']>>;
+};
+
+/**
+ * Input type for updateImage mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateImageInput = {
+  /** The description for this image. */
+  description?: InputMaybe<Scalars['String']>;
+  /** The display name for this image. */
+  name?: InputMaybe<Scalars['String']>;
+  /** The path/URI for this image. */
+  path?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updatePersonImage mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdatePersonImageInput = {
+  /** Priority of this PersonImage. Higher priority images should be displayed first. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updatePerson mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdatePersonInput = {
+  /** An "about me" section for this Person. */
+  description?: InputMaybe<Scalars['String']>;
+  /**
+   * The date that this Person intends on graduating from the university. This allows for automated role removals,
+   * as well as displaying the Person's class year on their profile.
+   */
+  graduation?: InputMaybe<Scalars['DateTime']>;
+  /** The name (or pseudonym) for this Person. Should likely be in the format "First Last". */
+  name?: InputMaybe<Scalars['String']>;
+  /** ID of the image which should be used for this Person's profile picture. */
+  profilePictureId?: InputMaybe<Scalars['BigInt']>;
+  /** The pronouns for this Person. Should likely be in the format "they/them". Optional. */
+  pronouns?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updatePersonRole mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdatePersonRoleInput = {
+  /** End date of when this PersonRole association should no longer be active. */
+  endTime?: InputMaybe<Scalars['DateTime']>;
+  /** Start date of when this PersonRole association should begin. */
+  startTime?: InputMaybe<Scalars['DateTime']>;
+};
+
+/**
+ * Input type for updateProductionImage mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateProductionImageInput = {
+  /** The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updateProduction mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateProductionInput = {
+  /** The ID of the category which this Production belongs to. */
+  categoryId?: InputMaybe<Scalars['BigInt']>;
+  /** The closet meeting location for club members to meet at before the Production. */
+  closetLocation?: InputMaybe<Scalars['String']>;
+  /** The time that club members should meet at the closet location before the Production. */
+  closetTime?: InputMaybe<Scalars['DateTime']>;
+  /** The Description of this Production */
+  description?: InputMaybe<Scalars['String']>;
+  /**
+   * The ID of the Discord channel within the Discord server that messages related to this Production should be sent
+   * to.
+   */
+  discordChannel?: InputMaybe<Scalars['String']>;
+  /** The ID of the Discord server that messages related to this Production should be sent to. */
+  discordServer?: InputMaybe<Scalars['String']>;
+  /**
+   * The expected end time of this Production. This is used, in combination with start time, to determine which
+   * Productions are live.
+   */
+  endTime?: InputMaybe<Scalars['DateTime']>;
+  /** The location of the event for this Production. */
+  eventLocation?: InputMaybe<Scalars['String']>;
+  /** The title/name of this Production */
+  name?: InputMaybe<Scalars['String']>;
+  /**
+   * The expected start time of this Production. This is used, in combination with end time, to determine which
+   * Productions are live.
+   */
+  startTime?: InputMaybe<Scalars['DateTime']>;
+  /** Any notes that the team has about this Production. Can be markup. */
+  teamNotes?: InputMaybe<Scalars['String']>;
+  /** The ID of the Image which should be used as the thumbnail for this Production. */
+  thumbnailId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/**
+ * Input type for updateProductionRSVP mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateProductionRsvpInput = {
+  /** Any additional notes provided by the User, officers, or producers. */
+  notes?: InputMaybe<Scalars['String']>;
+  /** The User's response to the Production's RSVP. Should be "yes", "no", or "maybe". */
+  willAttend?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateProductionVideo mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateProductionVideoInput = {
+  /** The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones. */
+  priority?: InputMaybe<Scalars['Int']>;
+};
+
+/**
+ * Input type for updateRedirect mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateRedirectInput = {
+  /** The date and time at which this Redirect expires. If null, this Redirect never expires. */
+  expires?: InputMaybe<Scalars['DateTime']>;
+  /** The key used in URLs to access this Redirect. */
+  key?: InputMaybe<Scalars['String']>;
+  /** The URL which this Redirect redirects to. */
+  location?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateRole mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateRoleInput = {
+  /** The optional description of this role. May be what people within this role are responsible for, for example. */
+  description?: InputMaybe<Scalars['String']>;
+  /** The name of this role. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Input type for updateUser mutation. Null values are not updated. To update a non-null value to null, explicitly pass null. */
+export type UpdateUserInput = {
+  /** Discord account ID for this user, or null if the user does not have a linked Discord account. */
+  discord?: InputMaybe<Scalars['String']>;
+  /** Email address for this user. */
+  mail?: InputMaybe<Scalars['String']>;
+  /** The password to set for this user */
+  password?: InputMaybe<Scalars['String']>;
+  /** Attached Person's ID, or null if this user does not have a linked Person. */
+  personId?: InputMaybe<Scalars['BigInt']>;
+  /**
+   * Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
+   * Recommended to be the user's RCS ID.
+   */
+  username?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateUserPermission mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateUserPermissionInput = {
+  /** The action for this UserPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: InputMaybe<Scalars['String']>;
+  /** Any conditional checks for this UserPermission. */
+  conditions?: InputMaybe<Scalars['JSON']>;
+  /** The set of fields for this UserPermission. */
+  fields?: InputMaybe<Array<Scalars['String']>>;
+  /** True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission. */
+  inverted?: InputMaybe<Scalars['Boolean']>;
+  /** The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true. */
+  reason?: InputMaybe<Scalars['String']>;
+  /** The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: InputMaybe<Array<Scalars['String']>>;
+  /** ID of the user which this UserPermission is for. */
+  userId?: InputMaybe<Scalars['BigInt']>;
+};
+
+/**
+ * Input type for updateVideo mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateVideoInput = {
+  /** The format for this Video. Probably either "EMBED", "RTMP", or "HLS". */
+  format?: InputMaybe<Scalars['String']>;
+  /**
+   * All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
+   * format of the video.
+   */
+  metadata?: InputMaybe<Scalars['JSON']>;
+  /** The display name for this Video. */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateVote mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateVoteInput = {
+  /** Additional describing information about this vote. */
+  description?: InputMaybe<Scalars['String']>;
+  /** Timestamp at which this vote closes and no more responses will be accepted. */
+  expires?: InputMaybe<Scalars['DateTime']>;
+  /** An array of available options for responses to this vote. */
+  options?: InputMaybe<Array<Scalars['String']>>;
+  /** The question proposed in this vote. */
+  question?: InputMaybe<Scalars['String']>;
+};
+
+/**
+ * Input type for updateVoteResponse mutation. Null values are not updated. To update a non-null value to null, explicitly
+ * pass null.
+ */
+export type UpdateVoteResponseInput = {
+  /**
+   * The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
+   * unchanged unless the user updates their vote.
+   */
+  selection?: InputMaybe<Scalars['String']>;
+  /** Timestamp at which this VoteResponse was submitted. */
+  timestamp?: InputMaybe<Scalars['DateTime']>;
 };
 
 export type User = {
   __typename?: 'User';
   accessLogs?: Maybe<Array<AccessLog>>;
-  assignedContactSubmissions?: Maybe<Array<ContactSubmissionAssignee>>;
   auditLogs?: Maybe<Array<AuditLog>>;
   checkedOutAssets?: Maybe<Array<Asset>>;
+  /** Discord account ID for this user, or null if the user does not have a linked Discord account. */
   discord?: Maybe<Scalars['String']>;
   groups?: Maybe<Array<UserGroup>>;
-  id: Scalars['ID'];
-  joined: Scalars['DateTime'];
-  mail: Scalars['EmailAddress'];
+  /** Unique ID for this User. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** DateTime at which the user's account was created. */
+  joined?: Maybe<Scalars['DateTime']>;
+  /** Email address for this user. */
+  mail?: Maybe<Scalars['String']>;
   permissions?: Maybe<Array<UserPermission>>;
   person?: Maybe<Person>;
+  /** Attached Person's ID, or null if this user does not have a linked Person. */
+  personId?: Maybe<Scalars['BigInt']>;
   productionRsvps?: Maybe<Array<ProductionRsvp>>;
-  username: Scalars['String'];
+  /**
+   * Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
+   * Recommended to be the user's RCS ID.
+   */
+  username?: Maybe<Scalars['String']>;
   voteResponses?: Maybe<Array<VoteResponse>>;
 };
 
-export type UserCreateInput = {
-  discord?: InputMaybe<Scalars['String']>;
-  mail: Scalars['EmailAddress'];
-  password?: InputMaybe<Scalars['String']>;
-  personId?: InputMaybe<Scalars['ID']>;
-  username: Scalars['String'];
+
+export type UserAccessLogsArgs = {
+  filter?: InputMaybe<FilterAccessLogInput>;
+  order?: InputMaybe<Array<OrderAccessLogInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserAuditLogsArgs = {
+  filter?: InputMaybe<FilterAuditLogInput>;
+  order?: InputMaybe<Array<OrderAuditLogInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserCheckedOutAssetsArgs = {
+  filter?: InputMaybe<FilterAssetInput>;
+  order?: InputMaybe<Array<OrderAssetInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserGroupsArgs = {
+  filter?: InputMaybe<FilterUserGroupInput>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserPermissionsArgs = {
+  filter?: InputMaybe<FilterUserPermissionInput>;
+  order?: InputMaybe<Array<OrderUserPermissionInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserProductionRsvpsArgs = {
+  filter?: InputMaybe<FilterProductionRsvpInput>;
+  order?: InputMaybe<Array<OrderProductionRsvpInput>>;
+  pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type UserVoteResponsesArgs = {
+  filter?: InputMaybe<FilterVoteResponseInput>;
+  order?: InputMaybe<Array<OrderVoteResponseInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type UserGroup = {
   __typename?: 'UserGroup';
-  group: Group;
-  id: Scalars['ID'];
-  user: User;
+  group?: Maybe<Group>;
+  /** ID of the group this UserGroup is associated with. */
+  groupId?: Maybe<Scalars['BigInt']>;
+  /** Unique ID for this UserGroup. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  user?: Maybe<User>;
+  /** ID of the user this UserGroup is associated with. */
+  userId?: Maybe<Scalars['BigInt']>;
 };
 
-export type UserGroupCreateInput = {
-  groupId: Scalars['ID'];
-  userId: Scalars['ID'];
-};
+export enum UserOrderableFields {
+  Id = 'id',
+  Joined = 'joined',
+  Mail = 'mail',
+  Username = 'username'
+}
 
 export type UserPermission = {
   __typename?: 'UserPermission';
-  action: Scalars['String'];
-  conditions?: Maybe<Scalars['JSONObject']>;
+  /** The action for this UserPermission. Should be a valid action within {@link AbilityAction }. */
+  action?: Maybe<Scalars['String']>;
+  /** Any conditional checks for this UserPermission. */
+  conditions?: Maybe<Scalars['JSON']>;
+  /** The set of fields for this UserPermission. */
   fields?: Maybe<Array<Scalars['String']>>;
-  id: Scalars['ID'];
-  inverted: Scalars['Boolean'];
+  /** Unique ID for this UserPermission. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission. */
+  inverted?: Maybe<Scalars['Boolean']>;
+  /** The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true. */
   reason?: Maybe<Scalars['String']>;
-  subject: Array<Scalars['String']>;
-  user: User;
+  /** The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }. */
+  subject?: Maybe<Array<Scalars['String']>>;
+  user?: Maybe<User>;
+  /** ID of the user which this UserPermission is for. */
+  userId?: Maybe<Scalars['BigInt']>;
 };
 
-export type UserPermissionCreateInput = {
-  action: Scalars['String'];
-  conditions?: InputMaybe<Scalars['JSONObject']>;
-  fields?: InputMaybe<Array<Scalars['String']>>;
-  inverted?: InputMaybe<Scalars['Boolean']>;
-  reason?: InputMaybe<Scalars['String']>;
-  subject: Array<Scalars['String']>;
-  userId: Scalars['ID'];
-};
-
-export type UserPermissionUpdateInput = {
-  action?: InputMaybe<Scalars['String']>;
-  conditions?: InputMaybe<Scalars['JSONObject']>;
-  fields?: InputMaybe<Array<Scalars['String']>>;
-  inverted?: InputMaybe<Scalars['Boolean']>;
-  reason?: InputMaybe<Scalars['String']>;
-  subject?: InputMaybe<Array<Scalars['String']>>;
-};
-
-export type UserUpdateInput = {
-  discord?: InputMaybe<Scalars['String']>;
-  mail?: InputMaybe<Scalars['EmailAddress']>;
-  password?: InputMaybe<Scalars['String']>;
-  personId?: InputMaybe<Scalars['ID']>;
-  username?: InputMaybe<Scalars['String']>;
-};
+export enum UserPermissionOrderableFields {
+  Action = 'action',
+  Id = 'id'
+}
 
 export type Video = {
   __typename?: 'Video';
-  format: VideoFormat;
-  id: Scalars['ID'];
-  metadata?: Maybe<Scalars['JSONObject']>;
-  name: Scalars['String'];
+  /** The format for this Video. Probably either "EMBED", "RTMP", or "HLS". */
+  format?: Maybe<Scalars['String']>;
+  /** Unique ID for this Video. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /**
+   * All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
+   * format of the video.
+   */
+  metadata?: Maybe<Scalars['JSON']>;
+  /** The display name for this Video. */
+  name?: Maybe<Scalars['String']>;
   videoFor?: Maybe<Array<ProductionVideo>>;
 };
 
-export type VideoCreateInput = {
-  format: VideoFormat;
-  metadata?: InputMaybe<Scalars['JSONObject']>;
-  name: Scalars['String'];
+
+export type VideoVideoForArgs = {
+  filter?: InputMaybe<FilterProductionVideoInput>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
-export enum VideoFormat {
-  Embed = 'EMBED',
-  Hls = 'HLS',
-  Rtmp = 'RTMP'
+export enum VideoOrderableFields {
+  Id = 'id',
+  Name = 'name'
 }
-
-export type VideoUpdateInput = {
-  format?: InputMaybe<VideoFormat>;
-  metadata?: InputMaybe<Scalars['JSONObject']>;
-  name?: InputMaybe<Scalars['String']>;
-};
 
 export type Vote = {
   __typename?: 'Vote';
+  /** Additional describing information about this vote. */
   description?: Maybe<Scalars['String']>;
+  /** Timestamp at which this vote closes and no more responses will be accepted. */
   expires?: Maybe<Scalars['DateTime']>;
-  id: Scalars['ID'];
-  options: Array<Scalars['String']>;
-  question: Scalars['String'];
+  /** Unique ID for this Vote. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /** An array of available options for responses to this vote. */
+  options?: Maybe<Array<Scalars['String']>>;
+  /** The question proposed in this vote. */
+  question?: Maybe<Scalars['String']>;
   responses?: Maybe<Array<VoteResponse>>;
 };
 
-export type VoteCreateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  expires?: InputMaybe<Scalars['DateTime']>;
-  options: Array<Scalars['String']>;
-  question: Scalars['String'];
+
+export type VoteResponsesArgs = {
+  filter?: InputMaybe<FilterVoteResponseInput>;
+  order?: InputMaybe<Array<OrderVoteResponseInput>>;
+  pagination?: InputMaybe<PaginationInput>;
 };
+
+export enum VoteOrderableFields {
+  Expires = 'expires',
+  Id = 'id',
+  Question = 'question'
+}
 
 export type VoteResponse = {
   __typename?: 'VoteResponse';
-  id: Scalars['ID'];
-  selection: Scalars['String'];
-  timestamp: Scalars['DateTime'];
-  user: User;
-  vote: Vote;
+  /** Unique ID for this VoteResponse. Automatically generated. */
+  id?: Maybe<Scalars['BigInt']>;
+  /**
+   * The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
+   * unchanged unless the user updates their vote.
+   */
+  selection?: Maybe<Scalars['String']>;
+  /** Timestamp at which this VoteResponse was submitted. */
+  timestamp?: Maybe<Scalars['DateTime']>;
+  user?: Maybe<User>;
+  /** ID of the user this VoteResponse is associated with. */
+  userId?: Maybe<Scalars['BigInt']>;
+  vote?: Maybe<Vote>;
+  /** ID of the vote this VoteResponse is associated with. */
+  voteId?: Maybe<Scalars['BigInt']>;
 };
 
-export type VoteResponseCreateInput = {
-  selection: Scalars['String'];
-  userId: Scalars['ID'];
-  voteId: Scalars['ID'];
-};
-
-export type VoteResponseUpdateInput = {
-  selection?: InputMaybe<Scalars['String']>;
-};
-
-export type VoteUpdateInput = {
-  description?: InputMaybe<Scalars['String']>;
-  expires?: InputMaybe<Scalars['DateTime']>;
-  options?: InputMaybe<Array<Scalars['String']>>;
-  question?: InputMaybe<Scalars['String']>;
-};
+export enum VoteResponseOrderableFields {
+  Id = 'id',
+  Timestamp = 'timestamp'
+}
 
 export type FindAllProductionsQueryVariables = Exact<{
-  pagination?: InputMaybe<Pagination>;
+  pagination?: InputMaybe<PaginationInput>;
 }>;
 
 
-export type FindAllProductionsQuery = { __typename?: 'Query', productions: Array<{ __typename?: 'Production', id: string, name: string, startTime?: any | null, description?: string | null, thumbnail?: { __typename?: 'Image', path: string } | null }> };
+export type FindAllProductionsQuery = { __typename?: 'Query', productions: Array<{ __typename?: 'Production', id?: any | null, name?: string | null, startTime?: any | null, description?: string | null, thumbnail?: { __typename?: 'Image', path?: string | null } | null }> };
 
 export type ListStreamsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListStreamsQuery = { __typename?: 'Query', streams: Array<{ __typename?: 'Stream', id: string, to: string, from: string, message?: string | null }> };
+export type ListStreamsQuery = { __typename?: 'Query', findManyStream: Array<{ __typename?: 'Stream', id?: any | null, to?: string | null, from?: string | null, message?: string | null }> };
+
+export type LoginLocalMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type LoginLocalMutation = { __typename?: 'Mutation', loginLocal: { __typename?: 'User', id?: any | null } };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -1711,16 +3545,16 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = { __typename?: 'Mutation', logoutSuccess: boolean };
 
 export type PermissionsForQueryVariables = Exact<{
-  user?: InputMaybe<Scalars['ID']>;
+  user?: InputMaybe<Scalars['BigInt']>;
 }>;
 
 
-export type PermissionsForQuery = { __typename?: 'Query', permissions: Array<{ __typename?: 'GroupPermission', action: string, subject: Array<string>, fields?: Array<string> | null, conditions?: any | null, inverted: boolean, reason?: string | null } | { __typename?: 'UserPermission', action: string, subject: Array<string>, fields?: Array<string> | null, conditions?: any | null, inverted: boolean, reason?: string | null }> };
+export type PermissionsForQuery = { __typename?: 'Query', permissions?: Array<{ __typename?: 'GroupPermission', action?: string | null, subject?: Array<string> | null, fields?: Array<string> | null, conditions?: any | null, inverted?: boolean | null, reason?: string | null } | { __typename?: 'UserPermission', action?: string | null, subject?: Array<string> | null, fields?: Array<string> | null, conditions?: any | null, inverted?: boolean | null, reason?: string | null }> | null };
 
 export type SelfIdQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SelfIdQuery = { __typename?: 'Query', self?: { __typename?: 'User', id: string } | null };
+export type SelfIdQuery = { __typename?: 'Query', self?: { __typename?: 'User', id?: any | null } | null };
 
 export type StartStreamMutationVariables = Exact<{
   to: Scalars['String'];
@@ -1728,29 +3562,21 @@ export type StartStreamMutationVariables = Exact<{
 }>;
 
 
-export type StartStreamMutation = { __typename?: 'Mutation', success: boolean };
+export type StartStreamMutation = { __typename?: 'Mutation', createStream: { __typename?: 'Stream', from?: string | null, to?: string | null } };
 
 export type StopStreamMutationVariables = Exact<{
-  id: Scalars['ID'];
+  id: Scalars['UUID'];
 }>;
 
 
-export type StopStreamMutation = { __typename?: 'Mutation', success: boolean };
-
-export type UsernameLoginMutationVariables = Exact<{
-  username: Scalars['String'];
-  password: Scalars['String'];
-}>;
+export type StopStreamMutation = { __typename?: 'Mutation', deleteStream: { __typename?: 'Stream', id?: any | null } };
 
 
-export type UsernameLoginMutation = { __typename?: 'Mutation', loginSuccess: boolean };
-
-
-export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
-export const ListStreamsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListStreams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"streams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"to"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ListStreamsQuery, ListStreamsQueryVariables>;
+export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
+export const ListStreamsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListStreams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyStream"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"to"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ListStreamsQuery, ListStreamsQueryVariables>;
+export const LoginLocalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"LoginLocal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loginLocal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<LoginLocalMutation, LoginLocalMutationVariables>;
 export const LogoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Logout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"logoutSuccess"},"name":{"kind":"Name","value":"logout"}}]}}]} as unknown as DocumentNode<LogoutMutation, LogoutMutationVariables>;
-export const PermissionsForDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PermissionsFor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"user"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"permissions"},"name":{"kind":"Name","value":"permissionsFor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"user"},"value":{"kind":"Variable","name":{"kind":"Name","value":"user"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]} as unknown as DocumentNode<PermissionsForQuery, PermissionsForQueryVariables>;
+export const PermissionsForDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PermissionsFor"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"user"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"BigInt"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"permissions"},"name":{"kind":"Name","value":"permissionsFor"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"user"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"GroupPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserPermission"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"action"}},{"kind":"Field","name":{"kind":"Name","value":"subject"}},{"kind":"Field","name":{"kind":"Name","value":"fields"}},{"kind":"Field","name":{"kind":"Name","value":"conditions"}},{"kind":"Field","name":{"kind":"Name","value":"inverted"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]} as unknown as DocumentNode<PermissionsForQuery, PermissionsForQueryVariables>;
 export const SelfIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SelfId"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"self"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<SelfIdQuery, SelfIdQueryVariables>;
-export const StartStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StartStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"to"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"from"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"success"},"name":{"kind":"Name","value":"createStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"to"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"from"},"value":{"kind":"Variable","name":{"kind":"Name","value":"from"}}}]}}]}]}}]} as unknown as DocumentNode<StartStreamMutation, StartStreamMutationVariables>;
-export const StopStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StopStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"success"},"name":{"kind":"Name","value":"deleteStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<StopStreamMutation, StopStreamMutationVariables>;
-export const UsernameLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UsernameLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"loginSuccess"},"name":{"kind":"Name","value":"usernameLogin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}]}]}}]} as unknown as DocumentNode<UsernameLoginMutation, UsernameLoginMutationVariables>;
+export const StartStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StartStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"to"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"from"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"to"},"value":{"kind":"Variable","name":{"kind":"Name","value":"to"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"from"},"value":{"kind":"Variable","name":{"kind":"Name","value":"from"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"to"}}]}}]}}]} as unknown as DocumentNode<StartStreamMutation, StartStreamMutationVariables>;
+export const StopStreamDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"StopStream"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UUID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteStream"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<StopStreamMutation, StopStreamMutationVariables>;

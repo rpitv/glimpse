@@ -1,3 +1,5 @@
-mutation StopStream($id: ID!) {
-  success: deleteStream(id: $id)
+mutation StopStream($id: UUID!) {
+  deleteStream(id: $id) {
+    id
+  }
 }
