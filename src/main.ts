@@ -63,7 +63,18 @@ async function bootstrap() {
     logger.log(`Listening on port ${configService.get<number>("PORT")}`);
     if (!configService.get("POSTGRES_PASSWORD")) {
         logger.warn(
-            "POSTGRES_PASSWORD environment variable not detected. This application does not require this variable, but PostgreSQL Docker containers do."
+            "POSTGRES_PASSWORD environment variable not detected. This application does not require this " +
+                "variable, but PostgreSQL Docker containers do."
+        );
+    }
+
+    if (
+        !configService.get<boolean>("HTTPS") &&
+        ["production", "staging"].includes(configService.get<string>("NODE_ENV"))
+    ) {
+        logger.warn(
+            `HTTPS should be enabled in ${configService.get<string>("NODE_ENV")}. This is a security risk.` +
+                `Set the HTTPS environment variable to true to enable HTTPS.`
         );
     }
 }
