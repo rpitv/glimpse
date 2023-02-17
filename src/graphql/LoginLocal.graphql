@@ -1,0 +1,5 @@
+mutation LoginLocal($username: String!, $password: String!) {
+  loginLocal(username: $username, password: $password) {
+    id
+  }
+}

@@ -26,7 +26,7 @@ import AccountView from "../views/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import {
-  ability,
+  ability, AbilityActions,
   canViewAssetsDashboard,
   canViewBlogPostsDashboard,
   canViewCategoriesDashboard,
@@ -45,7 +45,7 @@ import {
 } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
-import { AbilityActions, AbilitySubjects } from "@/graphql/types";
+import { AbilitySubjects } from "@/graphql/types";
 
 function restrictedComponent(
   component: Component,

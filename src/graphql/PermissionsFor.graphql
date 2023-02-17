@@ -1,5 +1,5 @@
-query PermissionsFor($user: ID) {
-  permissions: permissionsFor(user: $user) {
+query PermissionsFor($user: BigInt) {
+  permissions: permissionsFor(userId: $user) {
     ...on GroupPermission {
       action
       subject
