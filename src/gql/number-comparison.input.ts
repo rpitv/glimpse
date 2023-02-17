@@ -8,4 +8,5 @@ export class NumberComparisonInput {
     lte?: number;
     gt?: number;
     gte?: number;
+    in?: number[];
 }
