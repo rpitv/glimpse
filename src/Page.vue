@@ -52,7 +52,7 @@ const message = useMessage();
 const authStore = useAuthStore();
 
 const topLevelError = ref<Error | null>(null);
-const maintenanceMode = ref<boolean>(true);
+const maintenanceMode = ref<boolean>(false);
 
 try {
 // Fetch identity and permissions from server
