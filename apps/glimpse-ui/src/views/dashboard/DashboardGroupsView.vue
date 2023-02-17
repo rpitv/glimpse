@@ -27,8 +27,8 @@ import DashboardBreadcrumb from "@/components/DashboardBreadcrumb.vue";
 import {NButton, NDataTable, NCard, useDialog} from "naive-ui";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {computed, h, reactive, ref} from "vue";
-import {useGlimpseAbility} from "@/casl";
-import {AbilityActions, AbilitySubjects} from "@/graphql/types";
+import {AbilityActions, useGlimpseAbility} from "@/casl";
+import {AbilitySubjects} from "@/graphql/types";
 import {subject} from "@casl/ability";
 
 type RowData = {
@@ -83,8 +83,8 @@ const tableColumns = [
         h(
           NButton,
           {
-            disabled: !ability.can(AbilityActions.Update, subject(AbilitySubjects.Group, row)),
-            title: !ability.can(AbilityActions.Update, subject(AbilitySubjects.Group, row)) ? 'You do not have permission to edit this Group' : '',
+            disabled: !ability.can(AbilityActions.Update, subject(AbilitySubjects.Group, row) as any),
+            title: !ability.can(AbilityActions.Update, subject(AbilitySubjects.Group, row) as any) ? 'You do not have permission to edit this Group' : '',
             style: 'margin: 0.5em 0.5em 0.5em 0;',
             strong: true,
             tertiary: true,
@@ -95,8 +95,8 @@ const tableColumns = [
         ), h(
           NButton,
           {
-            disabled: !ability.can(AbilityActions.Delete, subject(AbilitySubjects.Group, row)),
-            title: !ability.can(AbilityActions.Delete, subject(AbilitySubjects.Group, row)) ? 'You do not have permission to delete this Group' : '',
+            disabled: !ability.can(AbilityActions.Delete, subject(AbilitySubjects.Group, row) as any),
+            title: !ability.can(AbilityActions.Delete, subject(AbilitySubjects.Group, row) as any) ? 'You do not have permission to delete this Group' : '',
             type: 'error',
             strong: true,
             tertiary: true,

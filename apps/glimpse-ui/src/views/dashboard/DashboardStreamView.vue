@@ -40,9 +40,8 @@
 <script setup lang="ts">
 import {NCard, NButton, NInputGroup, NInput, NTable} from "naive-ui";
 import DashboardBreadcrumb from "@/components/DashboardBreadcrumb.vue";
-import {useGlimpseAbility} from "@/casl";
+import {AbilityActions, useGlimpseAbility} from "@/casl";
 import {
-  AbilityActions,
   AbilitySubjects,
   ListStreamsDocument,
   StartStreamDocument,

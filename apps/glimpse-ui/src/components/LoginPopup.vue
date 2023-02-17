@@ -47,7 +47,14 @@ watch(() => isPopupShown.value, () => {
 </script>
 
 <style scoped lang="scss">
+
 .login-card {
-  width: 60%;
+  @media(min-width: 440px) {
+    width: 350px;
+    margin-left: calc(50% - 350px / 2)
+  }
+  @media (max-width: 439px) {
+    width: 80%;
+  }
 }
 </style>

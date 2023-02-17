@@ -32,7 +32,7 @@ export const useAuthStore = defineStore("auth", {
         try {
           const permissionsResult = useQuery(
             PermissionsForDocument,
-            { user: String(this.userId) },
+            { user: this.userId },
             { fetchPolicy: "no-cache" }
           );
           await new Promise<void>((resolve, reject) => {

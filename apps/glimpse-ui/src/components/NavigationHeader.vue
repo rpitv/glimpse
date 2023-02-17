@@ -25,14 +25,14 @@
 import {computed, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import LoginPopup from "./LoginPopup.vue";
-import {canViewDashboard, requirePermission} from "@/casl";
+import {AbilityActions, canViewDashboard, requirePermission} from "@/casl";
 import {useAuthStore} from "@/stores/auth";
-import {AbilityActions, AbilitySubjects} from "@/graphql/types";
 import type {NavButton} from "@/util/NavButton";
 import NavigationHeaderButton from "./NavigationHeaderButton.vue";
 import {useMessage} from "naive-ui";
 import {shouldOpenInNewTab} from "@/util/helper";
 import {storeToRefs} from "pinia";
+import {AbilitySubjects} from "@/graphql/types";
 
 // -------------------------------------------------------------------------------------------------
 // Definitions
