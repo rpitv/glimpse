@@ -1,4 +1,4 @@
-query FindAllProductions($pagination: Pagination) {
+query FindAllProductions($pagination: PaginationInput) {
   productions: findManyProduction(pagination: $pagination) {
     id
     name

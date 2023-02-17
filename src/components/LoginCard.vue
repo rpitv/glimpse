@@ -3,7 +3,7 @@
     <template #description>
       Logging you in...
     </template>
-    <n-card title="Login" size="large" class="login-card" :closable="closable" @close="cardClosed">
+    <n-card title="Log in" size="large" class="login-card" :closable="closable" @close="cardClosed">
       <n-alert v-if="loginErrorResponse" title="Login Error" type="error" class="login-error">
         {{ loginErrorResponse }}
       </n-alert>
@@ -21,10 +21,19 @@
           <n-input v-model:value="formValue.password" type="password" placeholder=""/>
         </n-form-item>
         <n-form-item>
-          <n-button @click="submit">
-            Login
+          <n-button @click="submit" round>
+            Log in
           </n-button>
         </n-form-item>
+        <n-divider>
+          OR
+        </n-divider>
+        <n-button color="#5865F2" text-color="#ffffff" round @click="redirectToDiscordLogin" class="oauth-button">
+          <template #icon>
+            <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
+          </template>
+          Log in with Discord
+        </n-button>
       </n-form>
     </n-card>
   </n-spin>
@@ -32,11 +41,12 @@
 
 <script setup lang="ts">
 import type {FormInst, FormItemRule, FormValidationError} from "naive-ui";
-import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin} from "naive-ui";
+import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin, NDivider} from "naive-ui";
 import {ref} from "vue";
 import {useMutation} from "@vue/apollo-composable";
-import {UsernameLoginDocument} from "@/graphql/types";
+import {LoginLocalDocument} from "@/graphql/types";
 import {useAuthStore} from "@/stores/auth";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 // Setup references
 const formRef = ref<FormInst | null>(null)
@@ -54,7 +64,7 @@ const props = defineProps(["closable"]);
 defineExpose({focus})
 
 // Import composables
-const {mutate: login} = useMutation(UsernameLoginDocument, () => ({
+const {mutate: login} = useMutation(LoginLocalDocument, () => ({
   variables: {
     username: formValue.value.username,
     password: formValue.value.password
@@ -123,7 +133,7 @@ async function submit() {
         try {
           const result = await login();
           // If login was successful, then emit success. Otherwise, show an unknown error message (should never happen).
-          if (result?.data?.loginSuccess) {
+          if (result?.data?.loginLocal?.id) {
             emit("success");
             authStore.isLoggedIn = true;
             authStore.permissions = null;
@@ -157,17 +167,29 @@ function focus() {
   usernameInputRef.value?.focus()
 }
 
+function redirectToDiscordLogin() {
+  return window.location.href = window.location.protocol + '//' + window.location.host + import.meta.env.BASE_URL + 'api/auth/discord';
+}
+
 </script>
 
 <style scoped lang="scss">
 .login-card {
-  @media(min-width: 800px) {
-    width: 60%;
-    margin-left: 20%;
+  @media(min-width: 440px) {
+    width: 350px;
+    margin-left: calc(50% - 350px / 2)
   }
 }
 
 .login-error {
   margin-bottom: 20px;
+}
+
+.oauth-button-icon {
+  margin-right: 5px;
+}
+
+button {
+  width: 100%;
 }
 </style>

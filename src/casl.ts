@@ -4,13 +4,20 @@ import { ABILITY_TOKEN, useAbility } from "@casl/vue";
 import type { InjectionKey, Ref } from "vue";
 import { computed } from "vue";
 import {
-  AbilityActions as GQLAbilityActions,
-  AbilitySubjects as GQLAbilitySubjects,
+  AbilitySubjects,
 } from "@/graphql/types";
 import { useAuthStore } from "@/stores/auth";
 
-export type AbilityActions = GQLAbilityActions;
-export type AbilitySubjects = GQLAbilitySubjects | Record<any, any>;
+export enum AbilityActions {
+  Create = "create",
+  Read = "read",
+  Update = "update",
+  Delete = "delete",
+  Manage = "manage",
+  Sort = "sort",
+  Filter = "filter",
+}
+
 export type GlimpseAbility = Ability<[AbilityActions, AbilitySubjects]>;
 
 export const GlimpseAbility = Ability as AbilityClass<GlimpseAbility>;
@@ -48,10 +55,10 @@ export function hasAnyActionPermissionForSubject(
 ): boolean {
   if (!actions) {
     actions = [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Read,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+      AbilityActions.Create,
+      AbilityActions.Read,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ];
   }
   if (!glimpseAbility) {
@@ -68,7 +75,7 @@ export function hasAnyActionPermissionForSubject(
  *   the requirement for this is to have any CRUD permission on the "Asset" subject.
  */
 export function canViewAssetsDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Asset);
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Asset);
 }
 
 /**
@@ -76,10 +83,10 @@ export function canViewAssetsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "BlogPost" subject.
  */
 export function canViewBlogPostsDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.BlogPost, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.BlogPost, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -88,10 +95,10 @@ export function canViewBlogPostsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "Category" subject.
  */
 export function canViewCategoriesDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Category, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Category, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -102,14 +109,11 @@ export function canViewCategoriesDashboard(): boolean {
  */
 export function canViewContactSubmissionsDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ContactSubmission, [
-      GQLAbilityActions.Read,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
-    ]) ||
-    hasAnyActionPermissionForSubject(
-      GQLAbilitySubjects.ContactSubmissionAssignee
-    )
+    hasAnyActionPermissionForSubject(AbilitySubjects.ContactSubmission, [
+      AbilityActions.Read,
+      AbilityActions.Update,
+      AbilityActions.Delete,
+    ])
   );
 }
 
@@ -121,11 +125,11 @@ export function canViewContactSubmissionsDashboard(): boolean {
  */
 export function canViewGroupsDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Group) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.GroupPermission, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.Group) ||
+    hasAnyActionPermissionForSubject(AbilitySubjects.GroupPermission, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ])
   );
 }
@@ -135,10 +139,10 @@ export function canViewGroupsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "Image" subject.
  */
 export function canViewImagesDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Image, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Image, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -149,9 +153,9 @@ export function canViewImagesDashboard(): boolean {
  */
 export function canViewLogsDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AlertLog) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AccessLog) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.AuditLog)
+    hasAnyActionPermissionForSubject(AbilitySubjects.AlertLog) ||
+    hasAnyActionPermissionForSubject(AbilitySubjects.AccessLog) ||
+    hasAnyActionPermissionForSubject(AbilitySubjects.AuditLog)
   );
 }
 
@@ -164,15 +168,15 @@ export function canViewLogsDashboard(): boolean {
  */
 export function canViewPeopleDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Person, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.Person, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.PersonImage, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.PersonImage, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ])
   );
 }
@@ -185,32 +189,32 @@ export function canViewPeopleDashboard(): boolean {
  */
 export function canViewProductionsDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Production, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.Production, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionImage, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.ProductionImage, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionTag, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.ProductionTag, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionVideo, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.ProductionVideo, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Credit, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.Credit, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ]) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.ProductionRsvp)
+    hasAnyActionPermissionForSubject(AbilitySubjects.ProductionRsvp)
   );
 }
 
@@ -219,10 +223,10 @@ export function canViewProductionsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "Redirect" subject.
  */
 export function canViewRedirectsDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Redirect, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Redirect, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -231,11 +235,11 @@ export function canViewRedirectsDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission on the "Stream" subject.
  */
 export function canViewStreamDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Stream, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Read,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Stream, [
+    AbilityActions.Create,
+    AbilityActions.Read,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -261,17 +265,17 @@ export function canViewUsersDashboard(): boolean {
     for (const rule of ability.rules) {
       // Check if this is an update rule specifically with the condition for the user's ID
       if (
-        rule.action === GQLAbilityActions.Update &&
+        rule.action === AbilityActions.Update &&
         rule.conditions?.id === authStore.userId
       ) {
         // If so, check if it's referring to the "User" subject, and remove it if so.
         // Easy first check is if the subject is literally just "User".
-        if (rule.subject === GQLAbilitySubjects.User) {
+        if (rule.subject === AbilitySubjects.User) {
           continue;
         } else if (Array.isArray(rule.subject)) {
           // If it's an array, remove all "User" subjects from the array.
           let idx: number;
-          while ((idx = rule.subject.indexOf(GQLAbilitySubjects.User)) > -1) {
+          while ((idx = rule.subject.indexOf(AbilitySubjects.User)) > -1) {
             rule.subject.splice(idx, 1);
           }
           // If the array is now empty, remove the rule.
@@ -287,18 +291,18 @@ export function canViewUsersDashboard(): boolean {
 
   return (
     hasAnyActionPermissionForSubject(
-      GQLAbilitySubjects.User,
+      AbilitySubjects.User,
       [
-        GQLAbilityActions.Create,
-        GQLAbilityActions.Update,
-        GQLAbilityActions.Delete,
+        AbilityActions.Create,
+        AbilityActions.Update,
+        AbilityActions.Delete,
       ],
       tmpAbility
     ) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.UserPermission, [
-      GQLAbilityActions.Create,
-      GQLAbilityActions.Update,
-      GQLAbilityActions.Delete,
+    hasAnyActionPermissionForSubject(AbilitySubjects.UserPermission, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ])
   );
 }
@@ -308,10 +312,10 @@ export function canViewUsersDashboard(): boolean {
  *   moment, the requirement for this is to have any CRUD permission besides read on the "Video" subject.
  */
 export function canViewVideosDashboard(): boolean {
-  return hasAnyActionPermissionForSubject(GQLAbilitySubjects.Video, [
-    GQLAbilityActions.Create,
-    GQLAbilityActions.Update,
-    GQLAbilityActions.Delete,
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Video, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
   ]);
 }
 
@@ -321,8 +325,8 @@ export function canViewVideosDashboard(): boolean {
  */
 export function canViewVotesDashboard(): boolean {
   return (
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.Vote) ||
-    hasAnyActionPermissionForSubject(GQLAbilitySubjects.VoteResponse)
+    hasAnyActionPermissionForSubject(AbilitySubjects.Vote) ||
+    hasAnyActionPermissionForSubject(AbilitySubjects.VoteResponse)
   );
 }
 
