@@ -84,7 +84,7 @@ import * as Joi from "joi";
                     .required()
                     .uri({ scheme: ["http", "https"] }),
                 TRUST_PROXY: Joi.string().required(),
-                HTTPS: Joi.boolean().default(false),
+                HTTPS: Joi.boolean().default(true),
                 LOG_LEVELS: Joi.string()
                     .regex(/^(?:verbose|debug|log|warn|error)(?:,(?:verbose|debug|log|warn|error))*$/)
                     .default((env) => {
