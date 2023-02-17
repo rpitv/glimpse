@@ -11,6 +11,7 @@ import { Stream } from "./stream.entity";
 import { CreateStreamInput } from "./dto/create-stream.input";
 import { connect, Connection, ConsumeMessage } from "amqplib";
 import { GraphQLUUID } from "graphql-scalars";
+import { ConfigService } from "@nestjs/config";
 
 @Resolver(() => Stream)
 export class StreamResolver {
@@ -19,31 +20,8 @@ export class StreamResolver {
     private streams: Stream[] = [];
     private streamLastSeen: { [key: string]: number } = {};
 
-    /**
-     * Connect to RabbitMQ and retry if connection fails. Retries every 5 seconds.
-     * @param url RabbitMQ URL to connect to
-     * @param retries Number of times to retry
-     * @throws Error if connection still fails after all retries.
-     */
-    private async connectToRabbit(url: string, retries: number): Promise<Connection> {
-        let client;
-        for (let i = 0; i < retries; i++) {
-            try {
-                client = await connect(url);
-                break;
-            } catch (err) {
-                console.log("Error connecting to RabbitMQ, retrying in 5 seconds");
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-            }
-        }
-        if (!client) {
-            throw new Error("Could not connect to RabbitMQ");
-        }
-        return client;
-    }
-
-    constructor() {
-        this.connectToRabbit(<string>process.env.RABBITMQ_URL, 10).then(async (client) => {
+    constructor(private readonly configService: ConfigService) {
+        this.connectToRabbit(configService.get<string>("RABBITMQ_URL"), 10).then(async (client) => {
             const channel = await client.createChannel();
             // Create exclusive queue to be bound to the state exchange
             const queue = await channel.assertQueue("", { exclusive: true });
@@ -89,6 +67,29 @@ export class StreamResolver {
             }
             this.logger.verbose("Done sweeping list of streams");
         }, 10000);
+    }
+
+    /**
+     * Connect to RabbitMQ and retry if connection fails. Retries every 5 seconds.
+     * @param url RabbitMQ URL to connect to
+     * @param retries Number of times to retry
+     * @throws Error if connection still fails after all retries.
+     */
+    private async connectToRabbit(url: string, retries: number): Promise<Connection> {
+        let client;
+        for (let i = 0; i < retries; i++) {
+            try {
+                client = await connect(url);
+                break;
+            } catch (err) {
+                console.log("Error connecting to RabbitMQ, retrying in 5 seconds");
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+        }
+        if (!client) {
+            throw new Error("Could not connect to RabbitMQ");
+        }
+        return client;
     }
 
     // -------------------- Generic Resolvers --------------------
@@ -137,7 +138,7 @@ export class StreamResolver {
 
         const newStream = { id: null, message: null, from: input.from, to: input.to };
 
-        const client = await connect(<string>process.env.RABBITMQ_URL);
+        const client = await connect(this.configService.get<string>("RABBITMQ_URL"));
         const channel = await client.createChannel();
 
         await channel.assertQueue("video:control:start", { durable: true });
@@ -172,7 +173,7 @@ export class StreamResolver {
             return null;
         }
 
-        const client = await connect(<string>process.env.RABBITMQ_URL);
+        const client = await connect(this.configService.get<string>("RABBITMQ_URL"));
         const channel = await client.createChannel();
 
         // Intentionally don't assert queue here, because we don't want to create it if it doesn't exist

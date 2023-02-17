@@ -8,9 +8,10 @@ import { AuthController } from "./auth.controller";
 import { DiscordStrategy } from "./discord.strategy";
 import { PrismaModule } from "../prisma/prisma.module";
 import { CaslModule } from "../casl/casl.module";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
-    imports: [PassportModule, PrismaModule, CaslModule],
+    imports: [PassportModule, PrismaModule, CaslModule, ConfigModule],
     providers: [AuthService, LocalStrategy, DiscordStrategy, AuthResolver, AuthSerializer],
     exports: [AuthService],
     controllers: [AuthController]

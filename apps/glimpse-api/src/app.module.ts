@@ -41,6 +41,8 @@ import { VoteModule } from "./types/vote/vote.module";
 import { VoteResponseModule } from "./types/vote_response/vote_response.module";
 import { GraphQLCustomRuleDirective, GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
 import { StreamModule } from "./types/stream/stream.module";
+import { ConfigModule } from "@nestjs/config";
+import * as Joi from "joi";
 
 @Module({
     imports: [
@@ -62,6 +64,42 @@ import { StreamModule } from "./types/stream/stream.module";
                     directives: [GraphQLRuleDirective, GraphQLCustomRuleDirective]
                 }
             })
+        }),
+        ConfigModule.forRoot({
+            cache: true,
+            validationSchema: Joi.object({
+                NODE_ENV: Joi.string().valid("development", "production", "test", "staging").default("development"),
+                PORT: Joi.number().default(4000),
+                DATABASE_URL: Joi.string().required().uri({ scheme: "postgresql" }),
+                POSTGRES_PASSWORD: Joi.string(),
+                REDIS_URL: Joi.string()
+                    .required()
+                    .uri({ scheme: ["redis", "rediss"] }),
+                RABBITMQ_URL: Joi.string().required().uri({ scheme: "amqp" }),
+                SESSION_SECRET: Joi.string().required().min(64),
+                SESSION_NAME: Joi.string().default("glimpse.sid").max(100),
+                DISCORD_CLIENT_ID: Joi.string().required(),
+                DISCORD_CLIENT_SECRET: Joi.string().required(),
+                DISCORD_CALLBACK_URL: Joi.string()
+                    .required()
+                    .uri({ scheme: ["http", "https"] }),
+                TRUST_PROXY: Joi.string().required(),
+                HTTPS: Joi.boolean().default(false),
+                LOG_LEVELS: Joi.string()
+                    .regex(/^(?:verbose|debug|log|warn|error)(?:,(?:verbose|debug|log|warn|error))*$/)
+                    .default((env) => {
+                        if (env.NODE_ENV === "development" || env.NODE_ENV === "test") {
+                            return "verbose,debug,log,warn,error";
+                        } else if (env.NODE_ENV === "staging") {
+                            return "debug,log,warn,error";
+                        }
+                        return "log,warn,error";
+                    })
+            }),
+            validationOptions: {
+                allowUnknown: true,
+                abortEarly: false
+            }
         }),
         AccessLogModule,
         AlertLogModule,
