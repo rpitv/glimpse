@@ -1,7 +1,7 @@
-import {Group, GroupPermission, PrismaClient} from "@prisma/client";
+import { Group, GroupPermission, PrismaClient } from "@prisma/client";
 import * as readline from "node:readline/promises";
-import {Writable} from "node:stream";
-import {argon2id, hash} from "argon2";
+import { Writable } from "node:stream";
+import { argon2id, hash } from "argon2";
 
 enum Color {
     Reset = "0",
@@ -15,10 +15,11 @@ enum Color {
     Blue = "34",
     Magenta = "35",
     Cyan = "36",
-    White = "37",
+    White = "37"
 }
 
-let asciiArt = "" +
+let asciiArt =
+    "" +
     "                                          *******************                     \n" +
     "                              ****             ****************************       \n" +
     "                                                            ******************    \n" +
@@ -36,7 +37,7 @@ let asciiArt = "" +
 
 asciiArt = asciiArt.replace(/(\*+)/g, style("$1", [Color.Red, Color.Bold]));
 
-function style(text: string, color: Color|Color[]): string {
+function style(text: string, color: Color | Color[]): string {
     const control = Array.isArray(color) ? color.join(";") : color;
     return `\x1b[${control}m${text}\x1b[${Color.Reset}m`;
 }
@@ -66,8 +67,454 @@ const rl = readline.createInterface({
 
 type GroupPermissionInput = Partial<GroupPermission> & { action: string };
 
-const guestPermissions: GroupPermissionInput[] = [];
-const memberPermissions: GroupPermissionInput[] = [];
+const guestPermissions: GroupPermissionInput[] = [
+    {
+        action: "create",
+        subject: ["ContactSubmission"],
+        fields: ["email", "name", "subject", "body"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionImage"],
+        fields: ["productionId", "imageId"]
+    },
+    {
+        action: "filter",
+        subject: ["PersonRole"],
+        fields: ["personId", "roleId"]
+    },
+    {
+        action: "filter",
+        subject: ["Production"],
+        fields: ["name", "description", "startTime", "endTime", "category"]
+    },
+    {
+        action: "filter",
+        subject: ["Person"],
+        fields: ["name", "graduation"]
+    },
+    {
+        action: "filter",
+        subject: ["Role"],
+        fields: ["name"]
+    },
+    {
+        action: "filter",
+        subject: ["Video"],
+        fields: ["name"]
+    },
+    {
+        action: "filter",
+        subject: ["Category"],
+        fields: ["name", "priority", "parentId"]
+    },
+    {
+        action: "filter",
+        subject: ["Credit"],
+        fields: ["personId", "productionId"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionVideo"],
+        fields: ["productionId", "videoId"]
+    },
+    {
+        action: "filter",
+        subject: ["PersonImage"],
+        fields: ["personId", "imageId"]
+    },
+    {
+        action: "filter",
+        subject: ["BlogPost"],
+        fields: ["authorId", "authorDisplayName", "title", "content"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionTag"],
+        fields: ["productionId", "tag"]
+    },
+    {
+        action: "read",
+        subject: ["GroupPermission"],
+        conditions: {
+            groupId: {
+                in: "$groups"
+            }
+        }
+    },
+    {
+        action: "read",
+        subject: ["BlogPost"],
+        conditions: {
+            postedAt: {
+                lte: "$now"
+            }
+        }
+    },
+    {
+        action: "read",
+        subject: [
+            "Category",
+            "Credit",
+            "Image",
+            "Person",
+            "PersonImage",
+            "PersonRole",
+            "ProductionImage",
+            "ProductionTag",
+            "ProductionVideo",
+            "Role",
+            "Video"
+        ]
+    },
+    {
+        action: "read",
+        subject: ["Redirect"],
+        fields: ["key", "location", "id"],
+        conditions: {
+            OR: [
+                {
+                    expires: {
+                        gt: "$now"
+                    }
+                },
+                {
+                    expires: null
+                }
+            ]
+        }
+    },
+    {
+        action: "read",
+        subject: ["Production"],
+        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail"]
+    },
+    {
+        action: "sort",
+        subject: ["BlogPost"],
+        fields: ["postedAt", "title"]
+    },
+    {
+        action: "sort",
+        subject: ["Role"],
+        fields: ["name"]
+    },
+    {
+        action: "sort",
+        subject: ["Production"],
+        fields: ["name", "startTime", "endTime"]
+    },
+    {
+        action: "sort",
+        subject: ["Category"],
+        fields: ["name", "priority"]
+    },
+    {
+        action: "sort",
+        subject: ["PersonRole"],
+        fields: ["startTime", "endTime"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionVideo"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionTag"],
+        fields: ["tag"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionImage"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["PersonImage"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["Person"],
+        fields: ["name", "graduation"]
+    },
+    {
+        action: "sort",
+        subject: ["Image"],
+        fields: ["name"]
+    },
+    {
+        action: "sort",
+        subject: ["Credit"],
+        fields: ["priority", "title"]
+    },
+    {
+        action: "sort",
+        subject: ["Video"],
+        fields: ["name"]
+    }
+];
+const memberPermissions: GroupPermissionInput[] = [
+    {
+        action: "create",
+        subject: ["ProductionRSVP"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "create",
+        subject: ["VoteResponse"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "delete",
+        subject: ["VoteResponse"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "filter",
+        subject: ["Production"],
+        fields: ["name", "description", "startTime", "endTime", "category", "closetLocation", "closetTime", "teamNotes"]
+    },
+    {
+        action: "filter",
+        subject: ["Role"],
+        fields: ["name"]
+    },
+    {
+        action: "filter",
+        subject: ["Video"],
+        fields: ["name"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionRSVP"],
+        fields: ["productionId"]
+    },
+    {
+        action: "filter",
+        subject: ["VoteResponse"],
+        fields: ["voteId"]
+    },
+    {
+        action: "filter",
+        subject: ["AccessLog"],
+        fields: ["ip", "timestamp", "service"]
+    },
+    {
+        action: "filter",
+        subject: ["BlogPost"],
+        fields: ["authorId", "authorDisplayName", "title", "content"]
+    },
+    {
+        action: "filter",
+        subject: ["Credit"],
+        fields: ["personId", "productionId"]
+    },
+    {
+        action: "filter",
+        subject: ["Person"],
+        fields: ["name", "graduation"]
+    },
+    {
+        action: "filter",
+        subject: ["PersonImage"],
+        fields: ["personId", "imageId"]
+    },
+    {
+        action: "filter",
+        subject: ["PersonRole"],
+        fields: ["personId", "roleId"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionImage"],
+        fields: ["productionId", "imageId"]
+    },
+    {
+        action: "filter",
+        subject: ["Category"],
+        fields: ["name", "priority", "parentId"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionTag"],
+        fields: ["productionId", "tag"]
+    },
+    {
+        action: "filter",
+        subject: ["ProductionVideo"],
+        fields: ["productionId", "videoId"]
+    },
+    {
+        action: "read",
+        subject: ["Vote"],
+        fields: ["question", "options", "description", "expires"]
+    },
+    {
+        action: "read",
+        subject: ["GroupPermission"],
+        conditions: {
+            groupId: {
+                in: "$groups"
+            }
+        }
+    },
+    {
+        action: "read",
+        subject: ["BlogPost"],
+        conditions: {
+            postedAt: {
+                lte: "$now"
+            }
+        }
+    },
+    {
+        action: "read",
+        subject: [
+            "Category",
+            "Credit",
+            "Image",
+            "Person",
+            "PersonImage",
+            "PersonRole",
+            "ProductionImage",
+            "ProductionRSVP",
+            "ProductionTag",
+            "ProductionVideo",
+            "Role",
+            "Video",
+            "Production"
+        ]
+    },
+    {
+        action: "read",
+        subject: ["Redirect"],
+        fields: ["key", "location", "id"],
+        conditions: {
+            OR: [
+                {
+                    expires: {
+                        gt: "$now"
+                    }
+                },
+                {
+                    expires: null
+                }
+            ]
+        }
+    },
+    {
+        action: "read",
+        subject: ["UserPermission", "AccessLog", "VoteResponse", "UserGroup", "User"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "sort",
+        subject: ["AccessLog"],
+        fields: ["ip", "timestamp", "service"]
+    },
+    {
+        action: "sort",
+        subject: ["Category"],
+        fields: ["name", "priority"]
+    },
+    {
+        action: "sort",
+        subject: ["Credit"],
+        fields: ["priority", "title"]
+    },
+    {
+        action: "sort",
+        subject: ["Image"],
+        fields: ["name"]
+    },
+    {
+        action: "sort",
+        subject: ["Person"],
+        fields: ["name", "graduation"]
+    },
+    {
+        action: "sort",
+        subject: ["PersonImage"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["PersonRole"],
+        fields: ["startTime", "endTime"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionImage"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionTag"],
+        fields: ["tag"]
+    },
+    {
+        action: "sort",
+        subject: ["ProductionVideo"],
+        fields: ["priority"]
+    },
+    {
+        action: "sort",
+        subject: ["Production"],
+        fields: ["name", "startTime", "endTime"]
+    },
+    {
+        action: "sort",
+        subject: ["Role"],
+        fields: ["name"]
+    },
+    {
+        action: "sort",
+        subject: ["Video"],
+        fields: ["name"]
+    },
+    {
+        action: "sort",
+        subject: ["VoteResponse"],
+        fields: ["selection", "timestamp"]
+    },
+    {
+        action: "sort",
+        subject: ["BlogPost"],
+        fields: ["postedAt", "title"]
+    },
+    {
+        action: "update",
+        subject: ["VoteResponse"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "update",
+        subject: ["User"],
+        fields: ["mail", "password"],
+        conditions: {
+            userId: "$id"
+        }
+    },
+    {
+        action: "update",
+        subject: ["ProductionRSVP"],
+        conditions: {
+            userId: "$id"
+        }
+    }
+];
 const adminPermissions: GroupPermissionInput[] = [
     {
         action: "manage",
@@ -98,7 +545,9 @@ commands.set(["help", "h"], {
         console.log('\t"npm run cli" for interactive mode.');
         console.log('\t"npm run cli -- <commands>" for non-interactive mode.');
         console.log("");
-        console.log(style(`\tCommands${"\t".repeat(minTabCount)}Description`, [Color.Cyan, Color.Underline, Color.Bold]));
+        console.log(
+            style(`\tCommands${"\t".repeat(minTabCount)}Description`, [Color.Cyan, Color.Underline, Color.Bold])
+        );
 
         const descriptionWidth = process.stdout.columns - (minTabCount + 3) * 8 - 5;
 
@@ -148,7 +597,9 @@ commands.set(["groups", "g"], {
     run: async () => {
         const users = await userCount();
         if (users > 0) {
-            console.error(style("For security reasons, this command can only be ran when there are no users.", Color.Red));
+            console.error(
+                style("For security reasons, this command can only be ran when there are no users.", Color.Red)
+            );
             return;
         }
         await createGroup(1n, "Guest", guestPermissions);
@@ -164,7 +615,9 @@ commands.set(["user", "u"], {
     run: async () => {
         const users = await userCount();
         if (users > 0) {
-            console.error(style("For security reasons, this command can only be ran when there are no users.", Color.Red));
+            console.error(
+                style("For security reasons, this command can only be ran when there are no users.", Color.Red)
+            );
             return;
         }
 
@@ -180,8 +633,11 @@ commands.set(["user", "u"], {
         let email = null;
 
         console.log(
-            style("WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
-                " database, this command will no longer work.", [Color.Yellow, Color.Bold, Color.Italic])
+            style(
+                "WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
+                    " database, this command will no longer work.",
+                [Color.Yellow, Color.Bold, Color.Italic]
+            )
         );
         while (!username) {
             username = await rl.question(style("Username: ", Color.Bold));
@@ -282,7 +738,10 @@ async function createGroup(id: bigint, name: string, permissions: GroupPermissio
     const group = await getGroup(id);
     if (group) {
         console.error(
-            style(`Group with ID ${id} already exists. Please manually delete it first if you want to recreate it.`, Color.Red)
+            style(
+                `Group with ID ${id} already exists. Please manually delete it first if you want to recreate it.`,
+                Color.Red
+            )
         );
     } else {
         const group = await prisma.group.create({
@@ -298,7 +757,10 @@ async function createGroup(id: bigint, name: string, permissions: GroupPermissio
             }
         });
         console.log(
-            style(`${name} group (ID: ${group.id}) created with default permissions. You can change these with an admin account.`, Color.Green)
+            style(
+                `${name} group (ID: ${group.id}) created with default permissions. You can change these with an admin account.`,
+                Color.Green
+            )
         );
         return group;
     }
@@ -321,10 +783,15 @@ async function userCount(): Promise<number> {
         }
         await exit();
     } else {
-        if(process.stdout.columns >= 80) {
-            console.log(asciiArt)
+        if (process.stdout.columns >= 80) {
+            console.log(asciiArt);
         }
-        console.log(style("Starting interactive mode. Type 'help' for a list of commands or 'exit' to exit.", [Color.Blue, Color.Bold]));
+        console.log(
+            style("Starting interactive mode. Type 'help' for a list of commands or 'exit' to exit.", [
+                Color.Blue,
+                Color.Bold
+            ])
+        );
         let command;
         // noinspection InfiniteLoopJS
         while (true) {
