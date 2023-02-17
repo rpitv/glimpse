@@ -96,7 +96,7 @@ const guestPermissions: GroupPermissionInput[] = [
     {
         action: "filter",
         subject: ["Role"],
-        fields: ["name"]
+        fields: ["name", "displayInMembership", "displayInLeadership"]
     },
     {
         action: "filter",
@@ -197,7 +197,7 @@ const guestPermissions: GroupPermissionInput[] = [
     {
         action: "sort",
         subject: ["Role"],
-        fields: ["name"]
+        fields: ["name", "priority"]
     },
     {
         action: "sort",
@@ -285,7 +285,7 @@ const memberPermissions: GroupPermissionInput[] = [
     {
         action: "filter",
         subject: ["Role"],
-        fields: ["name"]
+        fields: ["name", "displayInMembership", "displayInLeadership"]
     },
     {
         action: "filter",
@@ -475,7 +475,7 @@ const memberPermissions: GroupPermissionInput[] = [
     {
         action: "sort",
         subject: ["Role"],
-        fields: ["name"]
+        fields: ["name", "priority"]
     },
     {
         action: "sort",
