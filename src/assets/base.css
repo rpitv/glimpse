@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Ubuntu:wght@300;400|Oswald:wght@200;300;400&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,700;1,400;1,700;1,500&family=Oswald:wght@300;400&display=swap');
 
 h1,
 h2,
@@ -10,14 +10,16 @@ nav {
   font-family: "Oswald", sans-serif;
 }
 
-html {
-  font-family: "Ubuntu", sans-serif;
+body {
+  font-family: "Bitter", serif !important;
   font-size: 16px;
   word-spacing: 1px;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+}
+html {
   box-sizing: border-box;
 }
 

@@ -1,0 +1,34 @@
+query ReadProduction($id: BigInt!) {
+  ReadProduction: findOneProduction(id: $id) {
+    name,
+    description,
+    startTime,
+    category {
+      name
+    },
+    credits {
+      person {
+        name
+      }
+      priority,
+      title
+    },
+    images {
+      image {
+        id
+        description
+        path
+      }
+    }
+    videos {
+      video {
+        name
+        format
+        metadata
+      }
+    }
+    tags {
+      tag
+    }
+  }
+}

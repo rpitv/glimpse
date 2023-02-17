@@ -5,7 +5,11 @@ import { DefaultApolloClient } from "@vue/apollo-composable";
 import vuetify from "../plugins/vuetify";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCaretDown } from "@fortawesome/pro-solid-svg-icons";
+import {
+  faCaretDown,
+  faArrowLeft,
+  faArrowRight,
+} from "@fortawesome/pro-solid-svg-icons";
 import {
   faCircleInfo,
   faHome,
@@ -51,6 +55,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faCaretDown);
+library.add(faArrowLeft);
+library.add(faArrowRight);
 
 library.add(faHome);
 library.add(faCircleInfo);

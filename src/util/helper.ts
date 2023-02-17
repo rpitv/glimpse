@@ -45,6 +45,7 @@ export function shouldOpenInNewTab(e: MouseEvent): boolean {
  *   NavigationHeaderButton, and I am not aware of any way to make Vue templates refer to themselves in their
  *   script.
  * @param child
+ * @param currentDepth
  */
 export function computeNavDropdownChildElement(
   child: NavButton,
@@ -63,3 +64,12 @@ export function computeNavDropdownChildElement(
 }
 
 export type FontAwesomeIconWeights = "fas" | "fal" | "fad" | "fab";
+
+
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? DeepPartial<U>[]
+    : T[P] extends boolean | string | number
+      ? T[P]
+      : DeepPartial<T[P]>;
+};
