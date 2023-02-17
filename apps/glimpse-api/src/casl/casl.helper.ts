@@ -537,16 +537,6 @@ export class CaslHelper {
                     visit(inputAst, {
                         ObjectField: {
                             enter: (node) => {
-                                // Only single-deep fields are allowed in input data at the moment. I.e., you cannot
-                                //  create relations in a single mutation.
-                                this.assertNodeKind(node.value, [
-                                    Kind.ENUM,
-                                    Kind.STRING,
-                                    Kind.INT,
-                                    Kind.BOOLEAN,
-                                    Kind.FLOAT,
-                                    Kind.NULL
-                                ]);
                                 inputFields.add(node.name.value);
                             }
                         }
