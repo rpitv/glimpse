@@ -123,7 +123,7 @@ export class CaslAbilityFactory {
      */
     private visit(obj: Record<string, any>, visitor: (key: string, value: any) => any): any {
         for (const key of Object.keys(obj)) {
-            if (typeof obj[key] === "object") {
+            if (typeof obj[key] === "object" && obj[key] !== null) {
                 this.visit(obj[key], visitor);
             } else {
                 obj[key] = visitor(key, obj[key]);
@@ -136,6 +136,7 @@ export class CaslAbilityFactory {
      *  Currently supported variables:
      *  - $id: Replaced with the ID of the user that is logged in. Throws an error if no user is logged in.
      *  - $groups: Replaced with an array of the IDs of the groups that the user is a member of.
+     *  - $now: Replaced with a Date object equal to the current time.
      * @param permission Permission to replace variables in.
      * @param user User that is currently logged in, or undefined or null if no user is logged in.
      * @param groupIds Array of IDs of the groups that the user is a member of. If the user is a guest, this should be
@@ -164,12 +165,20 @@ export class CaslAbilityFactory {
                     return groupIds;
                 }
 
+                if (value === "$now") {
+                    this.logger.verbose(`Replacing $now variable in conditions with current time.`);
+                    return new Date();
+                }
+
                 // Replace escaped variables with their unescaped versions
                 if (value === "\\$id") {
                     return "$id";
                 }
                 if (value === "\\$groups") {
                     return "$groups";
+                }
+                if (value === "\\$now") {
+                    return "$now";
                 }
 
                 return value;
