@@ -1,5 +1,5 @@
-import { Field, ObjectType } from "@nestjs/graphql";
-import { MaxLength } from "class-validator";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
+import { IsBoolean, IsInt, MaxLength } from "class-validator";
 import { Role as PrismaRole } from "@prisma/client";
 import { GraphQLBigInt } from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";
@@ -33,4 +33,25 @@ export class Role implements PrismaRole {
     @MaxLength(1000)
     @Field(() => String, { nullable: true })
     description: string | null;
+
+    /**
+     * Flag for whether this Role should be displayed in the membership section on the website's "About Us" page.
+     */
+    @IsBoolean()
+    @Field(() => Boolean, { nullable: true })
+    displayInMembership: boolean | null;
+
+    /**
+     * Flag for whether this Role should be displayed in the leadership section on the website's "About Us" page.
+     */
+    @IsBoolean()
+    @Field(() => Boolean, { nullable: true })
+    displayInLeadership: boolean | null;
+
+    /**
+     * Priority of this Role when displayed on the "About Us" page or next to other Role's on a Person's profile.
+     */
+    @IsInt()
+    @Field(() => Int, { nullable: true })
+    priority: number | null;
 }

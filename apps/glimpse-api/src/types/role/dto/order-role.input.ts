@@ -3,7 +3,8 @@ import { OrderDirection } from "../../../gql/order-direction.enum";
 
 enum RoleOrderableFields {
     id = "id",
-    name = "name"
+    name = "name",
+    priority = "priority"
 }
 
 registerEnumType(RoleOrderableFields, {
