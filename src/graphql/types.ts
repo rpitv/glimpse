@@ -1323,6 +1323,7 @@ export type ImagePeopleArgs = {
 
 export type ImageProductionsArgs = {
   filter?: InputMaybe<FilterProductionImageInput>;
+  order?: InputMaybe<Array<OrderProductionImageInput>>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -1834,6 +1835,7 @@ export type NumberComparisonInput = {
   equals?: InputMaybe<Scalars['Float']>;
   gt?: InputMaybe<Scalars['Float']>;
   gte?: InputMaybe<Scalars['Float']>;
+  in?: InputMaybe<Array<Scalars['Float']>>;
   lt?: InputMaybe<Scalars['Float']>;
   lte?: InputMaybe<Scalars['Float']>;
   not?: InputMaybe<Scalars['Float']>;
@@ -1948,6 +1950,14 @@ export type OrderPersonRoleInput = {
   field: PersonRoleOrderableFields;
 };
 
+/** Input type for ordering Categories in ReadMany queries. */
+export type OrderProductionImageInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ProductionImageOrderableFields;
+};
+
 /** Input type for ordering Productions in ReadMany queries. */
 export type OrderProductionInput = {
   /** Direction to order in. Required. */
@@ -1970,6 +1980,14 @@ export type OrderProductionTagInput = {
   direction: OrderDirection;
   /** Name of the field to sort by. */
   field: ProductionTagOrderableFields;
+};
+
+/** Input type for ordering Categories in ReadMany queries. */
+export type OrderProductionVideoInput = {
+  /** Direction to order in. Required. */
+  direction: OrderDirection;
+  /** Name of the field to sort by. */
+  field: ProductionVideoOrderableFields;
 };
 
 /** Input type for ordering Redirects in ReadMany queries. */
@@ -2191,6 +2209,7 @@ export type ProductionCreditsArgs = {
 
 export type ProductionImagesArgs = {
   filter?: InputMaybe<FilterProductionImageInput>;
+  order?: InputMaybe<Array<OrderProductionImageInput>>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -2211,6 +2230,7 @@ export type ProductionTagsArgs = {
 
 export type ProductionVideosArgs = {
   filter?: InputMaybe<FilterProductionVideoInput>;
+  order?: InputMaybe<Array<OrderProductionVideoInput>>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -2227,6 +2247,10 @@ export type ProductionImage = {
   /** ID of the production this ProductionImage is associated with. */
   productionId?: Maybe<Scalars['BigInt']>;
 };
+
+export enum ProductionImageOrderableFields {
+  Priority = 'priority'
+}
 
 export enum ProductionOrderableFields {
   CategoryId = 'categoryId',
@@ -2285,6 +2309,10 @@ export type ProductionVideo = {
   /** ID of the video this ProductionVideo is associated with. */
   videoId?: Maybe<Scalars['BigInt']>;
 };
+
+export enum ProductionVideoOrderableFields {
+  Priority = 'priority'
+}
 
 export type Query = {
   __typename?: 'Query';
@@ -2895,6 +2923,7 @@ export type StringComparisonInput = {
   contains?: InputMaybe<Scalars['String']>;
   endsWith?: InputMaybe<Scalars['String']>;
   equals?: InputMaybe<Scalars['String']>;
+  in?: InputMaybe<Array<Scalars['String']>>;
   mode?: InputMaybe<CaseSensitivity>;
   not?: InputMaybe<Scalars['String']>;
   startsWith?: InputMaybe<Scalars['String']>;
@@ -3453,12 +3482,13 @@ export type Video = {
   metadata?: Maybe<Scalars['JSON']>;
   /** The display name for this Video. */
   name?: Maybe<Scalars['String']>;
-  videoFor?: Maybe<Array<ProductionVideo>>;
+  productions?: Maybe<Array<ProductionVideo>>;
 };
 
 
-export type VideoVideoForArgs = {
+export type VideoProductionsArgs = {
   filter?: InputMaybe<FilterProductionVideoInput>;
+  order?: InputMaybe<Array<OrderProductionVideoInput>>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -3526,6 +3556,20 @@ export type FindAllProductionsQueryVariables = Exact<{
 
 export type FindAllProductionsQuery = { __typename?: 'Query', productions: Array<{ __typename?: 'Production', id?: any | null, name?: string | null, startTime?: any | null, description?: string | null, thumbnail?: { __typename?: 'Image', path?: string | null } | null }> };
 
+export type FindLiveProductionsQueryVariables = Exact<{
+  now: Scalars['DateTime'];
+}>;
+
+
+export type FindLiveProductionsQuery = { __typename?: 'Query', findManyProduction: Array<{ __typename?: 'Production', id?: any | null, name?: string | null, description?: string | null, startTime?: any | null, videos?: Array<{ __typename?: 'ProductionVideo', priority?: number | null, video?: { __typename?: 'Video', format?: string | null, metadata?: any | null } | null }> | null }> };
+
+export type FindUpcomingProductionsQueryVariables = Exact<{
+  now: Scalars['DateTime'];
+}>;
+
+
+export type FindUpcomingProductionsQuery = { __typename?: 'Query', findManyProduction: Array<{ __typename?: 'Production', id?: any | null, name?: string | null, description?: string | null, startTime?: any | null, videos?: Array<{ __typename?: 'ProductionVideo', priority?: number | null, video?: { __typename?: 'Video', format?: string | null, metadata?: any | null } | null }> | null }> };
+
 export type ListStreamsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3573,6 +3617,8 @@ export type StopStreamMutation = { __typename?: 'Mutation', deleteStream: { __ty
 
 
 export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
+export const FindLiveProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLiveProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"now"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"startTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"lt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"endTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"gt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Asc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"take"},"value":{"kind":"IntValue","value":"3"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"videos"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"priority"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"video"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"format"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]}}]} as unknown as DocumentNode<FindLiveProductionsQuery, FindLiveProductionsQueryVariables>;
+export const FindUpcomingProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindUpcomingProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"now"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"endTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"gt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Asc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"take"},"value":{"kind":"IntValue","value":"3"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"videos"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"priority"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"video"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"format"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]}}]} as unknown as DocumentNode<FindUpcomingProductionsQuery, FindUpcomingProductionsQueryVariables>;
 export const ListStreamsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListStreams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyStream"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"to"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ListStreamsQuery, ListStreamsQueryVariables>;
 export const LoginLocalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"LoginLocal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loginLocal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<LoginLocalMutation, LoginLocalMutationVariables>;
 export const LogoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Logout"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"logoutSuccess"},"name":{"kind":"Name","value":"logout"}}]}}]} as unknown as DocumentNode<LogoutMutation, LogoutMutationVariables>;
