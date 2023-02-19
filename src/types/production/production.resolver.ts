@@ -29,6 +29,8 @@ import { ProductionTag } from "../production_tag/production_tag.entity";
 import { FilterProductionTagInput } from "../production_tag/dto/filter-production_tag.input";
 import { OrderProductionTagInput } from "../production_tag/dto/order-production_tag.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
+import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
 
 @Resolver(() => Production)
 export class ProductionResolver {
@@ -291,6 +293,7 @@ export class ProductionResolver {
         @Context() ctx: { req: Request },
         @Parent() production: Production,
         @Args("filter", { type: () => FilterProductionImageInput, nullable: true }) filter?: FilterProductionImageInput,
+        @Args("order", { type: () => [OrderProductionImageInput], nullable: true }) order?: OrderProductionImageInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ProductionImage[]> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
@@ -304,8 +307,11 @@ export class ProductionResolver {
             ? { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { productionId: production.id }, filter] }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { productionId: production.id }] };
 
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
         return ctx.req.prismaTx.productionImage.findMany({
             where,
+            orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
@@ -321,6 +327,7 @@ export class ProductionResolver {
         @Context() ctx: { req: Request },
         @Parent() production: Production,
         @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput,
+        @Args("order", { type: () => [OrderProductionVideoInput], nullable: true }) order?: OrderProductionVideoInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ProductionVideo[]> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
@@ -334,8 +341,11 @@ export class ProductionResolver {
             ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { productionId: production.id }, filter] }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { productionId: production.id }] };
 
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
         return ctx.req.prismaTx.productionVideo.findMany({
             where,
+            orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
