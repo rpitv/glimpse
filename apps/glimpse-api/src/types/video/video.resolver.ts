@@ -16,6 +16,7 @@ import { UpdateVideoInput } from "./dto/update-video.input";
 import { ProductionVideo } from "../production_video/production_video.entity";
 import { FilterProductionVideoInput } from "../production_video/dto/filter-production_video.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
 
 @Resolver(() => Video)
 export class VideoResolver {
@@ -206,16 +207,17 @@ export class VideoResolver {
      */
     @ResolveField(() => [ProductionVideo], { nullable: true })
     @Directive("@rule(ruleType: ReadMany, subject: ProductionVideo)")
-    async videoFor(
+    async productions(
         @Context() ctx: { req: Request },
         @Parent() video: Video,
         @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput,
+        @Args("order", { type: () => [OrderProductionVideoInput], nullable: true }) order?: OrderProductionVideoInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ProductionVideo[]> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
         //  An alternative solution would be to re-check the permissions for this field.
-        if (video["videoFor"] === null) {
+        if (video["productions"] === null) {
             return null;
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
@@ -223,8 +225,11 @@ export class VideoResolver {
             ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }, filter] }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }] };
 
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
         return ctx.req.prismaTx.productionVideo.findMany({
             where,
+            orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined

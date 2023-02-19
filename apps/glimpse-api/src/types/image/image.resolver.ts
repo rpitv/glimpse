@@ -24,6 +24,7 @@ import { Person } from "../person/person.entity";
 import { FilterPersonInput } from "../person/dto/filter-person.input";
 import { OrderPersonInput } from "../person/dto/order-person.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
 
 @Resolver(() => Image)
 export class ImageResolver {
@@ -248,6 +249,7 @@ export class ImageResolver {
         @Context() ctx: { req: Request },
         @Parent() image: Image,
         @Args("filter", { type: () => FilterProductionImageInput, nullable: true }) filter?: FilterProductionImageInput,
+        @Args("order", { type: () => [OrderProductionImageInput], nullable: true }) order?: OrderProductionImageInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ProductionImage[]> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
@@ -261,8 +263,11 @@ export class ImageResolver {
             ? { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { imageId: image.id }, filter] }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { imageId: image.id }] };
 
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
         return ctx.req.prismaTx.productionImage.findMany({
             where,
+            orderBy,
             skip: pagination?.skip,
             take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
