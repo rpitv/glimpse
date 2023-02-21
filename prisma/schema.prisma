@@ -334,10 +334,13 @@ model Redirect {
 }
 
 model Role {
-  id          BigInt       @db.BigInt @id(map: "roles_pk") @default(autoincrement())
-  name        String       @db.VarChar(100)
-  description String?      @db.VarChar(1000)
-  people      PersonRole[]
+  id                  BigInt       @db.BigInt @id(map: "roles_pk") @default(autoincrement())
+  name                String       @db.VarChar(100)
+  description         String?      @db.VarChar(1000)
+  displayInMembership Boolean      @db.Boolean @default(false) @map("display_in_membership")
+  displayInLeadership Boolean      @db.Boolean @default(false) @map("display_in_leadership")
+  priority            Int          @default(0)
+  people              PersonRole[]
 
   @@index([name], map: "roles_name_index")
   @@map("roles")
