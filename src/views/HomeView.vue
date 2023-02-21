@@ -8,31 +8,35 @@
         of RPI events.
       </p>
     </div>
-
-    <n-grid x-gap="2" :cols="2">
-      <n-gi cols="12" sm="6">
-        <h1 class="item-header" v-if="liveProductions.result.value?.findManyProduction">We're Live:</h1>
-        <h1 class="item-header" v-else-if="upComingProductions.result.value?.findManyProduction">Catch our next livestream:</h1>
-        <div v-if="liveProductions.result.value?.findManyProduction" v-for="production in liveProductions.result.value?.findManyProduction">
-          <NextLivestream :production="production"/>
-        </div>
-        <div v-else-if="upComingProductions.result.value?.findManyProduction" v-for="production in upComingProductions.result.value?.findManyProduction">
+    <n-grid x-gap="2"
+            :cols="liveProductions.result.value?.findManyProduction.length ||
+            upComingProductions.result.value?.findManyProduction.length ? 2 : 1">
+      <n-gi sm="6" v-if="liveProductions.result.value?.findManyProduction.length !== 0">
+        <h1 class="item-header">We're Live:</h1>
+        <div v-for="production in liveProductions.result.value?.findManyProduction">
           <NextLivestream :production="production"/>
         </div>
       </n-gi>
-      <n-gi cols="12" sm="6">
+      <n-gi v-else-if="upComingProductions.result.value?.findManyProduction.length !== 0">
+        <h1 class="item-header">Catch our next livestream:</h1>
+        <div v-for="production in upComingProductions.result.value?.findManyProduction">
+          <NextLivestream :production="production"/>
+        </div>
+      </n-gi>
+      <n-gi sm="6" >
         <h1 class="item-header">Our recent productions:</h1>
-        <!--<RecentProductionsList />-->
+        <RecentProductionsList ref="recentProductions"/>
       </n-gi>
     </n-grid>
   </div>
 </template>
 
 <script setup lang="ts">
-import { NGrid, NGi } from "naive-ui";
+import { NGrid, NGi, NButton } from "naive-ui";
 import {useQuery} from "@vue/apollo-composable";
 import {FindLiveProductionsDocument, FindUpcomingProductionsDocument} from "@/graphql/types";
 import NextLivestream from "@/components/NextLivestream.vue";
+import RecentProductionsList from "@/components/RecentProductionsList.vue";
 
 const liveProductions = useQuery(FindLiveProductionsDocument, {
   now: new Date().toISOString()

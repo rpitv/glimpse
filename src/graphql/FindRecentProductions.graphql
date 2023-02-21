@@ -1,0 +1,13 @@
+query FindRecentProductions {
+  findManyProduction (order: [
+    {
+      field: startTime,
+      direction: Desc
+    }
+  ]) {
+    id
+    startTime
+    name
+    description
+  }
+}
