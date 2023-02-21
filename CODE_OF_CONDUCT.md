@@ -1,5 +1,7 @@
 # Contributor Covenant Code of Conduct
 
+> :warning: While this code of conduct applies to all of our contributors, if you are contributing to this project as part of RCOS, additional guidelines may apply to you. Please review those guidelines [here](https://github.com/rcos/rcos-handbook/blob/master/CODE_OF_CONDUCT.md). :warning:
+
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our
