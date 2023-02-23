@@ -57,6 +57,7 @@ module.exports = {
                 content: 'Successfully volunteered!',
                 ephemeral: true
             })
+            await currProChannel.send(`${userMention(interaction.user.id)} has volunteered this production!`);
         });
     }
 }
