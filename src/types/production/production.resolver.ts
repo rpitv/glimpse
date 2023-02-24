@@ -31,7 +31,6 @@ import { OrderProductionTagInput } from "../production_tag/dto/order-production_
 import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
-import {Person} from "../person/person.entity";
 
 @Resolver(() => Production)
 export class ProductionResolver {
@@ -248,23 +247,6 @@ export class ProductionResolver {
         }
         return ctx.req.prismaTx.image.findFirst({
             where: { id: production.thumbnailId }
-        });
-    }
-
-    /**
-     * Virtual field resolver for the Image corresponding to the Production's {@link Person#profilePictureId}.
-     */
-    @ResolveField(() => Image, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
-    async profilePicture(@Context() ctx: { req: Request }, @Parent() person: Person): Promise<Image> {
-        // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
-        //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
-        //  An alternative solution would be to re-check the permissions for this field.
-        if (!person.profilePictureId || person["profilePicture"] === null) {
-            return null;
-        }
-        return ctx.req.prismaTx.image.findFirst({
-            where: { id: person.profilePictureId }
         });
     }
 
