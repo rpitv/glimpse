@@ -28,12 +28,14 @@
         <n-divider>
           OR
         </n-divider>
-        <n-button color="#5865F2" text-color="#ffffff" round @click="redirectToDiscordLogin" class="oauth-button">
-          <template #icon>
-            <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
-          </template>
-          Log in with Discord
-        </n-button>
+        <a :href="loginWithDiscordLink">
+          <n-button color="#5865F2" text-color="#ffffff" round class="oauth-button">
+            <template #icon>
+              <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
+            </template>
+            Log in with Discord
+          </n-button>
+        </a>
       </n-form>
     </n-card>
   </n-spin>
@@ -42,11 +44,14 @@
 <script setup lang="ts">
 import type {FormInst, FormItemRule, FormValidationError} from "naive-ui";
 import {NCard, NForm, NFormItem, NInput, NButton, NAlert, NSpin, NDivider} from "naive-ui";
-import {ref} from "vue";
+import { computed, ref, watch } from "vue";
 import {useMutation} from "@vue/apollo-composable";
 import {LoginLocalDocument} from "@/graphql/types";
 import {useAuthStore} from "@/stores/auth";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 // Setup references
 const formRef = ref<FormInst | null>(null)
@@ -60,8 +65,40 @@ const loginErrorResponse = ref<string | null>(null);
 
 // Define emits & props
 const emit = defineEmits(["success", "close"]);
-const props = defineProps(["closable"]);
+const props = defineProps({
+  closable: {
+    type: Boolean,
+    default: false
+  },
+  redirect: {
+    type: String,
+    default: null
+  }
+});
 defineExpose({focus})
+
+const loginWithDiscordLink = computed<string>(() => {
+  const url = window.location.protocol + '//' + window.location.host + import.meta.env.BASE_URL + 'api/auth/discord';
+  if(props.redirect) {
+    return url + '?redirect=' + props.redirect;
+  } else {
+    return url;
+  }
+});
+
+watch(() => route.query, () => {
+  if(route.name === "login" && route.query.error) {
+    if(route.query.error === "no_user") {
+      loginErrorResponse.value = "No user for that account was found.";
+    } else if(route.query.error === "invalid_code") {
+      loginErrorResponse.value = "Invalid response from Discord. Please try again.";
+    } else if(route.query.error === "server_error") {
+      loginErrorResponse.value = "An error occurred while logging you in. Please try again.";
+    } else {
+      loginErrorResponse.value = "An unknown error occurred while logging you in. Please try again.";
+    }
+  }
+}, {immediate: true});
 
 // Import composables
 const {mutate: login} = useMutation(LoginLocalDocument, () => ({
@@ -167,10 +204,6 @@ function focus() {
   usernameInputRef.value?.focus()
 }
 
-function redirectToDiscordLogin() {
-  return window.location.href = window.location.protocol + '//' + window.location.host + import.meta.env.BASE_URL + 'api/auth/discord';
-}
-
 </script>
 
 <style scoped lang="scss">
@@ -187,6 +220,9 @@ function redirectToDiscordLogin() {
 
 .oauth-button-icon {
   margin-right: 5px;
+}
+a {
+  text-decoration: none !important;
 }
 
 button {
