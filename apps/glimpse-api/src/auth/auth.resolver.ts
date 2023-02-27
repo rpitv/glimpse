@@ -1,15 +1,17 @@
 import { Args, Context, Directive, Mutation, Resolver } from "@nestjs/graphql";
 import { User } from "../types/user/user.entity";
-import { UseGuards } from "@nestjs/common";
-import { GraphqlLocalAuthGuard } from "./LocalAuthGuard.guard";
+import { UseFilters, UseGuards } from "@nestjs/common";
+import { LocalAuthGuard } from "./LocalAuthGuard.guard";
 import { CurrentUser } from "./current-user.decarator";
 import { CaslAbilityFactory } from "../casl/casl-ability.factory";
+import { AuthExceptionFilter } from "./AuthException.filter";
 
 @Resolver(() => User)
 export class AuthResolver {
     constructor(private readonly caslAbilityFactory: CaslAbilityFactory) {}
 
-    @UseGuards(GraphqlLocalAuthGuard)
+    @UseGuards(LocalAuthGuard)
+    @UseFilters(AuthExceptionFilter)
     @Mutation(() => User)
     @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login", defer: true })')
     async loginLocal(

@@ -19,6 +19,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         }
         // Regenerate the user's permissions
         req.permissions = await this.caslAbilityFactory.createForUser(user);
+        req.session.loginMethod = "local";
         return user;
     }
 }
