@@ -1,12 +1,12 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from "@nestjs/common";
-import { AuthException } from "./AuthException.exception";
+import { OAuthException } from "./OAuthException.exception";
 import { HttpAdapterHost } from "@nestjs/core";
 
-@Catch(AuthException)
-export class AuthExceptionFilter implements ExceptionFilter {
+@Catch(OAuthException)
+export class OAuthExceptionFilter implements ExceptionFilter {
     constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
-    catch(exception: AuthException, host: ArgumentsHost): any {
+    catch(exception: OAuthException, host: ArgumentsHost): any {
         if (host.getType() === "http") {
             const { httpAdapter } = this.httpAdapterHost;
             const ctx = host.switchToHttp();
