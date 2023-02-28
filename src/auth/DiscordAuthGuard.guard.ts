@@ -1,35 +1,45 @@
 import { AuthGuard } from "@nestjs/passport";
-import { ExecutionContext, HttpException, Injectable } from "@nestjs/common";
-import { GqlExecutionContext } from "@nestjs/graphql";
+import { ExecutionContext, Injectable, Logger } from "@nestjs/common";
+import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
+import { OAuthException } from "./OAuthException.exception";
+import { Response } from "express";
 
 @Injectable()
 export class DiscordAuthGuard extends AuthGuard("discord") {
+    private readonly logger: Logger = new Logger("DiscordAuthGuard");
+
     getRequest(context: ExecutionContext) {
-        const ctx = GqlExecutionContext.create(context);
-        const request = ctx.getContext().req;
-        request.body = ctx.getArgs();
-        return request;
+        if (context.getType() === "http") {
+            return context.switchToHttp().getRequest();
+        } else if (context.getType<GqlContextType>() === "graphql") {
+            const ctx = GqlExecutionContext.create(context);
+            const request = ctx.getContext().req;
+            this.logger.debug("Replacing request body with graphql args");
+            request.body = ctx.getArgs();
+            return request;
+        } else {
+            throw new Error(`Unsupported context type "${context.getType()}"`);
+        }
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const ctx = GqlExecutionContext.create(context);
-        const request = ctx.getContext();
-        request.body = ctx.getArgs();
-
         const result = (await super.canActivate(context)) as boolean;
+        if (!result) {
+            return false;
+        }
         await super.logIn(this.getRequest(context));
         return result;
     }
 
     handleRequest<T>(err: any, user: T): T {
         if (err?.message === 'Invalid "code" in request.') {
-            throw new HttpException('Invalid "code" in request.', 400);
+            throw new OAuthException("invalid_code");
         }
         if (!user) {
-            throw new HttpException("Unauthorized", 401);
+            throw new OAuthException("no_user");
         }
         if (err) {
-            throw new HttpException(err, 500);
+            throw new OAuthException("server_error", err);
         }
         return user;
     }
@@ -37,6 +47,11 @@ export class DiscordAuthGuard extends AuthGuard("discord") {
     getAuthenticateOptions(context: ExecutionContext): any {
         const ctx = context.switchToHttp();
         const { redirect } = ctx.getRequest().query;
-        return { state: { redirect } };
+        if (redirect) {
+            ctx.getResponse<Response>().cookie("glimpse.redirect", redirect, {
+                expires: new Date(new Date().getTime() + 600000) // 10 minutes
+            });
+        }
+        return {};
     }
 }

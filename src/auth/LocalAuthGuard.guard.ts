@@ -1,15 +1,18 @@
 import { AuthGuard } from "@nestjs/passport";
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable, Logger } from "@nestjs/common";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 
 @Injectable()
-export class GraphqlLocalAuthGuard extends AuthGuard("local") {
+export class LocalAuthGuard extends AuthGuard("local") {
+    private readonly logger: Logger = new Logger("LocalAuthGuard");
+
     getRequest(context: ExecutionContext) {
         if (context.getType() === "http") {
             return context.switchToHttp().getRequest();
         } else if (context.getType<GqlContextType>() === "graphql") {
             const ctx = GqlExecutionContext.create(context);
             const request = ctx.getContext().req;
+            this.logger.debug("Replacing request body with graphql args");
             request.body = ctx.getArgs();
             return request;
         } else {
@@ -18,9 +21,11 @@ export class GraphqlLocalAuthGuard extends AuthGuard("local") {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = this.getRequest(context);
         const result = (await super.canActivate(context)) as boolean;
-        await super.logIn(request);
+        if (!result) {
+            return false;
+        }
+        await super.logIn(this.getRequest(context));
         return result;
     }
 }
