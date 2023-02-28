@@ -1,7 +1,7 @@
 import { AuthGuard } from "@nestjs/passport";
 import { ExecutionContext, Injectable, Logger } from "@nestjs/common";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
-import { AuthException } from "./AuthException.exception";
+import { OAuthException } from "./OAuthException.exception";
 import { Response } from "express";
 
 @Injectable()
@@ -33,13 +33,13 @@ export class DiscordAuthGuard extends AuthGuard("discord") {
 
     handleRequest<T>(err: any, user: T): T {
         if (err?.message === 'Invalid "code" in request.') {
-            throw new AuthException("invalid_code");
+            throw new OAuthException("invalid_code");
         }
         if (!user) {
-            throw new AuthException("no_user");
+            throw new OAuthException("no_user");
         }
         if (err) {
-            throw new AuthException("server_error", err);
+            throw new OAuthException("server_error", err);
         }
         return user;
     }

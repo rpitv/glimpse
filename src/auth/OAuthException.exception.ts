@@ -1,6 +1,6 @@
 import { HttpException } from "@nestjs/common";
 
-export class AuthException extends HttpException {
+export class OAuthException extends HttpException {
     public readonly type: string;
     public readonly error?: Error;
 

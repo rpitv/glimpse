@@ -4,14 +4,14 @@ import { UseFilters, UseGuards } from "@nestjs/common";
 import { LocalAuthGuard } from "./LocalAuthGuard.guard";
 import { CurrentUser } from "./current-user.decarator";
 import { CaslAbilityFactory } from "../casl/casl-ability.factory";
-import { AuthExceptionFilter } from "./AuthException.filter";
+import { OAuthExceptionFilter } from "./OAuthException.filter";
 
 @Resolver(() => User)
 export class AuthResolver {
     constructor(private readonly caslAbilityFactory: CaslAbilityFactory) {}
 
     @UseGuards(LocalAuthGuard)
-    @UseFilters(AuthExceptionFilter)
+    @UseFilters(OAuthExceptionFilter)
     @Mutation(() => User)
     @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Local login", defer: true })')
     async loginLocal(
