@@ -88,13 +88,15 @@ import * as Joi from "joi";
                     .required()
                     .uri({ scheme: ["http", "https"] }),
                 TRUST_PROXY: Joi.string().required(),
-                HTTPS: Joi.boolean().default(true),
+                HTTPS: Joi.boolean().default(
+                    (parent) => parent.NODE_ENV === "production" || parent.NODE_ENV === "staging"
+                ),
                 LOG_LEVELS: Joi.string()
                     .regex(/^(?:verbose|debug|log|warn|error)(?:,(?:verbose|debug|log|warn|error))*$/)
-                    .default((env) => {
-                        if (env.NODE_ENV === "development" || env.NODE_ENV === "test") {
+                    .default((parent) => {
+                        if (parent.NODE_ENV === "development" || parent.NODE_ENV === "test") {
                             return "verbose,debug,log,warn,error";
-                        } else if (env.NODE_ENV === "staging") {
+                        } else if (parent.NODE_ENV === "staging") {
                             return "debug,log,warn,error";
                         }
                         return "log,warn,error";
