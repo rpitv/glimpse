@@ -166,17 +166,26 @@ service names.
 
 ### Environment Variables
 
-| Name                    | Description                                                                                                                                                                                                                                                                                       |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `NODE_ENV`              | The environment in which the API is running.                                                                                                                                                                                                                                                      |
-| `DATABASE_URL`          | The URL which the API should use to connect to the database. This is also used by the `prisma` CLI for database migrations.                                                                                                                                                                       |
-| `REDIS_URL`             | The URL which the API should use to connect to the Redis server.                                                                                                                                                                                                                                  |
-| `RABBITMQ_URL`          | The URL which the API should use to connect to the RabbitMQ server.                                                                                                                                                                                                                               |
-| `SESSION_SECRET`        | A random string used to encrypt session secrets. Recommended to be a string at least 100 characters long.                                                                                                                                                                                         |
-| `DISCORD_CLIENT_ID`     | Client ID used for Discord OAuth authentication. Currently required.                                                                                                                                                                                                                              |
-| `DISCORD_CLIENT_SECRET` | Discord client secret used for Discord OAuth authentication. Currently required.                                                                                                                                                                                                                  |
-| `DISCORD_CALLBACK_URL`  | The URL to redirect the user to after successful Discord authentication. This should be the `/auth/discord` endpoint behind your proxy.                                                                                                                                                           |
-| `TRUST_PROXY`           | Value to pass to Express's `trust proxy` configuration setting. Since this application is intended to be ran behind a proxy, you will need to supply this if you want the API to reliably be able to detect users' IP addresses. You should set it as specific as possible (probably `loopback`). |
+| Name                         | Default/Required               | Description                                                                                                                                                                                                                                                                        |
+|------------------------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NODE_ENV`                   | `development`                  | The environment in which this application is running. May be: `production`, `development`, `staging`, `test`                                                                                                                                                                       |
+| `PORT`                       | `4000`                         | The port to run the NestJS server on.                                                                                                                                                                                                                                              |
+| `DATABASE_URL`               | **Required**                   | A PostgreSQL connection URI for your database.                                                                                                                                                                                                                                     |
+| `REDIS_URL`                  | **Required**                   | A Redis connection URI for your Redis database.                                                                                                                                                                                                                                    |
+| `RABBITMQ_URL`               | **Required**                   | A RabbitMQ connection URI for your RabbitMQ server.                                                                                                                                                                                                                                |
+| `SESSION_SECRET`             | **Required**                   | A random string used to hash session IDs. Must be at least 64 characters long. [Read more](https://security.stackexchange.com/questions/92122/why-is-it-insecure-to-store-the-session-id-in-a-cookie-directly#answer-93448)                                                        |
+| `SESSION_NAME`               | `glimpse.sid`                  | The name to use within session cookies and in the Redis session store.                                                                                                                                                                                                             |
+| `LOGIN_REDIRECT_COOKIE_NAME` | `glimpse.redirect`             | The name of the cookie to store the login redirect URL in. This cookie is ephemeral, with a max life of 10 minutes.                                                                                                                                                                |
+| `OAUTH_SUCCESS_REDIRECT`     | `/`                            | The relative URI to redirect users to after a successful OAuth login. Should not include query parameters.                                                                                                                                                                         |
+| `OAUTH_FAIL_REDIRECT`        | `/login`                       | The relative URI to redirect users to after a failed OAuth login. Should not include query parameters.                                                                                                                                                                             |
+| `LOGIN_REDIRECT_HOSTS`       | _Optional_                     | A comma-separated list of hostnames that should be trusted in post-login user-provided redirects. Default is empty, which only allows relative redirects. E.g. `rpi.tv,rpitv.org`                                                                                                  |
+| `DISCORD_CLIENT_ID`          | **Required**                   | The client ID for your Discord application, allowing for OAuth sign-in. Currently required.                                                                                                                                                                                        |
+| `DISCORD_CLIENT_SECRET`      | **Required**                   | The secret corresponding to the above Discord client ID.                                                                                                                                                                                                                           |
+| `DISCORD_CALLBACK_URL`       | **Required**                   | The URL which users should be redirected to by Discord after they've approved the OAuth authentication request. Must be an absolute URL. Should be the `/auth/discord` endpoint, but through a reverse proxy.                                                                      |
+| `TRUST_PROXY`                | **Required**                   | Option defining when to trust proxied requests. This application is designed to run behind a reverse proxy, but this can be set to `false` to disable trusting proxies completely. Set as restrictive as possible. [Read more](https://expressjs.com/en/guide/behind-proxies.html) |
+| `HTTPS`                      | `true`                         | True/false value for whether the reverse proxy this application is running behind is HTTPS-only. This is used to mark cookies as [Secure-only](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#restrict_access_to_cookies). You probably want this set to true.          |
+| `LOG_LEVELS`                 | `log,warn,error` in production | A comma-separated list of NestJS log levels that should be enabled. Valid values are: `verbose`, `debug`, `log`, `warn`, `error`.                                                                                                                                                  |
+
 
 ## Tests
 
@@ -228,18 +237,23 @@ The response will vary depending on whether the `code` or `error` query paramete
 - If neither `code` nor `error` are present, the user will be redirected to Discord to authenticate. If the `redirect` 
   query parameter is present, it will be saved for when the user returns from Discord. None of the other query
   parameters have any effect in this state.
-- If `code` is present, the code will be used to attempt to authenticate the user. If `state` is not present,
-  authentication will always fail. Otherwise, authentication will pass if the `state` matches the saved state and
-  Discord returns a valid access token. If the `redirect` query parameter was present when `state` was generated,
-  the user will be redirected to the URL that was specified. Otherwise, the user will be redirected to `/`. In the 
-  event of successful authentication, a `glimpse-sess` cookie will be assigned within the redirect response.
-- If `error` is present, or if `code` is present but Discord returns an invalid access token, the user will be 
-  redirected to `/login?error=oauth_fail`. If the `redirect` query parameter was present when `state` was 
-  generated, the user will be redirected to `/login?error=oauth_fail&redirect=<redirect>`.
+- If either `code` or `error` are present, there are three possible error states:
+  - `invalid_code` - The `code` parameter was present, but Discord did not return a valid access token (e.g. the code
+    was invalid or expired).
+  - `server_error` - The `error` parameter was present, indicating that Discord encountered an error while attempting
+    to authenticate the user.
+  - `no_user` - The `code` parameter was present, but Discord returned a valid access token for an account that does not
+    correspond to a user within the database.
+- If any of the three above errors occur, the user will be redirected to `<fail_redirect>?error=<error>`. If the 
+  `redirect` query parameter was present when `state` was generated, the user will be redirected to 
+  `<fail_redirect>?error=<error>&redirect=<redirect>`.
+- If none of the errors occurred, the user will be redirected to `<success_redirect>`, unless the `redirect` query
+  parameter was present when the state was generated, in which case the user will be redirected to the URL that was
+  specified. A new sessioncookie will also be provided in the response.
 
 Note that this API is intended to be proxied in production, e.g. to `/api`. The URLs that the user can be redirected to
 should be implemented elsewhere (e.g. [rpitv/glimpse-ui](https://github.com/rpitv/glimpse-ui)), and will return a 404 if
-the API is not being accessed through a proxy. Currently, there is no way to adjust the redirect URLs.
+the API is not being accessed through a proxy.
 
 ## Database
 

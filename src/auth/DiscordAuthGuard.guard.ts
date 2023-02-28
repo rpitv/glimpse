@@ -3,10 +3,15 @@ import { ExecutionContext, Injectable, Logger } from "@nestjs/common";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { OAuthException } from "./OAuthException.exception";
 import { Response } from "express";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class DiscordAuthGuard extends AuthGuard("discord") {
     private readonly logger: Logger = new Logger("DiscordAuthGuard");
+
+    constructor(private readonly configService: ConfigService) {
+        super();
+    }
 
     getRequest(context: ExecutionContext) {
         if (context.getType() === "http") {
@@ -48,7 +53,8 @@ export class DiscordAuthGuard extends AuthGuard("discord") {
         const ctx = context.switchToHttp();
         const { redirect } = ctx.getRequest().query;
         if (redirect) {
-            ctx.getResponse<Response>().cookie("glimpse.redirect", redirect, {
+            const redirectCookieName = this.configService.get<string>("LOGIN_REDIRECT_COOKIE_NAME");
+            ctx.getResponse<Response>().cookie(redirectCookieName, redirect, {
                 expires: new Date(new Date().getTime() + 600000) // 10 minutes
             });
         }

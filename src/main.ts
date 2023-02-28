@@ -6,41 +6,36 @@ import * as connectRedis from "connect-redis";
 import * as passport from "passport";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import * as cookieParser from "cookie-parser";
+import { ConfigService } from "@nestjs/config";
+import { Logger, LogLevel } from "@nestjs/common";
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
 BigInt.prototype["toJSON"] = function () {
     return this.toString();
 };
 
-/**
- * Check whether this server should run in HTTPS mode or not.
- * @returns true if HTTPS environment variable is set and isn't equal to "false", otherwise returns false.
- */
-function isHttps(): boolean {
-    return !!process.env.HTTPS && process.env.HTTPS !== "false";
-}
-
 async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+        logger: ["log", "warn", "error"]
+    });
 
-    if (!process.env.TRUST_PROXY) {
-        throw new Error(
-            "Required environment variable TRUST_PROXY is not set. " +
-                'Set to "false" if you wish to disable trusting proxies.'
-        );
-    }
-    app.set("trust proxy", process.env.TRUST_PROXY === "false" ? false : process.env.TRUST_PROXY);
+    const configService = app.get(ConfigService);
+
+    // Joi asserts that LOG_LEVELS are all valid LogLevels.
+    const logLevels = configService.get<string>("LOG_LEVELS").split(",");
+    app.useLogger(logLevels as LogLevel[]);
+
+    const logger = new Logger("Main");
+
+    const trustProxy = configService.get<string>("TRUST_PROXY");
+    app.set("trust proxy", trustProxy === "false" ? false : trustProxy);
 
     app.use(cookieParser());
-
-    if (!process.env.SESSION_SECRET) {
-        throw new Error("Required environment variable SESSION_SECRET is not set.");
-    }
 
     // Create and add the middleware for sessions.
     const redisSessionStorageClient = createClient({
         legacyMode: true,
-        url: process.env.REDIS_URL
+        url: configService.get<string>("REDIS_URL")
     });
     redisSessionStorageClient.connect().catch(console.error);
 
@@ -49,14 +44,14 @@ async function bootstrap() {
         session({
             store: new RedisSessionStore({
                 client: redisSessionStorageClient,
-                prefix: "glimpse-sess:"
+                prefix: `${configService.get<string>("SESSION_NAME")}:`
             }),
-            name: "glimpse-sess",
+            name: configService.get<string>("SESSION_NAME"),
             cookie: {
                 maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
-                secure: isHttps()
+                secure: configService.get<boolean>("HTTPS")
             },
-            secret: process.env.SESSION_SECRET ?? "",
+            secret: configService.get<string>("SESSION_SECRET"),
             saveUninitialized: false,
             resave: false
         })
@@ -64,7 +59,24 @@ async function bootstrap() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    await app.listen(4000);
+    await app.listen(configService.get<number>("PORT"));
+    logger.log(`Listening on port ${configService.get<number>("PORT")}`);
+    if (!configService.get("POSTGRES_PASSWORD")) {
+        logger.warn(
+            "POSTGRES_PASSWORD environment variable not detected. This application does not require this " +
+                "variable, but PostgreSQL Docker containers do."
+        );
+    }
+
+    if (
+        !configService.get<boolean>("HTTPS") &&
+        ["production", "staging"].includes(configService.get<string>("NODE_ENV"))
+    ) {
+        logger.warn(
+            `HTTPS should be enabled in ${configService.get<string>("NODE_ENV")}. This is a security risk.` +
+                `Set the HTTPS environment variable to true to enable HTTPS.`
+        );
+    }
 }
 
 bootstrap().catch((e) => {
