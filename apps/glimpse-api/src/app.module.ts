@@ -78,6 +78,10 @@ import * as Joi from "joi";
                 RABBITMQ_URL: Joi.string().required().uri({ scheme: "amqp" }),
                 SESSION_SECRET: Joi.string().required().min(64),
                 SESSION_NAME: Joi.string().default("glimpse.sid").max(100),
+                OAUTH_SUCCESS_REDIRECT: Joi.string().default("/").uri({ relativeOnly: true }),
+                OAUTH_FAIL_REDIRECT: Joi.string().default("/login").uri({ relativeOnly: true }),
+                LOGIN_REDIRECT_COOKIE_NAME: Joi.string().default("glimpse.redirect").max(100),
+                LOGIN_REDIRECT_HOSTS: Joi.string().regex(/(?:[\w-]+\.)+[\w-]{2,}(?:,(?:[\w-]+\.)+[\w-]{2,})*/),
                 DISCORD_CLIENT_ID: Joi.string().required(),
                 DISCORD_CLIENT_SECRET: Joi.string().required(),
                 DISCORD_CALLBACK_URL: Joi.string()
