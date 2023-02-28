@@ -3,6 +3,7 @@
     <div class="login-card">
       <LoginCard ref="loginCardRef"
                  :closable="true"
+                 :redirect="loginRedirect"
                  @success="isPopupShown = false"
                  @close="isPopupShown = false"/>
     </div>
@@ -13,7 +14,14 @@
 import LoginCard from "@/components/LoginCard.vue";
 import {NModal} from "naive-ui";
 import {computed, nextTick, ref, watch} from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 const loginCardRef = ref<LoginCard | null>(null);
+
+const loginRedirect = computed(() => {
+  return route.fullPath;
+});
 
 // Setup v-model prop/emit
 const props = defineProps({

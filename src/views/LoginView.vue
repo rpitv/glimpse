@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <LoginCard @success="loginSuccess" />
+    <LoginCard @success="loginSuccess" :redirect="route.query.redirect?.toString()" />
   </div>
 </template>
 

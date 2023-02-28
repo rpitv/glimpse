@@ -22,7 +22,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="stream of streams.result.value?.streams">
+        <tr v-for="stream of streams.result.value?.findManyStream">
           <td>{{ stream.id }}</td>
           <td>{{ stream.from }}</td>
           <td>{{ stream.to }}</td>
