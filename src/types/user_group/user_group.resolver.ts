@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -13,6 +13,7 @@ import { CreateUserGroupInput } from "./dto/create-user_group.input";
 import { User } from "../user/user.entity";
 import { Group } from "../group/group.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => UserGroup)
 export class UserGroupResolver {
@@ -21,7 +22,7 @@ export class UserGroupResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => UserGroup, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: UserGroup)")
+    @Rule(RuleType.ReadOne, UserGroup)
     async findOneUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -35,7 +36,7 @@ export class UserGroupResolver {
     }
 
     @Mutation(() => UserGroup, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: UserGroup)")
+    @Rule(RuleType.Create, UserGroup)
     async createUserGroup(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserGroupInput }) input: CreateUserGroupInput
@@ -63,7 +64,7 @@ export class UserGroupResolver {
     }
 
     @Mutation(() => UserGroup, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: UserGroup)")
+    @Rule(RuleType.Delete, UserGroup)
     async deleteUserGroup(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -104,7 +105,7 @@ export class UserGroupResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: UserGroup)")
+    @Rule(RuleType.Count, UserGroup)
     async userGroupCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserGroupInput, nullable: true }) filter?: FilterUserGroupInput
@@ -122,7 +123,7 @@ export class UserGroupResolver {
      * Virtual field resolver for the User corresponding to the UserGroup's {@link UserGroup#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() userGroup: UserGroup): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -139,7 +140,7 @@ export class UserGroupResolver {
      * Virtual field resolver for the Group corresponding to the UserGroup's {@link UserGroup#groupId}.
      */
     @ResolveField(() => Group, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Group)")
+    @Rule(RuleType.ReadOne, Group)
     async group(@Context() ctx: { req: Request }, @Parent() userGroup: UserGroup): Promise<Group> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

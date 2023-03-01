@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -25,6 +25,7 @@ import { FilterPersonInput } from "../person/dto/filter-person.input";
 import { OrderPersonInput } from "../person/dto/order-person.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Image)
 export class ImageResolver {
@@ -33,7 +34,7 @@ export class ImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Image], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Image)")
+    @Rule(RuleType.ReadMany, Image)
     async findManyImage(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterImageInput, nullable: true }) filter?: FilterImageInput,
@@ -61,7 +62,7 @@ export class ImageResolver {
     }
 
     @Query(() => Image, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    @Rule(RuleType.ReadOne, Image)
     async findOneImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -75,7 +76,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Image)")
+    @Rule(RuleType.Create, Image)
     async createImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateImageInput }) input: CreateImageInput
@@ -103,7 +104,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Image)")
+    @Rule(RuleType.Update, Image)
     async updateImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -155,7 +156,7 @@ export class ImageResolver {
     }
 
     @Mutation(() => Image, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Image)")
+    @Rule(RuleType.Delete, Image)
     async deleteImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -196,7 +197,7 @@ export class ImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Image)")
+    @Rule(RuleType.Count, Image)
     async imageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterImageInput, nullable: true }) filter?: FilterImageInput
@@ -214,7 +215,7 @@ export class ImageResolver {
      * Virtual field resolver for all PersonImages which have this Image as their {@link PersonImage#imageId}.
      */
     @ResolveField(() => [PersonImage], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: PersonImage)")
+    @Rule(RuleType.ReadMany, PersonImage)
     async people(
         @Context() ctx: { req: Request },
         @Parent() image: Image,
@@ -244,7 +245,7 @@ export class ImageResolver {
      * Virtual field resolver for all ProductionImages which have this Image as their {@link ProductionImage#imageId}.
      */
     @ResolveField(() => [ProductionImage], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionImage)")
+    @Rule(RuleType.ReadMany, ProductionImage)
     async productions(
         @Context() ctx: { req: Request },
         @Parent() image: Image,
@@ -278,7 +279,7 @@ export class ImageResolver {
      * Virtual field resolver for all Productions which have this Image as their {@link Production#thumbnailId}.
      */
     @ResolveField(() => [Production], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Production)")
+    @Rule(RuleType.ReadMany, Production)
     async thumbnailFor(
         @Context() ctx: { req: Request },
         @Parent() image: Image,
@@ -312,7 +313,7 @@ export class ImageResolver {
      * Virtual field resolver for all Persons which have this Image as their {@link Person#profilePictureId}.
      */
     @ResolveField(() => [Person], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Person)")
+    @Rule(RuleType.ReadMany, Person)
     async profilePictureFor(
         @Context() ctx: { req: Request },
         @Parent() image: Image,

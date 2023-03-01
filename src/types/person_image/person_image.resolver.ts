@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { UpdatePersonImageInput } from "./dto/update-person_image.input";
 import { Person } from "../person/person.entity";
 import { Image } from "../image/image.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => PersonImage)
 export class PersonImageResolver {
@@ -22,7 +23,7 @@ export class PersonImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => PersonImage, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: PersonImage)")
+    @Rule(RuleType.ReadOne, PersonImage)
     async findOnePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -36,7 +37,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: PersonImage)")
+    @Rule(RuleType.Create, PersonImage)
     async createPersonImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreatePersonImageInput }) input: CreatePersonImageInput
@@ -64,7 +65,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: PersonImage)")
+    @Rule(RuleType.Update, PersonImage)
     async updatePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -116,7 +117,7 @@ export class PersonImageResolver {
     }
 
     @Mutation(() => PersonImage, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: PersonImage)")
+    @Rule(RuleType.Delete, PersonImage)
     async deletePersonImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -157,7 +158,7 @@ export class PersonImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: PersonImage)")
+    @Rule(RuleType.Count, PersonImage)
     async personImageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonImageInput, nullable: true }) filter?: FilterPersonImageInput
@@ -175,7 +176,7 @@ export class PersonImageResolver {
      * Virtual field resolver for the Person corresponding to the PersonImage's {@link PersonImage#personId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async person(@Context() ctx: { req: Request }, @Parent() personImage: PersonImage): Promise<Person> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -192,7 +193,7 @@ export class PersonImageResolver {
      * Virtual field resolver for the Image corresponding to the PersonImage's {@link PersonImage#imageId}.
      */
     @ResolveField(() => Image, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    @Rule(RuleType.ReadOne, Image)
     async image(@Context() ctx: { req: Request }, @Parent() personImage: PersonImage): Promise<Image> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

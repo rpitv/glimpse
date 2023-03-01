@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -15,6 +15,7 @@ import { CreateBlogPostInput } from "./dto/create-blog_post.input";
 import { UpdateBlogPostInput } from "./dto/update-blog_post.input";
 import { Person } from "../person/person.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => BlogPost)
 export class BlogPostResolver {
@@ -23,7 +24,7 @@ export class BlogPostResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [BlogPost], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: BlogPost)")
+    @Rule(RuleType.ReadMany, BlogPost)
     async findManyBlogPost(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterBlogPostInput, nullable: true }) filter?: FilterBlogPostInput,
@@ -51,7 +52,7 @@ export class BlogPostResolver {
     }
 
     @Query(() => BlogPost, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: BlogPost)")
+    @Rule(RuleType.ReadOne, BlogPost)
     async findOneBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -65,7 +66,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: BlogPost)")
+    @Rule(RuleType.Create, BlogPost)
     async createBlogPost(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateBlogPostInput }) input: CreateBlogPostInput
@@ -93,7 +94,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: BlogPost)")
+    @Rule(RuleType.Update, BlogPost)
     async updateBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -145,7 +146,7 @@ export class BlogPostResolver {
     }
 
     @Mutation(() => BlogPost, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: BlogPost)")
+    @Rule(RuleType.Delete, BlogPost)
     async deleteBlogPost(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -186,7 +187,7 @@ export class BlogPostResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: BlogPost)")
+    @Rule(RuleType.Count, BlogPost)
     async blogPostCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterBlogPostInput, nullable: true }) filter?: FilterBlogPostInput
@@ -204,7 +205,7 @@ export class BlogPostResolver {
      * Virtual field resolver for the Person corresponding to the BlogPost's {@link BlogPost#authorId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async author(@Context() ctx: { req: Request }, @Parent() blogPost: BlogPost): Promise<Person> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

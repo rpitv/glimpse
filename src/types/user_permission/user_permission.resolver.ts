@@ -3,7 +3,6 @@ import {
     ComplexityEstimatorArgs,
     Context,
     createUnionType,
-    Directive,
     Int,
     Mutation,
     Parent,
@@ -28,8 +27,10 @@ import { UpdateUserPermissionInput } from "./dto/update-user_permission.input";
 import { User } from "../user/user.entity";
 import { GroupPermission } from "../group_permission/group_permission.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
+import { handlePermissionsForRule } from "../../casl/rule-handlers/permissionsFor";
 
-const PermissionUnion = createUnionType({
+export const PermissionUnion = createUnionType({
     name: "Permission",
     types: () => [UserPermission, GroupPermission],
     resolveType: (value) => {
@@ -52,7 +53,7 @@ export class UserPermissionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [UserPermission], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: UserPermission)")
+    @Rule(RuleType.ReadMany, UserPermission)
     async findManyUserPermission(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput,
@@ -80,7 +81,7 @@ export class UserPermissionResolver {
     }
 
     @Query(() => UserPermission, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: UserPermission)")
+    @Rule(RuleType.ReadOne, UserPermission)
     async findOneUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -94,7 +95,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: UserPermission)")
+    @Rule(RuleType.Create, UserPermission)
     async createUserPermission(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserPermissionInput }) input: CreateUserPermissionInput
@@ -122,7 +123,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: UserPermission)")
+    @Rule(RuleType.Update, UserPermission)
     async updateUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -174,7 +175,7 @@ export class UserPermissionResolver {
     }
 
     @Mutation(() => UserPermission, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: UserPermission)")
+    @Rule(RuleType.Delete, UserPermission)
     async deleteUserPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -215,7 +216,7 @@ export class UserPermissionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: UserPermission)")
+    @Rule(RuleType.Count, UserPermission)
     async userPermissionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserPermissionInput, nullable: true }) filter?: FilterUserPermissionInput
@@ -233,7 +234,7 @@ export class UserPermissionResolver {
      * Virtual field resolver for the User corresponding to the UserPermission's {@link UserPermission#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() userPermission: UserPermission): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -253,7 +254,7 @@ export class UserPermissionResolver {
         nullable: true,
         complexity: (options: ComplexityEstimatorArgs) => 50 + options.childComplexity
     })
-    @Directive('@custom_rule(name: "permissionsFor", options: { name: "Permissions for user" })')
+    @Rule(handlePermissionsForRule, null, { name: "Permissions for user" })
     async permissionsFor(
         @Context() ctx: { req: Request },
         @Args("userId", { type: () => GraphQLBigInt, nullable: true }) userId: bigint

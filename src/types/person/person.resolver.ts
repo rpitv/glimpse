@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -28,7 +28,8 @@ import { User } from "../user/user.entity";
 import { FilterUserInput } from "../user/dto/filter-user.input";
 import { OrderUserInput } from "../user/dto/order-user.input";
 import { GraphQLBigInt } from "graphql-scalars";
-import {Image} from "../image/image.entity";
+import { Image } from "../image/image.entity";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Person)
 export class PersonResolver {
@@ -37,7 +38,7 @@ export class PersonResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Person], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Person)")
+    @Rule(RuleType.ReadMany, Person)
     async findManyPerson(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonInput, nullable: true }) filter?: FilterPersonInput,
@@ -65,7 +66,7 @@ export class PersonResolver {
     }
 
     @Query(() => Person, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async findOnePerson(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -79,7 +80,7 @@ export class PersonResolver {
     }
 
     @Mutation(() => Person, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Person)")
+    @Rule(RuleType.Create, Person)
     async createPerson(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreatePersonInput }) input: CreatePersonInput
@@ -107,7 +108,7 @@ export class PersonResolver {
     }
 
     @Mutation(() => Person, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Person)")
+    @Rule(RuleType.Update, Person)
     async updatePerson(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -159,7 +160,7 @@ export class PersonResolver {
     }
 
     @Mutation(() => Person, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Person)")
+    @Rule(RuleType.Delete, Person)
     async deletePerson(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -200,7 +201,7 @@ export class PersonResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Person)")
+    @Rule(RuleType.Count, Person)
     async personCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonInput, nullable: true }) filter?: FilterPersonInput
@@ -218,7 +219,7 @@ export class PersonResolver {
      * Virtual field resolver for all BlogPosts which have this Person as their {@link BlogPost#authorId}.
      */
     @ResolveField(() => [BlogPost], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: BlogPost)")
+    @Rule(RuleType.ReadMany, BlogPost)
     async blogPosts(
         @Context() ctx: { req: Request },
         @Parent() person: Person,
@@ -252,7 +253,7 @@ export class PersonResolver {
      * Virtual field resolver for all Credits which have this Person as their {@link Credit#personId}.
      */
     @ResolveField(() => [Credit], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Credit)")
+    @Rule(RuleType.ReadMany, Credit)
     async credits(
         @Context() ctx: { req: Request },
         @Parent() person: Person,
@@ -286,7 +287,7 @@ export class PersonResolver {
      * Virtual field resolver for all PersonImages which have this Person as their {@link PersonImage#personId}.
      */
     @ResolveField(() => [PersonImage], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: PersonImage)")
+    @Rule(RuleType.ReadMany, PersonImage)
     async images(
         @Context() ctx: { req: Request },
         @Parent() person: Person,
@@ -316,7 +317,7 @@ export class PersonResolver {
      * Virtual field resolver for all PersonRoles which have this Person as their {@link PersonRole#personId}.
      */
     @ResolveField(() => [PersonRole], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
+    @Rule(RuleType.ReadMany, PersonRole)
     async roles(
         @Context() ctx: { req: Request },
         @Parent() person: Person,
@@ -350,7 +351,7 @@ export class PersonResolver {
      * Virtual field resolver for all Users which have this Person as their {@link User#personId}.
      */
     @ResolveField(() => [User], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: User)")
+    @Rule(RuleType.ReadMany, User)
     async users(
         @Context() ctx: { req: Request },
         @Parent() person: Person,
@@ -384,7 +385,7 @@ export class PersonResolver {
      * Virtual field resolver for the Image corresponding to the Production's {@link Person#profilePictureId}.
      */
     @ResolveField(() => Image, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    @Rule(RuleType.ReadOne, Image)
     async profilePicture(@Context() ctx: { req: Request }, @Parent() person: Person): Promise<Image> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -397,6 +398,3 @@ export class PersonResolver {
         });
     }
 }
-
-
-

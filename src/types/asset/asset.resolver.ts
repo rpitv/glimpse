@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -15,6 +15,7 @@ import { CreateAssetInput } from "./dto/create-asset.input";
 import { OrderAssetInput } from "./dto/order-asset.input";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Asset)
 export class AssetResolver {
@@ -23,7 +24,7 @@ export class AssetResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Asset], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Asset)")
+    @Rule(RuleType.ReadMany, Asset)
     async findManyAsset(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAssetInput, nullable: true }) filter?: FilterAssetInput,
@@ -51,7 +52,7 @@ export class AssetResolver {
     }
 
     @Query(() => Asset, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Asset)")
+    @Rule(RuleType.ReadOne, Asset)
     async findOneAsset(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -65,7 +66,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Asset)")
+    @Rule(RuleType.Create, Asset)
     async createAsset(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateAssetInput }) input: CreateAssetInput
@@ -93,7 +94,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Asset)")
+    @Rule(RuleType.Update, Asset)
     async updateAsset(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -145,7 +146,7 @@ export class AssetResolver {
     }
 
     @Mutation(() => Asset, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Asset)")
+    @Rule(RuleType.Delete, Asset)
     async deleteAsset(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -186,7 +187,7 @@ export class AssetResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Asset)")
+    @Rule(RuleType.Count, Asset)
     async assetCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAssetInput, nullable: true }) filter?: FilterAssetInput
@@ -204,7 +205,7 @@ export class AssetResolver {
      * Virtual field resolver for the User corresponding to the Asset's {@link Asset#lastKnownHandlerId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async lastKnownHandler(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -221,7 +222,7 @@ export class AssetResolver {
      * Virtual field resolver for the Asset corresponding to the Asset's {@link Asset#parentId}.
      */
     @ResolveField(() => Asset, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Asset)")
+    @Rule(RuleType.ReadOne, Asset)
     async parent(@Context() ctx: { req: Request }, @Parent() asset: Asset): Promise<Asset> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -238,7 +239,7 @@ export class AssetResolver {
      * Virtual field resolver for all Assets which have this Asset as their {@link Asset#parentId}.
      */
     @ResolveField(() => [Asset], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Asset)")
+    @Rule(RuleType.ReadMany, Asset)
     async children(
         @Context() ctx: { req: Request },
         @Parent() asset: Asset,

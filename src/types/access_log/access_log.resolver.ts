@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { AccessLog } from "./access_log.entity";
 import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
@@ -9,6 +9,7 @@ import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => AccessLog)
 export class AccessLogResolver {
@@ -17,7 +18,7 @@ export class AccessLogResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [AccessLog], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: AccessLog)")
+    @Rule(RuleType.ReadMany, AccessLog)
     async findManyAccessLog(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAccessLogInput, nullable: true }) filter?: FilterAccessLogInput,
@@ -45,7 +46,7 @@ export class AccessLogResolver {
     }
 
     @Query(() => AccessLog, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: AccessLog)")
+    @Rule(RuleType.ReadOne, AccessLog)
     async findOneAccessLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -59,7 +60,7 @@ export class AccessLogResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: AccessLog)")
+    @Rule(RuleType.Count, AccessLog)
     async accessLogCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAccessLogInput, nullable: true }) filter?: FilterAccessLogInput
@@ -77,7 +78,7 @@ export class AccessLogResolver {
      * Virtual field resolver for the User corresponding to the AccessLog's {@link AccessLog#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() accessLog: AccessLog): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

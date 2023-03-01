@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -16,6 +16,7 @@ import { UpdateCreditInput } from "./dto/update-credit.input";
 import { Person } from "../person/person.entity";
 import { Production } from "../production/production.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Credit)
 export class CreditResolver {
@@ -24,7 +25,7 @@ export class CreditResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Credit], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Credit)")
+    @Rule(RuleType.ReadMany, Credit)
     async findManyCredit(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCreditInput, nullable: true }) filter?: FilterCreditInput,
@@ -52,7 +53,7 @@ export class CreditResolver {
     }
 
     @Query(() => Credit, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Credit)")
+    @Rule(RuleType.ReadOne, Credit)
     async findOneCredit(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -66,7 +67,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Credit)")
+    @Rule(RuleType.Create, Credit)
     async createCredit(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateCreditInput }) input: CreateCreditInput
@@ -94,7 +95,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Credit)")
+    @Rule(RuleType.Update, Credit)
     async updateCredit(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -146,7 +147,7 @@ export class CreditResolver {
     }
 
     @Mutation(() => Credit, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Credit)")
+    @Rule(RuleType.Delete, Credit)
     async deleteCredit(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -187,7 +188,7 @@ export class CreditResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Credit)")
+    @Rule(RuleType.Count, Credit)
     async creditCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCreditInput, nullable: true }) filter?: FilterCreditInput
@@ -205,7 +206,7 @@ export class CreditResolver {
      * Virtual field resolver for the Person corresponding to the Credit's {@link Credit#personId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async person(@Context() ctx: { req: Request }, @Parent() credit: Credit): Promise<Person> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -222,7 +223,7 @@ export class CreditResolver {
      * Virtual field resolver for the Production corresponding to the Credit's {@link Credit#productionId}.
      */
     @ResolveField(() => Production, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async production(@Context() ctx: { req: Request }, @Parent() credit: Credit): Promise<Production> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

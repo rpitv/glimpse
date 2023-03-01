@@ -1,7 +1,16 @@
 import { AbilitySubjects } from "./casl-ability.factory";
-import { ExecutionContext, SetMetadata } from "@nestjs/common";
+import { ExecutionContext } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { GraphQLResolverArgs } from "../gql/graphql-resolver-args.class";
+import { Directive } from "@nestjs/graphql";
+import { CaslHelper } from "./casl.helper";
+import { handleReadOneRule } from "./rule-handlers/readOne";
+import { handleReadManyRule } from "./rule-handlers/readMany";
+import { handleCreateRule } from "./rule-handlers/create";
+import { handleUpdateRule } from "./rule-handlers/update";
+import { handleDeleteRule } from "./rule-handlers/delete";
+import { handleCountRule } from "./rule-handlers/count";
+import * as crypto from "crypto";
 
 /**
  * Rule function that can be used to define a rule for a given controller handler. The rule function takes the current
@@ -14,10 +23,11 @@ import { GraphQLResolverArgs } from "../gql/graphql-resolver-args.class";
  *  returned by this function. If {@link Express.Request#passed} is false or undefined, then {@link CaslInterceptor}
  *  will throw a ForbiddenException.
  */
-export type RuleFn<T = any> = (
+export type RuleHandler<T = any> = (
     context: ExecutionContext | GraphQLResolverArgs,
     rule: RuleDef,
-    handler: () => Observable<T>
+    handler: () => Observable<T>,
+    caslHelper: CaslHelper
 ) => Observable<T>;
 
 /**
@@ -25,16 +35,18 @@ export type RuleFn<T = any> = (
  *  check permissions, or as one of the built-in rule types that takes in an {@link AbilitySubjects} as the subject, so
  *  the handler knows how to treat the value(s) in permission checks.
  */
-export type RuleDef =
-    | [RuleType.Custom, RuleFn, RuleOptions?]
-    | [Exclude<RuleType, RuleType.Custom>, AbilitySubjects, RuleOptions?];
+export type RuleDef = {
+    fn: RuleHandler;
+    subject: AbilitySubjects;
+    options?: RuleOptions;
+};
 
 /**
  * Valid types of rules that can be defined. If you want to define a rule other than this, then you should use
  *  {@link RuleType.Custom} and define a custom rule function. If a custom rule is being used frequently, it can be
  *  added to this enum and the handler can be defined and linked within {@link CaslHelper}. The method definitions for
  *  the built-in rules are the same as definitions for {@link RuleType.Custom} rules (i.e., they are all valid
- *  {@link RuleFn}s).
+ *  {@link RuleHandler}s).
  */
 export enum RuleType {
     ReadOne = "ReadOne",
@@ -42,9 +54,17 @@ export enum RuleType {
     Create = "Create",
     Update = "Update",
     Delete = "Delete",
-    Count = "Count",
-    Custom = "Custom"
+    Count = "Count"
 }
+
+export const ruleHandlers: Map<RuleType, RuleHandler> = new Map([
+    [RuleType.ReadOne, handleReadOneRule],
+    [RuleType.ReadMany, handleReadManyRule],
+    [RuleType.Create, handleCreateRule],
+    [RuleType.Update, handleUpdateRule],
+    [RuleType.Delete, handleDeleteRule],
+    [RuleType.Count, handleCountRule]
+]);
 
 /**
  * Options that can be passed to a rule decorator to configure the rule.
@@ -123,26 +143,60 @@ export type RuleOptions = {
      */
     defer?: boolean;
 };
-export const RULES_METADATA_KEY = "casl_rule";
+
+const registeredHandlers: { [key: string]: RuleHandler } = {};
+
+export function getRuleHandlerId(handler: RuleHandler): string {
+    let hashResult = crypto.createHash("md5").update(handler.toString()).digest("hex");
+    // In the event of a hash collision, hash the hash until we get a unique hash.
+    while (registeredHandlers[hashResult] && registeredHandlers[hashResult] !== handler) {
+        hashResult = crypto.createHash("md5").update(hashResult).digest("hex");
+    }
+    return hashResult;
+}
+
+export function getRuleHandler(id: string): RuleHandler | null {
+    return registeredHandlers[id] || null;
+}
+
+export function registerHandler(handler: RuleHandler, name?: string): string {
+    if (name !== undefined) {
+        if (registeredHandlers[name]) {
+            throw new Error(`A handler with the name "${name}" has already been registered.`);
+        }
+        registeredHandlers[name] = handler;
+        return name;
+    }
+    const hash = getRuleHandlerId(handler);
+    registeredHandlers[hash] = handler;
+    return hash;
+}
+
+function createAstInputFromObject(obj: Exclude<unknown, undefined>): string {
+    let output = "";
+
+    if (typeof obj === "string" || typeof obj === "number" || typeof obj === "boolean") {
+        return JSON.stringify(obj);
+    } else if (Array.isArray(obj)) {
+        return `[${obj.map((val) => createAstInputFromObject(val)).join(", ")}]`;
+    } else if (obj === null) {
+        return "null";
+    } else {
+        output += "{";
+
+        for (const key of Object.keys(obj)) {
+            output += `${key}: ${createAstInputFromObject(obj[key])}, `;
+        }
+        output = output.slice(0, -2);
+
+        output += "}";
+    }
+
+    return output;
+}
 
 /**
- * Decorator that defines a permission requirement (rule) for a given controller method. The rule is defined as a
- *  function {@link RuleFn} which takes in the NestJS execution context, the rule definition {@link RuleDef}, and the
- *  controller method that calls the next rule, or the controller method if this is the last rule. The handler function
- *  returns an {@link Observable} which can be used to modify the response before it is returned to the client/the
- *  previous rule that called this one.
- * @param type Type of rule to define. For custom rules, this must be {@link RuleType.Custom}.
- * @param fn {@link RuleFn} to run for this rule. If you want a rule to pass, then you must also set
- *  {@link Express.Request#passed} to true within this function. This marks the request as having passed the rule check,
- *  and allows {@link CaslInterceptor} to call the next handler in the chain, and/or to return the value returned by
- *  this function. If {@link Express.Request#passed} is false or undefined, then {@link CaslInterceptor} will throw a
- *  ForbiddenException.
- * @param options Optional {@link RuleOptions} to configure this rule.
- * @constructor
- */
-function Rule(type: RuleType.Custom, fn: RuleFn, options?: RuleOptions);
-/**
- * Decorator that defines a permission requirement (rule) for a given controller method. The rule is defined as a
+ * Decorator that defines a permission requirement (rule) to the relevant GraphQL resolver. The rule is defined as a
  *  {@link RuleType} and a {@link AbilitySubjects} subject. The rule will use the built-in rule handlers for the given
  *  {@link RuleType} to check if the user has permission to perform the given action on the given subject. If not, then
  *  a ForbiddenException will be thrown by {@link CaslInterceptor}.
@@ -158,27 +212,42 @@ function Rule(type: RuleType.Custom, fn: RuleFn, options?: RuleOptions);
  * @param subject {@link AbilitySubjects} subject to check permission for.
  * @param options Optional {@link RuleOptions} to configure this rule.
  * @constructor
- */
-function Rule(type: Exclude<RuleType, RuleType.Custom>, subject: AbilitySubjects, options?: RuleOptions);
-/**
- * Define multiple rules for a given controller method. The @Rule decorator cannot be used multiple times on a single
- *  method, so if you want to define multiple rule requirements, this is the primary way to do so. Rules are checked in
- *  the order that they are defined.
- * @example If you have two rules defined, then {@link CaslInterceptor} will call them as follows:
- * ... -> Rule 1 -> Rule 2 -> Resolver/Controller Handler -> Rule 2 -> Rule 1 -> ...
- * @param rules Array of {@link RuleDef} objects to define the rules.
+ * @param handler
+ * @param subj
+ * @param options
  * @constructor
  */
-function Rule(rules: RuleDef[]);
-function Rule(...args: any) {
-    // Multiple rule definitions supplied
-    if (Array.isArray(args[0])) {
-        return SetMetadata<string, RuleDef[]>(RULES_METADATA_KEY, args[0]);
+export function Rule(handler: RuleHandler | RuleType, subj: AbilitySubjects, options?: RuleOptions) {
+    if (typeof handler !== "function") {
+        const strHandler = handler as RuleType;
+        handler = ruleHandlers.get(handler);
+        if (typeof handler !== "function") {
+            throw new Error(
+                `RuleHandler enum value must correspond to a matching ruleHandler function, but one ` +
+                    `wasn't found for the value ${strHandler}.`
+            );
+        }
     }
 
-    // Single rule definition supplied
-    args[2] ||= {};
-    return SetMetadata<string, RuleDef[]>(RULES_METADATA_KEY, [args]);
-}
+    const handlerId = registerHandler(handler);
 
-export { Rule };
+    // Determine the subject in string form
+    let subjStr: Extract<AbilitySubjects, string> | "null";
+    if (typeof subj === "string") {
+        subjStr = subj;
+    } else if (typeof subj === "function") {
+        subjStr = subj.modelName;
+    } else if (subj === null) {
+        subjStr = "null";
+    } else {
+        subjStr = subj.constructor.name as Extract<AbilitySubjects, string>;
+    }
+
+    // Create AST structure for options
+    let optionsAstString = "";
+    if (options !== undefined) {
+        optionsAstString = `, options: ${createAstInputFromObject(options)}`;
+    }
+    console.log(optionsAstString);
+    return Directive(`@rule(id: "${handlerId}", subject: ${subjStr}${optionsAstString})`);
+}

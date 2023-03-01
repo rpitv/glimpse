@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -16,6 +16,7 @@ import { UpdateVoteResponseInput } from "./dto/update-vote_response.input";
 import { User } from "../user/user.entity";
 import { Vote } from "../vote/vote.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => VoteResponse)
 export class VoteResponseResolver {
@@ -24,7 +25,7 @@ export class VoteResponseResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [VoteResponse], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: VoteResponse)")
+    @Rule(RuleType.ReadMany, VoteResponse)
     async findManyVoteResponse(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput,
@@ -52,7 +53,7 @@ export class VoteResponseResolver {
     }
 
     @Query(() => VoteResponse, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: VoteResponse)")
+    @Rule(RuleType.ReadOne, VoteResponse)
     async findOneVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -66,7 +67,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: VoteResponse)")
+    @Rule(RuleType.Create, VoteResponse)
     async createVoteResponse(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVoteResponseInput }) input: CreateVoteResponseInput
@@ -94,7 +95,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: VoteResponse)")
+    @Rule(RuleType.Update, VoteResponse)
     async updateVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -146,7 +147,7 @@ export class VoteResponseResolver {
     }
 
     @Mutation(() => VoteResponse, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: VoteResponse)")
+    @Rule(RuleType.Delete, VoteResponse)
     async deleteVoteResponse(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -187,7 +188,7 @@ export class VoteResponseResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: VoteResponse)")
+    @Rule(RuleType.Count, VoteResponse)
     async voteResponseCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteResponseInput, nullable: true }) filter?: FilterVoteResponseInput
@@ -205,7 +206,7 @@ export class VoteResponseResolver {
      * Virtual field resolver for the User corresponding to the VoteResponse's {@link VoteResponse#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() voteResponse: VoteResponse): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -222,7 +223,7 @@ export class VoteResponseResolver {
      * Virtual field resolver for the Vote corresponding to the VoteResponse's {@link VoteResponse#voteId}.
      */
     @ResolveField(() => Vote, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Vote)")
+    @Rule(RuleType.ReadOne, Vote)
     async vote(@Context() ctx: { req: Request }, @Parent() voteResponse: VoteResponse): Promise<Vote> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
