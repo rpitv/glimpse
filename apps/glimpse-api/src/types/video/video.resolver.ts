@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -17,6 +17,7 @@ import { ProductionVideo } from "../production_video/production_video.entity";
 import { FilterProductionVideoInput } from "../production_video/dto/filter-production_video.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Video)
 export class VideoResolver {
@@ -25,7 +26,7 @@ export class VideoResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Video], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Video)")
+    @Rule(RuleType.ReadMany, Video)
     async findManyVideo(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVideoInput, nullable: true }) filter?: FilterVideoInput,
@@ -53,7 +54,7 @@ export class VideoResolver {
     }
 
     @Query(() => Video, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Video)")
+    @Rule(RuleType.ReadOne, Video)
     async findOneVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -67,7 +68,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Video)")
+    @Rule(RuleType.Create, Video)
     async createVideo(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVideoInput }) input: CreateVideoInput
@@ -95,7 +96,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Video)")
+    @Rule(RuleType.Update, Video)
     async updateVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -147,7 +148,7 @@ export class VideoResolver {
     }
 
     @Mutation(() => Video, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Video)")
+    @Rule(RuleType.Delete, Video)
     async deleteVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -188,7 +189,7 @@ export class VideoResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Video)")
+    @Rule(RuleType.Count, Video)
     async videoCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVideoInput, nullable: true }) filter?: FilterVideoInput
@@ -206,7 +207,7 @@ export class VideoResolver {
      * Virtual field resolver for all ProductionVideos which have this Video as their {@link ProductionVideo#videoId}.
      */
     @ResolveField(() => [ProductionVideo], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionVideo)")
+    @Rule(RuleType.ReadMany, ProductionVideo)
     async productions(
         @Context() ctx: { req: Request },
         @Parent() video: Video,

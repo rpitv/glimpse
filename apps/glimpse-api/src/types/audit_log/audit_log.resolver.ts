@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
@@ -10,6 +10,7 @@ import { OrderAuditLogInput } from "./dto/order-audit_log.input";
 import { AbilitySubjects } from "../../casl/casl-ability.factory";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => AuditLog)
 export class AuditLogResolver {
@@ -28,7 +29,7 @@ export class AuditLogResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [AuditLog], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: AuditLog)")
+    @Rule(RuleType.ReadMany, AuditLog)
     async findManyAuditLog(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAuditLogInput, nullable: true }) filter?: FilterAuditLogInput,
@@ -56,7 +57,7 @@ export class AuditLogResolver {
     }
 
     @Query(() => AuditLog, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: AuditLog)")
+    @Rule(RuleType.ReadOne, AuditLog)
     async findOneAuditLog(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -70,7 +71,7 @@ export class AuditLogResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: AuditLog)")
+    @Rule(RuleType.Count, AuditLog)
     async auditLogCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterAuditLogInput, nullable: true }) filter?: FilterAuditLogInput
@@ -147,7 +148,7 @@ export class AuditLogResolver {
      * Virtual field resolver for the User corresponding to the AuditLog's {@link AuditLog#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() auditLog: AuditLog): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

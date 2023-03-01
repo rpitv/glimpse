@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -17,6 +17,7 @@ import { Production } from "../production/production.entity";
 import { FilterProductionInput } from "../production/dto/filter-production.input";
 import { OrderProductionInput } from "../production/dto/order-production.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -25,7 +26,7 @@ export class CategoryResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Category], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Category)")
+    @Rule(RuleType.ReadMany, Category)
     async findManyCategory(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCategoryInput, nullable: true }) filter?: FilterCategoryInput,
@@ -53,7 +54,7 @@ export class CategoryResolver {
     }
 
     @Query(() => Category, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Category)")
+    @Rule(RuleType.ReadOne, Category)
     async findOneCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -67,7 +68,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Category)")
+    @Rule(RuleType.Create, Category)
     async createCategory(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateCategoryInput }) input: CreateCategoryInput
@@ -95,7 +96,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Category)")
+    @Rule(RuleType.Update, Category)
     async updateCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -147,7 +148,7 @@ export class CategoryResolver {
     }
 
     @Mutation(() => Category, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Category)")
+    @Rule(RuleType.Delete, Category)
     async deleteCategory(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -188,7 +189,7 @@ export class CategoryResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Category)")
+    @Rule(RuleType.Count, Category)
     async categoryCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterCategoryInput, nullable: true }) filter?: FilterCategoryInput
@@ -206,7 +207,7 @@ export class CategoryResolver {
      * Virtual field resolver for the Category corresponding to the Category's {@link Category#parentId}.
      */
     @ResolveField(() => Category, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Category)")
+    @Rule(RuleType.ReadOne, Category)
     async parent(@Context() ctx: { req: Request }, @Parent() category: Category): Promise<Category> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -223,7 +224,7 @@ export class CategoryResolver {
      * Virtual field resolver for all Categories which have this Category as their {@link Category#parentId}.
      */
     @ResolveField(() => [Category], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Category)")
+    @Rule(RuleType.ReadMany, Category)
     async children(
         @Context() ctx: { req: Request },
         @Parent() category: Category,
@@ -257,7 +258,7 @@ export class CategoryResolver {
      * Virtual field resolver for all Productions which have this Category as their {@link Production#categoryId}.
      */
     @ResolveField(() => [Production], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Production)")
+    @Rule(RuleType.ReadMany, Production)
     async productions(
         @Context() ctx: { req: Request },
         @Parent() category: Category,

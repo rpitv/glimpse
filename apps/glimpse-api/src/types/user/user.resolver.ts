@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
@@ -36,6 +36,7 @@ import { VoteResponse } from "../vote_response/vote_response.entity";
 import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_response.input";
 import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -46,7 +47,7 @@ export class UserResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [User], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: User)")
+    @Rule(RuleType.ReadMany, User)
     async findManyUser(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput,
@@ -74,7 +75,7 @@ export class UserResolver {
     }
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async findOneUser(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -88,7 +89,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: User)")
+    @Rule(RuleType.Create, User)
     async createUser(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
@@ -121,7 +122,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: User)")
+    @Rule(RuleType.Update, User)
     async updateUser(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -178,7 +179,7 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: User)")
+    @Rule(RuleType.Delete, User)
     async deleteUser(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -219,7 +220,7 @@ export class UserResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: User)")
+    @Rule(RuleType.Count, User)
     async userCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
@@ -237,7 +238,7 @@ export class UserResolver {
      * Virtual field resolver for the Person corresponding to the User's {@link User#personId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async person(@Context() ctx: { req: Request }, @Parent() user: User): Promise<Person> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -254,7 +255,7 @@ export class UserResolver {
      * Virtual field resolver for all AccessLogs which have this User as their {@link AccessLog#userId}.
      */
     @ResolveField(() => [AccessLog], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: AccessLog)")
+    @Rule(RuleType.ReadMany, AccessLog)
     async accessLogs(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -288,7 +289,7 @@ export class UserResolver {
      * Virtual field resolver for all Assets which have this User as their {@link Asset#lastKnownHandlerId}.
      */
     @ResolveField(() => [Asset], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Asset)")
+    @Rule(RuleType.ReadMany, Asset)
     async checkedOutAssets(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -322,7 +323,7 @@ export class UserResolver {
      * Virtual field resolver for all AuditLogs which have this User as their {@link AuditLog#userId}.
      */
     @ResolveField(() => [AuditLog], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: AuditLog)")
+    @Rule(RuleType.ReadMany, AuditLog)
     async auditLogs(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -356,7 +357,7 @@ export class UserResolver {
      * Virtual field resolver for all ProductionRSVPs which have this User as their {@link ProductionRSVP#userId}.
      */
     @ResolveField(() => [ProductionRSVP], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionRSVP)")
+    @Rule(RuleType.ReadMany, ProductionRSVP)
     async productionRsvps(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -390,7 +391,7 @@ export class UserResolver {
      * Virtual field resolver for all UserGroups which have this User as their {@link UserGroup#userId}.
      */
     @ResolveField(() => [UserGroup], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: UserGroup)")
+    @Rule(RuleType.ReadMany, UserGroup)
     async groups(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -422,7 +423,7 @@ export class UserResolver {
      *  Query.permissionsFor resolver.
      */
     @ResolveField(() => [UserPermission], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: UserPermission)")
+    @Rule(RuleType.ReadMany, UserPermission)
     async permissions(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -456,7 +457,7 @@ export class UserResolver {
      * Virtual field resolver for all VoteResponses which have this User as their {@link VoteResponse#userId}.
      */
     @ResolveField(() => [VoteResponse], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: VoteResponse)")
+    @Rule(RuleType.ReadMany, VoteResponse)
     async voteResponses(
         @Context() ctx: { req: Request },
         @Parent() user: User,
@@ -489,7 +490,7 @@ export class UserResolver {
     // -------------------- Custom Resolvers --------------------
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive('@rule(ruleType: ReadOne, subject: User, options: { name: "Read self", defer: true })')
+    @Rule(RuleType.ReadOne, User, { name: "Read self", defer: true })
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
