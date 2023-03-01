@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { OrderProductionTagInput } from "./dto/order-production_tag.input";
 import { CreateProductionTagInput } from "./dto/create-production_tag.input";
 import { Production } from "../production/production.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => ProductionTag)
 export class ProductionTagResolver {
@@ -22,7 +23,7 @@ export class ProductionTagResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [ProductionTag], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionTag)")
+    @Rule(RuleType.ReadMany, ProductionTag)
     async findManyProductionTag(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionTagInput, nullable: true }) filter?: FilterProductionTagInput,
@@ -50,7 +51,7 @@ export class ProductionTagResolver {
     }
 
     @Query(() => ProductionTag, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: ProductionTag)")
+    @Rule(RuleType.ReadOne, ProductionTag)
     async findOneProductionTag(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -64,7 +65,7 @@ export class ProductionTagResolver {
     }
 
     @Mutation(() => ProductionTag, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: ProductionTag)")
+    @Rule(RuleType.Create, ProductionTag)
     async createProductionTag(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionTagInput }) input: CreateProductionTagInput
@@ -92,7 +93,7 @@ export class ProductionTagResolver {
     }
 
     @Mutation(() => ProductionTag, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: ProductionTag)")
+    @Rule(RuleType.Delete, ProductionTag)
     async deleteProductionTag(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -133,7 +134,7 @@ export class ProductionTagResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: ProductionTag)")
+    @Rule(RuleType.Count, ProductionTag)
     async productionTagCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionTagInput, nullable: true }) filter?: FilterProductionTagInput
@@ -151,7 +152,7 @@ export class ProductionTagResolver {
      * Virtual field resolver for the Production corresponding to the ProductionTag's {@link ProductionTag#productionId}.
      */
     @ResolveField(() => Production, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async production(@Context() ctx: { req: Request }, @Parent() productionTag: ProductionTag): Promise<Production> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -16,6 +16,7 @@ import { UpdateProductionRSVPInput } from "./dto/update-production_rsvp.input";
 import { Production } from "../production/production.entity";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => ProductionRSVP)
 export class ProductionRSVPResolver {
@@ -24,7 +25,7 @@ export class ProductionRSVPResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [ProductionRSVP], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionRSVP)")
+    @Rule(RuleType.ReadMany, ProductionRSVP)
     async findManyProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput,
@@ -52,7 +53,7 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: ProductionRSVP)")
+    @Rule(RuleType.ReadOne, ProductionRSVP)
     async findOneProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -66,7 +67,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: ProductionRSVP)")
+    @Rule(RuleType.Create, ProductionRSVP)
     async createProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
@@ -94,7 +95,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: ProductionRSVP)")
+    @Rule(RuleType.Update, ProductionRSVP)
     async updateProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -146,7 +147,7 @@ export class ProductionRSVPResolver {
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: ProductionRSVP)")
+    @Rule(RuleType.Delete, ProductionRSVP)
     async deleteProductionRSVP(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -187,7 +188,7 @@ export class ProductionRSVPResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: ProductionRSVP)")
+    @Rule(RuleType.Count, ProductionRSVP)
     async productionRSVPCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput
@@ -205,7 +206,7 @@ export class ProductionRSVPResolver {
      * Virtual field resolver for the Production corresponding to the ProductionRSVP's {@link ProductionRSVP#productionId}.
      */
     @ResolveField(() => Production, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async production(@Context() ctx: { req: Request }, @Parent() productionRSVP: ProductionRSVP): Promise<Production> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -222,7 +223,7 @@ export class ProductionRSVPResolver {
      * Virtual field resolver for the User corresponding to the ProductionRSVP's {@link ProductionRSVP#userId}.
      */
     @ResolveField(() => User, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: User)")
+    @Rule(RuleType.ReadOne, User)
     async user(@Context() ctx: { req: Request }, @Parent() productionRSVP: ProductionRSVP): Promise<User> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

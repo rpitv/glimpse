@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -17,6 +17,7 @@ import { VoteResponse } from "../vote_response/vote_response.entity";
 import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_response.input";
 import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Vote)
 export class VoteResolver {
@@ -25,7 +26,7 @@ export class VoteResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Vote], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Vote)")
+    @Rule(RuleType.ReadMany, Vote)
     async findManyVote(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteInput, nullable: true }) filter?: FilterVoteInput,
@@ -53,7 +54,7 @@ export class VoteResolver {
     }
 
     @Query(() => Vote, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Vote)")
+    @Rule(RuleType.ReadOne, Vote)
     async findOneVote(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -67,7 +68,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Vote)")
+    @Rule(RuleType.Create, Vote)
     async createVote(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateVoteInput }) input: CreateVoteInput
@@ -95,7 +96,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Vote)")
+    @Rule(RuleType.Update, Vote)
     async updateVote(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -147,7 +148,7 @@ export class VoteResolver {
     }
 
     @Mutation(() => Vote, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Vote)")
+    @Rule(RuleType.Delete, Vote)
     async deleteVote(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -188,7 +189,7 @@ export class VoteResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Vote)")
+    @Rule(RuleType.Count, Vote)
     async voteCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterVoteInput, nullable: true }) filter?: FilterVoteInput
@@ -206,7 +207,7 @@ export class VoteResolver {
      * Virtual field resolver for all VoteResponses which have this Vote as their {@link VoteResponse#voteId}.
      */
     @ResolveField(() => [VoteResponse], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: VoteResponse)")
+    @Rule(RuleType.ReadMany, VoteResponse)
     async responses(
         @Context() ctx: { req: Request },
         @Parent() vote: Vote,

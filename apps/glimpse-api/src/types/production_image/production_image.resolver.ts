@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { UpdateProductionImageInput } from "./dto/update-production_image.input"
 import { Production } from "../production/production.entity";
 import { Image } from "../image/image.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => ProductionImage)
 export class ProductionImageResolver {
@@ -22,7 +23,7 @@ export class ProductionImageResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => ProductionImage, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: ProductionImage)")
+    @Rule(RuleType.ReadOne, ProductionImage)
     async findOneProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -36,7 +37,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: ProductionImage)")
+    @Rule(RuleType.Create, ProductionImage)
     async createProductionImage(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionImageInput }) input: CreateProductionImageInput
@@ -64,7 +65,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: ProductionImage)")
+    @Rule(RuleType.Update, ProductionImage)
     async updateProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -116,7 +117,7 @@ export class ProductionImageResolver {
     }
 
     @Mutation(() => ProductionImage, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: ProductionImage)")
+    @Rule(RuleType.Delete, ProductionImage)
     async deleteProductionImage(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -157,7 +158,7 @@ export class ProductionImageResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: ProductionImage)")
+    @Rule(RuleType.Count, ProductionImage)
     async productionImageCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionImageInput, nullable: true }) filter?: FilterProductionImageInput
@@ -175,7 +176,7 @@ export class ProductionImageResolver {
      * Virtual field resolver for the Production corresponding to the ProductionImage's {@link ProductionImage#productionId}.
      */
     @ResolveField(() => Production, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async production(
         @Context() ctx: { req: Request },
         @Parent() productionImage: ProductionImage
@@ -195,7 +196,7 @@ export class ProductionImageResolver {
      * Virtual field resolver for the Image corresponding to the ProductionImage's {@link ProductionImage#imageId}.
      */
     @ResolveField(() => Image, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    @Rule(RuleType.ReadOne, Image)
     async image(@Context() ctx: { req: Request }, @Parent() productionImage: ProductionImage): Promise<Image> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

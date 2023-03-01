@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -16,6 +16,7 @@ import { UpdatePersonRoleInput } from "./dto/update-person_role.input";
 import { Person } from "../person/person.entity";
 import { Role } from "../role/role.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => PersonRole)
 export class PersonRoleResolver {
@@ -24,7 +25,7 @@ export class PersonRoleResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [PersonRole], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
+    @Rule(RuleType.ReadMany, PersonRole)
     async findManyPersonRole(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput,
@@ -52,7 +53,7 @@ export class PersonRoleResolver {
     }
 
     @Query(() => PersonRole, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: PersonRole)")
+    @Rule(RuleType.ReadOne, PersonRole)
     async findOnePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -66,7 +67,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: PersonRole)")
+    @Rule(RuleType.Create, PersonRole)
     async createPersonRole(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreatePersonRoleInput }) input: CreatePersonRoleInput
@@ -94,7 +95,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: PersonRole)")
+    @Rule(RuleType.Update, PersonRole)
     async updatePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -146,7 +147,7 @@ export class PersonRoleResolver {
     }
 
     @Mutation(() => PersonRole, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: PersonRole)")
+    @Rule(RuleType.Delete, PersonRole)
     async deletePersonRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -187,7 +188,7 @@ export class PersonRoleResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: PersonRole)")
+    @Rule(RuleType.Count, PersonRole)
     async personRoleCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterPersonRoleInput, nullable: true }) filter?: FilterPersonRoleInput
@@ -205,7 +206,7 @@ export class PersonRoleResolver {
      * Virtual field resolver for the Person corresponding to the PersonRole's {@link PersonRole#personId}.
      */
     @ResolveField(() => Person, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Person)")
+    @Rule(RuleType.ReadOne, Person)
     async person(@Context() ctx: { req: Request }, @Parent() personRole: PersonRole): Promise<Person> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -222,7 +223,7 @@ export class PersonRoleResolver {
      * Virtual field resolver for the Role corresponding to the PersonRole's {@link PersonRole#roleId}.
      */
     @ResolveField(() => Role, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Role)")
+    @Rule(RuleType.ReadOne, Role)
     async role(@Context() ctx: { req: Request }, @Parent() personRole: PersonRole): Promise<Role> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
