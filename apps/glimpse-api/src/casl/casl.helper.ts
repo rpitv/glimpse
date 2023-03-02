@@ -1,6 +1,12 @@
-import { ExecutionContext, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { RuleDef, RuleHandler, ruleHandlers, RuleType } from "./rule.decorator";
-import { AbilityAction, AbilitySubjects, GlimpseAbility } from "./casl-ability.factory";
+import {
+    BadRequestException,
+    ExecutionContext,
+    Injectable,
+    InternalServerErrorException,
+    Logger
+} from "@nestjs/common";
+import { getRuleHandlerForRuleType, RuleDef, RuleHandler, RuleType } from "./rule.decorator";
+import { AbilityAction, AbilitySubjects, AbilitySubjectsMap, GlimpseAbility } from "./casl-ability.factory";
 import { GqlContextType, GqlExecutionContext } from "@nestjs/graphql";
 import { GraphQLList, GraphQLResolveInfo, GraphQLType } from "graphql/type";
 import { EnumValueNode, IntValueNode, Kind, SelectionNode, visit } from "graphql/language";
@@ -39,7 +45,7 @@ export class CaslHelper {
 
     constructor() {
         for (const ruleType of Object.values(RuleType)) {
-            this.handlerToRuleTypeMap.set(ruleHandlers.get(ruleType), ruleType);
+            this.handlerToRuleTypeMap.set(getRuleHandlerForRuleType(ruleType), ruleType);
         }
     }
 
@@ -132,13 +138,11 @@ export class CaslHelper {
     /**
      * Get the {@link Express.Request} object and a {@link RuleDef}'s subject in string form. These are both frequently
      *  done at the start of a rule handler, so this method is used to reduce code duplication. Subjects have to be
-     *  in string form because the Glimpse database stores them as strings. This method should only be called on
-     *  rules which are not of type {@link RuleType.Custom}.
+     *  in string form because the Glimpse database stores them as strings.
      * @param context NestJS execution context.
      * @param rule Rule to get the subject of.
      * @returns An object containing the request and subject string.
      * @throws Error if the user permissions are not initialized.
-     * @throws Error if the rule is of type {@link RuleType.Custom}.
      * @private
      */
     public getReqAndSubject(
@@ -154,7 +158,6 @@ export class CaslHelper {
         }
 
         const subjectStr = this.getSubjectAsString(rule.subject);
-
         return { req, subjectStr };
     }
 
@@ -177,7 +180,7 @@ export class CaslHelper {
             }
         } else if (node.kind === Kind.FRAGMENT_SPREAD) {
             // TODO
-            throw new Error('Unsupported selection Kind "FRAGMENT_SPREAD"');
+            throw new BadRequestException('Unsupported selection Kind "FRAGMENT_SPREAD"');
         }
     }
 
@@ -417,7 +420,7 @@ export class CaslHelper {
      * @param ability GlimpseAbility instance.
      * @param subjectName Name of the subject to check permissions for.
      * @param argName Name of the pagination argument in the GraphQL query.
-     * @todo Filtering currently only supports GraphQL queries.
+     * @todo Pagination currently only supports GraphQL queries.
      * @returns True if the user has permission to use the supplied pagination argument, false otherwise.
      */
     public canPaginate(
@@ -567,7 +570,8 @@ export class CaslHelper {
      *  This is used in the AST traversal code to ensure that the AST is in the expected format.
      *  An error is never expected to be thrown, however we should use this method to ensure that
      *  the developer did not make a mistake in the AST traversal code or not account for another
-     *  feature of GraphQL.
+     *  feature of GraphQL. This method does not need to be used when TypeScript already guarantees
+     *  that the node is of the expected type.
      * @param node GraphQL node to check.
      * @param expectedKind Expected kind of the node. Can also be an array of Kinds, in which case
      *  the node must be one of the expected kinds.
@@ -601,13 +605,18 @@ export class CaslHelper {
     }
 
     /**
-     * Convert an AbilitySubject value into a string. Glimpse stores all subjects as strings within the database, so
-     *  we must convert non-string AbilitySubject values into strings before passing them to CASL. This is
-     *  accomplished by returning the static "modelName" property on classes if it exists, or the class name otherwise.
-     * @param subj Subject to convert.
-     * @returns String representation of the subject.
+     * Convert an {@link AbilitySubjects} value into a string. Glimpse stores all subjects as strings within the
+     *  database, so we must convert non-string {@link AbilitySubjects} values into strings before passing them to CASL.
+     *  This is accomplished by returning the static "modelName" property on classes if it exists, or the
+     *  class/constructor name otherwise.
+     * @param subj Subject to convert. May be null.
+     * @returns String representation of the subject type. If the subject is null, null is returned.
      */
-    public getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> {
+    public getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> | null {
+        if(subj === null) {
+            return null;
+        }
+
         // Since Glimpse stores all subjects as strings within the DB, we must convert the ability subject
         //  to a string before testing. Typeof classes === function.
         if (typeof subj === "string") {
@@ -616,6 +625,11 @@ export class CaslHelper {
         } else if (typeof subj === "function") {
             this.logger.verbose("Getting subject as a string from a class.");
             const subjStr = (subj.modelName || subj.name) as Extract<AbilitySubjects, string>;
+            this.logger.verbose("Subject string: " + subjStr);
+            return subjStr;
+        } else if (subj?.constructor?.name && AbilitySubjectsMap[subj.constructor.name] !== undefined) {
+            this.logger.verbose("Getting subject as a string from an instance of a class.");
+            const subjStr = subj.constructor.name as Extract<AbilitySubjects, string>;
             this.logger.verbose("Subject string: " + subjStr);
             return subjStr;
         } else {
