@@ -1,12 +1,6 @@
 import { DirectiveLocation, getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLNonNull, GraphQLSchema } from "graphql";
-import {
-    GraphQLBoolean,
-    GraphQLDirective,
-    GraphQLInputObjectType,
-    GraphQLList,
-    GraphQLString
-} from "graphql/type";
+import { GraphQLBoolean, GraphQLDirective, GraphQLInputObjectType, GraphQLList, GraphQLString } from "graphql/type";
 import { AbilitySubjects, GraphQLAbilitySubjectsType } from "./casl-ability.factory";
 import { CaslHelper } from "./casl.helper";
 import { ForbiddenException, Injectable, Logger } from "@nestjs/common";
