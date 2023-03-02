@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -12,6 +12,7 @@ import { CreateStreamInput } from "./dto/create-stream.input";
 import { connect, Connection, ConsumeMessage } from "amqplib";
 import { GraphQLUUID } from "graphql-scalars";
 import { ConfigService } from "@nestjs/config";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Stream)
 export class StreamResolver {
@@ -95,7 +96,7 @@ export class StreamResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Stream], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Stream)")
+    @Rule(RuleType.ReadMany, Stream)
     async findManyStream(
         @Context() ctx: { req: Request },
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
@@ -113,7 +114,7 @@ export class StreamResolver {
     }
 
     @Query(() => Stream, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Stream)")
+    @Rule(RuleType.ReadOne, Stream)
     async findOneStream(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLUUID }) id: string
@@ -123,7 +124,7 @@ export class StreamResolver {
     }
 
     @Mutation(() => Stream, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Stream)")
+    @Rule(RuleType.Create, Stream)
     async createStream(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateStreamInput }) input: CreateStreamInput
@@ -157,7 +158,7 @@ export class StreamResolver {
     }
 
     @Mutation(() => Stream, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Stream)")
+    @Rule(RuleType.Delete, Stream)
     async deleteStream(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLUUID }) id: string
@@ -191,7 +192,7 @@ export class StreamResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Stream)")
+    @Rule(RuleType.Count, Stream)
     async streamCount(): Promise<number> {
         return this.streams.length;
     }

@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { UpdateProductionVideoInput } from "./dto/update-production_video.input"
 import { Production } from "../production/production.entity";
 import { Video } from "../video/video.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => ProductionVideo)
 export class ProductionVideoResolver {
@@ -22,7 +23,7 @@ export class ProductionVideoResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => ProductionVideo, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: ProductionVideo)")
+    @Rule(RuleType.ReadOne, ProductionVideo)
     async findOneProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -36,7 +37,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: ProductionVideo)")
+    @Rule(RuleType.Create, ProductionVideo)
     async createProductionVideo(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionVideoInput }) input: CreateProductionVideoInput
@@ -64,7 +65,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: ProductionVideo)")
+    @Rule(RuleType.Update, ProductionVideo)
     async updateProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -116,7 +117,7 @@ export class ProductionVideoResolver {
     }
 
     @Mutation(() => ProductionVideo, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: ProductionVideo)")
+    @Rule(RuleType.Delete, ProductionVideo)
     async deleteProductionVideo(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -157,7 +158,7 @@ export class ProductionVideoResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: ProductionVideo)")
+    @Rule(RuleType.Count, ProductionVideo)
     async productionVideoCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionVideoInput, nullable: true }) filter?: FilterProductionVideoInput
@@ -175,7 +176,7 @@ export class ProductionVideoResolver {
      * Virtual field resolver for the Production corresponding to the ProductionVideo's {@link ProductionVideo#productionId}.
      */
     @ResolveField(() => Production, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async production(
         @Context() ctx: { req: Request },
         @Parent() productionVideo: ProductionVideo
@@ -195,7 +196,7 @@ export class ProductionVideoResolver {
      * Virtual field resolver for the Video corresponding to the ProductionVideo's {@link ProductionVideo#videoId}.
      */
     @ResolveField(() => Video, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Video)")
+    @Rule(RuleType.ReadOne, Video)
     async video(@Context() ctx: { req: Request }, @Parent() productionVideo: ProductionVideo): Promise<Video> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

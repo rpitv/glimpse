@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -17,6 +17,7 @@ import { PersonRole } from "../person_role/person_role.entity";
 import { FilterPersonRoleInput } from "../person_role/dto/filter-person_role.input";
 import { OrderPersonRoleInput } from "../person_role/dto/order-person_role.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Role)
 export class RoleResolver {
@@ -25,7 +26,7 @@ export class RoleResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Role], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Role)")
+    @Rule(RuleType.ReadMany, Role)
     async findManyRole(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRoleInput, nullable: true }) filter?: FilterRoleInput,
@@ -53,7 +54,7 @@ export class RoleResolver {
     }
 
     @Query(() => Role, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Role)")
+    @Rule(RuleType.ReadOne, Role)
     async findOneRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -67,7 +68,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Role)")
+    @Rule(RuleType.Create, Role)
     async createRole(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateRoleInput }) input: CreateRoleInput
@@ -95,7 +96,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Role)")
+    @Rule(RuleType.Update, Role)
     async updateRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -147,7 +148,7 @@ export class RoleResolver {
     }
 
     @Mutation(() => Role, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Role)")
+    @Rule(RuleType.Delete, Role)
     async deleteRole(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -188,7 +189,7 @@ export class RoleResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Role)")
+    @Rule(RuleType.Count, Role)
     async roleCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterRoleInput, nullable: true }) filter?: FilterRoleInput
@@ -206,7 +207,7 @@ export class RoleResolver {
      * Virtual field resolver for all PersonRoles which have this Role as their {@link PersonRole#roleId}.
      */
     @ResolveField(() => [PersonRole], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: PersonRole)")
+    @Rule(RuleType.ReadMany, PersonRole)
     async people(
         @Context() ctx: { req: Request },
         @Parent() role: Role,

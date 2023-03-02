@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -31,6 +31,7 @@ import { OrderProductionTagInput } from "../production_tag/dto/order-production_
 import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => Production)
 export class ProductionResolver {
@@ -39,7 +40,7 @@ export class ProductionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [Production], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: Production)")
+    @Rule(RuleType.ReadMany, Production)
     async findManyProduction(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput,
@@ -67,7 +68,7 @@ export class ProductionResolver {
     }
 
     @Query(() => Production, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: Production)")
+    @Rule(RuleType.ReadOne, Production)
     async findOneProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -81,7 +82,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: Production)")
+    @Rule(RuleType.Create, Production)
     async createProduction(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateProductionInput }) input: CreateProductionInput
@@ -109,7 +110,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: Production)")
+    @Rule(RuleType.Update, Production)
     async updateProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -161,7 +162,7 @@ export class ProductionResolver {
     }
 
     @Mutation(() => Production, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: Production)")
+    @Rule(RuleType.Delete, Production)
     async deleteProduction(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -202,7 +203,7 @@ export class ProductionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: Production)")
+    @Rule(RuleType.Count, Production)
     async productionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput
@@ -220,7 +221,7 @@ export class ProductionResolver {
      * Virtual field resolver for the Category corresponding to the Production's {@link Production#categoryId}.
      */
     @ResolveField(() => Category, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Category)")
+    @Rule(RuleType.ReadOne, Category)
     async category(@Context() ctx: { req: Request }, @Parent() production: Production): Promise<Category> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -237,7 +238,7 @@ export class ProductionResolver {
      * Virtual field resolver for the Image corresponding to the Production's {@link Production#thumbnailId}.
      */
     @ResolveField(() => Image, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Image)")
+    @Rule(RuleType.ReadOne, Image)
     async thumbnail(@Context() ctx: { req: Request }, @Parent() production: Production): Promise<Image> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.
@@ -254,7 +255,7 @@ export class ProductionResolver {
      * Virtual field resolver for all Credits which have this Production as their {@link Credit#productionId}.
      */
     @ResolveField(() => [Credit], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: Credit)")
+    @Rule(RuleType.ReadMany, Credit)
     async credits(
         @Context() ctx: { req: Request },
         @Parent() production: Production,
@@ -288,7 +289,7 @@ export class ProductionResolver {
      * Virtual field resolver for all ProductionImages which have this Production as their {@link ProductionImage#productionId}.
      */
     @ResolveField(() => [ProductionImage], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionImage)")
+    @Rule(RuleType.ReadMany, ProductionImage)
     async images(
         @Context() ctx: { req: Request },
         @Parent() production: Production,
@@ -322,7 +323,7 @@ export class ProductionResolver {
      * Virtual field resolver for all ProductionVideos which have this Production as their {@link ProductionVideo#productionId}.
      */
     @ResolveField(() => [ProductionVideo], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionVideo)")
+    @Rule(RuleType.ReadMany, ProductionVideo)
     async videos(
         @Context() ctx: { req: Request },
         @Parent() production: Production,
@@ -356,7 +357,7 @@ export class ProductionResolver {
      * Virtual field resolver for all ProductionRSVPs which have this Production as their {@link ProductionRSVP#productionId}.
      */
     @ResolveField(() => [ProductionRSVP], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionRSVP)")
+    @Rule(RuleType.ReadMany, ProductionRSVP)
     async rsvps(
         @Context() ctx: { req: Request },
         @Parent() production: Production,
@@ -390,7 +391,7 @@ export class ProductionResolver {
      * Virtual field resolver for all ProductionTags which have this Production as their {@link ProductionTag#productionId}.
      */
     @ResolveField(() => [ProductionTag], { nullable: true })
-    @Directive("@rule(ruleType: ReadMany, subject: ProductionTag)")
+    @Rule(RuleType.ReadMany, ProductionTag)
     async tags(
         @Context() ctx: { req: Request },
         @Parent() production: Production,

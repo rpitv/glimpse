@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -15,6 +15,7 @@ import { CreateGroupPermissionInput } from "./dto/create-group_permission.input"
 import { UpdateGroupPermissionInput } from "./dto/update-group_permission.input";
 import { Group } from "../group/group.entity";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => GroupPermission)
 export class GroupPermissionResolver {
@@ -23,7 +24,7 @@ export class GroupPermissionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [GroupPermission], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: GroupPermission)")
+    @Rule(RuleType.ReadMany, GroupPermission)
     async findManyGroupPermission(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupPermissionInput, nullable: true }) filter?: FilterGroupPermissionInput,
@@ -51,7 +52,7 @@ export class GroupPermissionResolver {
     }
 
     @Query(() => GroupPermission, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: GroupPermission)")
+    @Rule(RuleType.ReadOne, GroupPermission)
     async findOneGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -65,7 +66,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: GroupPermission)")
+    @Rule(RuleType.Create, GroupPermission)
     async createGroupPermission(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateGroupPermissionInput }) input: CreateGroupPermissionInput
@@ -93,7 +94,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: GroupPermission)")
+    @Rule(RuleType.Update, GroupPermission)
     async updateGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -145,7 +146,7 @@ export class GroupPermissionResolver {
     }
 
     @Mutation(() => GroupPermission, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: GroupPermission)")
+    @Rule(RuleType.Delete, GroupPermission)
     async deleteGroupPermission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -186,7 +187,7 @@ export class GroupPermissionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: GroupPermission)")
+    @Rule(RuleType.Count, GroupPermission)
     async groupPermissionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterGroupPermissionInput, nullable: true }) filter?: FilterGroupPermissionInput
@@ -204,7 +205,7 @@ export class GroupPermissionResolver {
      * Virtual field resolver for the Group corresponding to the GroupPermission's {@link GroupPermission#groupId}.
      */
     @ResolveField(() => Group, { nullable: true })
-    @Directive("@rule(ruleType: ReadOne, subject: Group)")
+    @Rule(RuleType.ReadOne, Group)
     async group(@Context() ctx: { req: Request }, @Parent() groupPermission: GroupPermission): Promise<Group> {
         // If this property is null, then the parent resolver explicitly set it to null because the user didn't have
         //  permission to read it, and strict mode was disabled. This is only guaranteed true for relational fields.

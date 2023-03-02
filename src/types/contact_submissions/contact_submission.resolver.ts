@@ -1,4 +1,4 @@
-import { Args, Context, Directive, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { BadRequestException, Logger } from "@nestjs/common";
@@ -14,6 +14,7 @@ import { OrderContactSubmissionInput } from "./dto/order-contact_submission.inpu
 import { CreateContactSubmissionInput } from "./dto/create-contact_submission.input";
 import { UpdateContactSubmissionInput } from "./dto/update-contact_submission.input";
 import { GraphQLBigInt } from "graphql-scalars";
+import { Rule, RuleType } from "../../casl/rule.decorator";
 
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
@@ -22,7 +23,7 @@ export class ContactSubmissionResolver {
     // -------------------- Generic Resolvers --------------------
 
     @Query(() => [ContactSubmission], { complexity: Complexities.ReadMany })
-    @Directive("@rule(ruleType: ReadMany, subject: ContactSubmission)")
+    @Rule(RuleType.ReadMany, ContactSubmission)
     async findManyContactSubmission(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true })
@@ -52,7 +53,7 @@ export class ContactSubmissionResolver {
     }
 
     @Query(() => ContactSubmission, { nullable: true, complexity: Complexities.ReadOne })
-    @Directive("@rule(ruleType: ReadOne, subject: ContactSubmission)")
+    @Rule(RuleType.ReadOne, ContactSubmission)
     async findOneContactSubmission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -66,7 +67,7 @@ export class ContactSubmissionResolver {
     }
 
     @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Directive("@rule(ruleType: Create, subject: ContactSubmission)")
+    @Rule(RuleType.Create, ContactSubmission)
     async createContactSubmission(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateContactSubmissionInput }) input: CreateContactSubmissionInput
@@ -94,7 +95,7 @@ export class ContactSubmissionResolver {
     }
 
     @Mutation(() => ContactSubmission, { complexity: Complexities.Update })
-    @Directive("@rule(ruleType: Update, subject: ContactSubmission)")
+    @Rule(RuleType.Update, ContactSubmission)
     async updateContactSubmission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint,
@@ -146,7 +147,7 @@ export class ContactSubmissionResolver {
     }
 
     @Mutation(() => ContactSubmission, { complexity: Complexities.Delete })
-    @Directive("@rule(ruleType: Delete, subject: ContactSubmission)")
+    @Rule(RuleType.Delete, ContactSubmission)
     async deleteContactSubmission(
         @Context() ctx: { req: Request },
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
@@ -187,7 +188,7 @@ export class ContactSubmissionResolver {
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
-    @Directive("@rule(ruleType: Count, subject: ContactSubmission)")
+    @Rule(RuleType.Count, ContactSubmission)
     async contactSubmissionCount(
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterContactSubmissionInput, nullable: true })

@@ -39,7 +39,7 @@ import { UserPermissionModule } from "./types/user_permission/user_permission.mo
 import { VideoModule } from "./types/video/video.module";
 import { VoteModule } from "./types/vote/vote.module";
 import { VoteResponseModule } from "./types/vote_response/vote_response.module";
-import { GraphQLCustomRuleDirective, GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
+import { GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
 import { StreamModule } from "./types/stream/stream.module";
 import { ConfigModule } from "@nestjs/config";
 import * as Joi from "joi";
@@ -51,8 +51,7 @@ import * as Joi from "joi";
             imports: [CaslModule],
             inject: [RuleDirective],
             useFactory: async (ruleDirective: RuleDirective) => ({
-                transformSchema: (schema) =>
-                    ruleDirective.createCustom(ruleDirective.createBasic(schema, "rule"), "custom_rule"),
+                transformSchema: (schema) => ruleDirective.createBasic(schema, "rule"),
                 autoSchemaFile: path.join(process.cwd(), "generated/schema.gql"),
                 sortSchema: true,
                 playground: {
@@ -61,7 +60,7 @@ import * as Joi from "joi";
                     }
                 },
                 buildSchemaOptions: {
-                    directives: [GraphQLRuleDirective, GraphQLCustomRuleDirective]
+                    directives: [GraphQLRuleDirective]
                 }
             })
         }),
