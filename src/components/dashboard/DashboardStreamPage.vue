@@ -1,7 +1,5 @@
 <template>
   <div class="table-card-wrapper">
-    <n-card class="table-card">
-      <DashboardBreadcrumb :route="breadcrumbRoute"/>
 
       <div v-if="ability.can(AbilityActions.Create, AbilitySubjects.Stream)">
         <n-input-group>
@@ -33,13 +31,11 @@
         </tr>
         </tbody>
       </n-table>
-    </n-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import {NCard, NButton, NInputGroup, NInput, NTable} from "naive-ui";
-import DashboardBreadcrumb from "@/components/DashboardBreadcrumb.vue";
+import {NButton, NInputGroup, NInput, NTable} from "naive-ui";
 import {AbilityActions, useGlimpseAbility} from "@/casl";
 import {
   AbilitySubjects,
@@ -74,17 +70,6 @@ const {mutate: stopStream} = useMutation(StopStreamDocument);
 </script>
 
 <style scoped lang="scss">
-
-.table-card {
-  width: 80%;
-  margin-top: 6em;
-
-}
-
-.table-card-wrapper {
-  display: flex;
-  justify-content: center;
-}
 
 .streams {
   margin-top: 1em;

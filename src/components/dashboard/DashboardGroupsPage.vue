@@ -1,6 +1,5 @@
 <template>
   <div class="table-card-wrapper">
-    <n-card class="table-card">
       <n-button v-if="ability.can(AbilityActions.Create, AbilitySubjects.Group)"
                 strong secondary round large type="success" class="create-button">
         <template #icon>
@@ -9,8 +8,6 @@
         Create
       </n-button>
 
-      <DashboardBreadcrumb :route="breadcrumbRoute"/>
-
       <n-data-table
         remote
         striped
@@ -18,13 +15,11 @@
         :pagination="tablePaginationOptions"
         :loading="isTableLoading"
         :data="tableData"/>
-    </n-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import DashboardBreadcrumb from "@/components/DashboardBreadcrumb.vue";
-import {NButton, NDataTable, NCard, useDialog} from "naive-ui";
+import {NButton, NDataTable, useDialog} from "naive-ui";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {computed, h, reactive, ref} from "vue";
 import {AbilityActions, useGlimpseAbility} from "@/casl";
@@ -156,18 +151,9 @@ const tableData: RowData[] = reactive([ // TODO
 </script>
 
 <style scoped lang="scss">
-.table-card {
-  width: 80%;
-  margin-top: 6em;
-
-}
-
-.table-card-wrapper {
-  display: flex;
-  justify-content: center;
-}
 
 .create-button {
   float: right;
+  margin-bottom: 1em;
 }
 </style>

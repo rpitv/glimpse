@@ -2,9 +2,10 @@
   <div class="dashboard-breadcrumb">
     <n-breadcrumb>
       <n-breadcrumb-item v-for="item of nBreadcrumbItems" :key="item.name" separator="»">
-        <RouterLink :to="item.route" class="breadcrumb-item-link">
+        <RouterLink v-if="item.route" :to="item.route" class="breadcrumb-item-link">
           {{item.name}}
         </RouterLink>
+        <span v-else>{{item.name}}</span>
       </n-breadcrumb-item>
       <span class="last-breadcrumb-item">{{route[route.length - 1].name}}</span>
     </n-breadcrumb>
@@ -16,18 +17,14 @@
 import {NBreadcrumb, NBreadcrumbItem} from "naive-ui";
 import type {PropType} from "vue";
 import {computed} from "vue";
-import {RouterLink} from "vue-router";
+import { RouteLocationRaw, RouterLink } from "vue-router";
 
 const props = defineProps({
   route: {
-    type: Object as PropType<{name: string, route: string}[]>,
+    type: Object as PropType<{name: string, route?: RouteLocationRaw}[]>,
     required: true
   }
 })
-
-if(props.route.length <= 0) {
-  throw new Error("Invalid usage of DashboardBreadcrumb: at least one element is required.");
-}
 
 const nBreadcrumbItems = computed(() => {
   const routeCopy = [...props.route];
