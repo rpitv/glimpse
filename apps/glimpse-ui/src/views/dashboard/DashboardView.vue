@@ -22,11 +22,11 @@
 
         <n-layout class="page-content">
           <DashboardBreadcrumb :route="breadcrumbRoute"/>
-          <div v-if="!route.params.page">
-            <DashboardComingSoon/>
-          </div>
-          <Transition v-else name="page">
-            <component :is="selectedPage?.component ? selectedPage.component : NotFoundView" />
+          <Transition name="page">
+            <div v-if="!route.params.page">
+              <DashboardComingSoon/>
+            </div>
+            <component v-else :is="selectedPage?.component ? selectedPage.component : NotFoundView" />
           </Transition>
         </n-layout>
       </n-layout>
