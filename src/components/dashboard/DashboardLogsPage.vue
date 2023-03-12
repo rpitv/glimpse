@@ -250,8 +250,7 @@ async function loadMore(): Promise<void> {
     await query.fetchMore({
       variables: {
         pagination: {
-          cursor: result[result.length - 1].id,
-          skip: 1,
+          skip: result.length,
           take: 20
         }
       },

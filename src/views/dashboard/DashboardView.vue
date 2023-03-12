@@ -25,7 +25,9 @@
           <div v-if="!route.params.page">
             <DashboardComingSoon/>
           </div>
-          <component v-else :is="selectedPage?.component ? selectedPage.component : NotFoundView" />
+          <Transition v-else name="page">
+            <component :is="selectedPage?.component ? selectedPage.component : NotFoundView" />
+          </Transition>
         </n-layout>
       </n-layout>
     </n-card>
@@ -295,6 +297,13 @@ function menuOptionClicked(key: string) {
 const menuCollapsed = ref<boolean>(true);
 </script>
 
+<style lang="scss">
+// Hide scroll bar when transitioning between pages
+.page-content div:has(> .page-leave-active) {
+  overflow: hidden;
+}
+</style>
+
 <style scoped lang="scss">
 .dashboard-view {
   padding: 2rem;
@@ -302,6 +311,28 @@ const menuCollapsed = ref<boolean>(true);
 
 .page-content {
   padding: 2rem;
+}
+
+// Animation between pages using <Transition>
+.page-enter-from {
+  left: -100vw;
+}
+
+.page-enter-to, .page-leave-from {
+  left: 0;
+}
+
+
+.page-leave-to {
+  left: 100vw;
+}
+
+@media(prefers-reduced-motion: no-preference) {
+  .page-enter-active, .page-leave-active {
+    transition: all 0.3s ease;
+    position: absolute;
+    width: 100%;
+  }
 }
 
 </style>
