@@ -121,6 +121,11 @@ export class CaslHelper {
      */
     public getKeysFromDeepObject(obj: Record<any, any>): Set<string> {
         const keys = new Set<string>();
+
+        if (obj === null || obj === undefined) {
+            return keys;
+        }
+
         for (const key of Object.keys(obj)) {
             keys.add(key);
             if (Array.isArray(obj[key])) {
@@ -480,6 +485,9 @@ export class CaslHelper {
                 } else {
                     this.logger.verbose("Pagination argument passed in as variable.");
                     const argName = paginationArg.name.value;
+                    if (!info.variableValues[argName]) {
+                        return true;
+                    }
                     if ((info.variableValues[argName] as any).take === undefined) {
                         throw new Error("Pagination requires a take argument.");
                     }
@@ -613,7 +621,7 @@ export class CaslHelper {
      * @returns String representation of the subject type. If the subject is null, null is returned.
      */
     public getSubjectAsString(subj: AbilitySubjects): Extract<AbilitySubjects, string> | null {
-        if(subj === null) {
+        if (subj === null) {
             return null;
         }
 

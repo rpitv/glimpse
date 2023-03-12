@@ -1,4 +1,4 @@
-import { Field, HideField, ID, ObjectType } from "@nestjs/graphql";
+import { Field, HideField, ObjectType } from "@nestjs/graphql";
 import { IsDate, IsInt, MaxLength, Min } from "class-validator";
 import { AuditLog as PrismaAuditLog, Prisma } from "@prisma/client";
 import { GraphQLBigInt } from "graphql-scalars";
@@ -65,7 +65,7 @@ export class AuditLog implements PrismaAuditLog {
      */
     @IsInt()
     @Min(0)
-    @Field(() => ID, { nullable: true })
+    @Field(() => GraphQLBigInt, { nullable: true })
     identifier: bigint | null;
     /**
      * The new value of the resource after the change. Will be null if the resource was deleted, since there is no
