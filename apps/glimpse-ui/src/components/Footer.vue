@@ -23,7 +23,7 @@
       </n-gi>
       <n-gi class="col last-col social">
         <h2>Social</h2>
-        <p><a href="https://www.youtube.com/rpitv">
+        <p><a href="https://www.youtube.com/@rpi-tv">
           <FontAwesomeIcon class="youtube-icon icon" icon="fa-brands fa-youtube" />
           YouTube
         </a></p>
