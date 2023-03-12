@@ -34,7 +34,7 @@ import {
 import type { AlertLog, AccessLog, AuditLog } from "@/graphql/types";
 import { FindAlertLogsDocument } from "@/graphql/types";
 import { useLazyQuery } from "@vue/apollo-composable";
-import { computed, h, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
+import { computed, h, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import moment from "moment";
 import Markdown from "@/components/Markdown.vue";
 

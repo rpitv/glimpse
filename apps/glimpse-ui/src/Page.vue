@@ -189,7 +189,7 @@ watch(() => route.meta.layoutCssName,
 
 .main-logo {
   position: fixed;
-  z-index: 2;
+  z-index: 11;
   pointer-events: none;
 }
 
