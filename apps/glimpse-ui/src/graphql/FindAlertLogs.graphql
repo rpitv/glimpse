@@ -1,0 +1,8 @@
+query FindAlertLogs($pagination: PaginationInput, $filter: FilterAlertLogInput) {
+  alertLogs: findManyAlertLog(pagination: $pagination, order: [{ field: timestamp, direction: Desc }], filter: $filter) {
+    id
+    message
+    severity
+    timestamp
+  }
+}
