@@ -1,4 +1,5 @@
 query FindAuditLogs($pagination: PaginationInput, $filter: FilterAuditLogInput) {
+  auditLogCount(filter: $filter)
   auditLogs: findManyAuditLog(pagination: $pagination, order: [{ field: timestamp, direction: Desc }], filter: $filter) {
     id
     action
