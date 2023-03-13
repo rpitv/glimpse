@@ -297,7 +297,7 @@ export class CaslHelper {
                 } else {
                     // The filter is a variable, we can just get the JSON object from the variables.
                     this.logger.verbose("Filtering argument passed in as variable.");
-                    const argName = filterArg.name.value;
+                    const argName = filterArg.value.name.value;
                     const filterObj = info.variableValues[argName];
                     this.getKeysFromDeepObject(filterObj).forEach((k) => {
                         if (!this.filterKeywords.includes(k as any)) {
@@ -384,7 +384,7 @@ export class CaslHelper {
                     });
                 } else {
                     this.logger.verbose("Sorting argument passed in as variable.");
-                    const argName = sortArg.name.value;
+                    const argName = sortArg.value.name.value;
                     const sortValue = info.variableValues[argName];
                     if (!Array.isArray(sortValue)) {
                         throw new Error("Ordering value must be an array");
@@ -484,7 +484,7 @@ export class CaslHelper {
                     paginationArgValue = parsedPaginationValue;
                 } else {
                     this.logger.verbose("Pagination argument passed in as variable.");
-                    const argName = paginationArg.name.value;
+                    const argName = paginationArg.value.name.value;
                     if (!info.variableValues[argName]) {
                         return true;
                     }
@@ -555,7 +555,7 @@ export class CaslHelper {
                     });
                 } else {
                     this.logger.verbose("Input argument passed in as variable.");
-                    const argName = inputArg.name.value;
+                    const argName = inputArg.value.name.value;
                     for (const fieldName of Object.keys(info.variableValues[argName])) {
                         inputFields.add(fieldName);
                     }
