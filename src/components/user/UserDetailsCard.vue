@@ -54,8 +54,8 @@
             </thead>
             <tbody>
               <tr v-for="group in userGroups" :key="group.id">
-                <td><RouterLink :to="{ name: 'dashboard', params: { args: ['groups', group.id]}}">{{ group.id }}</RouterLink></td>
-                <td><RouterLink :to="{ name: 'dashboard', params: { args: ['groups', group.id]}}">{{ group.name }}</RouterLink></td>
+                <td><RouterLink :to="{ name: 'dashboard-groups', params: { id: group.id }}">{{ group.id }}</RouterLink></td>
+                <td><RouterLink :to="{ name: 'dashboard-groups', params: { id: group.id }}">{{ group.name }}</RouterLink></td>
                 <td>{{ group.priority }}</td>
               </tr>
             </tbody>

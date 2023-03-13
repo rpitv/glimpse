@@ -89,7 +89,7 @@ const columns = [
       if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(h(
           NButton,
-          { class: "dashboard-users-page-row-button", type: "success", onClick: () => dialog.info({ title: "Edit User" }) },
+          { class: "dashboard-users-page-row-button", type: "info", onClick: () => dialog.info({ title: "Edit User" }) },
           () => "Edit")
         );
       }
