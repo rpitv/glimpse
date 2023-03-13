@@ -13,7 +13,7 @@
          @click="value.onClick !== undefined ? value.onClick($event, value, navigate) : navigate($event)"
       >
         <n-button class="button-elem"
-                  :type="route.name === value.route ? 'primary' : 'default'"
+                  :type="isButtonActive ? 'primary' : 'default'"
                   large
                   quaternary
                   :data-depth="props.depth"
@@ -28,7 +28,7 @@
 
     <n-button v-else
               class="button-elem"
-              :type="route.name === value.route ? 'primary' : 'default'"
+              :type="active ? 'primary' : 'default'"
               large
               quaternary
               :data-depth="props.depth"
@@ -59,6 +59,9 @@ const props = defineProps({
     type: Object as PropType<NavButton>,
     required: true
   },
+  active: {
+    type: Boolean as PropType<boolean | undefined>
+  },
   depth: {
     type: Number,
     default: 0
@@ -73,6 +76,14 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
+
+const isButtonActive: Ref<boolean> = computed(() => {
+  if (props.active !== undefined) {
+    return props.active;
+  }
+
+  return route.name === props.value.route;
+})
 
 // Computed list of children for the dropdown. If there are no children, then the dropdown is not shown.
 const children: Ref<DropdownOption[]> = computed(() => {

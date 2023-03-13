@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-breadcrumb">
     <n-breadcrumb>
-      <n-breadcrumb-item v-for="item of nBreadcrumbItems" :key="item.name" separator="»">
+      <n-breadcrumb-item v-for="item of nBreadcrumbItems" :key="getName(item)" separator="»">
         <RouterLink v-if="item.route" :to="item.route" class="breadcrumb-item-link">
-          {{item.name}}
+          {{getName(item)}}
         </RouterLink>
-        <span v-else>{{item.name}}</span>
+        <span v-else>{{getName(item)}}</span>
       </n-breadcrumb-item>
-      <span class="last-breadcrumb-item">{{route[route.length - 1].name}}</span>
+      <span class="last-breadcrumb-item">{{getName(route[route.length - 1])}}</span>
     </n-breadcrumb>
 
   </div>
@@ -17,14 +17,23 @@
 import {NBreadcrumb, NBreadcrumbItem} from "naive-ui";
 import type {PropType} from "vue";
 import {computed} from "vue";
-import { RouteLocationRaw, RouterLink } from "vue-router";
+import { RouteLocationNormalizedLoaded, RouteLocationRaw, RouterLink, useRoute } from "vue-router";
+
+const routerRoute = useRoute();
 
 const props = defineProps({
   route: {
-    type: Object as PropType<{name: string, route?: RouteLocationRaw}[]>,
+    type: Object as PropType<{name: string | ((route: RouteLocationNormalizedLoaded) => string), route?: RouteLocationRaw}[]>,
     required: true
   }
 })
+
+function getName(breadcrumb: { name: string | ((route: RouteLocationNormalizedLoaded) => string) }) {
+  if (typeof breadcrumb?.name === "function") {
+    return breadcrumb.name(routerRoute);
+  }
+  return breadcrumb?.name || "";
+}
 
 const nBreadcrumbItems = computed(() => {
   const routeCopy = [...props.route];
