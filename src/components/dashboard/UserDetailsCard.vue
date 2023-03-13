@@ -22,7 +22,12 @@
               </n-grid-item>
               <n-grid-item>
                 <label>Last Logged In</label>
-                <p><RelativeTimeTooltip :date="new Date(query.result.value.user.accessLogs?.[0]?.timestamp)" /></p>
+                <p v-if="query.result.value.user.accessLogs?.length > 0">
+                  <RelativeTimeTooltip :date="new Date(query.result.value.user.accessLogs?.[0]?.timestamp)" />
+                </p>
+                <p v-else class="italic">
+                  Never
+                </p>
               </n-grid-item>
               <n-grid-item>
                 <label>Linked Discord?</label>
@@ -30,7 +35,7 @@
               </n-grid-item>
               <n-grid-item>
                 <label>MFA?</label>
-                <p class="coming-soon">Coming Soon</p>
+                <p class="italic">Coming Soon</p>
               </n-grid-item>
             </n-grid>
           </div>
@@ -54,7 +59,7 @@
               </tr>
             </tbody>
           </n-table>
-          <span v-else>No groups found</span>
+          <span v-else class="italic">No groups found</span>
         </div>
 
         <n-grid :cols="actionCount" x-gap="10" class="actions">
@@ -200,7 +205,7 @@ function deleteUser() {
   }
 }
 
-.coming-soon {
+.italic {
   font-style: italic;
 }
 
