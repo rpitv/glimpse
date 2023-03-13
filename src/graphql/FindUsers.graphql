@@ -1,0 +1,10 @@
+query FindUsers($pagination: PaginationInput, $filter: FilterUserInput) {
+  userCount(filter: $filter)
+  users: findManyUser(pagination: $pagination, order: [{ field: joined, direction: Desc }], filter: $filter) {
+    id
+    username
+    joined
+    discord
+    mail
+  }
+}

@@ -1,0 +1,7 @@
+mutation DeleteUser($id: BigInt!) {
+  user: deleteUser(id: $id) {
+    id
+    username
+    mail
+  }
+}

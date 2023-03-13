@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { NTabs, NTabPane, NDataTable, NTooltip } from "naive-ui";
+import { NTabs, NTabPane, NDataTable } from "naive-ui";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import {
   AbilitySubjects,
@@ -36,7 +36,8 @@ import { FindAlertLogsDocument } from "@/graphql/types";
 import { useLazyQuery } from "@vue/apollo-composable";
 import { computed, h, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import moment from "moment";
-import Markdown from "@/components/Markdown.vue";
+import Markdown from "@/components/util/Markdown.vue";
+import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
 
 const ability = useGlimpseAbility();
 
@@ -156,14 +157,7 @@ const alertLogData = computed(() => {
   return (tabQueries.alert.result.value?.alertLogs ?? []).map((alertLog: AlertLog) => {
     return {
       ...alertLog,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(alertLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(alertLog.timestamp).fromNow()
-        }
-      )
+      timestamp: h(RelativeTimeTooltip, { date: new Date(alertLog.timestamp) })
     }
   })
 })
@@ -173,14 +167,7 @@ const accessLogData = computed(() => {
     return {
       ...accessLog,
       username: accessLog.user?.username,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(accessLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(accessLog.timestamp).fromNow()
-        }
-      )
+      timestamp: h(RelativeTimeTooltip, { date: new Date(accessLog.timestamp) })
     }
   })
 })
@@ -195,14 +182,7 @@ const auditLogData = computed(() => {
       ...auditLog,
       message: auditLog.message ? `${auditLog.message} (${description})` : description,
       username: auditLog.user?.username,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(auditLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(auditLog.timestamp).fromNow()
-        }
-      )
+      timestamp:h(RelativeTimeTooltip, { date: new Date(auditLog.timestamp) })
     }
   })
 })

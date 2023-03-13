@@ -1,0 +1,5 @@
+mutation UpdateUser($id: BigInt!, $data: UpdateUserInput!) {
+  user: updateUser(id: $id, input: $data) {
+    id
+  }
+}
