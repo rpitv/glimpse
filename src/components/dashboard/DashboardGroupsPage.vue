@@ -1,7 +1,7 @@
 <template>
   <div class="table-card-wrapper">
       <n-button v-if="ability.can(AbilityActions.Create, AbilitySubjects.Group)"
-                strong secondary round large type="success" class="create-button">
+                strong secondary round large type="success" class="top-button">
         <template #icon>
           <FontAwesomeIcon icon="fal fa-plus" />
         </template>
@@ -152,7 +152,7 @@ const tableData: RowData[] = reactive([ // TODO
 
 <style scoped lang="scss">
 
-.create-button {
+.top-button {
   float: right;
   margin-bottom: 1em;
 }

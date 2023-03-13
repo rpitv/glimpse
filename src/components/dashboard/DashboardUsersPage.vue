@@ -4,13 +4,23 @@
       <n-button
         v-if="ability.can(AbilityActions.Create, AbilitySubjects.User)"
         type="success"
-        class="create-button"
+        class="top-button"
         round
       >
         <template #icon>
           <FontAwesomeIcon icon="fa-light fa-plus" />
         </template>
         Create
+      </n-button>
+      <n-button
+        class="top-button"
+        @click="refresh"
+        round
+      >
+        <template #icon>
+          <FontAwesomeIcon icon="fa-light fa-arrows-rotate" />
+        </template>
+        Refresh
       </n-button>
     </n-layout>
     <n-layout> <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
@@ -24,10 +34,10 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
-import { useQuery } from "@vue/apollo-composable";
-import { AbilitySubjects, FindUsersDocument } from "@/graphql/types";
+import { useMutation, useQuery } from "@vue/apollo-composable";
+import { AbilitySubjects, DeleteUserDocument, FindUsersDocument } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { h } from "vue";
+import { h, onMounted } from "vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
@@ -43,6 +53,7 @@ const queryData = useQuery(FindUsersDocument, {
     skip: 0
   }
 });
+const deleteMutation = useMutation(DeleteUserDocument);
 
 const columns = [
   {
@@ -90,8 +101,9 @@ const columns = [
             content: `Are you sure you want to delete the user "${row.username}"?`,
               positiveText: 'Delete User',
               negativeText: 'Cancel',
-              onPositiveClick: () => {
-                console.log();
+              onPositiveClick: async () => {
+                await deleteMutation.mutate({ id: row.id });
+                await refresh();
               }
             }) },
           () => "Delete")
@@ -101,6 +113,14 @@ const columns = [
     }
   }
 ];
+
+onMounted(async () => {
+  await refresh();
+})
+
+async function refresh() {
+  await queryData.refetch();
+}
 </script>
 
 <style lang="scss">
@@ -114,8 +134,9 @@ const columns = [
     min-width: 500px;
   }
 
-  .create-button {
+  .top-button {
     margin-bottom: 1rem;
+    margin-left: 1rem;
     float: right;
   }
 </style>
