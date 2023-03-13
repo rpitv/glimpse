@@ -11,11 +11,7 @@ import DashboardView from "../views/dashboard/DashboardView.vue";
 import AccountView from "../views/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
-import {
-  ability,
-  AbilityActions,
-  canViewDashboard,
-} from "@/casl";
+import { ability, AbilityActions, canViewDashboard } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
 import { AbilitySubjects } from "@/graphql/types";
@@ -141,7 +137,7 @@ const router = createRouter({
       },
     },
     {
-      path: "/dashboard/:page?",
+      path: "/dashboard/:args*",
       name: "dashboard",
       component: restrictedComponent(
         DashboardView,

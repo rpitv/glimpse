@@ -23,10 +23,10 @@
         <n-layout class="page-content">
           <DashboardBreadcrumb :route="breadcrumbRoute"/>
           <Transition name="page">
-            <div v-if="!route.params.page">
+            <div v-if="!route.params.args || route.params.args.length <= 0">
               <DashboardComingSoon/>
             </div>
-            <component v-else :is="selectedPage?.component ? selectedPage.component : NotFoundView" />
+            <component v-else :is="selectedPageComponent" />
           </Transition>
         </n-layout>
       </n-layout>
@@ -55,6 +55,7 @@ import {
 } from "@/casl";
 import { computed, h, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import type { RouteLocationRaw } from "vue-router";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import DashboardAssetsPage from "@/components/dashboard/DashboardAssetsPage.vue";
 import DashboardBlogPostsPage from "@/components/dashboard/DashboardBlogPostsPage.vue";
@@ -73,6 +74,7 @@ import DashboardVotesPage from "@/components/dashboard/DashboardVotesPage.vue";
 import DashboardBreadcrumb from "@/components/DashboardBreadcrumb.vue";
 import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
+import DashboardUserPage from "@/components/dashboard/DashboardUserPage.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -89,7 +91,17 @@ const categoryOrder = [
   PageCategory.Admin
 ];
 
-const pages = [
+type DashboardPage = {
+  name: string;
+  route: string;
+  icon: string;
+  category: PageCategory;
+  breadcrumb?: () => { name: string; route: RouteLocationRaw; }[]
+  component: any;
+  visible: () => boolean;
+}
+
+const pages: DashboardPage[] = [
   {
     name: 'Assets',
     route: 'assets',
@@ -183,8 +195,24 @@ const pages = [
     route: 'users',
     icon: 'fa-light fa-user',
     category: PageCategory.Organization,
-    component: DashboardUsersPage,
-    visible: canViewUsersDashboard
+    component: () => {
+      if(route.params.args[1] && !isNaN(parseInt(route.params.args[1]))) {
+        return h(DashboardUserPage, { id: BigInt(route.params.args[1]) });
+      }
+      return DashboardUsersPage;
+    },
+    visible: canViewUsersDashboard,
+    breadcrumb: () => {
+      if(route.params.args[1] && !isNaN(parseInt(route.params.args[1]))) {
+        return [
+          {
+            name: `User ${route.params.args[1]}`,
+            route: { name: 'dashboard', params: { args: ['users', route.params.args[1]] } }
+          }
+        ]
+      }
+      return [];
+    }
   },
   {
     name: 'Videos',
@@ -205,7 +233,17 @@ const pages = [
 ]
 
 const selectedPage = computed(() => {
-  return pages.find(page => page.route === route.params.page);
+  return pages.find(page => page.route === route.params.args?.[0]);
+})
+const selectedPageComponent = computed(() => {
+  if(selectedPage.value) {
+    if(typeof selectedPage.value.component === 'function') {
+      return selectedPage.value.component();
+    } else {
+      return selectedPage.value.component;
+    }
+  }
+  return NotFoundView;
 })
 
 const breadcrumbRoute = computed(() => {
@@ -222,11 +260,15 @@ const breadcrumbRoute = computed(() => {
       route: {
         name: 'dashboard',
         params: {
-          page: selectedPage.value.route
+          args: [selectedPage.value.route]
         }
       }
     });
+    if(selectedPage.value.breadcrumb) {
+      breadcrumbs.push(...selectedPage.value.breadcrumb());
+    }
   }
+
   return breadcrumbs;
 })
 
@@ -291,7 +333,10 @@ function menuOptionClicked(key: string) {
     return;
   }
   const route = key.split(':').pop();
-  router.push({ name: 'dashboard', params: { page: route } });
+  if(!route) {
+    return;
+  }
+  router.push({ name: 'dashboard', params: { args: [route] } });
 }
 
 const menuCollapsed = ref<boolean>(true);

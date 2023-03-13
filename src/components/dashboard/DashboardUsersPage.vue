@@ -15,7 +15,7 @@
     </n-layout>
     <n-layout> <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
       <div style="overflow: auto">
-        <n-data-table class="user-data-table" :columns="columns" :data="data" :row-key="row => row.id" />
+        <n-data-table class="user-data-table" :columns="columns" :data="queryData.result.value?.users ?? []" :row-key="row => row.id" />
       </div>
     </n-layout>
   </div>
@@ -27,13 +27,15 @@ import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useQuery } from "@vue/apollo-composable";
 import { AbilitySubjects, FindUsersDocument } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { computed, h } from "vue";
+import { h } from "vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
+import { RouterLink, useRoute } from "vue-router";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();
+const route = useRoute();
 
 const queryData = useQuery(FindUsersDocument, {
   pagination: {
@@ -46,10 +48,16 @@ const columns = [
   {
     key: "id",
     title: "ID",
+    render(row: User) {
+      return h(RouterLink, { to: { name: "dashboard", params: { args: ["users", row.id]}}}, () => row.id);
+    }
   },
   {
     key: "username",
     title: "Username",
+    render(row: User) {
+      return h(RouterLink, { to: { name: "dashboard", params: { args: ["users", row.id]}}}, () => row.username);
+    }
   },
   {
     key: "mail",
@@ -58,20 +66,23 @@ const columns = [
   {
     key: "joined",
     title: "Joined",
+    render(row: User) {
+      return h(RelativeTimeTooltip, { date: new Date(row.joined) });
+    }
   },
   {
     key: "actions",
     title: "Actions",
     render: (row: User) => {
       const buttons = [];
-      if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, row))) {
+      if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(h(
           NButton,
           { class: "dashboard-users-page-row-button", type: "success", onClick: () => dialog.info({ title: "Edit User" }) },
           () => "Edit")
         );
       }
-      if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, row))) {
+      if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(h(
           NButton,
           { class: "dashboard-users-page-row-button", type: "error", onClick: () => dialog.error({
@@ -90,17 +101,6 @@ const columns = [
     }
   }
 ];
-
-const data = computed(() => {
-  return (queryData.result.value?.users ?? []).map((user) => {
-    return {
-      ...user,
-      joined: h(RelativeTimeTooltip, { date: new Date(user.joined) })
-    }
-  });
-});
-
-
 </script>
 
 <style lang="scss">

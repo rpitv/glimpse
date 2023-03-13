@@ -1,0 +1,23 @@
+query UserDetails($id: BigInt!) {
+  user: findOneUser(id: $id) {
+    id
+    username
+    joined
+    discord
+    mail
+    person {
+      id
+      name
+    }
+    groups {
+      group {
+        id
+        name
+        priority
+      }
+    }
+    accessLogs(pagination: { take: 1 }, order: [{ field: timestamp, direction: Desc}]) {
+      timestamp
+    }
+  }
+}
