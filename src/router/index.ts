@@ -51,7 +51,7 @@ import { AbilitySubjects } from "@/graphql/types";
 import { DashboardPageCategory } from "@/util";
 import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue";
 import DashboardUserPage from "@/components/dashboard/DashboardUserPage.vue";
-import UserList from "@/components/dashboard/UserList.vue";
+import UserList from "@/components/user/UserList.vue";
 
 function restrictedComponent(
   component: Component,

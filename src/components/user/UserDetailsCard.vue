@@ -3,6 +3,7 @@
     <n-card class="card">
       <div class="loading" v-if="query.loading.value">Loading...</div>
       <div class="content" v-else-if="query.result.value?.user">
+        <ChangePasswordPopup v-model="showChangePasswordPopup" :user-id="BigInt(query.result.value.user.id)" />
         <div class="header">
           <div class="title-wrapper">
             <h1 class="title">
@@ -67,7 +68,7 @@
             <n-button class="action" type="info">Edit</n-button>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject, 'password')">
-            <n-button class="action" type="warning">Change Password</n-button>
+            <n-button class="action" type="warning" @click="showChangePasswordPopup = true">Change Password</n-button>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Delete, userSubject)">
             <n-button class="action" type="error" @click="deleteUser">Delete</n-button>
@@ -86,10 +87,11 @@ import { useMutation, useQuery } from "@vue/apollo-composable";
 import { NGrid, NGridItem, NCard, NTable, NButton, useDialog } from "naive-ui";
 import type { PropType } from "vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import { useRouter } from "vue-router";
+import ChangePasswordPopup from "@/components/user/ChangePasswordPopup.vue";
 
 const props = defineProps({
   id: {
@@ -103,6 +105,8 @@ const ability = useGlimpseAbility();
 const router = useRouter();
 const query = useQuery(UserDetailsDocument, { id: props.id });
 const deleteMutation = useMutation(DeleteUserDocument);
+
+const showChangePasswordPopup = ref<boolean>(false);
 
 const userGroups = computed(() => {
   return query.result.value?.user?.groups
