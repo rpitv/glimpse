@@ -1,14 +1,90 @@
 <template>
   <div>
-    <n-input placeholder="Search Groups..." />
+    <n-auto-complete
+      v-model:value="searchInput"
+      :input-props="{
+        autocomplete: 'disabled'
+      }"
+      :options="results"
+      :loading="groupSearchResults.loading.value"
+      placeholder="Search Group Name or ID"
+      @select="optionSelected"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { NInput } from "naive-ui";
+import { AutoCompleteOption, NAutoComplete } from "naive-ui";
+import { computed, ref } from "vue";
+import { useQuery } from "@vue/apollo-composable";
+import { CaseSensitivity, FilterGroupInput, SearchGroupsDocument } from "@/graphql/types";
 
+const searchInput = ref<string>('');
+const searchFilter = computed<FilterGroupInput>(() => {
+  if(!searchInput.value) {
+    return {};
+  }
+  const searchInputAsNumber = parseInt(searchInput.value);
+  if(isNaN(searchInputAsNumber)) {
+    return {
+      name: {
+        contains: searchInput.value,
+        mode: CaseSensitivity.Insensitive
+      }
+    }
+  } else {
+    return {
+      OR: [
+        {
+          name: {
+            contains: searchInput.value,
+            mode: CaseSensitivity.Insensitive
+          }
+        },
+        {
+          id: {
+            equals: searchInputAsNumber
+          }
+        }
+      ]
+    }
+  }
+})
+const groupSearchResults = useQuery(SearchGroupsDocument, () => ({
+  filter: searchFilter.value
+}), {
+  throttle: 1000
+});
+
+const results = computed<AutoCompleteOption[]>(() => {
+  if(!searchInput.value) {
+    return [];
+  }
+  return groupSearchResults.result.value?.groups.map(group => ({
+    label: `${group.name} (ID ${group.id})`,
+    value: group.id
+  })) ?? [];
+})
+
+function optionSelected(option: string) {
+  console.log(option);
+}
 </script>
 
 <style scoped lang="scss">
+  .results {
+    position: absolute;
+    width: 100%;
+    z-index: 1;
 
+    .result {
+      padding: 5px;
+      margin: 0;
+      background-color: #3b3b3b;
+
+      &:hover {
+        background-color: #4b4b4b;
+      }
+    }
+  }
 </style>
