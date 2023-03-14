@@ -8,6 +8,7 @@
       :options="results"
       :loading="groupSearchResults.loading.value"
       placeholder="Search Group Name or ID"
+      clear-after-select
       @select="optionSelected"
     />
   </div>
@@ -15,9 +16,18 @@
 
 <script setup lang="ts">
 import { AutoCompleteOption, NAutoComplete } from "naive-ui";
-import { computed, ref } from "vue";
+import { computed, PropType, ref } from "vue";
 import { useQuery } from "@vue/apollo-composable";
-import { CaseSensitivity, FilterGroupInput, SearchGroupsDocument } from "@/graphql/types";
+import { CaseSensitivity, FilterGroupInput, Group, SearchGroupsDocument } from "@/graphql/types";
+
+const emit = defineEmits(['select']);
+
+const props = defineProps({
+  disabledGroups: {
+    type: Array as PropType<Pick<Group, "id">[]>,
+    default: () => []
+  }
+})
 
 const searchInput = ref<string>('');
 const searchFilter = computed<FilterGroupInput>(() => {
@@ -61,13 +71,15 @@ const results = computed<AutoCompleteOption[]>(() => {
     return [];
   }
   return groupSearchResults.result.value?.groups.map(group => ({
+    disabled: props.disabledGroups?.some(disabledGroup => disabledGroup.id === group.id),
     label: `${group.name} (ID ${group.id})`,
     value: group.id
   })) ?? [];
 })
 
 function optionSelected(option: string) {
-  console.log(option);
+  const group = groupSearchResults.result.value?.groups.find(group => group.id === option);
+  emit('select', group);
 }
 </script>
 

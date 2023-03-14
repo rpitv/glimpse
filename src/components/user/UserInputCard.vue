@@ -22,12 +22,26 @@
         </n-form>
         <div>
           <h2>Groups</h2>
-          <n-tag class="group-tag" type="primary" closable v-for="group of sourceData.result.value?.user.groups">
+          <n-tag class="group-tag" type="primary" closable v-for="group of currentGroups" @close="groupRemoved(group)">
             <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
-              {{group.group.name}} (ID {{group.group.id}})
+              {{group.name}} (ID {{group.id}})
             </RouterLink>
           </n-tag>
-          <GroupSearch />
+          <n-tag class="group-tag deleted" closable v-for="group of groupsToBeDeleted" @close="groupRemoved(group)">
+            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
+              {{group.name}} (ID {{group.id}})
+            </RouterLink>
+          </n-tag>
+          <n-tag class="group-tag added" type="info" closable v-for="group of groupsToBeAdded" @close="groupRemoved(group)">
+            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
+              {{group.name}} (ID {{group.id}})
+            </RouterLink>
+          </n-tag>
+          <GroupSearch @select="groupSelected" :disabled-groups="currentGroups" />
+        </div>
+        <div>
+          <h2>Profile</h2>
+          <p>Coming soon</p>
         </div>
         <div class="actions">
           <n-button :disabled="!isFormValid" @click="save" class="action" type="success">
@@ -46,9 +60,9 @@
 import { NCard, NTag, NInput, NForm, NGrid, NFormItemGridItem, NButton, FormRules, FormInst } from "naive-ui";
 import type { PropType } from "vue";
 import { useMutation, useQuery } from "@vue/apollo-composable";
-import { UpdateUserDocument, UserDetailsDocument } from "@/graphql/types";
+import { Group, UpdateUserDocument, UserDetailsDocument } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { onMounted, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import validator from "validator";
 import GroupSearch from "@/components/group/GroupSearch.vue";
 
@@ -73,6 +87,8 @@ onMounted(reloadInputData);
 
 const loadingError = ref<string>("");
 const inputUser = ref<Partial<User>>({});
+const groupsToBeDeleted = ref<Pick<Group, "name" | "id">[]>([]);
+const groupsToBeAdded = ref<Pick<Group, "name" | "id">[]>([]);
 const formRef = ref<FormInst |null>(null);
 
 // isFormValid determines whether the "Save" button is enabled. form validation is
@@ -91,6 +107,15 @@ watchEffect(async () => {
     }
   }
 });
+
+const currentGroups = computed(() => {
+  if(!sourceData.result.value) {
+    return [];
+  }
+  return sourceData.result.value.user?.groups
+    ?.map(g => g.group)
+    .filter(g => !groupsToBeDeleted.value.find(g2 => g2.id === g?.id));
+})
 
 const rules: FormRules = {
   username: [
@@ -155,6 +180,26 @@ async function save() {
   }
 }
 
+function groupSelected(group: Pick<Group, "name" | "id">) {
+  if(groupsToBeAdded.value.find(g => g.id === group.id)) {
+    return;
+  }
+  if(inputUser.value.groups?.find(g => g.group?.id === group.id)) {
+    return;
+  }
+  groupsToBeAdded.value.push(group);
+}
+
+function groupRemoved(group: Pick<Group, "name" | "id">) {
+  if(groupsToBeDeleted.value.find(g => g.id === group.id)) {
+    groupsToBeDeleted.value = groupsToBeDeleted.value.filter(g => g.id !== group.id);
+  } else if(inputUser.value.groups?.find(g => g.group?.id === group.id)) {
+    groupsToBeDeleted.value.push(group);
+  } else if(groupsToBeAdded.value.find(g => g.id === group.id)) {
+    groupsToBeAdded.value = groupsToBeAdded.value.filter(g => g.id !== group.id);
+  }
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -173,6 +218,15 @@ async function save() {
   .group-tag {
     margin-right: 0.5em;
     margin-bottom: 0.5em;
+
+    &.added a {
+      font-style: italic;
+      color: rgba(112, 192, 232);
+    }
+    &.deleted a {
+      font-style: italic;
+      color: rgb(145, 144, 144);
+    }
   }
 
   .actions {
