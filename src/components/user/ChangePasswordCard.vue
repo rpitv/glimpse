@@ -23,12 +23,13 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NInput, NButton, NAlert } from "naive-ui";
+import { NCard, NInput, NButton, NAlert, useMessage } from "naive-ui";
 import { computed, PropType, ref } from "vue";
 import { useMutation } from "@vue/apollo-composable";
 import { UpdateUserDocument } from "@/graphql/types";
 
 const mutation = useMutation(UpdateUserDocument);
+const message = useMessage();
 
 const passwordInput = ref<string>('');
 const confirmPasswordInput = ref<string>('');
@@ -64,12 +65,19 @@ function inputKeyPressed(event: KeyboardEvent) {
 
 async function save() {
   if(props.userId) {
-    await mutation.mutate({
+    const result = await mutation.mutate({
       id: props.userId,
       data: {
         password: passwordInput.value
       }
     })
+    if(!result?.errors?.length) {
+      message.success('Password changed');
+    } else {
+      console.error(result.errors);
+      message.error('Failed to change password');
+    }
+
   }
   emit('save', passwordInput);
 }
