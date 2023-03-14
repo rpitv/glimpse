@@ -87,11 +87,16 @@ const columns = [
     render: (row: User) => {
       const buttons = [];
       if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, { ...row }))) {
-        buttons.push(h(
-          NButton,
-          { class: "dashboard-users-page-row-button", type: "info", onClick: () => dialog.info({ title: "Edit User" }) },
-          () => "Edit")
-        );
+        buttons.push(
+          h(
+          RouterLink,
+          { to: { name: "dashboard-user-details-edit", params: { id: row.id }}, class: 'dashboard-users-page-row-button-link' },
+          () => h(
+              NButton,
+              { class: "dashboard-users-page-row-button", type: "info" },
+              () => "Edit"
+          )
+        ));
       }
       if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(h(
@@ -126,6 +131,9 @@ async function refresh() {
 <style lang="scss">
 .dashboard-users-page-row-button {
   margin-right: 0.5rem;
+}
+.dashboard-users-page-row-button-link {
+  text-decoration: none !important;
 }
 </style>
 

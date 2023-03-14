@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouterView } from "vue-router";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 
 import HomeView from "../views/HomeView.vue";
@@ -52,6 +52,7 @@ import { DashboardPageCategory } from "@/util";
 import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue";
 import DashboardUserPage from "@/components/dashboard/DashboardUserPage.vue";
 import UserList from "@/components/user/UserList.vue";
+import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
 
 function restrictedComponent(
   component: Component,
@@ -446,21 +447,66 @@ const router = createRouter({
             },
             {
               path: ":id",
-              name: "dashboard-user-details",
-              component: restrictedComponent(DashboardUserPage, () =>
+              name: "dashboard-user-parent",
+              component: restrictedComponent(RouterView, () =>
                 canViewUsersDashboard()
               ),
               meta: {
-                breadcrumb: () => [
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
                   { route: { name: "dashboard-users-list" }, name: "Users" },
                   {
                     route: { name: "dashboard-user-details" },
-                    name: (route: RouteLocationNormalizedLoaded) =>
-                      `User ${route.params.id}`,
+                    name: `User ${route.params.id}`,
                   },
                 ],
               },
+              children: [
+                {
+                  path: "",
+                  name: "dashboard-user-details",
+                  component: restrictedComponent(DashboardUserPage, () =>
+                    canViewUsersDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-users-list" },
+                        name: "Users",
+                      },
+                      {
+                        route: { name: "dashboard-user-details" },
+                        name: `User ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+                {
+                  path: "edit",
+                  name: "dashboard-user-details-edit",
+                  component: restrictedComponent(DashboardEditUserPage, () =>
+                    canViewUsersDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-users-list" },
+                        name: "Users",
+                      },
+                      {
+                        route: { name: "dashboard-user-details" },
+                        name: `User ${route.params.id}`,
+                      },
+                      {
+                        route: { name: "dashboard-user-details-edit" },
+                        name: "Edit",
+                      },
+                    ],
+                  },
+                },
+              ],
             },
           ],
         },

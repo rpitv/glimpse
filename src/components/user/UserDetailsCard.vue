@@ -65,7 +65,9 @@
 
         <n-grid :cols="actionCount" x-gap="10" class="actions">
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject)">
-            <n-button class="action" type="info">Edit</n-button>
+            <RouterLink class="action-link" :to="{ name: 'dashboard-user-details-edit', params: { id }}">
+              <n-button class="action" type="info">Edit</n-button>
+            </RouterLink>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject, 'password')">
             <n-button class="action" type="warning" @click="showChangePasswordPopup = true">Change Password</n-button>
@@ -217,6 +219,10 @@ function deleteUser() {
   margin-top: 1em;
   .action {
     width: 100%;
+  }
+
+  .action-link {
+    text-decoration: none;
   }
 }
 
