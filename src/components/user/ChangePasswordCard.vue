@@ -73,6 +73,8 @@ async function save() {
     })
     if(!result?.errors?.length) {
       message.success('Password changed');
+      passwordInput.value = '';
+      confirmPasswordInput.value = '';
     } else {
       console.error(result.errors);
       message.error('Failed to change password');

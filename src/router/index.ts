@@ -53,6 +53,7 @@ import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue"
 import DashboardUserPage from "@/components/dashboard/DashboardUserPage.vue";
 import UserList from "@/components/user/UserList.vue";
 import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
+import { useAuthStore } from "@/stores/auth";
 
 function restrictedComponent(
   component: Component,
@@ -553,7 +554,10 @@ const router = createRouter({
     {
       path: "/account",
       name: "account",
-      component: AccountView,
+      component: restrictedComponent(AccountView, () => {
+        const auth = useAuthStore();
+        return auth.isLoggedIn;
+      }),
       meta: {
         layoutCssName: "wave-layout",
       },
