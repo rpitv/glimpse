@@ -10,6 +10,7 @@ query UserDetails($id: BigInt!) {
       name
     }
     groups {
+      id
       group {
         id
         name

@@ -22,30 +22,30 @@
         </n-form>
         <div>
           <h2>Groups</h2>
-          <n-tag class="group-tag" type="primary" closable v-for="group of currentGroups" @close="groupRemoved(group)">
+          <n-tag class="group-tag" type="primary" closable v-for="userGroup of currentUserGroups" @close="removeUserGroup(userGroup)">
+            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
+              {{userGroup.group?.name}} (ID {{userGroup.group?.id}})
+            </RouterLink>
+          </n-tag>
+          <n-tag class="group-tag deleted" closable v-for="userGroup of userGroupsToBeDeleted" @close="removeUserGroup(userGroup)">
+            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
+              {{userGroup.group?.name}} (ID {{userGroup.group?.id}})
+            </RouterLink>
+          </n-tag>
+          <n-tag class="group-tag added" type="info" closable v-for="group of groupsToBeAdded" @close="removeAddedGroup(group)">
             <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
               {{group.name}} (ID {{group.id}})
             </RouterLink>
           </n-tag>
-          <n-tag class="group-tag deleted" closable v-for="group of groupsToBeDeleted" @close="groupRemoved(group)">
-            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
-              {{group.name}} (ID {{group.id}})
-            </RouterLink>
-          </n-tag>
-          <n-tag class="group-tag added" type="info" closable v-for="group of groupsToBeAdded" @close="groupRemoved(group)">
-            <RouterLink to="{ name: 'dashboard-groups', params: { id: group.id }}">
-              {{group.name}} (ID {{group.id}})
-            </RouterLink>
-          </n-tag>
-          <GroupSearch @select="groupSelected" :disabled-groups="currentGroups" />
+          <GroupSearch @select="groupSelected" :disabled-groups="currentUserGroups" />
         </div>
         <div>
           <h2>Profile</h2>
           <p>Coming soon</p>
         </div>
         <div class="actions">
-          <n-button :disabled="!isFormValid" @click="save" class="action" type="success">
-            Save
+          <n-button :disabled="!isFormValid || submitting" @click="save" class="action" type="success">
+            {{ submitting ? "Saving..." : "Save" }}
           </n-button>
           <n-button class="action" v-if="closable" @click="emit('close')" type="error">
             Cancel
@@ -60,7 +60,13 @@
 import { NCard, NTag, NInput, NForm, NGrid, NFormItemGridItem, NButton, FormRules, FormInst } from "naive-ui";
 import type { PropType } from "vue";
 import { useMutation, useQuery } from "@vue/apollo-composable";
-import { Group, UpdateUserDocument, UserDetailsDocument } from "@/graphql/types";
+import {
+  CreateUserGroupDocument,
+  DeleteUserGroupDocument,
+  Group,
+  UpdateUserDocument,
+  UserDetailsDocument, UserGroup
+} from "@/graphql/types";
 import type { User } from "@/graphql/types";
 import { computed, onMounted, ref, watchEffect } from "vue";
 import validator from "validator";
@@ -80,14 +86,17 @@ const props = defineProps({
 const emit = defineEmits(["save", "close"]);
 
 const sourceData = useQuery(UserDetailsDocument, { id: props.id });
-const mutation = useMutation(UpdateUserDocument);
+const updateUserMutation = useMutation(UpdateUserDocument);
+const createUserGroupMutation = useMutation(CreateUserGroupDocument);
+const deleteUserGroupMutation = useMutation(DeleteUserGroupDocument);
 
 sourceData.onResult(reloadInputData);
 onMounted(reloadInputData);
 
+const submitting = ref<boolean>(false);
 const loadingError = ref<string>("");
 const inputUser = ref<Partial<User>>({});
-const groupsToBeDeleted = ref<Pick<Group, "name" | "id">[]>([]);
+const userGroupsToBeDeleted = ref<UserGroup[]>([]);
 const groupsToBeAdded = ref<Pick<Group, "name" | "id">[]>([]);
 const formRef = ref<FormInst |null>(null);
 
@@ -108,13 +117,12 @@ watchEffect(async () => {
   }
 });
 
-const currentGroups = computed(() => {
-  if(!sourceData.result.value) {
+const currentUserGroups = computed<UserGroup[]>(() => {
+  if(!sourceData.result.value?.user?.groups) {
     return [];
   }
   return sourceData.result.value.user?.groups
-    ?.map(g => g.group)
-    .filter(g => !groupsToBeDeleted.value.find(g2 => g2.id === g?.id));
+    ?.filter(ug => !userGroupsToBeDeleted.value.find(ug2 => ug2.id === ug.id));
 })
 
 const rules: FormRules = {
@@ -168,16 +176,51 @@ function reloadInputData() {
     loadingError.value = "User not found";
   }
   inputUser.value = { ...result?.user };
+  groupsToBeAdded.value = [];
+  userGroupsToBeDeleted.value = [];
 }
 
 async function save() {
+  submitting.value = true;
   try {
     await formRef.value?.validate();
     isFormValid.value = true;
   } catch(e) {
     console.debug("Form validation failed: ", e);
     isFormValid.value = false;
+    return;
   }
+
+  // Update the actual user
+  await updateUserMutation.mutate({
+    id: inputUser.value.id,
+    data: {
+      username: inputUser.value.username,
+      mail: inputUser.value.mail,
+      discord: inputUser.value.discord
+    }
+  });
+
+  // Delete any groups that have been removed
+  for(const userGroup of userGroupsToBeDeleted.value) {
+    await deleteUserGroupMutation.mutate({
+      id: userGroup.id
+    })
+  }
+
+  // Add any groups that have been added
+  for(const group of groupsToBeAdded.value) {
+    await createUserGroupMutation.mutate({
+      userId: inputUser.value.id,
+      groupId: group.id
+    })
+  }
+
+  // Re-fetch the user data
+  await sourceData.refetch();
+
+  reloadInputData();
+  submitting.value = false;
 }
 
 function groupSelected(group: Pick<Group, "name" | "id">) {
@@ -190,13 +233,14 @@ function groupSelected(group: Pick<Group, "name" | "id">) {
   groupsToBeAdded.value.push(group);
 }
 
-function groupRemoved(group: Pick<Group, "name" | "id">) {
-  if(groupsToBeDeleted.value.find(g => g.id === group.id)) {
-    groupsToBeDeleted.value = groupsToBeDeleted.value.filter(g => g.id !== group.id);
-  } else if(inputUser.value.groups?.find(g => g.group?.id === group.id)) {
-    groupsToBeDeleted.value.push(group);
-  } else if(groupsToBeAdded.value.find(g => g.id === group.id)) {
-    groupsToBeAdded.value = groupsToBeAdded.value.filter(g => g.id !== group.id);
+function removeAddedGroup(group: Pick<Group, "name" | "id">) {
+  groupsToBeAdded.value = groupsToBeAdded.value.filter(g => g.id !== group.id);
+}
+function removeUserGroup(userGroup: UserGroup) {
+  if(userGroupsToBeDeleted.value.find(ug => ug.id === userGroup.id)) {
+    userGroupsToBeDeleted.value = userGroupsToBeDeleted.value.filter(ug => ug.id !== userGroup.id);
+  } else if(inputUser.value.groups?.find(ug => ug?.id === userGroup.id)) {
+    userGroupsToBeDeleted.value.push(userGroup);
   }
 }
 
