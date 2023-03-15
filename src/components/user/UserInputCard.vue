@@ -7,19 +7,8 @@
       </div>
       <div v-else>
         <h1>Edit User {{ id }}</h1>
-        <n-form ref="formRef" :model="inputUser" :rules="rules" inline>
-          <n-grid cols="1 m:3" responsive="screen" x-gap="10" y-gap="10">
-            <n-form-item-grid-item path="username" label="Username">
-              <n-input maxlength="8" v-model:value="inputUser.username" />
-            </n-form-item-grid-item>
-            <n-form-item-grid-item path="mail" label="Email">
-              <n-input maxlength="300" v-model:value="inputUser.mail" />
-            </n-form-item-grid-item>
-            <n-form-item-grid-item path="discord" label="Discord ID">
-              <n-input minlength="18" maxlength="18" v-model:value="inputUser.discord" />
-            </n-form-item-grid-item>
-          </n-grid>
-        </n-form>
+
+        <UserDetailsInput v-model:data="inputUser" ref="userDetailsInput" />
         <div>
           <h2>Groups</h2>
           <n-tag class="group-tag" type="primary" closable v-for="userGroup of currentUserGroups" @close="removeUserGroup(userGroup)">
@@ -40,11 +29,15 @@
           <GroupSearch @select="groupSelected" :disabled-groups="currentUserGroups" />
         </div>
         <div>
+          <h2>Permissions</h2>
+          <p>Coming soon</p>
+        </div>
+        <div>
           <h2>Profile</h2>
           <p>Coming soon</p>
         </div>
         <div class="actions">
-          <n-button :disabled="!isFormValid || submitting" @click="save" class="action" type="success">
+          <n-button :disabled="!userDetailsInput?.isValid || submitting" @click="save" class="action" type="success">
             {{ submitting ? "Saving..." : "Save" }}
           </n-button>
           <n-button class="action" v-if="closable" @click="emit('close')" type="error">
@@ -57,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NTag, NInput, NForm, NGrid, NFormItemGridItem, NButton, FormRules, FormInst } from "naive-ui";
+import { NCard, NTag, NButton} from "naive-ui";
 import type { PropType } from "vue";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
@@ -68,8 +61,8 @@ import {
   UserDetailsDocument, UserGroup
 } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { computed, onMounted, ref, watchEffect } from "vue";
-import validator from "validator";
+import { computed, onMounted, ref } from "vue";
+import UserDetailsInput from "@/components/user/UserDetailsInput.vue";
 import GroupSearch from "@/components/group/GroupSearch.vue";
 
 const props = defineProps({
@@ -98,24 +91,7 @@ const loadingError = ref<string>("");
 const inputUser = ref<Partial<User>>({});
 const userGroupsToBeDeleted = ref<UserGroup[]>([]);
 const groupsToBeAdded = ref<Pick<Group, "name" | "id">[]>([]);
-const formRef = ref<FormInst |null>(null);
-
-// isFormValid determines whether the "Save" button is enabled. form validation is
-//  async, so we need to use a watcher rather than a computed value.
-const isFormValid = ref<boolean>(false);
-watchEffect(async () => {
-  if(loadingError.value || sourceData.loading.value) {
-    isFormValid.value = false;
-  } else {
-    try {
-      await formRef.value?.validate();
-      isFormValid.value = true;
-    } catch(e) {
-      console.debug("Form validation failed: ", e);
-      isFormValid.value = false;
-    }
-  }
-});
+const userDetailsInput = ref<UserDetailsInput|null>(null);
 
 const currentUserGroups = computed<UserGroup[]>(() => {
   if(!sourceData.result.value?.user?.groups) {
@@ -124,50 +100,6 @@ const currentUserGroups = computed<UserGroup[]>(() => {
   return sourceData.result.value.user?.groups
     ?.filter(ug => !userGroupsToBeDeleted.value.find(ug2 => ug2.id === ug.id));
 })
-
-const rules: FormRules = {
-  username: [
-    {
-      required: true,
-      trigger: "change",
-      validator(rule, value) {
-        if(!value) {
-          return new Error("Username is required.");
-        }else if(value.length > 8) {
-          return new Error("Username must be 8 characters or less");
-        }
-      },
-    }
-  ],
-  mail: [
-    {
-      required: true,
-      trigger: "change",
-      validator(rule, value) {
-        if(!value) {
-          return new Error("Email is required.");
-        } else if(!validator.isEmail(value)) {
-          return new Error("Email is not valid.");
-        } else if(value.length > 300) {
-          return new Error("Email must be 300 characters or less");
-        }
-      }
-    }
-  ],
-  discord: [
-    {
-      trigger: "change",
-      validator(rule, value) {
-        if(!value) {
-          return;
-        }
-        if(!validator.isNumeric(value) || value.length !== 18) {
-          return new Error("Discord IDs must be 18 digits long.");
-        }
-      }
-    }
-  ]
-};
 
 function reloadInputData() {
   loadingError.value = "";
@@ -181,15 +113,10 @@ function reloadInputData() {
 }
 
 async function save() {
-  submitting.value = true;
-  try {
-    await formRef.value?.validate();
-    isFormValid.value = true;
-  } catch(e) {
-    console.debug("Form validation failed: ", e);
-    isFormValid.value = false;
+  if(!userDetailsInput.value?.isValid) {
     return;
   }
+  submitting.value = true;
 
   // Update the actual user
   await updateUserMutation.mutate({

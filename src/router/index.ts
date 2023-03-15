@@ -54,6 +54,7 @@ import DashboardUserPage from "@/components/dashboard/DashboardUserPage.vue";
 import UserList from "@/components/user/UserList.vue";
 import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
 import { useAuthStore } from "@/stores/auth";
+import CreateUserCard from "@/components/user/CreateUserCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -443,6 +444,20 @@ const router = createRouter({
                 breadcrumb: () => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
                   { route: { name: "dashboard-users-list" }, name: "Users" },
+                ],
+              },
+            },
+            {
+              path: "create",
+              name: "dashboard-user-create",
+              component: restrictedComponent(CreateUserCard, () =>
+                canViewUsersDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-users-list" }, name: "Users" },
+                  { route: { name: "dashboard-user-create" }, name: "Create" },
                 ],
               },
             },

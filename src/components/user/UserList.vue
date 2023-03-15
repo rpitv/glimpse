@@ -1,17 +1,21 @@
 <template>
   <div>
     <n-layout>
-      <n-button
+      <RouterLink
         v-if="ability.can(AbilityActions.Create, AbilitySubjects.User)"
-        type="success"
-        class="top-button"
-        round
+        :to="{ name: 'dashboard-user-create' }"
       >
-        <template #icon>
-          <FontAwesomeIcon icon="fa-light fa-plus" />
-        </template>
-        Create
-      </n-button>
+        <n-button
+          type="success"
+          class="top-button"
+          round
+        >
+          <template #icon>
+            <FontAwesomeIcon icon="fa-light fa-plus" />
+          </template>
+          Create
+        </n-button>
+      </RouterLink>
       <n-button
         class="top-button"
         @click="refresh"
