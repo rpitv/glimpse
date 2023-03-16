@@ -182,7 +182,7 @@ const columns = [
               ),
               trigger: () => h(
                 NButton,
-                { class: "dashboard-users-page-row-button", type: "info" },
+                { class: "dashboard-users-page-row-button", type: "info", secondary: true, size: "small" },
                 () => "Edit"
               )
             }
@@ -191,9 +191,9 @@ const columns = [
       if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(h(
           NButton,
-          { class: "dashboard-users-page-row-button", type: "error", onClick: () => dialog.error({
+          { class: "dashboard-users-page-row-button", type: "error", secondary: true, size: "small", onClick: () => dialog.error({
               title: "Delete User",
-              content: `Are you sure you want to delete the user "${row.username}"?`,
+              content: `Are you sure you want to delete the user "${row.username}"? This will also remove their connections, such as groups, attended productions, access/audit logs, and votes.`,
               positiveText: 'Delete User',
               negativeText: 'Cancel',
               onPositiveClick: async () => {

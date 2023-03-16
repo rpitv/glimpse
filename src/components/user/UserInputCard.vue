@@ -30,7 +30,12 @@
         </div>
         <div>
           <h2>Permissions</h2>
-          <p>Coming soon</p>
+          <RouterPopup v-model="showPermissionsEditor" :max-width="1000">
+            <UserPermissionsEditor :user-id="id" />
+            <template #trigger>
+              <n-button type="primary">Open Permissions Editor</n-button>
+            </template>
+          </RouterPopup>
         </div>
         <div>
           <h2>Profile</h2>
@@ -64,6 +69,8 @@ import type { User } from "@/graphql/types";
 import { computed, onMounted, ref } from "vue";
 import UserDetailsInput from "@/components/user/UserDetailsInput.vue";
 import GroupSearch from "@/components/group/GroupSearch.vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import UserPermissionsEditor from "@/components/user/UserPermissionsEditor.vue";
 
 const props = defineProps({
   id: {
@@ -92,6 +99,7 @@ const inputUser = ref<Partial<User>>({});
 const userGroupsToBeDeleted = ref<UserGroup[]>([]);
 const groupsToBeAdded = ref<Pick<Group, "name" | "id">[]>([]);
 const userDetailsInput = ref<UserDetailsInput|null>(null);
+const showPermissionsEditor = ref<boolean>(false);
 
 const currentUserGroups = computed<UserGroup[]>(() => {
   if(!sourceData.result.value?.user?.groups) {

@@ -165,7 +165,7 @@ const actionCount = computed(() => {
 function deleteUser() {
   dialog.error({
     title: "Delete User",
-    content: `Are you sure you want to delete the user "${query.result.value?.user?.username}"?`,
+    content: `Are you sure you want to delete the user "${query.result.value?.user?.username}"? This will also remove their connections, such as groups, attended productions, access/audit logs, and votes.`,
     positiveText: 'Delete User',
     negativeText: 'Cancel',
     onPositiveClick: async () => {
