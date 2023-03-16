@@ -451,8 +451,15 @@ const router = createRouter({
             {
               path: "create",
               name: "dashboard-user-create",
-              component: restrictedComponent(CreateUserCard, () =>
-                canViewUsersDashboard()
+              component: restrictedComponent(
+                h(CreateUserCard, {
+                  onSave: (id: string) =>
+                    router.push({
+                      name: "dashboard-user-details",
+                      params: { id },
+                    }),
+                }),
+                () => canViewUsersDashboard()
               ),
               meta: {
                 breadcrumb: () => [

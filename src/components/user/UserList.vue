@@ -1,21 +1,29 @@
 <template>
   <div>
     <n-layout>
-      <RouterLink
+      <RouterPopup
         v-if="ability.can(AbilityActions.Create, AbilitySubjects.User)"
-        :to="{ name: 'dashboard-user-create' }"
-      >
-        <n-button
-          type="success"
-          class="top-button"
-          round
-        >
-          <template #icon>
-            <FontAwesomeIcon icon="fa-light fa-plus" />
-          </template>
-          Create
-        </n-button>
-      </RouterLink>
+        :max-width="1100"
+        v-model="showCreatePopup"
+        :to="{ name: 'dashboard-user-create' }">
+        <CreateUserCard
+          closable
+          @save="showCreatePopup = false; refresh()"
+          @close="showCreatePopup = false"
+        />
+        <template #trigger>
+          <n-button
+            type="success"
+            class="top-button"
+            round
+          >
+            <template #icon>
+              <FontAwesomeIcon icon="fa-light fa-plus" />
+            </template>
+            Create
+          </n-button>
+        </template>
+      </RouterPopup>
       <n-button
         class="top-button"
         @click="refresh"
@@ -41,15 +49,22 @@ import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { AbilitySubjects, DeleteUserDocument, FindUsersDocument } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { h, onMounted } from "vue";
+import { computed, h, onMounted, ref } from "vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
-import { RouterLink, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import UserInputCard from "@/components/user/UserInputCard.vue";
+import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
+import CreateUserCard from "@/components/user/CreateUserCard.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();
 const route = useRoute();
+
+const showCreatePopup = ref<boolean>(false);
+const shownPopup = ref<string | null>(null);
 
 const queryData = useQuery(FindUsersDocument, {
   pagination: {
@@ -64,14 +79,64 @@ const columns = [
     key: "id",
     title: "ID",
     render(row: User) {
-      return h(RouterLink, { to: { name: "dashboard-user-details", params: { id: row.id }}}, () => row.id);
+      const rowPopupKey = `${row.id}-id`;
+      const isPopupShown = computed<boolean>({
+        get: () => shownPopup.value === rowPopupKey,
+        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
+      });
+      return h(
+        RouterPopup,
+        {
+          maxWidth: 900,
+          to: { name: "dashboard-user-details", params: { id: row.id }},
+          modelValue: isPopupShown.value,
+          'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
+        },
+        {
+          default: () => h(
+            UserDetailsCard,
+            { closable: true, id: BigInt(row.id), onSave: () => {
+                isPopupShown.value = false;
+                refresh();
+              }, onClose: () => {
+                isPopupShown.value = false;
+              } }
+          ),
+          trigger: () => row.id
+        }
+      )
     }
   },
   {
     key: "username",
     title: "Username",
     render(row: User) {
-      return h(RouterLink, { to: { name: "dashboard-user-details", params: { id: row.id }}}, () => row.username);
+      const rowPopupKey = `${row.id}-username`;
+      const isPopupShown = computed<boolean>({
+        get: () => shownPopup.value === rowPopupKey,
+        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
+      });
+      return h(
+        RouterPopup,
+        {
+          maxWidth: 900,
+          to: { name: "dashboard-user-details", params: { id: row.id }},
+          modelValue: isPopupShown.value,
+          'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
+        },
+        {
+          default: () => h(
+            UserDetailsCard,
+            { closable: true, id: BigInt(row.id), onSave: () => {
+                isPopupShown.value = false;
+                refresh();
+              }, onClose: () => {
+                isPopupShown.value = false;
+              } }
+          ),
+          trigger: () => row.username
+        }
+      )
     }
   },
   {
@@ -89,17 +154,38 @@ const columns = [
     key: "actions",
     title: "Actions",
     render: (row: User) => {
+      const rowPopupKey = `${row.id}-edit`;
+      const isPopupShown = computed<boolean>({
+        get: () => shownPopup.value === rowPopupKey,
+        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
+      });
       const buttons = [];
       if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, { ...row }))) {
         buttons.push(
           h(
-          RouterLink,
-          { to: { name: "dashboard-user-details-edit", params: { id: row.id }}, class: 'dashboard-users-page-row-button-link' },
-          () => h(
-              NButton,
-              { class: "dashboard-users-page-row-button", type: "info" },
-              () => "Edit"
-          )
+            RouterPopup,
+            {
+              maxWidth: 900,
+              to: { name: "dashboard-user-details-edit", params: { id: row.id }},
+              modelValue: isPopupShown.value,
+              'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
+            },
+            {
+              default: () => h(
+                UserInputCard,
+                { closable: true, id: BigInt(row.id), onSave: () => {
+                    isPopupShown.value = false;
+                    refresh();
+                  }, onClose: () => {
+                    isPopupShown.value = false;
+                  } }
+              ),
+              trigger: () => h(
+                NButton,
+                { class: "dashboard-users-page-row-button", type: "info" },
+                () => "Edit"
+              )
+            }
         ));
       }
       if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, { ...row }))) {
@@ -135,9 +221,6 @@ async function refresh() {
 <style lang="scss">
 .dashboard-users-page-row-button {
   margin-right: 0.5rem;
-}
-.dashboard-users-page-row-button-link {
-  text-decoration: none !important;
 }
 </style>
 

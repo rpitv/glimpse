@@ -62,11 +62,19 @@
           <span v-else class="italic">No groups found</span>
         </div>
 
-        <n-grid :cols="actionCount" x-gap="10" class="actions">
+        <n-grid :cols="`1 m:${actionCount}`" responsive="screen" x-gap="10" class="actions">
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject)">
-            <RouterLink class="action-link" :to="{ name: 'dashboard-user-details-edit', params: { id }}">
-              <n-button class="action" type="info">Edit</n-button>
-            </RouterLink>
+            <RouterPopup :max-width="900" v-model="showEditPopup" :to="{ name: 'dashboard-user-details-edit', params: { id }}">
+              <UserInputCard
+                closable
+                :id="BigInt(query.result.value.user.id)"
+                @save="showEditPopup = false"
+                @close="showEditPopup = false"
+              />
+              <template #trigger>
+                <n-button class="action" type="info">Edit</n-button>
+              </template>
+            </RouterPopup>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject, 'password')">
             <RouterPopup v-model="showChangePasswordPopup" :to="{name: 'dashboard-user-details-change-password', params: { id }}">
@@ -104,6 +112,7 @@ import { subject } from "@casl/ability";
 import { useRouter } from "vue-router";
 import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
+import UserInputCard from "@/components/user/UserInputCard.vue";
 
 const props = defineProps({
   id: {
@@ -118,6 +127,7 @@ const router = useRouter();
 const query = useQuery(UserDetailsDocument, { id: props.id });
 const deleteMutation = useMutation(DeleteUserDocument);
 
+const showEditPopup = ref<boolean>(false);
 const showChangePasswordPopup = ref<boolean>(false);
 
 const userGroups = computed(() => {
@@ -160,7 +170,7 @@ function deleteUser() {
     negativeText: 'Cancel',
     onPositiveClick: async () => {
       await deleteMutation.mutate({ id: props.id });
-      await router.push({ name: 'dashboard', params: { args: ['users'] } });
+      await router.push({ name: 'dashboard-users-list' });
     }
   })
 }
@@ -228,6 +238,7 @@ function deleteUser() {
 .actions {
   margin-top: 1em;
   .action {
+    margin-top: 0.5em;
     width: 100%;
   }
 

@@ -148,6 +148,7 @@ async function save() {
 
   reloadInputData();
   submitting.value = false;
+  emit('close');
 }
 
 function groupSelected(group: Pick<Group, "name" | "id">) {

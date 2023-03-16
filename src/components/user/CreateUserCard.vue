@@ -58,6 +58,9 @@
     </div>
 
     <div class="actions">
+      <n-button v-if="closable" class="action" @click="emit('close')" type="error" :disabled="currentStep > steps.length && !error">
+        Cancel
+      </n-button>
       <n-button class="action" v-if="currentStep > 1" @click="currentStep--" :disabled="currentStep > steps.length && !error">
         Back
       </n-button>
@@ -81,6 +84,15 @@
   const router = useRouter();
   const createUserMutation = useMutation(CreateUserDocument);
   const createUserGroupMutation = useMutation(CreateUserGroupDocument);
+
+  const props = defineProps({
+    closable: {
+      type: Boolean,
+      default: false
+    }
+  });
+
+  const emit = defineEmits(["close", "save"]);
 
   const steps = [
     {
@@ -162,7 +174,7 @@
         }
       }
 
-      await router.push({ name: "dashboard-user-details", params: { id: createdUser?.data?.user.id }});
+      emit('save', createdUser?.data?.user.id);
     }
   }
 
