@@ -55,6 +55,7 @@ import UserList from "@/components/user/UserList.vue";
 import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
 import { useAuthStore } from "@/stores/auth";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
+import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -457,7 +458,7 @@ const router = createRouter({
                 breadcrumb: () => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
                   { route: { name: "dashboard-users-list" }, name: "Users" },
-                  { route: { name: "dashboard-user-create" }, name: "Create" },
+                  { route: { name: "dashboard-usercreate" }, name: "Create" },
                 ],
               },
             },
@@ -518,6 +519,32 @@ const router = createRouter({
                       {
                         route: { name: "dashboard-user-details-edit" },
                         name: "Edit",
+                      },
+                    ],
+                  },
+                },
+                {
+                  path: "change-password",
+                  name: "dashboard-user-details-change-password",
+                  component: restrictedComponent(ChangePasswordCard, () =>
+                    canViewUsersDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-users-list" },
+                        name: "Users",
+                      },
+                      {
+                        route: { name: "dashboard-user-details" },
+                        name: `User ${route.params.id}`,
+                      },
+                      {
+                        route: {
+                          name: "dashboard-user-details-change-password",
+                        },
+                        name: "Change Password",
                       },
                     ],
                   },

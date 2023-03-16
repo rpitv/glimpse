@@ -3,7 +3,6 @@
     <n-card class="card">
       <div class="loading" v-if="query.loading.value">Loading...</div>
       <div class="content" v-else-if="query.result.value?.user">
-        <ChangePasswordPopup v-model="showChangePasswordPopup" :user-id="BigInt(query.result.value.user.id)" />
         <div class="header">
           <div class="title-wrapper">
             <h1 class="title">
@@ -70,7 +69,17 @@
             </RouterLink>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject, 'password')">
-            <n-button class="action" type="warning" @click="showChangePasswordPopup = true">Change Password</n-button>
+            <RouterPopup v-model="showChangePasswordPopup" :to="{name: 'dashboard-user-details-change-password', params: { id }}">
+              <ChangePasswordCard
+                closable
+                :user-id="BigInt(query.result.value.user.id)"
+                @save="showChangePasswordPopup = false"
+                @close="showChangePasswordPopup = false"
+              />
+              <template #trigger>
+                <n-button class="action" type="warning">Change Password</n-button>
+              </template>
+            </RouterPopup>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Delete, userSubject)">
             <n-button class="action" type="error" @click="deleteUser">Delete</n-button>
@@ -93,7 +102,8 @@ import { computed, ref } from "vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import { useRouter } from "vue-router";
-import ChangePasswordPopup from "@/components/user/ChangePasswordPopup.vue";
+import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
 
 const props = defineProps({
   id: {
