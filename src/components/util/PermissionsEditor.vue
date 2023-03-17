@@ -1,6 +1,6 @@
 <template>
   <div>
-    <n-card>
+    <n-card class="card">
       <div class="intro">
         <h1>Permissions Editor</h1>
         <n-alert type="warning">
@@ -10,7 +10,7 @@
           </a> before doing anything.
         </n-alert>
       </div>
-      <div v-if="editedPermissionActionSubject === null">
+      <div v-if="editedPermissionActionSubject === null" class="table-wrapper">
         <n-table class="naive-table">
           <thead class="table-header">
           <tr>
@@ -137,6 +137,14 @@ function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' 
 </script>
 
 <style scoped lang="scss">
+.card {
+  height: 80vh;
+  overflow-y: auto;
+}
+.table-wrapper {
+  height: calc(80vh - 250px);
+  overflow-x: auto;
+}
 .intro {
   margin-bottom: 1rem;
 }

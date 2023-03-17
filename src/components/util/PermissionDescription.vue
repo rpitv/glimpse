@@ -20,7 +20,7 @@ const permissionDescriptionMarkdown = computed<string>(() => {
 
   str += `permission to `
 
-  str += props.permission?.action ? props.permission.action : "perform an unknown action";
+  str += props.permission?.action ? props.permission.action : "perform an unknown action on";
   str += props.permission?.action === "sort" ? " by " : " ";
 
   if(props.permission?.fields?.length) {
@@ -29,7 +29,7 @@ const permissionDescriptionMarkdown = computed<string>(() => {
     str += ' on ';
   }
 
-  if(props.permission?.subject) {
+  if(props.permission?.subject?.length) {
     str += props.permission.subject
       .slice(0, -1)
       .map(subject => `${formatSubject(subject)}s`)
