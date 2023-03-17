@@ -1,10 +1,12 @@
-query FindRecentProductions {
+query FindRecentProductions($paginationInput: PaginationInput!) {
   findManyProduction (order: [
     {
       field: startTime,
       direction: Desc
-    }
-  ]) {
+    },
+  ],
+  pagination: $paginationInput
+  ) {
     id
     startTime
     name

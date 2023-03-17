@@ -232,7 +232,7 @@ export type AuditLog = {
    * Identifier of the resource that was changed. This should be the ID of the resource. If {@link  #subject} is null,
    * then this should also be null.
    */
-  identifier?: Maybe<Scalars['ID']>;
+  identifier?: Maybe<Scalars['BigInt']>;
   /**
    * Custom message to display to the user when this audit log is displayed. This should be a human-readable message.
    * This will be combined with the automatically generated message based on {@link  #prevValue}.
@@ -660,8 +660,14 @@ export type CreateRedirectInput = {
 export type CreateRoleInput = {
   /** The optional description of this role. May be what people within this role are responsible for, for example. */
   description?: InputMaybe<Scalars['String']>;
+  /** Flag for whether this Role should be displayed in the leadership section on the website's "About Us" page. */
+  displayInLeadership?: InputMaybe<Scalars['Boolean']>;
+  /** Flag for whether this Role should be displayed in the membership section on the website's "About Us" page. */
+  displayInMembership?: InputMaybe<Scalars['Boolean']>;
   /** The name of this role. */
   name?: InputMaybe<Scalars['String']>;
+  /** Priority of this Role when displayed on the "About Us" page or next to other Role's on a Person's profile. */
+  priority?: InputMaybe<Scalars['Int']>;
 };
 
 /** Input type for createCategory mutation */
@@ -1127,6 +1133,10 @@ export type FilterRoleInput = {
   OR?: InputMaybe<Array<FilterRoleInput>>;
   /** Filter by the description of this Role. */
   description?: InputMaybe<StringComparisonInput>;
+  /** Filter by whether this Role should be displayed in the leadership section on the website's "About Us" page. */
+  displayInLeadership?: InputMaybe<BooleanComparisonInput>;
+  /** Filter by whether this Role should be displayed in the membership section on the website's "About Us" page. */
+  displayInMembership?: InputMaybe<BooleanComparisonInput>;
   /** Filter by ID */
   id?: InputMaybe<NumberComparisonInput>;
   /** Filter by the name of this Role. */
@@ -2070,6 +2080,7 @@ export type Person = {
   images?: Maybe<Array<PersonImage>>;
   /** The name (or pseudonym) for this Person. Should likely be in the format "First Last". */
   name?: Maybe<Scalars['String']>;
+  profilePicture?: Maybe<Image>;
   /** ID of the image which should be used for this Person's profile picture. */
   profilePictureId?: Maybe<Scalars['BigInt']>;
   /** The pronouns for this Person. Should likely be in the format "they/them". Optional. */
@@ -2868,11 +2879,17 @@ export type Role = {
   __typename?: 'Role';
   /** The optional description of this role. May be what people within this role are responsible for, for example. */
   description?: Maybe<Scalars['String']>;
+  /** Flag for whether this Role should be displayed in the leadership section on the website's "About Us" page. */
+  displayInLeadership?: Maybe<Scalars['Boolean']>;
+  /** Flag for whether this Role should be displayed in the membership section on the website's "About Us" page. */
+  displayInMembership?: Maybe<Scalars['Boolean']>;
   /** Unique ID for this Role. Automatically generated. */
   id?: Maybe<Scalars['BigInt']>;
   /** The name of this role. */
   name?: Maybe<Scalars['String']>;
   people?: Maybe<Array<PersonRole>>;
+  /** Priority of this Role when displayed on the "About Us" page or next to other Role's on a Person's profile. */
+  priority?: Maybe<Scalars['Int']>;
 };
 
 
@@ -2884,7 +2901,8 @@ export type RolePeopleArgs = {
 
 export enum RoleOrderableFields {
   Id = 'id',
-  Name = 'name'
+  Name = 'name',
+  Priority = 'priority'
 }
 
 export type RuleOptions = {
@@ -2897,15 +2915,6 @@ export type RuleOptions = {
   paginationInputName?: InputMaybe<Scalars['String']>;
   strict?: InputMaybe<Scalars['Boolean']>;
 };
-
-export enum RuleType {
-  Count = 'Count',
-  Create = 'Create',
-  Delete = 'Delete',
-  ReadMany = 'ReadMany',
-  ReadOne = 'ReadOne',
-  Update = 'Update'
-}
 
 export type Stream = {
   __typename?: 'Stream';
@@ -3262,8 +3271,14 @@ export type UpdateRedirectInput = {
 export type UpdateRoleInput = {
   /** The optional description of this role. May be what people within this role are responsible for, for example. */
   description?: InputMaybe<Scalars['String']>;
+  /** Flag for whether this Role should be displayed in the leadership section on the website's "About Us" page. */
+  displayInLeadership?: InputMaybe<Scalars['Boolean']>;
+  /** Flag for whether this Role should be displayed in the membership section on the website's "About Us" page. */
+  displayInMembership?: InputMaybe<Scalars['Boolean']>;
   /** The name of this role. */
   name?: InputMaybe<Scalars['String']>;
+  /** Priority of this Role when displayed on the "About Us" page or next to other Role's on a Person's profile. */
+  priority?: InputMaybe<Scalars['Int']>;
 };
 
 /** Input type for updateUser mutation. Null values are not updated. To update a non-null value to null, explicitly pass null. */
@@ -3563,7 +3578,9 @@ export type FindLiveProductionsQueryVariables = Exact<{
 
 export type FindLiveProductionsQuery = { __typename?: 'Query', findManyProduction: Array<{ __typename?: 'Production', id?: any | null, name?: string | null, description?: string | null, startTime?: any | null, videos?: Array<{ __typename?: 'ProductionVideo', priority?: number | null, video?: { __typename?: 'Video', format?: string | null, metadata?: any | null } | null }> | null }> };
 
-export type FindRecentProductionsQueryVariables = Exact<{ [key: string]: never; }>;
+export type FindRecentProductionsQueryVariables = Exact<{
+  paginationInput: PaginationInput;
+}>;
 
 
 export type FindRecentProductionsQuery = { __typename?: 'Query', findManyProduction: Array<{ __typename?: 'Production', id?: any | null, startTime?: any | null, name?: string | null, description?: string | null }> };
@@ -3623,7 +3640,7 @@ export type StopStreamMutation = { __typename?: 'Mutation', deleteStream: { __ty
 
 export const FindAllProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindAllProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"productions"},"name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"pagination"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnail"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}}]}}]}}]} as unknown as DocumentNode<FindAllProductionsQuery, FindAllProductionsQueryVariables>;
 export const FindLiveProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindLiveProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"now"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"startTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"lt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"endTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"gt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Asc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"take"},"value":{"kind":"IntValue","value":"3"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"videos"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"priority"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"video"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"format"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]}}]} as unknown as DocumentNode<FindLiveProductionsQuery, FindLiveProductionsQueryVariables>;
-export const FindRecentProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindRecentProductions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<FindRecentProductionsQuery, FindRecentProductionsQueryVariables>;
+export const FindRecentProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindRecentProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paginationInput"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PaginationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paginationInput"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<FindRecentProductionsQuery, FindRecentProductionsQueryVariables>;
 export const FindUpcomingProductionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FindUpcomingProductions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"now"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"DateTime"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyProduction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"endTime"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"gt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"now"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"startTime"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Asc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"pagination"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"take"},"value":{"kind":"IntValue","value":"3"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"videos"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"field"},"value":{"kind":"EnumValue","value":"priority"}},{"kind":"ObjectField","name":{"kind":"Name","value":"direction"},"value":{"kind":"EnumValue","value":"Desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"priority"}},{"kind":"Field","name":{"kind":"Name","value":"video"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"format"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}}]}}]}}]} as unknown as DocumentNode<FindUpcomingProductionsQuery, FindUpcomingProductionsQueryVariables>;
 export const ListStreamsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ListStreams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findManyStream"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"to"}},{"kind":"Field","name":{"kind":"Name","value":"from"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<ListStreamsQuery, ListStreamsQueryVariables>;
 export const LoginLocalDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"LoginLocal"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"loginLocal"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}},{"kind":"Argument","name":{"kind":"Name","value":"password"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<LoginLocalMutation, LoginLocalMutationVariables>;
