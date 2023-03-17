@@ -10,26 +10,34 @@
           </a> before doing anything.
         </n-alert>
       </div>
-      <n-table class="naive-table">
-        <thead class="table-header">
-        <tr>
-          <th class="subject-col">Subject</th>
-          <th v-for="action of reorderedActions" :key="action">
-            {{ formatAction(action) }}
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="subject in subjects" :key="subject">
-          <td class="subject-col">{{ formatSubject(subject) }}</td>
-          <td v-for="action of reorderedActions">
-            <n-button class="action-subject-permission" small secondary :type="buttonTypes[hasPermission(subject, action)]">
-              {{ hasPermission(subject, action) }}
-            </n-button>
-          </td>
-        </tr>
-        </tbody>
-      </n-table>
+      <div v-if="editedPermissionActionSubject === null">
+        <n-table class="naive-table">
+          <thead class="table-header">
+          <tr>
+            <th class="subject-col">Subject</th>
+            <th v-for="action of reorderedActions" :key="action">
+              {{ formatAction(action) }}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="subject of subjects" :key="subject">
+            <td class="subject-col">{{ formatSubject(subject) }}</td>
+            <td v-for="action of reorderedActions">
+              <n-button class="action-subject-permission" small secondary :type="buttonTypes[hasPermission(action, subject)]" @click="editedPermissionActionSubject = [action, subject]">
+                {{ hasPermission(action, subject) }}
+              </n-button>
+            </td>
+          </tr>
+          </tbody>
+        </n-table>
+      </div>
+      <div v-else>
+        <n-button @click="editedPermissionActionSubject = null">Back</n-button>
+        <div v-for="permission of permissionsForActionAndSubject(editedPermissionActionSubject[0], editedPermissionActionSubject[1])" :key="permission.id">
+          <PermissionEditor :permission="permission" />
+        </div>
+      </div>
     </n-card>
   </div>
 </template>
@@ -40,10 +48,8 @@ import type { Permission } from "@/graphql/types";
 import type { PropType } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
-import { computed } from "vue";
-
-const actions = AbilityActions;
-const subjects = AbilitySubjects;
+import { computed, ref } from "vue";
+import PermissionEditor from "@/components/util/PermissionEditor.vue";
 
 const buttonTypes = {
   'Yes': 'success',
@@ -51,6 +57,9 @@ const buttonTypes = {
   'Partial': 'warning'
 }
 
+
+const actions = AbilityActions;
+const subjects = Object.values(AbilitySubjects) as AbilitySubjects[];
 // The actions enum is ordered in a way that makes sense for developers, but not for users.
 // This reorders the actions to that the "read" action is first and the "manage" action is last.
 const reorderedActions = computed<AbilityActions[]>(() => {
@@ -78,6 +87,10 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['update:permissions']);
+
+const editedPermissionActionSubject = ref<[AbilityActions, AbilitySubjects]|null>(null);
+
 function formatSubject(subject: string) {
   // Split on capital letters, except for consecutive capital letters
   return subject.replace(/([A-Z][a-z]+)|([A-Z]{2,})/g, " $1$2").trim();
@@ -87,10 +100,23 @@ function formatAction(action: string) {
   return action.charAt(0).toUpperCase() + action.slice(1);
 }
 
-function hasPermission(subject: string, action: string): 'Yes' | 'No' | 'Partial' {
-  const permissions = props.permissions?.filter(permission => {
-    return permission.subject?.includes(subject) && permission.action === action;
-  });
+function permissionsForActionAndSubject(action: AbilityActions, subject: AbilitySubjects) {
+  const perms = props.permissions.filter(permission => permission.action === action && permission.subject?.includes(subject));
+  if(!perms || perms.length === 0) {
+    return [{
+      subject: [subject],
+      action
+    }]
+  }
+  return perms;
+}
+
+function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' | 'No' | 'Partial' {
+  // permissionsForActionAndSubject returns a basic permission object if there are no permissions for the given action
+  //  and subject. These are for the PermissionEditor and we should ignore them when considering whether the user has
+  //  a permission by checking if ID is present.
+  const permissions = permissionsForActionAndSubject(action, subject)
+    .filter(permission => permission.id !== undefined);
 
   if(permissions?.length === 0) {
     return 'No';
