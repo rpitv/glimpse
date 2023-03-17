@@ -24,18 +24,21 @@
           <tr v-for="subject of subjects" :key="subject">
             <td class="subject-col">{{ formatSubject(subject) }}</td>
             <td v-for="action of reorderedActions">
-              <n-button class="action-subject-permission" small secondary :type="buttonTypes[hasPermission(action, subject)]" @click="editedPermissionActionSubject = [action, subject]">
-                {{ hasPermission(action, subject) }}
-              </n-button>
+              <component :is="genButtonComponent(action, subject)" />
             </td>
           </tr>
           </tbody>
         </n-table>
       </div>
       <div v-else>
-        <n-button @click="editedPermissionActionSubject = null">Back</n-button>
         <div v-for="permission of permissionsForActionAndSubject(editedPermissionActionSubject[0], editedPermissionActionSubject[1])" :key="permission.id">
+          <h2 class="permission-title">{{permission.id ? `Permission ID ${permission.id}` : 'New Permission'}}</h2>
           <PermissionEditor :permission="permission" />
+          <hr />
+        </div>
+        <div class="actions">
+          <n-button class="action" @click="editedPermissionActionSubject = null" type="error" secondary>Back</n-button>
+          <n-button class="action" type="success" secondary>Save</n-button>
         </div>
       </div>
     </n-card>
@@ -43,12 +46,12 @@
 </template>
 
 <script setup lang="ts">
-import { NAlert, NCard, NTable, NButton } from "naive-ui";
+import { NAlert, NCard, NTable, NButton, NBadge } from "naive-ui";
 import type { Permission } from "@/graphql/types";
-import type { PropType } from "vue";
+import type { PropType, VNode } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
-import { computed, ref } from "vue";
+import { computed, h, ref } from "vue";
 import PermissionEditor from "@/components/util/PermissionEditor.vue";
 
 const buttonTypes = {
@@ -134,6 +137,36 @@ function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' 
   //  We don't care about what the restrictions are; that is handled in the PermissionsActionSubjectEditor component.
   return 'Partial';
 }
+
+function genButtonComponent(action: AbilityActions, subject: AbilitySubjects): VNode {
+  /*
+  <n-badge :value="3">
+    <n-button class="action-subject-permission" small secondary :type="buttonTypes[hasPermission(action, subject)]" @click="editedPermissionActionSubject = [action, subject]">
+      {{ hasPermission(action, subject) }}
+    </n-button>
+  </n-badge>
+   */
+  const hasPerm = hasPermission(action, subject);
+  const permCount = permissionsForActionAndSubject(action, subject).length;
+
+  const button = h(NButton, {
+    class: 'action-subject-permission',
+    small: true,
+    secondary: true,
+    type: buttonTypes[hasPerm] as any, // I don't know why this cast is necessary. Type error for NButton props
+    onClick: () => editedPermissionActionSubject.value = [action, subject]
+  }, {
+    default: () => hasPerm
+  });
+
+  if(permCount >= 2) {
+    return h(NBadge, { value: permCount }, {
+      default: () => button
+    })
+  } else {
+    return button;
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -157,10 +190,21 @@ function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' 
 }
 .table-header {
   position: sticky;
-  z-index: 1;
+  z-index: 2;
   top: 0;
 }
 .action-subject-permission {
   width: 75px;
+}
+.permission-title {
+  font-size: 1.8em;
+}
+.actions {
+  display: flex;
+  justify-content: right;
+  .action {
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+  }
 }
 </style>
