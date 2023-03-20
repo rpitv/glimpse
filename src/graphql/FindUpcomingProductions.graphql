@@ -1,13 +1,11 @@
-query FindUpcomingProductions($now: DateTime!) {
+query FindUpcomingProductions($now: DateTime!, $pagination: PaginationInput) {
   findManyProduction(filter:{
     endTime:{
       gt: $now
     }
   }, order:[
     { field: startTime, direction: Asc}
-  ], pagination:{
-    take:3
-  }
+  ], pagination: $pagination
   ) {
     id
     name

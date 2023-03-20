@@ -1,7 +1,7 @@
 <template>
   <n-card>
     <template #cover>
-      <iframe v-if="production?.videos[0].video.metadata.url" :src="production?.videos[0].video.metadata.url" class="player" title="YouTube video player" allowfullscreen/>
+      <iframe v-if="production?.videos[0]?.video.metadata.url" :src="production?.videos[0].video.metadata.url" class="player" title="YouTube video player" allowfullscreen/>
       <h4 v-else class="no-video">Video does not have a url...</h4>
     </template>
       <div class="info">
@@ -34,10 +34,10 @@ defineProps({
   background-color: black;
 }
 .n-card{
-  margin-bottom: 5%;
+  margin-bottom: 4%;
 }
 .filled {
-  margin: 1% 0;
+  margin: 0 0;
 }
 .empty {
   margin: 1% 0;

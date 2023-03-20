@@ -1,4 +1,4 @@
-query FindLiveProductions($now: DateTime!) {
+query FindLiveProductions($now: DateTime!, $pagination: PaginationInput) {
   findManyProduction(filter:{
     startTime:{
       lt: $now
@@ -8,9 +8,7 @@ query FindLiveProductions($now: DateTime!) {
     }
   }, order:[
     { field: startTime, direction: Asc}
-  ], pagination:{
-    take:3
-  }
+  ], pagination: $pagination
   ) {
     id
     name

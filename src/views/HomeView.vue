@@ -32,6 +32,7 @@
       <h1 class="item-header">Our recent productions:</h1>
       <RecentProductionsList ref="recentProductions"/>
     </div>
+    <p class="contact">Contact us at rpitv@union.lists.rpi.edu</p>
   </div>
 </template>
 
@@ -48,13 +49,18 @@ import RecentProductionsList from "@/components/RecentProductionsList.vue";
 
 
 const liveProductions = useQuery(FindLiveProductionsDocument, {
-  now: new Date().toISOString()
+  now: new Date().toISOString(),
+  pagination: {
+    take: 3
+  }
 })
 
 const upComingProductions = useQuery(FindUpcomingProductionsDocument, {
-  now: new Date().toISOString()
+  now: new Date().toISOString(),
+  pagination: {
+    take: 3
+  }
 })
-
 
 </script>
 
@@ -78,5 +84,9 @@ const upComingProductions = useQuery(FindUpcomingProductionsDocument, {
     display: inline-block;
     max-width: 600px;
   }
+}
+.contact {
+  text-align: center;
+  font-style: italic;
 }
 </style>

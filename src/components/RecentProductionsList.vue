@@ -17,7 +17,7 @@ import { useQuery } from "@vue/apollo-composable";
 import { FindRecentProductionsDocument } from "@/graphql/types";
 
 const response = useQuery(FindRecentProductionsDocument, {
-  paginationInput: {
+  pagination: {
     take: 12
   }
 })
