@@ -10,35 +10,41 @@
           </a> before doing anything.
         </n-alert>
       </div>
-      <div v-if="editedPermissionActionSubject === null" class="table-wrapper">
-        <n-table class="naive-table">
-          <thead class="table-header">
-          <tr>
-            <th class="subject-col">Subject</th>
-            <th v-for="action of reorderedActions" :key="action">
-              {{ formatAction(action) }}
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="subject of subjects" :key="subject">
-            <td class="subject-col">{{ formatSubject(subject) }}</td>
-            <td v-for="action of reorderedActions">
-              <component :is="genButtonComponent(action, subject)" />
-            </td>
-          </tr>
-          </tbody>
-        </n-table>
+      <div v-if="editedPermissionActionSubject === null">
+        <div class="table-wrapper">
+          <n-table class="naive-table">
+            <thead class="table-header">
+            <tr>
+              <th class="subject-col">Subject</th>
+              <th v-for="action of reorderedActions" :key="action">
+                {{ formatAction(action) }}
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="subject of subjects" :key="subject">
+              <td class="subject-col">{{ formatSubject(subject) }}</td>
+              <td v-for="action of reorderedActions">
+                <component :is="genButtonComponent(action, subject)" />
+              </td>
+            </tr>
+            </tbody>
+          </n-table>
+        </div>
+        <div class="actions">
+          <n-button class="action" type="success" secondary>Save</n-button>
+          <n-button class="action" type="error" secondary>Cancel</n-button>
+        </div>
       </div>
       <div v-else>
         <div v-for="permission of permissionsForActionAndSubject(editedPermissionActionSubject[0], editedPermissionActionSubject[1])" :key="permission.id">
           <h2 class="permission-title">{{permission.id ? `Permission ID ${permission.id}` : 'New Permission'}}</h2>
-          <PermissionEditor :permission="permission" />
+          <PermissionEditor :permission="permission" @delete="removePermission(permission)" />
           <hr />
         </div>
         <div class="actions">
+          <n-button class="action" @click="addNewPermission">Add Permission</n-button>
           <n-button class="action" @click="editedPermissionActionSubject = null" type="error" secondary>Back</n-button>
-          <n-button class="action" type="success" secondary>Save</n-button>
         </div>
       </div>
     </n-card>
@@ -51,7 +57,7 @@ import type { Permission } from "@/graphql/types";
 import type { PropType, VNode } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
-import { computed, h, ref } from "vue";
+import { computed, h, ref, watch } from "vue";
 import PermissionEditor from "@/components/util/PermissionEditor.vue";
 
 const buttonTypes = {
@@ -92,6 +98,11 @@ const props = defineProps({
 
 const emit = defineEmits(['update:permissions']);
 
+const localPermissions = ref<Permission[]>(props.permissions?.map(permission => ({...permission})));
+watch(props, () => {
+  localPermissions.value = props.permissions?.map(permission => ({...permission}));
+})
+
 const editedPermissionActionSubject = ref<[AbilityActions, AbilitySubjects]|null>(null);
 
 function formatSubject(subject: string) {
@@ -104,22 +115,11 @@ function formatAction(action: string) {
 }
 
 function permissionsForActionAndSubject(action: AbilityActions, subject: AbilitySubjects) {
-  const perms = props.permissions.filter(permission => permission.action === action && permission.subject?.includes(subject));
-  if(!perms || perms.length === 0) {
-    return [{
-      subject: [subject],
-      action
-    }]
-  }
-  return perms;
+  return localPermissions.value.filter(permission => permission.action === action && permission.subject?.includes(subject));
 }
 
 function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' | 'No' | 'Partial' {
-  // permissionsForActionAndSubject returns a basic permission object if there are no permissions for the given action
-  //  and subject. These are for the PermissionEditor and we should ignore them when considering whether the user has
-  //  a permission by checking if ID is present.
-  const permissions = permissionsForActionAndSubject(action, subject)
-    .filter(permission => permission.id !== undefined);
+  const permissions = permissionsForActionAndSubject(action, subject);
 
   if(permissions?.length === 0) {
     return 'No';
@@ -138,14 +138,27 @@ function hasPermission(action: AbilityActions, subject: AbilitySubjects): 'Yes' 
   return 'Partial';
 }
 
+function permissionButtonClicked(action: AbilityActions, subject: AbilitySubjects) {
+  editedPermissionActionSubject.value = [action, subject];
+}
+
+function addNewPermission() {
+  const newPermission = {
+    action: editedPermissionActionSubject.value![0],
+    subject: [editedPermissionActionSubject.value![1]]
+  };
+  localPermissions.value.push(newPermission);
+}
+
+function removePermission(permission: Permission) {
+  const index = localPermissions.value.indexOf(permission);
+  if(index === -1) {
+    return;
+  }
+  localPermissions.value.splice(index, 1);
+}
+
 function genButtonComponent(action: AbilityActions, subject: AbilitySubjects): VNode {
-  /*
-  <n-badge :value="3">
-    <n-button class="action-subject-permission" small secondary :type="buttonTypes[hasPermission(action, subject)]" @click="editedPermissionActionSubject = [action, subject]">
-      {{ hasPermission(action, subject) }}
-    </n-button>
-  </n-badge>
-   */
   const hasPerm = hasPermission(action, subject);
   const permCount = permissionsForActionAndSubject(action, subject).length;
 
@@ -154,7 +167,7 @@ function genButtonComponent(action: AbilityActions, subject: AbilitySubjects): V
     small: true,
     secondary: true,
     type: buttonTypes[hasPerm] as any, // I don't know why this cast is necessary. Type error for NButton props
-    onClick: () => editedPermissionActionSubject.value = [action, subject]
+    onClick: () => permissionButtonClicked(action, subject)
   }, {
     default: () => hasPerm
   });

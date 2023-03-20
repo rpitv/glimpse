@@ -24,7 +24,8 @@ const permissionDescriptionMarkdown = computed<string>(() => {
   str += props.permission?.action === "sort" ? " by " : " ";
 
   if(props.permission?.fields?.length) {
-    str += 'the fields ';
+    str += 'the field';
+    str += props.permission.fields.length > 1 ? 's ' : ' ';
     str += props.permission.fields.map(field => `\`${field}\``).join(", ");
     str += ' on ';
   }

@@ -7,48 +7,63 @@
     <h2>Edit</h2>
     <n-grid cols="1 s:2" responsive="screen" x-gap="10" y-gap="10">
       <n-grid-item>
-        <label>Action</label>
-        <n-select v-model:value="localPermission.action" :options="actionItems" />
-      </n-grid-item>
-      <n-grid-item>
-        <label>Subjects</label>
-        <n-select v-model:value="localPermission.subject" multiple :options="subjectItems" />
-      </n-grid-item>
-      <n-grid-item>
-        <label>Fields</label>
-      </n-grid-item>
-      <n-grid-item>
-        <label>Conditions</label>
-      </n-grid-item>
-      <n-grid-item v-if="localPermission.inverted" :span="2">
-        <n-alert type="warning">Inverted permissions are generally not recommended, as they have different effects
+        <div class="input-item">
+          <label>Action</label>
+          <n-select v-model:value="localPermission.action" :options="actionItems" />
+        </div>
+
+        <div class="input-item">
+          <label>Subjects</label>
+          <n-select v-model:value="localPermission.subject" multiple :options="subjectItems" />
+        </div>
+
+        <div class="input-item">
+          <label>Fields</label>
+          <n-dynamic-tags v-model:value="localPermission.fields" />
+        </div>
+
+        <n-alert  v-if="localPermission.inverted" :span="2" type="warning">Inverted permissions are generally not recommended, as they have different effects
           depending on the order in which permissions are applied.
           <a href="https://github.com/rpitv/glimpse-api/wiki/CASL-Integration#inverted" target="_blank">
             See the wiki for more information.
           </a>
         </n-alert>
+
+        <div class="input-item">
+          <label>Inverted</label>
+          <div>
+            <n-switch v-model:value="localPermission.inverted" />
+          </div>
+        </div>
+
+        <div v-if="localPermission.inverted" class="input-item">
+          <label>Inverted Reason</label>
+          <n-input v-model:value="localPermission.reason" />
+        </div>
+
       </n-grid-item>
       <n-grid-item>
-        <n-checkbox v-model:checked="localPermission.inverted">
-          Inverted
-        </n-checkbox>
-      </n-grid-item>
-      <n-grid-item v-if="localPermission.inverted">
-        <label>Inverted Reason</label>
-        <n-input v-model:value="localPermission.reason" />
+        <label>Conditions</label>
+        <ConditionsEditor v-model:value="localPermission.conditions" />
       </n-grid-item>
     </n-grid>
+    <div class="actions">
+      <n-button type="error" @click="emit('delete')">
+        Delete Permission
+      </n-button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { NGrid, NGridItem, NSelect, NCheckbox, NInput, NAlert } from "naive-ui";
+import { NGrid, NGridItem, NSelect, NSwitch, NInput, NAlert, NButton, NDynamicTags } from "naive-ui";
 import type { Permission } from "@/graphql/types";
 import type { PropType } from "vue";
 import PermissionDescription from "@/components/util/PermissionDescription.vue";
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
+import ConditionsEditor from "@/components/util/ConditionsEditor.vue";
 
 const props = defineProps({
   permission: {
@@ -57,10 +72,16 @@ const props = defineProps({
   },
 });
 
-const localPermission = ref<Permission>({...props.permission});
-watch(props, () => {
-  localPermission.value = {...props.permission}
-})
+const emit = defineEmits(["update:permission", "delete"]);
+
+const localPermission = computed<Permission>({
+  get() {
+    return props.permission;
+  },
+  set(value) {
+    emit("update:permission", value);
+  }
+});
 
 const actionItems = computed(() => {
   return Object.entries(AbilityActions).map(([key, value]) => {
@@ -78,6 +99,19 @@ const subjectItems = computed(() => {
       value: value
     }
   })
+})
+
+const conditionsJson = computed<string>({
+  get() {
+    return JSON.stringify(localPermission.value.conditions, null, 2);
+  },
+  set(value) {
+    try {
+      localPermission.value.conditions = JSON.parse(value);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 })
 
 function formatSubject(subject: string) {
@@ -111,5 +145,18 @@ function formatSubject(subject: string) {
 </style>
 
 <style scoped lang="scss">
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1em 0;
+}
 
+label {
+  display: block;
+  margin-bottom: 0.25em;
+}
+
+.input-item {
+  margin: 1em 0;
+}
 </style>
