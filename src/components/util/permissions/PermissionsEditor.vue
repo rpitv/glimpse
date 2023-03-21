@@ -58,7 +58,7 @@ import type { PropType, VNode } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
 import { computed, h, ref, watch } from "vue";
-import PermissionEditor from "@/components/util/PermissionEditor.vue";
+import PermissionEditor from "@/components/util/permissions/PermissionEditor.vue";
 
 const buttonTypes = {
   'Yes': 'success',

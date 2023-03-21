@@ -19,7 +19,7 @@ import type { PropType } from "vue";
 import { NSpin } from "naive-ui";
 import { useQuery } from "@vue/apollo-composable";
 import { FindUserPermissionsDocument } from "@/graphql/types";
-import PermissionsEditor from "@/components/util/PermissionsEditor.vue";
+import PermissionsEditor from "@/components/util/permissions/PermissionsEditor.vue";
 
 const props = defineProps({
   userId: {

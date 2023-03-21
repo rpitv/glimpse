@@ -59,11 +59,11 @@
 import { NGrid, NGridItem, NSelect, NSwitch, NInput, NAlert, NButton, NDynamicTags } from "naive-ui";
 import type { Permission } from "@/graphql/types";
 import type { PropType } from "vue";
-import PermissionDescription from "@/components/util/PermissionDescription.vue";
+import PermissionDescription from "@/components/util/permissions/PermissionDescription.vue";
 import { computed } from "vue";
 import { AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
-import ConditionsEditor from "@/components/util/ConditionsEditor.vue";
+import ConditionsEditor from "@/components/util/permissions/ConditionsEditor.vue";
 
 const props = defineProps({
   permission: {
@@ -99,19 +99,6 @@ const subjectItems = computed(() => {
       value: value
     }
   })
-})
-
-const conditionsJson = computed<string>({
-  get() {
-    return JSON.stringify(localPermission.value.conditions, null, 2);
-  },
-  set(value) {
-    try {
-      localPermission.value.conditions = JSON.parse(value);
-    } catch (e) {
-      console.error(e);
-    }
-  }
 })
 
 function formatSubject(subject: string) {

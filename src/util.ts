@@ -10,11 +10,3 @@ export type DashboardPageMetadata = {
   category?: DashboardPageCategory;
   visible?: () => boolean;
 };
-
-export type ConditionInput = {
-  type: "string" | "number" | "boolean" | "date";
-  valueIsVariable: boolean;
-  field: string;
-  operator: string;
-  value: unknown;
-};
