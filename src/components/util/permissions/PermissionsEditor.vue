@@ -37,7 +37,7 @@
         </div>
       </div>
       <div v-else>
-        <div v-for="permission of permissionsForActionAndSubject(editedPermissionActionSubject[0], editedPermissionActionSubject[1])" :key="permission.id">
+        <div v-for="permission of permissionsToEdit" :key="permission.id">
           <h2 class="permission-title">{{permission.id ? `Permission ID ${permission.id}` : 'New Permission'}}</h2>
           <PermissionEditor :permission="permission" @delete="removePermission(permission)" />
           <hr />
@@ -109,6 +109,21 @@ watch(props, () => {
 
 const editedPermissionActionSubject = ref<[AbilityActions, AbilitySubjects]|null>(null);
 
+// We use a watcher here instead of referencing the return value directly because we don't want a permission to
+//  disappear from the page if the user changes the action/subject of a permission that is being edited. Permissions are
+//  then added/removed manually within removePermission and addNewPermission.
+const permissionsToEdit = ref<Permission[]>([]);
+watch([editedPermissionActionSubject], () => {
+  if(editedPermissionActionSubject.value === null) {
+    permissionsToEdit.value = [];
+  } else {
+    permissionsToEdit.value = permissionsForActionAndSubject(
+      editedPermissionActionSubject.value[0],
+      editedPermissionActionSubject.value[1]
+    );
+  }
+})
+
 function save() {
   emit('update:permissions', localPermissions.value);
 }
@@ -156,14 +171,22 @@ function addNewPermission() {
     subject: [editedPermissionActionSubject.value![1]]
   };
   localPermissions.value.push(newPermission);
+  permissionsToEdit.value.push(newPermission);
 }
 
 function removePermission(permission: Permission) {
-  const index = localPermissions.value.indexOf(permission);
+  let index = localPermissions.value.indexOf(permission);
   if(index === -1) {
     return;
   }
   localPermissions.value.splice(index, 1);
+
+  index = permissionsToEdit.value.indexOf(permission);
+  if(index === -1) {
+    return;
+  }
+  permissionsToEdit.value.splice(index, 1);
+
 }
 
 function genButtonComponent(action: AbilityActions, subject: AbilitySubjects): VNode {
