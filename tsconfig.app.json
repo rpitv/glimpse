@@ -11,7 +11,7 @@
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
-    "lib": ["ES2020"],
+    "lib": ["ES2021"],
     "paths": {
       "@/*": [
         "./src/*"

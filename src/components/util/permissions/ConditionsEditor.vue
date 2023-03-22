@@ -20,8 +20,7 @@ import Markdown from "@/components/util/Markdown.vue";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<Record<string, Record<string, unknown>>>,
-    required: true
+    type: Object as PropType<unknown>
   }
 });
 
@@ -35,12 +34,24 @@ const input = ref<typeof NInput | null>(null);
 const valueAsJson = ref<string>('');
 watch(props, () => {
   valueAsJson.value = JSON.stringify(props.value, null, 4);
+  if(valueAsJson.value === 'null') {
+    valueAsJson.value = '';
+  }
 }, { immediate: true });
 
 function validateInput() {
   inputError.value = null;
   try {
+    if(valueAsJson.value === '') {
+      emit('update:value', null);
+      return;
+    }
     const obj = JSON.parse(valueAsJson.value);
+    if(obj === null) {
+      emit('update:value', null);
+      return;
+    }
+
     validateConditionSyntax(obj);
     emit('update:value', obj);
   } catch(e) {
@@ -77,7 +88,6 @@ function validateConditionSyntax(condition: unknown): void {
     }
 
     for(const [opKey, opValue] of Object.entries(fieldValue)) {
-      console.log(opKey, opValue);
       validateOperatorValue(opKey, opValue);
     }
   }
@@ -120,38 +130,54 @@ function validateOperatorValue(operator: string, value: unknown) {
     throw new Error(`Unknown operator: \`${operator}\``);
   }
 
-  let valueType: string;
-  if(Array.isArray(value)) {
-    if(value.length === 0) {
-      throw new Error('Arrays cannot be empty');
-    }
-    const firstValueType = typeof value[0];
-    if(firstValueType !== 'string' && firstValueType !== 'number') {
-      throw new Error('Arrays can only contain strings or numbers');
-    }
-    for(const v of value) {
-      if(typeof v !== firstValueType) {
-        throw new Error('Arrays must contain all the same type of value');
-      }
-    }
-    valueType = firstValueType + '[]';
-  } else if(value === null) {
-    valueType = 'null';
-  } else {
-    valueType = typeof value;
-    if(valueType === 'string') {
+  let valueType: OperatorValues;
+  switch (typeof value) {
+    case 'number':
+    case 'boolean':
+      valueType = typeof value as 'number' | 'boolean'
+    break;
+    case 'string':
+      valueType = 'string';
       if(!isNaN(new Date(value as string).getTime())) {
         valueType = 'date';
-      } else if((value as string).startsWith('$')) {
-        valueType = variableTypes[value as string];
-        if(valueType === undefined) {
-          throw new Error(`Unknown variable: \`${value}\``);
-        }
+      } else if (value.startsWith('$')) {
+        valueType = variableTypes[value];
       }
-    }
+      if(valueType === undefined) {
+        throw new Error(`Unknown variable: \`${value}\``);
+      }
+      break;
+    case 'object':
+      if(value === null) {
+        valueType = 'null';
+      } else if(Array.isArray(value)) {
+        if(value.length === 0) {
+          throw new Error('Arrays cannot be empty');
+        }
+        const firstValueType = typeof value[0];
+        if(firstValueType !== 'string' && firstValueType !== 'number') {
+          throw new Error('Arrays can only contain strings or numbers');
+        }
+        for(const v of value) {
+          if(typeof v !== firstValueType) {
+            throw new Error('Arrays must contain all the same type of value');
+          }
+        }
+        valueType = firstValueType + '[]' as 'string[]' | 'number[]';
+      }
+      throw new Error(`Operator \`${operator}\` cannot be used with value of type \`${typeof value}\``);
+      // noinspection UnreachableCodeJS
+      break;
+    case 'undefined':
+    case 'bigint':
+    case 'symbol':
+    case 'function':
+    default:
+      throw new Error(`Operator \`${operator}\` cannot be used with value of type \`${typeof value}\``);
+
   }
 
-  if(!operators[operator].includes(valueType as any)) {
+  if(!operators[operator].includes(valueType)) {
     throw new Error(`Operator \`${operator}\` cannot be used with value of type \`${valueType}\``);
   }
 }

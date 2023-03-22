@@ -68,16 +68,16 @@ function formatConditions(condition: Record<string, unknown>): string {
   for(const [key, value] of Object.entries(condition)) {
     if(key === "AND") {
       str += "- All of the following conditions are met: \n";
-      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n");
+      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n  ");
     } else if(key === "OR") {
       str += "- At least one of the following conditions are met: \n";
-      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n");
+      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n  ");
     } else if(key === "NOT") {
       str += "- None one of the following conditions are met: \n";
-      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n");
+      str += (value as Record<string, unknown>[]).map((condition) => `  ${formatConditions(condition)}`).join("\n  ");
     } else {
       str += `- The field \`${key}\` is:\n`;
-      str += `  ${parseConditionOperators(value as Record<string, unknown>)}`
+      str += `  ${parseConditionOperators(value as Record<string, unknown>).replaceAll("\n", "\n  ")}`;
     }
   }
   return str;
@@ -86,50 +86,48 @@ function formatConditions(condition: Record<string, unknown>): string {
 function parseConditionOperators(condition: Record<string, unknown>): string {
   let str = "";
   for(const [key, value] of Object.entries(condition)) {
-    const parsedValue = permissionVariableParser(value);
+    const parsedValue = valueParser(value);
     if(key === "equals") {
-      str += `- equal to \`${parsedValue}\``;
+      str += `- equal to ${parsedValue}`;
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     } else if(key === "not") {
-      str += `- not equal to \`${parsedValue}\``;
+      str += `- not equal to ${parsedValue}`;
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     } else if(key === "gt") {
-      str += `- greater than \`${parsedValue}\`\n`;
+      str += `- greater than ${parsedValue}\n`;
     } else if(key === "lt") {
-      str += `- less than \`${parsedValue}\`\n`;
+      str += `- less than ${parsedValue}\n`;
     } else if(key === "gte") {
-      str += `- greater than or equal to \`${parsedValue}\`\n`;
+      str += `- greater than or equal to ${parsedValue}\n`;
     } else if(key === "lte") {
-      str += `- less than or equal to \`${parsedValue}\`\n`;
+      str += `- less than or equal to ${parsedValue}\n`;
     } else if(key === "in") {
       // If the value was not a variable, it will be equal to the parsed value (i.e., the variable parser just returns
       //   the value)
       if(value !== parsedValue) {
         str += `- contained within ${parsedValue}`;
       } else {
-        str += `- one of the following values: ${(value as unknown[]).map(v => `\`${v}\``).join(', ')}`;
+        str += `- one of the following values: ${parsedValue}`;
       }
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     } else if(key === "contains") {
-      str += `- contains \`${parsedValue}\``;
+      str += `- contains ${parsedValue}`;
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     } else if(key === "startsWith") {
-      str += `- starts with \`${parsedValue}\``;
+      str += `- starts with ${parsedValue}`;
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     } else if(key === "endsWith") {
-      str += `- ends with \`${parsedValue}\``;
+      str += `- ends with ${parsedValue}`;
       str += condition.mode === "Insensitive" ? " (case insensitive)\n" : "\n";
     }
   }
   return str;
 }
 
-function permissionVariableParser<T>(value: T): string | T {
-  if(typeof value !== "string") {
-    return value;
-  }
+function valueParser<T>(value: T): string {
 
-  if(value.startsWith("$")) {
+  // Handle variables
+  if(typeof value === "string" && value.startsWith("$")) {
     if(value === "$groups") {
       return "a list of the user's group IDs";
     } else if(value === "$id") {
@@ -140,7 +138,18 @@ function permissionVariableParser<T>(value: T): string | T {
     return "an unknown variable";
   }
 
-  return value;
+  // Handle arrays by combining them into a comma-separated list of values ran through this function recursively
+  if(Array.isArray(value)) {
+    return (value as unknown[]).map(v => valueParser(v)).join(', ');
+  }
+
+  // Wrap strings in quotes
+  if(typeof value === "string") {
+    return `\`"${value}"\``;
+  }
+
+
+  return `\`${value}\``;
 }
 </script>
 
