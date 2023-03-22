@@ -31,7 +31,7 @@
         <div>
           <h2>Permissions</h2>
           <RouterPopup v-model="showPermissionsEditor" :max-width="1000">
-            <UserPermissionsEditor :user-id="id" />
+            <UserPermissionsEditor :user-id="id" closable @close="showPermissionsEditor = false" />
             <template #trigger>
               <n-button type="primary">Open Permissions Editor</n-button>
             </template>

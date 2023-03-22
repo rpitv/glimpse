@@ -32,8 +32,8 @@
           </n-table>
         </div>
         <div class="actions">
-          <n-button class="action" type="success" secondary>Save</n-button>
-          <n-button class="action" type="error" secondary>Cancel</n-button>
+          <n-button class="action" type="success" secondary @click="save">Save</n-button>
+          <n-button v-if="closable" class="action" type="error" secondary @click="emit('close')">Cancel</n-button>
         </div>
       </div>
       <div v-else>
@@ -93,10 +93,14 @@ const props = defineProps({
   count: {
     type: Number,
     required: true
+  },
+  closable: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['update:permissions']);
+const emit = defineEmits(['update:permissions', 'close']);
 
 const localPermissions = ref<Permission[]>(props.permissions?.map(permission => ({...permission})));
 watch(props, () => {
@@ -104,6 +108,10 @@ watch(props, () => {
 })
 
 const editedPermissionActionSubject = ref<[AbilityActions, AbilitySubjects]|null>(null);
+
+function save() {
+  emit('update:permissions', localPermissions.value);
+}
 
 function formatSubject(subject: string) {
   // Split on capital letters, except for consecutive capital letters
