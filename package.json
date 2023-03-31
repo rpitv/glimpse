@@ -25,6 +25,7 @@
     "@types/marked": "^4.0.8",
     "@vue/apollo-composable": "^4.0.0-alpha.17",
     "@vue/apollo-option": "^4.0.0-alpha.17",
+    "@vueuse/core": "^9.13.0",
     "dompurify": "^3.0.1",
     "graphql": "^16.4.0",
     "graphql-tag": "^2.12.6",
