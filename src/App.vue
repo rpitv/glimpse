@@ -7,8 +7,9 @@
             <Page/>
             <template #fallback>
               <div class="glimpse-loading">
-                <n-spin></n-spin>
-                <p>Loading...</p>
+                <v-progress-circular indeterminate :size="54" color="red">
+                </v-progress-circular>
+                Loading...
               </div>
             </template>
           </Suspense>

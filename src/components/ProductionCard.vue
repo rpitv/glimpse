@@ -1,23 +1,20 @@
 <template>
   <RouterLink :to="productionUrl">
-    <n-card class="production-card" :title="props.name">
-      <template #cover>
-        <n-image class="production-thumbnail"
-                 :src="props.thumbnailUrl"
-                 preview-disabled
-                 fallback-src="/default_thumbnail_300.png"
-                 object-fit="cover"
-        ></n-image>
-      </template>
-      <p class="production-description">{{ props.description }}</p>
-      <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
-    </n-card>
+    <v-card class="production-card" width="300">
+      <v-img :src="thumbnail" cover />
+      <v-card-title> {{props.name}}</v-card-title>
+      <v-card-text>
+        <p class="production-description">{{ props.description }}</p>
+        <br>
+        <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
+      </v-card-text>
+    </v-card>
   </RouterLink>
 </template>
 
 <script setup lang="ts">
 import moment from "moment";
-import {NCard, NImage} from "naive-ui";
+import { computed } from "vue";
 
 const props = defineProps({
   id: {
@@ -43,6 +40,11 @@ const props = defineProps({
 })
 
 const productionUrl = import.meta.env.BASE_URL + "productions/" + props.id;
+
+const thumbnail = computed(() => {
+  return props.thumbnailUrl ? props.thumbnailUrl : "/default_thumbnail_300.png";
+})
+
 </script>
 
 <style scoped lang="scss">

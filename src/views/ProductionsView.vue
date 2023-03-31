@@ -1,10 +1,8 @@
 <template>
   <div class="loading" v-if="response.loading.value">
-    <n-spin size="large">
-      <template #description>
-        Loading...
-      </template>
-    </n-spin>
+    <v-progress-circular indeterminate :size="54" color="red">
+    </v-progress-circular>
+    Loading...
   </div>
   <div v-else class="production-cards">
     <ProductionCard v-for="production in response.result.value?.productions" class="production-card" :key="production.id"
@@ -14,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import {NSpin} from "naive-ui";
 import {useQuery} from "@vue/apollo-composable";
 import {FindAllProductionsDocument} from "@/graphql/types";
 import ProductionCard from "@/components/ProductionCard.vue";

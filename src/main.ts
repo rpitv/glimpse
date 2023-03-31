@@ -2,6 +2,7 @@ import { createApp, provide, h } from "vue";
 import { createPinia } from "pinia";
 import { createApolloProvider } from "@vue/apollo-option";
 import { DefaultApolloClient } from "@vue/apollo-composable";
+import vuetify from "../plugins/vuetify";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCaretDown } from "@fortawesome/pro-solid-svg-icons";
@@ -111,6 +112,7 @@ app.use(abilitiesPlugin, ability);
 app.use(createPinia());
 app.use(router);
 app.use(apolloProvider);
+app.use(vuetify);
 app.component("font-awesome-icon", FontAwesomeIcon);
 
 app.mount("#app");

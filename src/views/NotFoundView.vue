@@ -1,25 +1,20 @@
 <template>
-<div>
-  <StaticBackground />
-  <n-result
-    status="404"
-    title="404 Not Found"
-    description="This page does not exist."
-    size="huge"
-  >
-    <template #icon>
-      <FontAwesomeIcon icon="fa-duotone fa-hexagon-exclamation" class="icon" />
-    </template>
-    <template #footer>
+  <div>
+    <StaticBackground />
+    <div class="error">
+      <FontAwesomeIcon icon="fa-duotone fa-hexagon-exclamation" class="icon error" />
+    </div>
+    <h1 class="error">404 Not Found</h1>
+    <h3 class="error">This page does not exist</h3>
+    <div class="error">
       <a @click="$router.back()">
-        <n-button class="back-button">Go Back</n-button>
+        <v-btn color="#ff6363" elevation="24" class="back-button text-none">Go Back</v-btn>
       </a>
       <RouterLink to="/">
-        <n-button>Go Home</n-button>
+        <v-btn color="#ff6363" elevation="24" class="text-none">Go Home</v-btn>
       </RouterLink>
-    </template>
-  </n-result>
-</div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -29,19 +24,27 @@ import {NResult, NButton} from "naive-ui";
 </script>
 
 <style scoped lang="scss">
+div {
+  padding-top: 8vh;
+}
 .icon {
   --fa-primary-color: #f4fbff;
   --fa-secondary-color: #ff6363;
   --fa-secondary-opacity: 1.0;
   font-size: 10em;
 }
-div {
-  padding-top: 5vw;
-}
 a {
   text-decoration: none;
 }
 .back-button {
   margin-right: 10px;
+}
+.error-wrapper {
+  padding-top: 15vh;
+}
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
