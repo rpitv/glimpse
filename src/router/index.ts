@@ -44,6 +44,7 @@ import {
   canViewUsersDashboard,
   canViewVideosDashboard,
   canViewVotesDashboard,
+  canViewRolesDashboard,
 } from "@/casl";
 import type { Component } from "vue";
 import { h } from "vue";
@@ -56,6 +57,7 @@ import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.
 import { useAuthStore } from "@/stores/auth";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
 import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
+import DashboardRolesPage from "@/components/dashboard/DashboardRolesPage.vue";
 
 function restrictedComponent(
   component: Component,
@@ -394,6 +396,25 @@ const router = createRouter({
             breadcrumb: () => [
               { route: { name: "dashboard" }, name: "Dashboard" },
               { route: { name: "dashboard-redirects" }, name: "Redirects" },
+            ],
+          },
+        },
+        {
+          path: "roles",
+          name: "dashboard-roles",
+          component: restrictedComponent(DashboardRolesPage, () =>
+            canViewRolesDashboard()
+          ),
+          meta: {
+            sider: {
+              title: "Roles",
+              icon: "fa-light fa-badge-sheriff",
+              category: DashboardPageCategory.Organization,
+              visible: () => canViewRolesDashboard(),
+            },
+            breadcrumb: () => [
+              { route: { name: "dashboard" }, name: "Dashboard" },
+              { route: { name: "dashboard-roles" }, name: "Roles" },
             ],
           },
         },
