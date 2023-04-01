@@ -37,7 +37,13 @@
           </n-table>
         </div>
         <div class="actions">
-          <n-button class="action" type="success" @click="save">Save</n-button>
+          <n-button
+            v-if="saveRequired"
+            class="action"
+            type="success"
+            @click="save"
+            >Save</n-button
+          >
           <n-button
             v-if="closable"
             class="action"
@@ -126,6 +132,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  saveRequired: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(["update:permissions", "close"]);
@@ -145,11 +155,31 @@ defineExpose({
 const localPermissions = ref<Permission[]>(
   props.permissions?.map((permission) => ({ ...permission }))
 );
+// newPermissionsJustReceived is used to make sure we don't try to immediately save changes whenn the changes are
+//  because of a change from the parent component (which would create an infinite loop).
+const newPermissionsJustReceived = ref(false);
 watch(props, () => {
   localPermissions.value = props.permissions?.map((permission) => ({
     ...permission,
   }));
+  newPermissionsJustReceived.value = true;
 });
+
+// If the save button is disabled, changes should be "saved" immediately
+watch(
+  localPermissions,
+  () => {
+    if (newPermissionsJustReceived.value) {
+      newPermissionsJustReceived.value = false;
+      return;
+    }
+
+    if (!props.saveRequired) {
+      save();
+    }
+  },
+  { deep: true }
+);
 
 const editedPermissionActionSubject = ref<
   [AbilityActions, AbilitySubjects] | null
