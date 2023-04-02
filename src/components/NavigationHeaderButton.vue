@@ -12,32 +12,28 @@
          :aria-current="route.name === value.route ? 'page' : null"
          @click="value.onClick !== undefined ? value.onClick($event, value, navigate) : navigate($event)"
       >
-        <n-button class="button-elem"
-                  :type="route.name === value.route ? 'primary' : 'default'"
-                  large
-                  quaternary
-                  :data-depth="props.depth"
+        <v-btn class="button-elem"
+            :color="route.name === value.route ? '#ff6363' : 'white'"
+            :data-depth="props.depth"
+            variant="text"
+            size="small"
         >
-          <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
-            <FontAwesomeIcon :icon="value.icon"/>
-          </template>
+            <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
           {{ value.name }}
-        </n-button>
+        </v-btn>
       </a>
     </RouterLink>
 
-    <n-button v-else
-              class="button-elem"
-              :type="route.name === value.route ? 'primary' : 'default'"
-              large
-              quaternary
-              :data-depth="props.depth"
+    <v-btn v-else
+      class="button-elem"
+      :type="route.name === value.route ? '#ff6363' : 'white'"
+      :data-depth="props.depth"
+      variant="text"
+      size="small"
     >
-      <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
-        <FontAwesomeIcon :icon="value.icon"/>
-      </template>
+      <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
       {{ value.name }}
-    </n-button>
+    </v-btn>
   </component>
 </template>
 

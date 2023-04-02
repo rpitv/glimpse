@@ -43,14 +43,14 @@ const isPopupShown = computed({
   }
 });
 
-// Focus the username input box when the popup is shown.
-watch(() => isPopupShown.value, () => {
-  if(isPopupShown.value) {
-    nextTick(() => {
-      loginCardRef.value?.focus();
-    })
-  }
-});
+// // Focus the username input box when the popup is shown.
+// watch(() => isPopupShown.value, () => {
+//   if(isPopupShown.value) {
+//     nextTick(() => {
+//       loginCardRef.value?.focus();
+//     })
+//   }
+// });
 
 </script>
 
@@ -60,9 +60,6 @@ watch(() => isPopupShown.value, () => {
   @media(min-width: 440px) {
     width: 350px;
     margin-left: calc(50% - 350px / 2)
-  }
-  @media (max-width: 439px) {
-    width: 80%;
   }
 }
 </style>
