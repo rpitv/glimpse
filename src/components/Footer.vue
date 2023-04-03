@@ -91,6 +91,9 @@ p {
   padding-right: 1em;
   border-right: rgba(169, 174, 179, 0.2) 1px solid;
   text-align: center;
+  @media (max-width: 555px) {
+    border-right: none;
+  }
 }
 .last-col {
   border-right: none;
