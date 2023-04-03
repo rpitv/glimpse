@@ -8,7 +8,7 @@
         <div>
           <p><RouterLink to="terms">Terms of Service</RouterLink></p>
           <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
-          <p><RouterLink to="accesbility">Accessibility Statement</RouterLink></p>
+          <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
         </div>
       </v-col>
       <v-col :cols="display.width.value >= 556 ? 4 : 12"
