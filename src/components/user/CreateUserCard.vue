@@ -15,7 +15,11 @@
     <div class="step">
       <Transition name="steps">
         <div v-if="currentStep === 1">
-          <UserDetailsInput v-model:data="userData" ref="userDetailsInput" />
+          <UserDetailsInput
+            @keypress.enter="enterKeyPressed"
+            v-model:data="userData"
+            ref="userDetailsInput"
+          />
         </div>
         <div v-else-if="currentStep === 2">
           <n-tag
@@ -85,6 +89,8 @@
         Cancel
       </n-button>
       <n-button
+        tertiary
+        type="error"
         class="action"
         v-if="currentStep > 1"
         @click="currentStep--"
@@ -92,7 +98,14 @@
       >
         Back
       </n-button>
-      <n-button class="action" @click="nextStep" :disabled="!canContinue">
+      <n-button
+        :primary="currentStep >= steps.length"
+        :tertiary="currentStep < steps.length"
+        class="action"
+        type="success"
+        @click="nextStep"
+        :disabled="!canContinue"
+      >
         {{ currentStep >= steps.length ? "Create User" : "Continue" }}
       </n-button>
     </div>
@@ -175,6 +188,12 @@ const canContinue = computed<boolean>(() => {
   }
   return currentStep.value <= steps.length;
 });
+
+function enterKeyPressed() {
+  if (canContinue.value) {
+    nextStep();
+  }
+}
 
 async function nextStep() {
   currentStep.value++;
