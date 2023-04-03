@@ -7,7 +7,7 @@
             <Page/>
             <template #fallback>
               <div class="glimpse-loading">
-                <v-progress-circular indeterminate :size="54" color="red">
+                <v-progress-circular indeterminate :size="54" color="#ff6363">
                 </v-progress-circular>
                 Loading...
               </div>

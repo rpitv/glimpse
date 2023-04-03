@@ -9,13 +9,11 @@
           <NavigationHeaderButton class="nav-button" :value="moreDropdownButton"/>
         </li>
       </ul>
-
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightPriorityPlusCache.nonMoreButtons">
           <NavigationHeaderButton class="nav-button" :value="button"/>
         </li>
       </ul>
-
       <LoginPopup v-model="showLoginPopup"/>
     </nav>
   </header>

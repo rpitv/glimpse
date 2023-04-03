@@ -17,6 +17,7 @@
             :data-depth="props.depth"
             variant="text"
             size="small"
+            style="letter-spacing: normal"
         >
             <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
           {{ value.name }}
@@ -30,6 +31,7 @@
       :data-depth="props.depth"
       variant="text"
       size="small"
+      style="letter-spacing: normal"
     >
       <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
       {{ value.name }}
@@ -38,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import {DropdownOption, NButton, NDropdown} from "naive-ui";
+import {DropdownOption, NDropdown} from "naive-ui";
 import type {NavButton} from "@/util/NavButton";
 import type {PropType, Ref} from "vue";
 import {RouterLink, useRoute} from "vue-router";

@@ -1,10 +1,8 @@
 <template>
   <div v-if="response.loading.value">
-    <div class="loading" style="margin-top: 10em">
-      <v-progress-circular indeterminate :size="54" color="red" />
-    </div>
-    <div class="loading">
-      <p>Loading...</p>
+    <div class="glimpse-loading">
+      <v-progress-circular indeterminate :size="54" color="#ff6363" />
+      Loading...
     </div>
   </div>
   <div v-else class="production-cards">
@@ -29,16 +27,19 @@ const response = useQuery(FindAllProductionsDocument, {
 </script>
 
 <style scoped lang="scss">
-.loading {
-  display: flex;
-  justify-content: center;
-}
-
 .production-cards {
   padding: 7vw;
   display: grid;
   grid-template-columns: repeat(auto-fill, 300px);
   grid-gap: 1em;
   justify-content: center;
+}
+
+.glimpse-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
 }
 </style>
