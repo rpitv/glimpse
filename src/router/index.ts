@@ -58,6 +58,9 @@ import { useAuthStore } from "@/stores/auth";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
 import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
 import DashboardRolesPage from "@/components/dashboard/DashboardRolesPage.vue";
+import GroupList from "@/components/group/GroupList.vue";
+import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
+import EditGroupCard from "@/components/group/EditGroupCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -300,6 +303,80 @@ const router = createRouter({
               { route: { name: "dashboard-groups" }, name: "Groups" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-groups-list",
+              component: restrictedComponent(GroupList, () =>
+                canViewGroupsDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-groups-list" }, name: "Groups" },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-group-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewGroupsDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-groups-list" }, name: "Groups" },
+                  {
+                    route: { name: "dashboard-group-details-edit" },
+                    name: `Edit Group ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "edit",
+                  name: "dashboard-group-details-edit",
+                  component: restrictedComponent(EditGroupCard, () =>
+                    canViewGroupsDashboard()
+                  ),
+                  props: (route) => ({
+                    groupId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-groups-list" },
+                        name: "Groups",
+                      },
+                      {
+                        route: { name: "dashboard-group-details-edit" },
+                        name: `Edit Group ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              path: "create",
+              name: "dashboard-group-create",
+              component: restrictedComponent(CreateGroupCard, () =>
+                canViewGroupsDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-groups-list" }, name: "Groups" },
+                  {
+                    route: { name: "dashboard-group-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+          ],
         },
         {
           path: "images",
@@ -486,7 +563,7 @@ const router = createRouter({
                 breadcrumb: () => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
                   { route: { name: "dashboard-users-list" }, name: "Users" },
-                  { route: { name: "dashboard-usercreate" }, name: "Create" },
+                  { route: { name: "dashboard-user-create" }, name: "Create" },
                 ],
               },
             },
