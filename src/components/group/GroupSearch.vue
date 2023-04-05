@@ -3,7 +3,7 @@
     <n-auto-complete
       v-model:value="searchInput"
       :input-props="{
-        autocomplete: 'disabled'
+        autocomplete: 'disabled',
       }"
       :options="results"
       :loading="groupSearchResults.loading.value"
@@ -18,85 +18,100 @@
 import { AutoCompleteOption, NAutoComplete } from "naive-ui";
 import { computed, PropType, ref } from "vue";
 import { useQuery } from "@vue/apollo-composable";
-import { CaseSensitivity, FilterGroupInput, Group, SearchGroupsDocument } from "@/graphql/types";
+import {
+  CaseSensitivity,
+  FilterGroupInput,
+  Group,
+  SearchGroupsDocument,
+} from "@/graphql/types";
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(["select"]);
 
 const props = defineProps({
   disabledGroups: {
     type: Array as PropType<Pick<Group, "id">[]>,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const searchInput = ref<string>('');
+const searchInput = ref<string>("");
 const searchFilter = computed<FilterGroupInput>(() => {
-  if(!searchInput.value) {
+  if (!searchInput.value) {
     return {};
   }
   const searchInputAsNumber = parseInt(searchInput.value);
-  if(isNaN(searchInputAsNumber)) {
+  if (isNaN(searchInputAsNumber)) {
     return {
       name: {
         contains: searchInput.value,
-        mode: CaseSensitivity.Insensitive
-      }
-    }
+        mode: CaseSensitivity.Insensitive,
+      },
+    };
   } else {
     return {
       OR: [
         {
           name: {
             contains: searchInput.value,
-            mode: CaseSensitivity.Insensitive
-          }
+            mode: CaseSensitivity.Insensitive,
+          },
         },
         {
           id: {
-            equals: searchInputAsNumber
-          }
-        }
-      ]
-    }
+            equals: searchInputAsNumber,
+          },
+        },
+      ],
+    };
   }
-})
-const groupSearchResults = useQuery(SearchGroupsDocument, () => ({
-  filter: searchFilter.value
-}), {
-  throttle: 1000
 });
+const groupSearchResults = useQuery(
+  SearchGroupsDocument,
+  () => ({
+    filter: searchFilter.value,
+  }),
+  {
+    throttle: 1000,
+  }
+);
 
 const results = computed<AutoCompleteOption[]>(() => {
-  if(!searchInput.value) {
+  if (!searchInput.value) {
     return [];
   }
-  return groupSearchResults.result.value?.groups.map(group => ({
-    disabled: props.disabledGroups?.some(disabledGroup => disabledGroup.id === group.id),
-    label: `${group.name} (ID ${group.id})`,
-    value: group.id
-  })) ?? [];
-})
+  return (
+    groupSearchResults.result.value?.groups.map((group) => ({
+      disabled: props.disabledGroups?.some(
+        (disabledGroup) => BigInt(disabledGroup.id) === BigInt(group.id)
+      ),
+      label: `${group.name} (ID ${group.id})`,
+      value: group.id,
+    })) ?? []
+  );
+});
 
 function optionSelected(option: string) {
-  const group = groupSearchResults.result.value?.groups.find(group => group.id === option);
-  emit('select', group);
+  const group = groupSearchResults.result.value?.groups.find(
+    (group) => group.id === option
+  );
+  emit("select", group);
 }
 </script>
 
 <style scoped lang="scss">
-  .results {
-    position: absolute;
-    width: 100%;
-    z-index: 1;
+.results {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
 
-    .result {
-      padding: 5px;
-      margin: 0;
-      background-color: #3b3b3b;
+  .result {
+    padding: 5px;
+    margin: 0;
+    background-color: #3b3b3b;
 
-      &:hover {
-        background-color: #4b4b4b;
-      }
+    &:hover {
+      background-color: #4b4b4b;
     }
   }
+}
 </style>
