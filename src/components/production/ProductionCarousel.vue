@@ -1,43 +1,33 @@
 <template>
   <div v-if="items.length > 0">
-    <n-carousel ref="carousel" class="aspect-ratio">
-      <div v-for="item of items" class="carousel-contents extend-height">
-        <div v-if="item.__typename === 'Image'">
-          <img :src="item.path" :alt="item.name" />
-        </div>
+    <v-carousel show-arrows="hover" hide-delimiter-background class="carousel" :height="height">
+      <v-carousel-item v-for="item of items">
+        <img v-if="item.__typename === 'Image'" :src="item.path" :alt="item.name">
         <div v-else-if="!item.metadata || !item.metadata.url" class="unsupported-format">
           Video currently doesn't have any metadata or a url to link to.
         </div>
-        <div v-else class="extend-height">
-          <iframe v-if="item.format === 'EMBED'" class="videoplayer" :src="item.metadata.url" title="YouTube video player" frameborder="0"  allowfullscreen></iframe>
+        <div v-else style="height: 100%">
+          <iframe v-if="item.format === 'EMBED'" :src="item.metadata.url" title="YouTube video player" allowfullscreen class="video-player"></iframe>
           <div v-else class="unsupported-format">
-            <p>Sorry, videos in this format currently cannot be played.</p>
-            <p>Contact us to download a copy of this video.</p>
+            <p>Sorry, videos in this format currently cannot be played</p>
+            <p>Contact us to download a copy of this video</p>
+          </div>
         </div>
-      </div>
-     </div>
-    </n-carousel>
-    <n-space justify="space-between" v-if="items.length > 1">
-      <n-button text class="carousel-btns" @click="prev">
-        <FontAwesomeIcon icon="fas fa-arrow-left" />
-      </n-button>
-      <n-button text class="carousel-btns" @click="next">
-        <FontAwesomeIcon icon="fas fa-arrow-right" />
-      </n-button>
-    </n-space>
+      </v-carousel-item>
+    </v-carousel>
   </div>
   <div v-else>
-    <p class="no-media">No images or videos available.</p>
+    <p class="no-media">No images or videos available</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import type {Image, Video} from "@/graphql/types";
 import type {PropType} from "vue";
-import { ref } from "vue";
-import {NCarousel, NSpace, NButton} from "naive-ui";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { useDisplay } from "vuetify";
+import { computed } from "vue";
 
+const display = useDisplay();
 const props = defineProps({
   items: {
     type: Array as PropType<
@@ -49,44 +39,23 @@ const props = defineProps({
   }
 });
 
-const carousel = ref<InstanceType<typeof NCarousel> | null>(null);
+const height = computed(() => {
+  return display.width.value * 0.45;
+})
 
-// Components don't load in fast enough for refs so we need to use functions instead of just calling their methods
-function prev() {
-  carousel.value?.prev();
-}
-function next() {
-  carousel.value?.next();
-}
 </script>
 
-<style scoped>
-.aspect-ratio {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background-color: black;
-  height: 100%;
-  width: 100%;
-}
+<style scoped lang="scss">
+
 img {
-  aspect-ratio: 16 / 9;
-  height: 100%;
   width: 100%;
-}
-.videoplayer {
-  aspect-ratio: 16 / 9;
   height: 100%;
-  width: 100%;
-  border: 0px;
-}
-.carousel-btns {
-  margin-top: 5px;
-  font-size: 28px;
 }
 .no-media {
   text-align: center;
   font-style: italic;
 }
+
 .unsupported-format {
   display: flex;
   flex-direction: column;
@@ -96,8 +65,11 @@ img {
   text-align: center;
   font-style: italic;
 }
-.extend-height {
-  position: relative;
+
+.video-player {
+  width: 100%;
   height: 100%;
+  border: 0;
 }
+
 </style>

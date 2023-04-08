@@ -1,27 +1,30 @@
 <template>
   <div class="card-wrapper">
-    <n-card class="card">
-      <div v-if="!production.loading.value">
-        <ProductionCarousel :items="productionImagesAndVideos"/>
+    <v-card class="card" v-if="!production.loading.value">
+      <ProductionCarousel :items="productionImagesAndVideos"/>
+      <v-card-text>
         <h1 class="prod-title">{{ production.result.value?.ReadProduction?.name }}</h1>
+      </v-card-text>
+      <v-card-subtitle>
         <p class="prod-subtitle">{{ productionSubtitle }}</p>
+      </v-card-subtitle>
+      <v-card-text>
         <p class="prod-description">{{ production.result.value?.ReadProduction?.description }}</p>
-        <ProductionCredits :credits="production.result.value?.ReadProduction.credits"/>
-        <ProductionTags
+        <ProductionCredits class="prod-credits" :credits="production.result.value?.ReadProduction.credits"/>
+        <ProductionTags class="prod-tags"
           v-if="production.result.value?.ReadProduction.tags.length > 0"
           :tags="production.result.value?.ReadProduction?.tags.map(tag => tag.tag)"
         />
-      </div>
-      <div v-else class="loading">
-        <n-spin />
-        <p>Loading...</p>
-      </div>
-    </n-card>
+      </v-card-text>
+    </v-card>
+    <div v-else class="loading">
+      <v-progress-circular color="#ff6363" size="54" indeterminate></v-progress-circular>
+      <p>Loading...</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {NCard, NSpin} from "naive-ui";
 import {useRoute} from "vue-router";
 import {useQuery} from "@vue/apollo-composable";
 import {ProductionImage, ProductionVideo, ReadProductionDocument} from "@/graphql/types";
@@ -86,14 +89,79 @@ const productionSubtitle = computed<string>(() => {
 .loading {
   text-align: center;
 }
-.prod-title, .prod-subtitle {
-  margin: 0;
+
+.prod-title {
+  margin-bottom: -10px;
+  @media screen and (max-width: 500px){
+    font-size: 20px;
+  }
+  @media screen and (min-width: 501px) and (max-width: 1000px) {
+    font-size: 25px;
+  }
+  @media screen and (min-width: 1200px) {
+    font-size: 33px;
+    margin-bottom: -2px;
+  }
+  @media screen and (min-width: 1600px) {
+    font-size: 38px;
+    margin-bottom: 3px;
+  }
+  @media screen and (min-width: 2200px) {
+    font-size: 44px;
+    margin-bottom: 10px;
+  }
 }
 
 .prod-subtitle {
-  font-size: 1.1em;
   font-weight: 500;
   font-style: italic;
   opacity: 75%;
+  @media screen and (min-width: 600px) {
+    font-size: 16px;
+  }
+  @media screen and (min-width: 1200px) {
+    font-size: 20px;
+  }
+  @media screen and (min-width: 1600px) {
+    font-size: 25px;
+  }
+  @media screen and (min-width: 2200px) {
+    font-size: 30px;
+  }
 }
+
+.prod-description {
+  @media screen and (min-width: 600px) {
+    font-size: 16px;
+  }
+  @media screen and (min-width: 1200px) {
+    font-size: 20px;
+  }
+  @media screen and (min-width: 1600px) {
+    font-size: 25px;
+  }
+  @media screen and (min-width: 2200px) {
+    font-size: 30px;
+  }
+}
+
+.prod-credits {
+  margin-top: 20px;
+
+  @media screen and (min-width: 1000px) {
+    font-size: 17px;
+  }
+  @media screen and (min-width: 1350px) {
+    font-size: 21px;
+  }
+  @media screen and (min-width: 1700px) {
+    margin-top: 32px;
+    font-size: 27px;
+  }
+  @media screen and (min-width: 2200px) {
+    margin-top: 38px;
+    font-size: 30px;
+  }
+}
+
 </style>

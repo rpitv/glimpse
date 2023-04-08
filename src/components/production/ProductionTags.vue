@@ -1,7 +1,7 @@
 <template>
-  <NButton text @click="show = !show" style="font-size: 16px; font-family: 'Oswald', sans-serif;">
+  <v-btn variant="text" @click="show = !show" style="font-size: 16px; font-family: 'Oswald', sans-serif;" class="text-none">
     <span :class="{show: show, notShow: !show}" style="font-size: 12px">&#xfe40;</span>&nbsp;Tags
-  </NButton>
+  </v-btn>
   <hr class="divider">
   <NCollapseTransition :show="show">
     <NSpace>

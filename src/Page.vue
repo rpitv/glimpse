@@ -1,38 +1,40 @@
 <template>
   <!-- Background -->
-  <div class="background"/>
-  <div v-if="topLevelError !== null">
-    <ServerErrorView :error="topLevelError" />
-  </div>
-  <div v-else>
-    <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
-
-    <!-- Navbar -->
-    <NavigationHeader/>
-
-    <!-- Logo -->
-    <div class="main-logo-wrapper">
-      <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
-           alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+  <v-app>
+    <div class="background"/>
+    <div v-if="topLevelError !== null">
+      <ServerErrorView :error="topLevelError" />
     </div>
+    <div v-else>
+      <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
 
-    <!-- Page content -->
-    <div :class="layoutCssName + ' layout content'">
-      <RouterView v-slot="{ Component, route }">
-        <Transition name="router">
-          <div :class="layoutCssName + ' layout router-page'" :key="route.name">
-            <div v-if="maintenanceMode && !authStore.isLoggedIn">
-              <MaintenanceView />
+      <!-- Navbar -->
+      <NavigationHeader/>
+
+      <!-- Logo -->
+      <div class="main-logo-wrapper">
+        <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
+             alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+      </div>
+
+      <!-- Page content -->
+      <div :class="layoutCssName + ' layout content'">
+        <RouterView v-slot="{ Component, route }">
+          <Transition name="router">
+            <div :class="layoutCssName + ' layout router-page'" :key="route.name">
+              <div v-if="maintenanceMode && !authStore.isLoggedIn">
+                <MaintenanceView />
+              </div>
+              <div v-else>
+                <component :is="Component"/>
+              </div>
+              <Footer/>
             </div>
-            <div v-else>
-              <component :is="Component"/>
-            </div>
-            <Footer/>
-          </div>
-        </Transition>
-      </RouterView>
+          </Transition>
+        </RouterView>
+      </div>
     </div>
-  </div>
+  </v-app>
 </template>
 
 <script setup lang="ts">

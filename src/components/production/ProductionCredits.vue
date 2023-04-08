@@ -1,14 +1,15 @@
 <template>
   <div v-if="sortedCredits.length > 0">
     <h3>Credits</h3>
-    <n-grid :cols="3">
-      <n-grid-item v-for="credit in sortedCredits" :key="credit.id" class="col">
+    <br>
+    <v-row>
+      <v-col cols="4" v-for="credit in sortedCredits" :key="credit.id" class="col">
         <span class="no-display-at-1250">&ensp; </span>
         <span class="name">&nbsp;{{ credit.person.name }}</span>
         <span class="no-display-at-1250"> - </span>
         <span class="title">{{ credit.title }}</span>
-      </n-grid-item>
-    </n-grid>
+      </v-col>
+    </v-row>
   </div>
 </template>
 

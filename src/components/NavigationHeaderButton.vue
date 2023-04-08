@@ -19,7 +19,7 @@
             size="small"
             style="letter-spacing: normal"
         >
-            <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
+          <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
           {{ value.name }}
         </v-btn>
       </a>
