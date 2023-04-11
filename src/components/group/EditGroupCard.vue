@@ -6,43 +6,7 @@
     </div>
     <n-spin v-else :show="isSaving">
       <template #description> Saving... </template>
-      <n-form ref="formRef" :model="inputGroup" :rules="rules" inline>
-        <n-grid cols="1 m:3" responsive="screen" x-gap="10" y-gap="10">
-          <n-form-item-grid-item path="name" label="Name">
-            <n-input
-              v-if="inputGroup!.name != null"
-              maxlength="50"
-              v-model:value="inputGroup!.name"
-            />
-          </n-form-item-grid-item>
-          <n-form-item-grid-item path="priority" label="Priority">
-            <n-input-number
-              class="form-item"
-              v-if="inputGroup?.priority != null"
-              v-model:value="inputGroup.priority"
-            />
-          </n-form-item-grid-item>
-          <n-form-item-grid-item path="parentId" label="Parent">
-            <div>
-              <GroupSearch
-                class="form-item"
-                :disabled-groups="[{ id: groupId }]"
-                @select="parentGroupSelected"
-              />
-              <n-tag
-                v-if="inputGroup!.parent != null"
-                closable
-                @close="parentGroupSelected(null)"
-                type="primary"
-                class="parent-group-tag"
-              >
-                {{ inputGroup!.parent?.name }} (ID {{ inputGroup!.parent?.id }})
-              </n-tag>
-              <p v-else>None</p>
-            </div>
-          </n-form-item-grid-item>
-        </n-grid>
-      </n-form>
+      <GroupDetailsInput v-model:data="inputGroup" />
       <RouterPopup v-model="confirmPermissionsEditor" :max-width="1000">
         <GroupPermissionsEditor
           ref="editor"
@@ -67,22 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  FormRules,
-  NCard,
-  NForm,
-  NButton,
-  NFormItemGridItem,
-  NGrid,
-  NInput,
-  NSpin,
-  NTag,
-  NInputNumber,
-  useMessage,
-  useDialog,
-} from "naive-ui";
+import { NCard, NButton, NSpin, useMessage, useDialog } from "naive-ui";
 import type { PropType } from "vue";
-import GroupSearch from "@/components/group/GroupSearch.vue";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   Group,
@@ -92,6 +42,7 @@ import {
 import { computed, ref, watch } from "vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import GroupPermissionsEditor from "@/components/group/GroupPermissionsEditor.vue";
+import GroupDetailsInput from "@/components/group/GroupDetailsInput.vue";
 
 const props = defineProps({
   closable: {
@@ -145,56 +96,6 @@ const confirmPermissionsEditor = computed({
   },
 });
 
-const rules: FormRules = {
-  name: [
-    {
-      required: true,
-      trigger: "change",
-      validator(rule, value) {
-        if (!value) {
-          return new Error("Group name is required.");
-        } else if (value.length > 50) {
-          return new Error("Group name must be 50 characters or less");
-        }
-      },
-    },
-  ],
-  priority: [
-    {
-      required: true,
-      trigger: "change",
-      validator(rule, value) {
-        if (isNaN(value)) {
-          return new Error("Priority is required.");
-        } else if (!Number.isInteger(value) && typeof value !== "bigint") {
-          return new Error("Priority must be an integer.");
-        }
-      },
-    },
-  ],
-  parentId: [
-    {
-      trigger: "change",
-      validator(rule, value) {
-        if (value == null) {
-          return;
-        }
-        if (!Number.isInteger(value) && typeof value !== "bigint") {
-          return new Error("Parent group ID must be an integer.");
-        }
-      },
-    },
-  ],
-};
-
-function parentGroupSelected(parent: Pick<Group, "id"> | null) {
-  if (!inputGroup.value) {
-    throw new Error("Cannot set parent group on null group");
-  }
-  inputGroup.value.parentId = parent?.id ?? null;
-  inputGroup.value.parent = parent ?? null;
-}
-
 function save() {
   if (inputGroup.value == null) {
     throw new Error("Cannot set inputGroup to null");
@@ -230,14 +131,6 @@ function close() {
 </script>
 
 <style scoped lang="scss">
-.form-item {
-  width: 100%;
-}
-
-.parent-group-tag {
-  margin: 1em 0;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;

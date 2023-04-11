@@ -1,0 +1,5 @@
+mutation CreateGroup($data: CreateGroupInput!) {
+  group: createGroup(input: $data) {
+    id
+  }
+}
