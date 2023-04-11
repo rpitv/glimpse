@@ -1,0 +1,5 @@
+mutation DeleteGroupPermission($id: BigInt!) {
+  permission: deleteGroupPermission(id: $id) {
+    id
+  }
+}

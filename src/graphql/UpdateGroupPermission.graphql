@@ -1,0 +1,5 @@
+mutation UpdateGroupPermission($id: BigInt!, $input: UpdateGroupPermissionInput!) {
+  permission: updateGroupPermission(id: $id, input: $input) {
+    id
+  }
+}

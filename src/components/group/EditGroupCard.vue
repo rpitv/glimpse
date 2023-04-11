@@ -43,6 +43,17 @@
           </n-form-item-grid-item>
         </n-grid>
       </n-form>
+      <RouterPopup v-model="confirmPermissionsEditor" :max-width="1000">
+        <GroupPermissionsEditor
+          ref="editor"
+          :group-id="groupId"
+          closable
+          @close="confirmPermissionsEditor = false"
+        />
+        <template #trigger>
+          <n-button type="primary">Open Permissions Editor</n-button>
+        </template>
+      </RouterPopup>
     </n-spin>
     <div class="actions">
       <n-button :disabled="isSaving" type="success" @click="save"
@@ -68,6 +79,7 @@ import {
   NTag,
   NInputNumber,
   useMessage,
+  useDialog,
 } from "naive-ui";
 import type { PropType } from "vue";
 import GroupSearch from "@/components/group/GroupSearch.vue";
@@ -77,7 +89,9 @@ import {
   GroupDetailsDocument,
   UpdateGroupDocument,
 } from "@/graphql/types";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import GroupPermissionsEditor from "@/components/group/GroupPermissionsEditor.vue";
 
 const props = defineProps({
   closable: {
@@ -93,6 +107,7 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
+const dialog = useDialog();
 const message = useMessage();
 const data = useQuery(GroupDetailsDocument, { id: props.groupId });
 const mutation = useMutation(UpdateGroupDocument);
@@ -108,6 +123,27 @@ watch(
   },
   { immediate: true }
 );
+
+const showPermissionsEditor = ref<boolean>(false);
+const editor = ref<GroupPermissionsEditor | null>(null);
+const confirmPermissionsEditor = computed({
+  get: () => showPermissionsEditor.value,
+  set: (value: boolean) => {
+    if (!value && editor.value.hasUnsavedChanges) {
+      dialog.warning({
+        title: "Close without saving?",
+        content: "Are you sure you want to close without saving?",
+        positiveText: "Yes",
+        negativeText: "Go Back",
+        onPositiveClick: () => {
+          showPermissionsEditor.value = false;
+        },
+      });
+    } else {
+      showPermissionsEditor.value = value;
+    }
+  },
+});
 
 const rules: FormRules = {
   name: [
