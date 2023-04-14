@@ -1,6 +1,6 @@
 <template>
   <n-form ref="formRef" :model="inputRole" :rules="rules" inline>
-    <n-grid cols="1 m:3" responsive="screen" x-gap="10" y-gap="10">
+    <n-grid cols="1 m:2" responsive="screen" x-gap="10" y-gap="10">
       <n-form-item-grid-item
         path="name"
         label="Name"
@@ -15,6 +15,28 @@
       >
         <n-input-number class="form-item" v-model:value="inputRole.priority" />
       </n-form-item-grid-item>
+      <n-form-item-grid-item path="description" label="Description" span="2">
+        <n-input
+          type="textarea"
+          class="form-item"
+          maxlength="1000"
+          v-model:value="inputRole.description"
+        />
+      </n-form-item-grid-item>
+      <n-form-item-grid-item
+        v-if="inputRole.displayInMembership != null"
+        path="displayInMembership"
+        label="Display in Membership"
+      >
+        <n-switch v-model:value="inputRole.displayInMembership" />
+      </n-form-item-grid-item>
+      <n-form-item-grid-item
+        v-if="inputRole.displayInLeadership != null"
+        path="displayInLeadership"
+        label="Display in Leadership"
+      >
+        <n-switch v-model:value="inputRole.displayInLeadership" />
+      </n-form-item-grid-item>
     </n-grid>
   </n-form>
 </template>
@@ -27,6 +49,7 @@ import {
   NInput,
   FormInst,
   NInputNumber,
+  NSwitch,
 } from "naive-ui";
 import { computed, PropType, ref, watch } from "vue";
 import { Role } from "@/graphql/types";
@@ -81,6 +104,17 @@ const rules: FormRules = {
           return new Error("Role name is required.");
         } else if (value.length > 100) {
           return new Error("Role name must be 100 characters or less");
+        }
+      },
+    },
+  ],
+  description: [
+    {
+      required: false,
+      trigger: "change",
+      validator(rule, value) {
+        if (value?.length > 1000) {
+          return new Error("Role description must be 1,000 characters or less");
         }
       },
     },
