@@ -61,6 +61,9 @@ import DashboardRolesPage from "@/components/dashboard/DashboardRolesPage.vue";
 import GroupList from "@/components/group/GroupList.vue";
 import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
 import EditGroupCard from "@/components/group/EditGroupCard.vue";
+import RoleList from "@/components/role/RoleList.vue";
+import EditRoleCard from "@/components/role/EditRoleCard.vue";
+import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -494,6 +497,80 @@ const router = createRouter({
               { route: { name: "dashboard-roles" }, name: "Roles" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-roles-list",
+              component: restrictedComponent(RoleList, () =>
+                canViewRolesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-roles-list" }, name: "Roles" },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-role-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewRolesDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-roles-list" }, name: "Roles" },
+                  {
+                    route: { name: "dashboard-role-details-edit" },
+                    name: `Edit Role ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "edit",
+                  name: "dashboard-role-details-edit",
+                  component: restrictedComponent(EditRoleCard, () =>
+                    canViewRolesDashboard()
+                  ),
+                  props: (route) => ({
+                    roleId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-role-list" },
+                        name: "Roles",
+                      },
+                      {
+                        route: { name: "dashboard-role-details-edit" },
+                        name: `Edit Role ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              path: "create",
+              name: "dashboard-role-create",
+              component: restrictedComponent(CreateRoleCard, () =>
+                canViewRolesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-roles-list" }, name: "Roles" },
+                  {
+                    route: { name: "dashboard-role-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+          ],
         },
         {
           path: "stream",

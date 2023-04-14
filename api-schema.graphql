@@ -5,9 +5,7 @@ schema {
   mutation: Mutation
 }
 
-directive @custom_rule(name: String!, options: RuleOptions) on FIELD_DEFINITION
-
-directive @rule(options: RuleOptions, ruleType: RuleType, subject: AbilitySubjects) on FIELD_DEFINITION
+directive @rule(id: String!, options: RuleOptions, subject: AbilitySubjects) on FIELD_DEFINITION
 
 union Permission = GroupPermission | UserPermission
 
@@ -158,7 +156,7 @@ type AuditLog {
   Identifier of the resource that was changed. This should be the ID of the resource. If {@link  #subject} is null,
   then this should also be null.
   """
-  identifier: ID
+  identifier: BigInt
   """
 
   Custom message to display to the user when this audit log is displayed. This should be a human-readable message.
@@ -295,7 +293,7 @@ type Image {
   "The path/URI for this image."
   path: String
   people(filter: FilterPersonImageInput, pagination: PaginationInput): [PersonImage!]
-  productions(filter: FilterProductionImageInput, pagination: PaginationInput): [ProductionImage!]
+  productions(filter: FilterProductionImageInput, order: [OrderProductionImageInput!], pagination: PaginationInput): [ProductionImage!]
   profilePictureFor(filter: FilterPersonInput, order: [OrderPersonInput!], pagination: PaginationInput): [Person!]
   thumbnailFor(filter: FilterProductionInput, order: [OrderProductionInput!], pagination: PaginationInput): [Production!]
 }
@@ -396,6 +394,7 @@ type Person {
   images(filter: FilterPersonImageInput, pagination: PaginationInput): [PersonImage!]
   "The name (or pseudonym) for this Person. Should likely be in the format \"First Last\"."
   name: String
+  profilePicture: Image
   "ID of the image which should be used for this Person's profile picture."
   profilePictureId: BigInt
   "The pronouns for this Person. Should likely be in the format \"they/them\". Optional."
@@ -461,7 +460,7 @@ type Production {
   eventLocation: String
   "Unique ID for this Production. Automatically generated."
   id: BigInt
-  images(filter: FilterProductionImageInput, pagination: PaginationInput): [ProductionImage!]
+  images(filter: FilterProductionImageInput, order: [OrderProductionImageInput!], pagination: PaginationInput): [ProductionImage!]
   "The title/name of this Production"
   name: String
   rsvps(filter: FilterProductionRSVPInput, order: [OrderProductionRSVPInput!], pagination: PaginationInput): [ProductionRSVP!]
@@ -477,7 +476,7 @@ type Production {
   thumbnail: Image
   "The ID of the Image which should be used as the thumbnail for this Production."
   thumbnailId: BigInt
-  videos(filter: FilterProductionVideoInput, pagination: PaginationInput): [ProductionVideo!]
+  videos(filter: FilterProductionVideoInput, order: [OrderProductionVideoInput!], pagination: PaginationInput): [ProductionVideo!]
 }
 
 type ProductionImage {
@@ -630,11 +629,17 @@ type Redirect {
 type Role {
   "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
+  "Flag for whether this Role should be displayed in the leadership section on the website's \"About Us\" page."
+  displayInLeadership: Boolean
+  "Flag for whether this Role should be displayed in the membership section on the website's \"About Us\" page."
+  displayInMembership: Boolean
   "Unique ID for this Role. Automatically generated."
   id: BigInt
   "The name of this role."
   name: String
   people(filter: FilterPersonRoleInput, order: [OrderPersonRoleInput!], pagination: PaginationInput): [PersonRole!]
+  "Priority of this Role when displayed on the \"About Us\" page or next to other Role's on a Person's profile."
+  priority: Int
 }
 
 type Stream {
@@ -719,7 +724,7 @@ type Video {
   metadata: JSON
   "The display name for this Video."
   name: String
-  videoFor(filter: FilterProductionVideoInput, pagination: PaginationInput): [ProductionVideo!]
+  productions(filter: FilterProductionVideoInput, order: [OrderProductionVideoInput!], pagination: PaginationInput): [ProductionVideo!]
 }
 
 type Vote {
@@ -875,6 +880,10 @@ enum PersonRoleOrderableFields {
   startTime
 }
 
+enum ProductionImageOrderableFields {
+  priority
+}
+
 enum ProductionOrderableFields {
   categoryId
   id
@@ -892,6 +901,10 @@ enum ProductionTagOrderableFields {
   tag
 }
 
+enum ProductionVideoOrderableFields {
+  priority
+}
+
 enum RedirectOrderableFields {
   expires
   id
@@ -901,15 +914,7 @@ enum RedirectOrderableFields {
 enum RoleOrderableFields {
   id
   name
-}
-
-enum RuleType {
-  Count
-  Create
-  Delete
-  ReadMany
-  ReadOne
-  Update
+  priority
 }
 
 enum UserOrderableFields {
@@ -1279,8 +1284,14 @@ input CreateRedirectInput {
 input CreateRoleInput {
   "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
+  "Flag for whether this Role should be displayed in the leadership section on the website's \"About Us\" page."
+  displayInLeadership: Boolean
+  "Flag for whether this Role should be displayed in the membership section on the website's \"About Us\" page."
+  displayInMembership: Boolean
   "The name of this role."
   name: String
+  "Priority of this Role when displayed on the \"About Us\" page or next to other Role's on a Person's profile."
+  priority: Int
 }
 
 "Input type for createCategory mutation"
@@ -1727,6 +1738,10 @@ input FilterRoleInput {
   OR: [FilterRoleInput!]
   "Filter by the description of this Role."
   description: StringComparisonInput
+  "Filter by whether this Role should be displayed in the leadership section on the website's \"About Us\" page."
+  displayInLeadership: BooleanComparisonInput
+  "Filter by whether this Role should be displayed in the membership section on the website's \"About Us\" page."
+  displayInMembership: BooleanComparisonInput
   "Filter by ID"
   id: NumberComparisonInput
   "Filter by the name of this Role."
@@ -1831,6 +1846,7 @@ input NumberComparisonInput {
   equals: Float
   gt: Float
   gte: Float
+  in: [Float!]
   lt: Float
   lte: Float
   not: Float
@@ -1940,6 +1956,14 @@ input OrderPersonRoleInput {
   field: PersonRoleOrderableFields!
 }
 
+"Input type for ordering Categories in ReadMany queries."
+input OrderProductionImageInput {
+  "Direction to order in. Required."
+  direction: OrderDirection!
+  "Name of the field to sort by."
+  field: ProductionImageOrderableFields!
+}
+
 "Input type for ordering Productions in ReadMany queries."
 input OrderProductionInput {
   "Direction to order in. Required."
@@ -1962,6 +1986,14 @@ input OrderProductionTagInput {
   direction: OrderDirection!
   "Name of the field to sort by."
   field: ProductionTagOrderableFields!
+}
+
+"Input type for ordering Categories in ReadMany queries."
+input OrderProductionVideoInput {
+  "Direction to order in. Required."
+  direction: OrderDirection!
+  "Name of the field to sort by."
+  field: ProductionVideoOrderableFields!
 }
 
 "Input type for ordering Redirects in ReadMany queries."
@@ -2041,6 +2073,7 @@ input StringComparisonInput {
   contains: String
   endsWith: String
   equals: String
+  in: [String!]
   mode: CaseSensitivity
   not: String
   startsWith: String
@@ -2413,8 +2446,14 @@ pass null.
 input UpdateRoleInput {
   "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
+  "Flag for whether this Role should be displayed in the leadership section on the website's \"About Us\" page."
+  displayInLeadership: Boolean
+  "Flag for whether this Role should be displayed in the membership section on the website's \"About Us\" page."
+  displayInMembership: Boolean
   "The name of this role."
   name: String
+  "Priority of this Role when displayed on the \"About Us\" page or next to other Role's on a Person's profile."
+  priority: Int
 }
 
 "Input type for updateUser mutation. Null values are not updated. To update a non-null value to null, explicitly pass null."
