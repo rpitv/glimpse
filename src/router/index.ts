@@ -64,6 +64,9 @@ import EditGroupCard from "@/components/group/EditGroupCard.vue";
 import RoleList from "@/components/role/RoleList.vue";
 import EditRoleCard from "@/components/role/EditRoleCard.vue";
 import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
+import VideoList from "@/components/video/VideoList.vue";
+import EditVideoCard from "@/components/video/EditVideoCard.vue";
+import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -753,6 +756,80 @@ const router = createRouter({
               { route: { name: "dashboard-videos" }, name: "Videos" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-videos-list",
+              component: restrictedComponent(VideoList, () =>
+                canViewVideosDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-videos-list" }, name: "Videos" },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-video-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewVideosDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-videos-list" }, name: "Videos" },
+                  {
+                    route: { name: "dashboard-video-details-edit" },
+                    name: `Edit Video ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "edit",
+                  name: "dashboard-video-details-edit",
+                  component: restrictedComponent(EditVideoCard, () =>
+                    canViewVideosDashboard()
+                  ),
+                  props: (route) => ({
+                    videoId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-videos-list" },
+                        name: "Videos",
+                      },
+                      {
+                        route: { name: "dashboard-video-details-edit" },
+                        name: `Edit Video ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              path: "create",
+              name: "dashboard-video-create",
+              component: restrictedComponent(CreateVideoCard, () =>
+                canViewVideosDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-videos-list" }, name: "Videos" },
+                  {
+                    route: { name: "dashboard-video-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+          ],
         },
         {
           path: "votes",
