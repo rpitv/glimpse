@@ -6,7 +6,7 @@
         label="Name"
         v-if="inputVideo!.name != null"
       >
-        <n-input maxlength="50" v-model:value="inputVideo!.name" />
+        <n-input maxlength="100" v-model:value="inputVideo!.name" />
       </n-form-item-grid-item>
       <n-form-item-grid-item path="format" label="Format">
         <n-select

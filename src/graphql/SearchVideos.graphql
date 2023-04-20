@@ -1,6 +1,6 @@
 query SearchVideos($pagination: PaginationInput, $filter: FilterVideoInput) {
   videoCount(filter: $filter)
-  roles: findManyVideo(pagination: $pagination, filter: $filter) {
+  videos: findManyVideo(pagination: $pagination, filter: $filter) {
     id
     name
   }

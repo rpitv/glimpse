@@ -1,0 +1,6 @@
+mutation DeleteImage($id: BigInt!) {
+  image: deleteImage(id: $id) {
+    id
+    name
+  }
+}

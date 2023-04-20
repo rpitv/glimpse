@@ -67,6 +67,9 @@ import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 import VideoList from "@/components/video/VideoList.vue";
 import EditVideoCard from "@/components/video/EditVideoCard.vue";
 import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
+import ImageList from "@/components/image/ImageList.vue";
+import EditImageCard from "@/components/image/EditImageCard.vue";
+import CreateImageCard from "@/components/image/CreateImageCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -402,6 +405,80 @@ const router = createRouter({
               { route: { name: "dashboard-images" }, name: "Images" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-images-list",
+              component: restrictedComponent(ImageList, () =>
+                canViewImagesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-images-list" }, name: "Images" },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-image-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewImagesDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-images-list" }, name: "Images" },
+                  {
+                    route: { name: "dashboard-image-details-edit" },
+                    name: `Edit Image ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "edit",
+                  name: "dashboard-image-details-edit",
+                  component: restrictedComponent(EditImageCard, () =>
+                    canViewImagesDashboard()
+                  ),
+                  props: (route) => ({
+                    imageId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-images-list" },
+                        name: "Images",
+                      },
+                      {
+                        route: { name: "dashboard-image-details-edit" },
+                        name: `Edit Image ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              path: "create",
+              name: "dashboard-image-create",
+              component: restrictedComponent(CreateImageCard, () =>
+                canViewImagesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-images-list" }, name: "Images" },
+                  {
+                    route: { name: "dashboard-image-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+          ],
         },
         {
           path: "logs",
