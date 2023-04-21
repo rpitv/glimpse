@@ -26,10 +26,27 @@
           />
         </div>
         <div v-else-if="currentStep === 2">
-          <h2>Video Details</h2>
-          <p>Name: {{ videoData.name }}</p>
-          <p>Format: {{ videoData.format }}</p>
-          <p>URL: {{ videoData.metadata?.url }}</p>
+          <n-grid cols="1 s:2" responsive="screen">
+            <n-grid-item>
+              <h2>Video Details</h2>
+              <p>Name: {{ videoData.name }}</p>
+              <p>Format: {{ videoData.format }}</p>
+              <p>URL: {{ videoData.metadata?.url }}</p>
+            </n-grid-item>
+            <n-grid-item
+              v-if="videoData.format === 'EMBED' && videoData.metadata?.url"
+            >
+              <h2>Preview</h2>
+              <iframe
+                class="preview-iframe"
+                :src="videoData.metadata?.url"
+                allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                frameborder="0"
+                scrolling="no"
+                allowfullscreen
+              />
+            </n-grid-item>
+          </n-grid>
         </div>
         <div v-else-if="currentStep === steps.length + 1">
           <n-alert v-if="error" type="error">
@@ -75,7 +92,15 @@
 </template>
 
 <script setup lang="ts">
-import { NCard, NSteps, NStep, NButton, NAlert } from "naive-ui";
+import {
+  NCard,
+  NSteps,
+  NStep,
+  NButton,
+  NAlert,
+  NGrid,
+  NGridItem,
+} from "naive-ui";
 import { computed, ref } from "vue";
 import type { Video } from "@/graphql/types";
 import { useMutation } from "@vue/apollo-composable";
@@ -184,5 +209,11 @@ async function nextStep() {
   .action {
     margin-left: 0.5em;
   }
+}
+
+.preview-iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: 1em;
 }
 </style>

@@ -32,6 +32,21 @@
       </n-form-item-grid-item>
     </n-grid>
   </n-form>
+  <div>
+    <h2>Preview</h2>
+    <n-button
+      type="info"
+      title="Preview is currently only available for embeds."
+      :disabled="!inputVideo.metadata?.url || inputVideo.format !== 'EMBED'"
+      @click="loadPreviewIFrame"
+      >Load Preview</n-button
+    >
+    <component
+      :is="previewIFrame"
+      v-if="previewIFrame"
+      class="preview-iframe"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -42,8 +57,9 @@ import {
   NInput,
   FormInst,
   NSelect,
+  NButton,
 } from "naive-ui";
-import { computed, PropType, ref, watch } from "vue";
+import { computed, h, PropType, ref, VNode, watch } from "vue";
 import { Video } from "@/graphql/types";
 import { FormRules } from "naive-ui";
 
@@ -71,6 +87,7 @@ const formatOptions = [
 
 const emit = defineEmits(["update:data"]);
 
+const previewIFrame = ref<null | VNode>(null);
 const isValid = ref<boolean>(false);
 const formRef = ref<FormInst | null>(null);
 defineExpose({
@@ -153,6 +170,18 @@ const rules: FormRules = {
     ],
   },
 };
+
+function loadPreviewIFrame() {
+  previewIFrame.value = h("iframe", {
+    style: "width: 100%; aspect-ratio: 16 / 9; margin-top: 1em;",
+    src: inputVideo.value.metadata?.url,
+    allow:
+      "fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+    frameborder: 0,
+    scrolling: "no",
+    allowfullscreen: true,
+  });
+}
 </script>
 
 <style scoped lang="scss">
