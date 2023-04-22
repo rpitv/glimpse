@@ -1,6 +1,6 @@
 query FindGroups($pagination: PaginationInput, $filter: FilterGroupInput) {
   groupCount(filter: $filter)
-  groups: findManyGroup(pagination: $pagination, order: [{ field: priority, direction: Desc }], filter: $filter) {
+  groups: findManyGroup(pagination: $pagination, order: [{ field: priority, direction: Desc }, { field: name, direction: Asc }], filter: $filter) {
     id
     name
     priority

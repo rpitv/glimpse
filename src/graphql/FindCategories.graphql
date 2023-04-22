@@ -1,0 +1,8 @@
+query FindCategories($pagination: PaginationInput, $filter: FilterCategoryInput) {
+  categoryCount(filter: $filter)
+  categories: findManyCategory(pagination: $pagination, order: [{ field: priority, direction: Desc }, { field: name, direction: Asc }], filter: $filter) {
+    id
+    name
+    priority
+  }
+}

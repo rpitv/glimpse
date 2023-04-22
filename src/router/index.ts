@@ -70,6 +70,9 @@ import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
 import ImageList from "@/components/image/ImageList.vue";
 import EditImageCard from "@/components/image/EditImageCard.vue";
 import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
+import EditCategoryCard from "@/components/category/EditCategoryCard.vue";
+import CategoryList from "@/components/category/CategoryList.vue";
 
 function restrictedComponent(
   component: Component,
@@ -271,6 +274,89 @@ const router = createRouter({
               { route: { name: "dashboard-categories" }, name: "Categories" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-categories-list",
+              component: restrictedComponent(CategoryList, () =>
+                canViewCategoriesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  {
+                    route: { name: "dashboard-categories-list" },
+                    name: "Categories",
+                  },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-category-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewCategoriesDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  {
+                    route: { name: "dashboard-categories-list" },
+                    name: "Categories",
+                  },
+                  {
+                    route: { name: "dashboard-category-details-edit" },
+                    name: `Edit Category ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "edit",
+                  name: "dashboard-category-details-edit",
+                  component: restrictedComponent(EditCategoryCard, () =>
+                    canViewCategoriesDashboard()
+                  ),
+                  props: (route) => ({
+                    categoryId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-categories-list" },
+                        name: "Categories",
+                      },
+                      {
+                        route: { name: "dashboard-category-details-edit" },
+                        name: `Edit Category ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+            {
+              path: "create",
+              name: "dashboard-category-create",
+              component: restrictedComponent(CreateCategoryCard, () =>
+                canViewCategoriesDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  {
+                    route: { name: "dashboard-categories-list" },
+                    name: "Categories",
+                  },
+                  {
+                    route: { name: "dashboard-category-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+          ],
         },
         {
           path: "contact-submissions",
