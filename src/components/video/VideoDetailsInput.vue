@@ -1,6 +1,6 @@
 <template>
   <n-form ref="formRef" :model="inputVideo" :rules="rules" inline>
-    <n-grid cols="1 m:3" responsive="screen" x-gap="10" y-gap="10">
+    <n-grid cols="1 m:2" responsive="screen" x-gap="10" y-gap="10">
       <n-form-item-grid-item
         path="name"
         label="Name"
@@ -19,16 +19,33 @@
         path="metadata.url"
         label="URL"
         v-if="inputVideo!.name != null"
+        span="2"
       >
-        <n-input
-          maxlength="1000"
-          :value="inputVideo!.metadata?.url || ''"
-          @update:value="
-            inputVideo.metadata = inputVideo.metadata
-              ? { ...inputVideo.metadata, url: $event }
-              : { url: $event }
-          "
-        />
+        <n-grid cols="1">
+          <n-grid-item>
+            <n-input
+              maxlength="1000"
+              :value="inputVideo!.metadata?.url || ''"
+              @update:value="
+                inputVideo.metadata = inputVideo.metadata
+                  ? { ...inputVideo.metadata, url: $event }
+                  : { url: $event }
+              "
+            />
+          </n-grid-item>
+          <n-grid-item>
+            <a
+              v-if="suggestedUrl"
+              @click="
+                inputVideo.metadata = {
+                  ...inputVideo.metadata,
+                  url: suggestedUrl,
+                }
+              "
+              >Did you mean {{ suggestedUrl }}?</a
+            >
+          </n-grid-item>
+        </n-grid>
       </n-form-item-grid-item>
     </n-grid>
   </n-form>
@@ -58,6 +75,7 @@ import {
   FormInst,
   NSelect,
   NButton,
+  NGridItem,
 } from "naive-ui";
 import { computed, h, PropType, ref, VNode, watch } from "vue";
 import { Video } from "@/graphql/types";
@@ -116,6 +134,26 @@ const inputVideo = computed<Partial<Video>>({
   set(value) {
     emit("update:data", value);
   },
+});
+
+const youTubeRegex =
+  /^(?:https?:\/\/)?(?:(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|watch\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+const twitchRegex =
+  /^(?:https?:\/\/)?(?:www\.|m\.)?twitch\.tv\/([a-zA-Z0-9_-]+)/;
+// For various content providers (e.g. YouTube, Twitch), the user can provide a URL to a channel/video and we can
+//  recommend the correct URL to use for embedding. This has to be hard-coded per-site, so we can't do it for
+//  every website.
+const suggestedUrl = computed<string>(() => {
+  const url = inputVideo.value.metadata?.url as string | undefined;
+  if (inputVideo.value.format === "EMBED" && url) {
+    let match;
+    if ((match = url.match(youTubeRegex))) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    } else if ((match = url.match(twitchRegex))) {
+      return `https://player.twitch.tv/?channel=${match[1]}&parent=${window.location.hostname}`;
+    }
+  }
+  return "";
 });
 
 const rules: FormRules = {
