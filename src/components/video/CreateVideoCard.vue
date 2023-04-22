@@ -138,7 +138,7 @@ const error = ref<string | null>(null);
 const videoDetailsInput = ref<VideoDetailsInput | null>(null);
 const videoData = ref<Partial<Video>>({
   name: "",
-  format: "",
+  format: "EMBED",
   metadata: {
     url: "",
   },
