@@ -64,8 +64,8 @@
 
         <n-grid :cols="`1 m:${actionCount}`" responsive="screen" x-gap="10" class="actions">
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject)">
-            <RouterPopup :max-width="900" v-model="showEditPopup" :to="{ name: 'dashboard-user-details-edit', params: { id }}">
-              <UserInputCard
+            <RouterPopup :max-width="900" v-model="showEditPopup" :to="{ name: 'dashboard-user-details-edit', params: { id: Number(id) }}">
+              <EditUserCard
                 closable
                 :id="BigInt(query.result.value.user.id)"
                 @save="showEditPopup = false"
@@ -77,7 +77,7 @@
             </RouterPopup>
           </n-grid-item>
           <n-grid-item v-if="ability.can(AbilityActions.Update, userSubject, 'password')">
-            <RouterPopup v-model="showChangePasswordPopup" :to="{name: 'dashboard-user-details-change-password', params: { id }}">
+            <RouterPopup v-model="showChangePasswordPopup" :to="{name: 'dashboard-user-details-change-password', params: { id: Number(id) }}">
               <ChangePasswordCard
                 closable
                 :user-id="BigInt(query.result.value.user.id)"
@@ -112,7 +112,7 @@ import { subject } from "@casl/ability";
 import { useRouter } from "vue-router";
 import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
-import UserInputCard from "@/components/user/UserInputCard.vue";
+import EditUserCard from "@/components/user/EditUserCard.vue";
 
 const props = defineProps({
   id: {

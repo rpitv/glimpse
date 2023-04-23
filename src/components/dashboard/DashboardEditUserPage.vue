@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { computed } from "vue";
-import UserInputCard from "@/components/user/UserInputCard.vue";
+import UserInputCard from "@/components/user/EditUserCard.vue";
 
 const route = useRoute();
 

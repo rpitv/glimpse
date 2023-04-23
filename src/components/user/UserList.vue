@@ -55,7 +55,7 @@ import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import { useRoute } from "vue-router";
 import RouterPopup from "@/components/util/RouterPopup.vue";
-import UserInputCard from "@/components/user/UserInputCard.vue";
+import EditUserCard from "@/components/user/EditUserCard.vue";
 import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
 
@@ -172,7 +172,7 @@ const columns = [
             },
             {
               default: () => h(
-                UserInputCard,
+                EditUserCard,
                 { closable: true, id: BigInt(row.id), onSave: () => {
                     isPopupShown.value = false;
                     refresh();
