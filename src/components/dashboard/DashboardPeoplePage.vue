@@ -1,12 +1,7 @@
 <template>
-  <DashboardComingSoon/>
+  <router-view />
 </template>
 
-<script setup lang="ts">
-import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue";
+<script setup lang="ts"></script>
 
-</script>
-
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

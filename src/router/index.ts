@@ -73,6 +73,9 @@ import CreateImageCard from "@/components/image/CreateImageCard.vue";
 import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
 import EditCategoryCard from "@/components/category/EditCategoryCard.vue";
 import CategoryList from "@/components/category/CategoryList.vue";
+import EditPersonCard from "@/components/person/EditPersonCard.vue";
+import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
+import PersonList from "@/components/person/PersonList.vue";
 
 function restrictedComponent(
   component: Component,
@@ -603,6 +606,108 @@ const router = createRouter({
               { route: { name: "dashboard-people" }, name: "People" },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-people-list",
+              component: restrictedComponent(PersonList, () =>
+                canViewPeopleDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-people-list" }, name: "People" },
+                ],
+              },
+            },
+            {
+              path: "create",
+              name: "dashboard-person-create",
+              component: restrictedComponent(
+                h(CreatePersonCard, {
+                  onSave: (id: string) =>
+                    router.push({
+                      name: "dashboard-person-details",
+                      params: { id },
+                    }),
+                }),
+                () => canViewPeopleDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-people-list" }, name: "People" },
+                  {
+                    route: { name: "dashboard-person-create" },
+                    name: "Create",
+                  },
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-person-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewPeopleDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-people-list" }, name: "People" },
+                  {
+                    route: { name: "dashboard-person-details" },
+                    name: `Person ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "",
+                  name: "dashboard-person-details",
+                  component: restrictedComponent(EditPersonCard, () =>
+                    canViewPeopleDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-people-list" },
+                        name: "People",
+                      },
+                      {
+                        route: { name: "dashboard-person-details" },
+                        name: `Person ${route.params.id}`,
+                      },
+                    ],
+                  },
+                },
+                {
+                  path: "edit",
+                  name: "dashboard-person-details-edit",
+                  component: restrictedComponent(EditPersonCard, () =>
+                    canViewPeopleDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-people-list" },
+                        name: "People",
+                      },
+                      {
+                        route: { name: "dashboard-person-details" },
+                        name: `Person ${route.params.id}`,
+                      },
+                      {
+                        route: { name: "dashboard-person-details-edit" },
+                        name: "Edit",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
         },
         {
           path: "productions",

@@ -10,7 +10,7 @@
           <n-input maxlength="50" v-model:value="inputImage!.name" />
         </n-form-item-grid-item>
         <n-form-item-grid-item path="description" label="Description">
-          <n-input maxlength="200" v-model:value="inputImage!.description" />
+          <n-input maxlength="200" :value="inputImage.description || ''" @update:value="inputImage.description = $event" />
         </n-form-item-grid-item>
         <n-form-item-grid-item
           path="path"
@@ -26,7 +26,7 @@
       <n-button
         type="info"
         :disabled="!inputImage.path"
-        @click="previewPath = inputImage.path"
+        @click="previewPath = inputImage.path || null"
         >Load Preview</n-button
       >
       <img
@@ -114,8 +114,8 @@ const rules: FormRules = {
       validator(rule, value) {
         if (!value) {
           return new Error("Image path is required.");
-        } else if (value.length > 50) {
-          return new Error("Image path must be 1000 characters or less");
+        } else if (value.length > 1000) {
+          return new Error("Image path must be 1,000 characters or less");
         } else if (!value.match(/^https?:\/\/.*/)) {
           return new Error("Image path must start with http:// or https://");
         }
