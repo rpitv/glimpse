@@ -30,43 +30,52 @@
             <n-grid-item>
               <h2>Profile Picture</h2>
               <ImageSearch @select="profilePictureSelected" />
-              <div v-if="personData.profilePictureId">
-                <p
-                  v-if="
-                    profilePictureDetails.loading.value ||
-                    !profilePictureDetails.result.value
-                  "
-                >
-                  Loading...
-                </p>
-                <div v-else>
-                  <div class="profile-picture-remove-btn-wrapper">
-                    <n-button
-                      round
-                      secondary
-                      type="error"
-                      @click="profilePictureSelected(null)"
-                    >
-                      Remove
-                      <template #icon>
-                        <font-awesome-icon icon="fa-light fa-times" />
-                      </template>
-                    </n-button>
-                  </div>
-                  <img
-                    class="profile-picture centered"
-                    :src="profilePictureDetails.result.value.image.path"
-                    :alt="profilePictureDetails.result.value.image.name"
-                    :title="
-                      profilePictureDetails.result.value.image.description
-                    "
-                  />
+              <div
+                v-if="personData.profilePictureId && personData.profilePicture"
+              >
+                <div class="profile-picture-remove-btn-wrapper">
+                  <n-button
+                    round
+                    secondary
+                    type="error"
+                    @click="profilePictureSelected(null)"
+                  >
+                    Remove
+                    <template #icon>
+                      <font-awesome-icon icon="fa-light fa-times" />
+                    </template>
+                  </n-button>
                 </div>
+                <img
+                  class="profile-picture centered"
+                  :src="personData.profilePicture.path"
+                  :alt="personData.profilePicture.name"
+                  :title="personData.profilePicture.description"
+                />
               </div>
             </n-grid-item>
             <n-grid-item>
               <h2>Images</h2>
-              <ImageSearch />
+              <ImageSearch @select="imageSelected" />
+              <div v-for="image of personData.images">
+                <n-button
+                  secondary
+                  type="error"
+                  class="remove-image-btn"
+                  @click="removeImage(image)"
+                >
+                  Remove
+                  <template #icon>
+                    <font-awesome-icon icon="fa-light fa-times" />
+                  </template>
+                </n-button>
+                <img
+                  class="image"
+                  :src="image.image?.path"
+                  :alt="image.image?.name"
+                  :title="image.image?.description"
+                />
+              </div>
             </n-grid-item>
           </n-grid>
         </div>
@@ -74,13 +83,19 @@
           <n-grid cols="1 s:4" responsive="screen">
             <n-grid-item>
               <h2>Profile Picture</h2>
-              <p v-if="!personData.profilePictureId">None</p>
+              <p
+                v-if="
+                  !personData.profilePictureId || !personData.profilePicture
+                "
+              >
+                None
+              </p>
               <img
                 v-else
                 class="profile-picture"
-                :src="profilePictureDetails.result.value.image.path"
-                :alt="profilePictureDetails.result.value.image.title"
-                :title="profilePictureDetails.result.value.image.description"
+                :src="personData.profilePicture.path"
+                :alt="personData.profilePicture.name"
+                :title="personData.profilePicture.description"
               />
             </n-grid-item>
             <n-grid-item>
@@ -105,7 +120,14 @@
             </n-grid-item>
             <n-grid-item>
               <h2>Images</h2>
-              <p>Coming Soon</p>
+              <div v-for="image of personData.images">
+                <img
+                  class="image"
+                  :src="image.image?.path"
+                  :alt="image.image?.name"
+                  :title="image.image?.description"
+                />
+              </div>
             </n-grid-item>
           </n-grid>
         </div>
@@ -163,9 +185,12 @@ import {
   NAlert,
 } from "naive-ui";
 import { computed, ref } from "vue";
-import type { Image, Person } from "@/graphql/types";
-import { useMutation, useQuery } from "@vue/apollo-composable";
-import { CreatePersonDocument, ImageDetailsDocument } from "@/graphql/types";
+import type { Image, Person, PersonImage } from "@/graphql/types";
+import { useMutation } from "@vue/apollo-composable";
+import {
+  CreatePersonDocument,
+  CreatePersonImageDocument,
+} from "@/graphql/types";
 import { useRouter } from "vue-router";
 import PersonDetailsInput from "@/components/person/PersonDetailsInput.vue";
 import moment from "moment";
@@ -179,20 +204,13 @@ const personData = ref<Partial<Person>>({
   pronouns: null,
   graduation: null,
   profilePictureId: null,
+  profilePicture: null,
+  images: [],
 });
-const images = ref<Pick<Image, "id" | "name">[]>([]);
 
 const router = useRouter();
-const profilePictureDetails = useQuery(
-  ImageDetailsDocument,
-  () => ({
-    id: personData.value?.profilePictureId || "",
-  }),
-  () => ({
-    enabled: !!personData.value?.profilePictureId,
-  })
-);
 const createPersonMutation = useMutation(CreatePersonDocument);
+const createPersonImageMutation = useMutation(CreatePersonImageDocument);
 
 const props = defineProps({
   closable: {
@@ -235,8 +253,33 @@ function enterKeyPressed() {
   }
 }
 
-function profilePictureSelected(image: Pick<Image, "id" | "name"> | null) {
-  personData.value.profilePictureId = image?.id ?? null;
+function profilePictureSelected(
+  image: Pick<Image, "id" | "name" | "description" | "path"> | null
+) {
+  personData.value.profilePicture = image;
+  personData.value.profilePictureId = image?.id || null;
+}
+
+function imageSelected(
+  image: Pick<Image, "id" | "name" | "description" | "path">
+) {
+  if (!personData.value.images) {
+    personData.value.images = [];
+  }
+  if (personData.value.images.find((i) => i.image?.id === image.id)) {
+    return;
+  }
+  personData.value.images.push({ image });
+}
+
+function removeImage(image: PersonImage) {
+  const index =
+    personData.value.images?.findIndex(
+      (i) => i.image?.id === image.image?.id
+    ) ?? -1;
+  if (index >= 0) {
+    personData.value.images?.splice(index, 1);
+  }
 }
 
 async function nextStep() {
@@ -258,6 +301,15 @@ async function nextStep() {
       if (!createdPerson?.data?.person) {
         error.value = "Failed to create person";
         return;
+      }
+
+      if (personData.value.images) {
+        for (const image of personData.value.images) {
+          await createPersonImageMutation.mutate({
+            personId: createdPerson.data.person.id,
+            imageId: image.image?.id,
+          });
+        }
       }
     } catch (e) {
       console.error(e);
@@ -311,5 +363,14 @@ async function nextStep() {
   margin-top: 1em;
   display: flex;
   justify-content: center;
+}
+
+.image {
+  margin-top: 0.5em;
+  width: 100%;
+}
+.remove-image-btn {
+  margin-top: 1em;
+  width: 100%;
 }
 </style>

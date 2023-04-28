@@ -3,5 +3,7 @@ query SearchImages($pagination: PaginationInput, $filter: FilterImageInput) {
   images: findManyImage(pagination: $pagination, filter: $filter) {
     id
     name
+    description
+    path
   }
 }
