@@ -1,19 +1,19 @@
-import { db } from "../../firebase";
-import {CustomId, Production, Setup} from "../../types";
-import {firestore} from "firebase-admin";
-import FieldValue = firestore.FieldValue;
+import {CustomId} from "../../types";
 import {GuildTextBasedChannel} from "discord.js";
+import {sendRPC} from "../../amqp";
 
 
 export const productionCancellation: CustomId = {
     name: "productionCancellation",
     async execute(interaction) {
-        const setupRef = db.collection("rpi-tv").doc("setup");
-        const setupData = await setupRef.get();
-        const { proChannel } = setupData.data() as Setup;
-        const productionsRef = db.collection("rpi-tv").doc("productions");
-        const productionsData = await productionsRef.get();
-        let currentProduction = productionsData.data()?.productions.find((production: Production) => production.channelId === interaction.channelId);
+        // Retrieve this channel's production by finding the first production that has this Discord channel and server IDs
+        const currentProduction = (await sendRPC<any[]>("findManyProduction", { filter:
+                {
+                    discordChannel: {equals: interaction.channelId },
+                    discordServer: {equals: interaction.guildId }
+                },
+            pagination: { take: 1 }
+        }))[0];
 
         if (!currentProduction) {
             interaction.reply({
@@ -22,14 +22,22 @@ export const productionCancellation: CustomId = {
             })
             return;
         }
-        await productionsRef.update({
-            productions: FieldValue.arrayRemove(currentProduction)
-        }).catch(() => interaction.reply({content: "Could not update user", ephemeral: true}));
 
-        const productionChannel = await interaction.guild?.channels.fetch(proChannel) as GuildTextBasedChannel;
-        productionChannel.messages.fetch(currentProduction.volunteerMsgId).then(msg => msg.delete());
+        try {
+            await sendRPC<any>("deleteProduction", {id: currentProduction.id});
+        } catch(e) {
+            console.error(e);
+            await interaction.reply({
+                content: "Failed to delete production",
+                ephemeral: true
+            });
+            return;
+        }
 
-        const currentProductionChannel = await interaction.guild?.channels.fetch(currentProduction.channelId) as GuildTextBasedChannel;
+        const productionChannel = await interaction.guild?.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID as string) as GuildTextBasedChannel;
+        productionChannel.messages.fetch(currentProduction.discordVolunteerMessage).then(msg => msg.delete());
+
+        const currentProductionChannel = await interaction.guild?.channels.fetch(currentProduction.discordChannel) as GuildTextBasedChannel;
         await currentProductionChannel.delete();
     }
 }

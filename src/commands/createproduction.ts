@@ -1,5 +1,7 @@
 import {Command} from "../types";
 import {ActionRowBuilder, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputBuilder, TextInputStyle} from "discord.js";
+import moment from "moment/moment";
+import {dateFormat, ellipsis} from "../util";
 
 export const createproduction: Command = {
     data: new SlashCommandBuilder()
@@ -12,39 +14,56 @@ export const createproduction: Command = {
             .setCustomId("productionCreator")
             .setTitle("Production Creator")
 
-        const channelName = new TextInputBuilder()
-            .setCustomId("productionChannelName")
-            .setLabel("Name of the channel for the production")
-            .setPlaceholder("Ex: \"2022 07 20 wsoccer carnegie\"")
-            .setStyle(TextInputStyle.Short);
-        const eventName = new TextInputBuilder()
-            .setCustomId("eventName")
-            .setLabel("Name of the event")
-            .setPlaceholder("Ex: \"Women\"s Soccer vs. Carnegie Mellon\"")
-            .setStyle(TextInputStyle.Short);
-        const closetLocation = new TextInputBuilder()
-            .setCustomId("closetLocation")
-            .setLabel("Closet location")
-            .setPlaceholder("Ex: \"ECAV\"")
-            .setStyle(TextInputStyle.Short);
-        const closetDate = new TextInputBuilder()
-            .setCustomId("closetDate")
-            .setLabel("Closet Date")
-            .setPlaceholder("Ex: \"20220720\" (MUST BE FORMATTED LIKE THIS)")
-            .setStyle(TextInputStyle.Paragraph);
-        const closetStartEndTime = new TextInputBuilder()
-            .setCustomId("times")
-            .setLabel("Closet, start, and end times")
-            .setPlaceholder("Ex: \"0430 PM 0700 PM 1030 PM\" (MUST BE FORMATTED LIKE THIS)")
+        const name = new TextInputBuilder()
+            .setCustomId("name")
+            .setRequired(true)
+            .setLabel("Event name")
+            .setPlaceholder(`Ex: "Women's Soccer vs. Carnegie Mellon"`)
+            .setStyle(TextInputStyle.Short)
+        const description = new TextInputBuilder()
+            .setCustomId("description")
+            .setRequired(false)
+            .setLabel("Event description")
+            .setStyle(TextInputStyle.Paragraph)
+        const location = new TextInputBuilder()
+            .setCustomId("locations")
+            .setLabel("Locations")
+            .setRequired(false)
+            .setPlaceholder(
+                `Closet - Union\n` +
+                `Event - ECAV`)
+            .setStyle(TextInputStyle.Paragraph)
+            .setValue(
+                `Closet - Union\n` +
+                `Event - ECAV`)
+        const schedule = new TextInputBuilder()
+            .setCustomId("schedule")
+            .setLabel("Schedule")
+            .setRequired(false)
+            .setPlaceholder(ellipsis(100,
+                `Closet - ${moment().add(moment.duration(1, "hour")).minute(0).format(dateFormat)}\n` +
+                `Start - ${moment().add(moment.duration(3, "hour")).minute(0).format(dateFormat)}\n` +
+                `End - ${moment().add(moment.duration(5, "hour")).minute(0).format(dateFormat)}`)
+            )
+            .setStyle(TextInputStyle.Paragraph)
+            .setValue(
+                `Closet - ${moment().add(moment.duration(1, "hour")).minute(0).format(dateFormat)}\n` +
+                `Start - ${moment().add(moment.duration(3, "hour")).minute(0).format(dateFormat)}\n` +
+                `End - ${moment().add(moment.duration(5, "hour")).minute(0).format(dateFormat)}`);
+        const notes = new TextInputBuilder()
+            .setCustomId("notes")
+            .setLabel("Notes")
+            .setRequired(false)
+            .setPlaceholder("Ex: YouTube URL, external docs, ad placements")
             .setStyle(TextInputStyle.Paragraph);
 
-        const channelRow = new ActionRowBuilder<TextInputBuilder>().addComponents(channelName);
-        const eventRow = new ActionRowBuilder<TextInputBuilder>().addComponents(eventName);
-        const locationRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetLocation);
-        const dateRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetDate);
-        const timeRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetStartEndTime);
+        const nameRow = new ActionRowBuilder<TextInputBuilder>().addComponents(name);
+        const descriptionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(description);
+        const locationRow = new ActionRowBuilder<TextInputBuilder>().addComponents(location);
+        const scheduleRow = new ActionRowBuilder<TextInputBuilder>().addComponents(schedule);
+        const notesRow = new ActionRowBuilder<TextInputBuilder>().addComponents(notes);
 
-        productionModal.addComponents(channelRow, eventRow, locationRow, dateRow, timeRow);
+        productionModal.addComponents(nameRow, descriptionRow, locationRow, scheduleRow, notesRow);
 
         await interaction.showModal(productionModal);
     }

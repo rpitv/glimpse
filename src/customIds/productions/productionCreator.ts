@@ -1,41 +1,44 @@
-import {CustomId, Setup} from "../../types";
+import {CustomId} from "../../types";
 import {
-    ActionRowBuilder, ButtonBuilder, ButtonStyle,
-    channelMention, ChannelType, EmbedBuilder, GuildTextBasedChannel, ModalSubmitInteraction, PermissionsBitField
-} from "discord.js";
-import {db} from "../../firebase";
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    channelMention,
+    ChannelType,
+    EmbedBuilder,
+    GuildTextBasedChannel,
+    ModalSubmitInteraction,
+    PermissionsBitField} from "discord.js";
 import moment from "moment";
-import {firestore} from "firebase-admin";
-import FieldValue = firestore.FieldValue;
+import {sendRPC} from "../../amqp";
+import {dateFormat} from "../../util";
 
 
 export const productionCreator: CustomId = {
     name: "productionCreator",
     async execute(interaction: ModalSubmitInteraction) {
-        const setupRef = db.collection("rpi-tv").doc("setup");
-        const setupData = await setupRef.get();
-        const { proCategory, proChannel } = setupData.data() as Setup;
-        const productionsRef = db.collection("rpi-tv").doc("productions");
 
-        const channelName = interaction.fields.getTextInputValue("productionChannelName");
-        const eventName = interaction.fields.getTextInputValue("eventName");
-        const closetLocation = interaction.fields.getTextInputValue("closetLocation");
-        const closetDate = interaction.fields.getTextInputValue("closetDate")
-        const closetStartEndTime = interaction.fields.getTextInputValue("times").split(" ");
+        const name = interaction.fields.getTextInputValue("name");
+        const description = interaction.fields.getTextInputValue("description");
+        const locations = interaction.fields.getTextInputValue("locations");
+        const schedule = interaction.fields.getTextInputValue("schedule");
+        const notes = interaction.fields.getTextInputValue("notes");
 
-        const date = moment(closetDate, "YYYYMMDD").format("dddd MMMM DD YYYY");
-        const closetTime = moment(closetStartEndTime[0], "HHmm").format("HH:mm") + ` ${closetStartEndTime[1]}`;
-        const startTime = moment(closetStartEndTime[2], "HHmm").format("HH:mm") + ` ${closetStartEndTime[3]}`;
-        const endTime = moment(closetStartEndTime[4], "HHmm").format("HH:mm") + ` ${closetStartEndTime[5]}`;
+        const closetTime = moment(schedule.match(/Closet ?- ?(.*)/)?.[1], dateFormat);
+        const startTime = moment(schedule.match(/Start ?- ?(.*)/)?.[1], dateFormat);
+        const endTime = moment(schedule.match(/End ?- ?(.*)/)?.[1], dateFormat);
+
+        const closetLocation = locations.match(/Closet ?- ?(.*)/)?.[1];
+        const eventLocation = locations.match(/Event ?- ?(.*)/)?.[1];
 
         const production = new EmbedBuilder()
             .setColor("Red")
-            .setTitle(eventName)
-            .setDescription(date)
+            .setTitle(name)
+            .setDescription(description)
             .addFields(
-                { name: "Closet", value: `${closetLocation} @ ${closetTime}` },
-                { name: "Start", value: `${startTime}` },
-                { name: "End", value: `${endTime}` },
+                { name: "Closet", value: `${closetLocation} @ ${closetTime.format(dateFormat)}` },
+                { name: "Start", value: `${eventLocation} @ ${startTime.format(dateFormat)}` },
+                { name: "End", value: `${endTime.format(dateFormat)}` }
             )
 
         const volunteerBtn = new ActionRowBuilder<ButtonBuilder>()
@@ -54,7 +57,7 @@ export const productionCreator: CustomId = {
                     .setStyle(ButtonStyle.Danger)
             )
         await interaction.guild?.channels.create({
-            name: channelName,
+            name: name,
             type: ChannelType.GuildText,
             permissionOverwrites: [
                 {
@@ -66,12 +69,12 @@ export const productionCreator: CustomId = {
                     allow: [PermissionsBitField.Flags.ViewChannel]
                 }
             ],
-            parent: proCategory
+            parent: process.env.PRODUCTIONS_CATEGORY_ID as string
         }).then(async (channel) => {
             production.addFields(
                 { name: "Channel", value: `${channelMention(channel.id)}`},
                 { name: "Volunteers", value: "(0) 🦗"})
-            const volChl = await interaction.guild?.channels.fetch(proChannel) as GuildTextBasedChannel;
+            const volChl = await interaction.guild?.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID as string) as GuildTextBasedChannel;
             const volunteerMsg = await volChl.send({
                 embeds: [production],
                 components: [volunteerBtn]
@@ -82,38 +85,29 @@ export const productionCreator: CustomId = {
                 components: [unVolunteerBtn]
             }).then(async (msg) => await msg.pin());
 
-            if (!await productionsRef.get().then((snapshot) => snapshot.data()))
-                await productionsRef.set({ productions: [{
-                        channelName: channelName,
-                        eventName: eventName,
-                        channelId: channel.id,
-                        volunteerMsgId: volunteerMsg.id,
-                        unVolunteerMsgId: unVolunteerMsg.id,
+            try {
+                await sendRPC<any>("createProduction", {data: {
+                        name: name,
+                        description: description,
+                        discordServer: interaction.guildId,
+                        discordChannel: channel.id,
+                        discordVolunteerMessage: volunteerMsg.id,
+                        discordUnvolunteerMessage: unVolunteerMsg.id,
+                        eventLocation: eventLocation,
                         closetLocation: closetLocation,
-                        closetTime: closetTime,
-                        date: date,
-                        startTime: startTime,
-                        endTime: endTime,
-                        volunteers: [],
-                        inputValueClosetDate: interaction.fields.getTextInputValue("closetDate"),
-                        inputValueTime: interaction.fields.getTextInputValue("times")
-                    }]});
-            else
-                await productionsRef.update({ productions: FieldValue.arrayUnion({
-                        channelName: channelName,
-                        eventName: eventName,
-                        channelId: channel.id,
-                        volunteerMsgId: volunteerMsg.id,
-                        unVolunteerMsgId: unVolunteerMsg.id,
-                        closetLocation: closetLocation,
-                        closetTime: closetTime,
-                        date: date,
-                        startTime: startTime,
-                        endTime: endTime,
-                        volunteers: [],
-                        inputValueClosetDate: interaction.fields.getTextInputValue("closetDate"),
-                        inputValueTime: interaction.fields.getTextInputValue("times")
-                    })});
+                        closetTime: closetTime.valueOf(),
+                        startTime: startTime.valueOf(),
+                        endTime: endTime.valueOf(),
+                        teamNotes: notes
+                    }});
+            } catch(e) {
+                console.error(e);
+                await interaction.reply({
+                    content: "Failed to create production",
+                    ephemeral: true
+                });
+                return;
+            }
 
             await interaction.reply({ content: "Production successfully created!", ephemeral: true });
         })

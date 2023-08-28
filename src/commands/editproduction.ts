@@ -1,6 +1,8 @@
-import {Command, Production} from "../types";
+import {Command} from "../types";
 import {ActionRowBuilder, ModalBuilder, PermissionFlagsBits, SlashCommandBuilder, TextInputBuilder, TextInputStyle} from "discord.js";
-import {db} from "../firebase";
+import {sendRPC} from "../amqp";
+import moment from "moment";
+import {dateFormat, ellipsis} from "../util";
 
 export const editproduction: Command = {
     data: new SlashCommandBuilder()
@@ -9,12 +11,18 @@ export const editproduction: Command = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
-        const productions = await db.collection("rpi-tv").doc("productions").get();
         const productionModal = new ModalBuilder()
             .setCustomId("productionEditor")
             .setTitle("Production Editor")
 
-        const currentProduction = productions.data()?.productions.find((production: Production) => production.channelId === interaction.channelId);
+        // Retrieve this channel's production by finding the first production that has this Discord channel and server IDs
+        const currentProduction = (await sendRPC<any[]>("findManyProduction", { filter:
+                {
+                    discordChannel: {equals: interaction.channelId },
+                    discordServer: {equals: interaction.guildId }
+                },
+            pagination: { take: 1 }
+        }))[0];
 
         if (!currentProduction) {
             await interaction.reply({
@@ -24,44 +32,60 @@ export const editproduction: Command = {
             return;
         }
 
-        const channelName = new TextInputBuilder()
-            .setCustomId("productionChannelName")
-            .setLabel("Name of the channel for the production")
-            .setPlaceholder("Ex: \"2022 07 20 wsoccer carnegie\"")
+        const name = new TextInputBuilder()
+            .setCustomId("name")
+            .setRequired(true)
+            .setLabel("Event name")
+            .setPlaceholder(`Ex: "Women's Soccer vs. Carnegie Mellon"`)
             .setStyle(TextInputStyle.Short)
-            .setValue(currentProduction.channelName)
-        const eventName = new TextInputBuilder()
-            .setCustomId("eventName")
-            .setLabel("Name of the event")
-            .setPlaceholder("Ex: \"Women\"s Soccer vs. Carnegie Mellon\"")
-            .setStyle(TextInputStyle.Short)
-            .setValue(currentProduction.eventName)
-        const closetLocation = new TextInputBuilder()
-            .setCustomId("closetLocation")
-            .setLabel("Closet location")
-            .setPlaceholder("Ex: \"ECAV\"")
-            .setStyle(TextInputStyle.Short)
-            .setValue(currentProduction.closetLocation);
-        const closetDate = new TextInputBuilder()
-            .setCustomId("closetDate")
-            .setLabel("Closet Date")
-            .setPlaceholder("Ex: \"20220720\" (MUST BE FORMATTED LIKE THIS)")
+            .setValue(currentProduction.name)
+        const description = new TextInputBuilder()
+            .setCustomId("description")
+            .setRequired(false)
+            .setLabel("Event description")
             .setStyle(TextInputStyle.Paragraph)
-            .setValue(currentProduction.inputValueClosetDate);
-        const closetStartEndTime = new TextInputBuilder()
-            .setCustomId("times")
-            .setLabel("Closet, start, and end times")
-            .setPlaceholder("Ex: \"0430 PM 0700 PM 1030 PM\" (MUST BE FORMATTED LIKE THIS)")
+            .setValue(currentProduction.description)
+        const location = new TextInputBuilder()
+            .setCustomId("locations")
+            .setLabel("Locations")
+            .setRequired(false)
+            .setPlaceholder(
+                `Closet - Union\n` +
+                `Event - ECAV`)
             .setStyle(TextInputStyle.Paragraph)
-            .setValue(currentProduction.inputValueTime);
+            .setValue(
+                `Closet - ${currentProduction.closetLocation}\n` +
+                `Event - ${currentProduction.eventLocation}`)
+        const schedule = new TextInputBuilder()
+            .setCustomId("schedule")
+            .setLabel("Schedule")
+            .setRequired(false)
+            .setPlaceholder(ellipsis(100,
+                `Closet - ${moment().add(moment.duration(1, "hour")).minute(0).format(dateFormat)}\n` +
+                `Start - ${moment().add(moment.duration(3, "hour")).minute(0).format(dateFormat)}\n` +
+                `End - ${moment().add(moment.duration(5, "hour")).minute(0).format(dateFormat)}`
+            ))
+            .setStyle(TextInputStyle.Paragraph)
+            .setValue(
+                `Closet - ${moment(currentProduction.closetTime).format(dateFormat)}\n` +
+                `Start - ${moment(currentProduction.startTime).format(dateFormat)}\n` +
+                `End - ${moment(currentProduction.endTime).format(dateFormat)}`
+            );
+        const notes = new TextInputBuilder()
+            .setCustomId("notes")
+            .setLabel("Notes")
+            .setRequired(false)
+            .setPlaceholder("Ex: YouTube URL, external docs, ad placements")
+            .setStyle(TextInputStyle.Paragraph)
+            .setValue(currentProduction.teamNotes);
 
-        const channelRow = new ActionRowBuilder<TextInputBuilder>().addComponents(channelName);
-        const eventRow = new ActionRowBuilder<TextInputBuilder>().addComponents(eventName);
-        const locationRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetLocation);
-        const dateRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetDate);
-        const timeRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closetStartEndTime);
+        const nameRow = new ActionRowBuilder<TextInputBuilder>().addComponents(name);
+        const descriptionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(description);
+        const locationRow = new ActionRowBuilder<TextInputBuilder>().addComponents(location);
+        const scheduleRow = new ActionRowBuilder<TextInputBuilder>().addComponents(schedule);
+        const notesRow = new ActionRowBuilder<TextInputBuilder>().addComponents(notes);
 
-        productionModal.addComponents(channelRow, eventRow, locationRow, dateRow, timeRow);
+        productionModal.addComponents(nameRow, descriptionRow, locationRow, scheduleRow, notesRow);
 
         await interaction.showModal(productionModal);
     }

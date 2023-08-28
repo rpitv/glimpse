@@ -1,9 +1,9 @@
-import {Event, Productions, Setup} from "../types";
+import {Event} from "../types";
 import {ActivityType, Client, Events, GuildTextBasedChannel} from "discord.js";
-import {db} from "../firebase";
-import moment from "moment";
-import {firestore} from "firebase-admin";
-import FieldValue = firestore.FieldValue;
+import {sendRPC} from "../amqp";
+
+// Number of milliseconds after a production ends that the channel will be deleted (12 hours)
+const postEventChannelTTL = 12 * 60 * 60 * 1000;
 
 export const ready: Event = {
     name: Events.ClientReady,
@@ -13,37 +13,40 @@ export const ready: Event = {
             name: "Tetris",
             type: ActivityType.Playing
         });
-        // Checks if productions have passed their closet date
+
+        // Go over all outstanding productions and update their channels after the productions end
         setInterval(async () => {
-            await db.collection("rpi-tv").doc("productions").get().then(async (snapshot) => {
-                if (!snapshot.data()) return;
-                const { productions } = snapshot.data() as Productions;
-                if (!productions) return;
+            // Retrieve all productions that have a Discord channel and have passed their end time
+            const productions = (await sendRPC<any[]>("findManyProduction", { filter: {
+                        endTime: { lt: Date.now() - postEventChannelTTL },
+                        discordChannel: { not: null },
+                        discordServer: { not: null },
+                        isDiscordChannelArchived: { equals: false }
+                    }}));
+            if(!productions) return;
 
-                for (const production of productions) {
-                    const expiryDate = moment(production.inputValueClosetDate, "YYYYMMDD").endOf("day").fromNow();
-                    if (!expiryDate.includes("ago")) continue;
+            for (const production of productions) {
+                const currentGuild = await client.guilds.cache.get(production.discordServer.trim());
+                const volunteerChannel = await currentGuild?.channels.cache.get(process.env.PRODUCTIONS_CHANNEL_ID as string) as GuildTextBasedChannel;
+                const volunteerMsg = await volunteerChannel.messages.fetch(production.discordVolunteerMessage.trim());
 
-                    await db.collection("rpi-tv").doc("setup").get().then(async (setup) => {
-                        const { proChannel } = setup.data() as Setup;
-                        if (!proChannel) return;
-
-                        const currentGuild = await client.guilds.cache.get(process.env.GUILD_ID);
-                        const volunteerChannel = await currentGuild?.channels.cache.get(proChannel) as GuildTextBasedChannel;
-                        const volunteerMsg = await volunteerChannel.messages.fetch(production.volunteerMsgId);
-
-                        const unVolunteerChannel = await currentGuild?.channels.cache.get(production.channelId) as GuildTextBasedChannel;
-                        const unVolunteerMsg = await unVolunteerChannel.messages.fetch(production.unVolunteerMsgId);
-
-                        volunteerMsg.edit({components: []});
-                        unVolunteerMsg.edit({components: []});
-
-                        await db.collection("rpi-tv").doc("productions").update({
-                            productions: FieldValue.arrayRemove(production)
-                        });
-                    });
+                const unVolunteerChannel = await currentGuild?.channels.cache.get(production.discordChannel.trim()) as GuildTextBasedChannel;
+                let unVolunteerMsg;
+                try {
+                    unVolunteerMsg = await unVolunteerChannel.messages.fetch(production.discordUnvolunteerMessage.trim());
+                } catch(e) {
+                    console.error(e);
+                    return;
                 }
-            });
+
+                await sendRPC<any[]>("updateProduction", {
+                    id: production.id,
+                    data: { isDiscordChannelArchived: true }
+                });
+
+                volunteerMsg.edit({components: []});
+                unVolunteerMsg.edit({components: []});
+            }
         },  1000)
     }
 }

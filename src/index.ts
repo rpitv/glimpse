@@ -8,6 +8,16 @@ import moment from "moment";
 
 config();
 
+if(!process.env.PRODUCTIONS_CHANNEL_ID) {
+    throw new Error("PRODUCTIONS_CHANNEL_ID environment variable not set");
+}
+if(!process.env.PRODUCTIONS_CATEGORY_ID) {
+    throw new Error("PRODUCTIONS_CATEGORY_ID environment variable not set");
+}
+if(!process.env.RABBITMQ_URL) {
+    throw new Error("RABBITMQ_URL environment variable not set");
+}
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
