@@ -46,7 +46,6 @@ declare global {
         interface ProcessEnv {
             TOKEN: string,
             CLIENT_ID: string,
-            GUILD_ID: string,
             RPITV_ID: string
         }
     }
