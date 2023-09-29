@@ -125,6 +125,11 @@
         "file": "glimpse.html",
         "width": 3840,
         "height": 2160
+      },
+      {
+        "file": "worldclock.html",
+        "width": 1920,
+        "height": 1080
       }
     ],
     "assetCategories": [
