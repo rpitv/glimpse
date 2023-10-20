@@ -9,7 +9,10 @@ import {
   faCaretDown,
   faArrowLeft,
   faArrowRight,
+  faAngleRight,
+  faAngleLeft,
 } from "@fortawesome/pro-solid-svg-icons";
+
 import {
   faCircleInfo,
   faHome,
@@ -57,6 +60,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 library.add(faCaretDown);
 library.add(faArrowLeft);
 library.add(faArrowRight);
+library.add(faAngleRight);
+library.add(faAngleLeft);
 
 library.add(faHome);
 library.add(faCircleInfo);

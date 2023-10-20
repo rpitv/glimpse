@@ -7,8 +7,8 @@
   </div>
   <div v-else class="production-cards">
     <ProductionCard v-for="production in response.result.value?.productions" class="production-card" :key="production.id"
-    :id="parseInt(production.id)" :name="production.name" :description="production.description" :start-time="new Date(production.startTime)"
-    :thumbnail-url="production.thumbnail?.path ?? undefined"/>
+      :id="parseInt(production.id)" :name="production.name" :description="production.description ? production.description : ''"
+      :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"/>
   </div>
 </template>
 

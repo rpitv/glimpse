@@ -27,7 +27,8 @@ const props = defineProps({
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    default: ""
   },
   startTime: {
     type: Date,

@@ -1,23 +1,15 @@
 <template>
-  <v-btn variant="text" @click="show = !show" style="font-size: 16px; font-family: 'Oswald', sans-serif;" class="text-none">
-    <span :class="{show: show, notShow: !show}" style="font-size: 12px">&#xfe40;</span>&nbsp;Tags
-  </v-btn>
-  <hr class="divider">
-  <NCollapseTransition :show="show">
-    <NSpace>
-      <NButton v-for="tag in props.tags" :key="tag" color="#426779" style="color: #68b0d4" size="tiny">
-        {{ tag }}
-      </NButton>
-    </NSpace>
-  </NCollapseTransition>
+  <h3 class="mt-5 mb-3">Tags</h3>
+  <hr>
+  <div class="tag-container">
+    <div class="mt-3 mr-3 tag" v-for="tag in props.tags" :key="tag" style="color: #68b0d4">
+      {{ tag }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type {PropType} from "vue";
-import {ref} from "vue";
-import {NCollapseTransition, NButton, NSpace} from "naive-ui"
-
-const show = ref<boolean>(false);
 
 const props = defineProps({
   tags: {
@@ -28,17 +20,16 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.divider {
-  border-top: 2px;
+
+.tag-container {
+  display: flex;
 }
-.notShow {
-  font-weight: bold;
-  transition-duration: 0.25s;
-  transform: rotate(-90deg);
-}
-.show {
-  font-weight: bold;
-  transition-duration: 0.25s;
-  transform: rotate(0deg);
+
+.tag {
+  width: fit-content;
+  background-color: #426779;
+  border-radius: 5px;
+  padding: 3px;
+  text-align: center;
 }
 </style>

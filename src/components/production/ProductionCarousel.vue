@@ -1,13 +1,35 @@
 <template>
   <div v-if="items.length > 0">
-    <v-carousel show-arrows="hover" hide-delimiter-background class="carousel" :height="height">
+    <v-carousel show-arrows="hover" hide-delimiters class="carousel" :height="height">
+      <template v-slot:prev="{ props }">
+        <v-btn
+            variant="elevated"
+            @click="props.onClick"
+            icon=""
+        >
+          <font-awesome-icon icon="fa-sold fa-angle-left" />
+        </v-btn>
+      </template>
+      <template v-slot:next="{ props }">
+        <v-btn
+            variant="elevated"
+            @click="props.onClick"
+            icon=""
+        >
+          <font-awesome-icon icon="fa-sold fa-angle-right" />
+        </v-btn>
+      </template>
       <v-carousel-item v-for="item of items">
-        <img v-if="item.__typename === 'Image'" :src="item.path" :alt="item.name">
+        <div class="img-container" v-if="item.__typename === 'Image'">
+          <img :src="item.path" :alt="item.name">
+        </div>
         <div v-else-if="!item.metadata || !item.metadata.url" class="unsupported-format">
           Video currently doesn't have any metadata or a url to link to.
         </div>
-        <div v-else style="height: 100%">
-          <iframe v-if="item.format === 'EMBED'" :src="item.metadata.url" title="YouTube video player" allowfullscreen class="video-player"></iframe>
+        <div v-else style="width: 100%; height: 100%">
+          <iframe v-if="item.format === 'EMBED'" :src="checkForEmbed(item.metadata.url)"
+                  title="YouTube video player" allowfullscreen class="video-player" allow="autoplay"
+          ></iframe>
           <div v-else class="unsupported-format">
             <p>Sorry, videos in this format currently cannot be played</p>
             <p>Contact us to download a copy of this video</p>
@@ -43,14 +65,33 @@ const height = computed(() => {
   return display.width.value * 0.45;
 })
 
+/*
+ * Reducing the constraints on what the officer has to put
+ * as a link for the yt video.
+ */
+function checkForEmbed(url: string) {
+  let position = url.indexOf("watch");
+  if (position)
+    return url.replace('/watch?v=', '/embed/')
+  return url;
+}
+
 </script>
 
 <style scoped lang="scss">
 
 img {
-  width: 100%;
+  height: 100%;
+  max-width: 100%;
+}
+
+.img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100%;
 }
+
 .no-media {
   text-align: center;
   font-style: italic;
@@ -70,6 +111,7 @@ img {
   width: 100%;
   height: 100%;
   border: 0;
+  aspect-ratio: 16 / 9;
 }
 
 </style>

@@ -3,7 +3,7 @@
     <v-card class="card" v-if="!production.loading.value">
       <ProductionCarousel :items="productionImagesAndVideos"/>
       <v-card-text>
-        <h1 class="prod-title">{{ production.result.value?.ReadProduction?.name }}</h1>
+        <h2 class="prod-title">{{ production.result.value?.ReadProduction?.name }}</h2>
       </v-card-text>
       <v-card-subtitle>
         <p class="prod-subtitle">{{ productionSubtitle }}</p>
@@ -83,8 +83,11 @@ const productionSubtitle = computed<string>(() => {
 }
 .card {
   height: 100%;
-  width: 80%;
+  width: 95%;
   margin-bottom: 3em;
+  @media screen and (min-width: 500px) {
+    width: 80%;
+  }
 }
 .loading {
   text-align: center;
@@ -92,76 +95,20 @@ const productionSubtitle = computed<string>(() => {
 
 .prod-title {
   margin-bottom: -10px;
-  @media screen and (max-width: 500px){
-    font-size: 20px;
-  }
-  @media screen and (min-width: 501px) and (max-width: 1000px) {
-    font-size: 25px;
-  }
-  @media screen and (min-width: 1200px) {
-    font-size: 33px;
-    margin-bottom: -2px;
-  }
-  @media screen and (min-width: 1600px) {
-    font-size: 38px;
-    margin-bottom: 3px;
-  }
-  @media screen and (min-width: 2200px) {
-    font-size: 44px;
-    margin-bottom: 10px;
-  }
+  font-size: 23px;
 }
 
 .prod-subtitle {
   font-weight: 500;
   font-style: italic;
   opacity: 75%;
-  @media screen and (min-width: 600px) {
-    font-size: 16px;
-  }
-  @media screen and (min-width: 1200px) {
-    font-size: 20px;
-  }
-  @media screen and (min-width: 1600px) {
-    font-size: 25px;
-  }
-  @media screen and (min-width: 2200px) {
-    font-size: 30px;
-  }
 }
 
 .prod-description {
-  @media screen and (min-width: 600px) {
-    font-size: 16px;
-  }
-  @media screen and (min-width: 1200px) {
-    font-size: 20px;
-  }
-  @media screen and (min-width: 1600px) {
-    font-size: 25px;
-  }
-  @media screen and (min-width: 2200px) {
-    font-size: 30px;
-  }
 }
 
 .prod-credits {
   margin-top: 20px;
-
-  @media screen and (min-width: 1000px) {
-    font-size: 17px;
-  }
-  @media screen and (min-width: 1350px) {
-    font-size: 21px;
-  }
-  @media screen and (min-width: 1700px) {
-    margin-top: 32px;
-    font-size: 27px;
-  }
-  @media screen and (min-width: 2200px) {
-    margin-top: 38px;
-    font-size: 30px;
-  }
 }
 
 </style>

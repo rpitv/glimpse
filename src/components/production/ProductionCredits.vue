@@ -16,7 +16,6 @@
 <script setup lang="ts">
 import type {PropType} from "vue";
 import type {Credit} from "@/graphql/types";
-import {NGrid, NGridItem} from "naive-ui";
 import {computed} from "vue";
 
 const props = defineProps({
