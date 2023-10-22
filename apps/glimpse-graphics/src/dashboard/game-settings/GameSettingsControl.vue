@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
 import {NButton, NGrid, NGridItem, NSelect, NMessageProvider, NDialogProvider} from "naive-ui";
 import FootballSettings from "./FootballSettings.vue";
@@ -87,6 +87,12 @@ const sportsPresetList = ref([
 		value: 'baseball'
 	}
 ]);
+
+// auto reloads all pages associate with glimpse-graphics when style switches
+watch(replicants.gameSettings.style, (n, o) => {
+	window.socket.emit('graphic:requestBundleRefresh', 'glimpse-graphics');
+});
+
 </script>
 
 <style scoped lang="scss">

@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import App from './worldclock/main.vue';
+import App from './minimal-scoreboard/main.vue';
 
 
 const app = createApp(App);

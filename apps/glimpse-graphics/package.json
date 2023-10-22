@@ -130,6 +130,11 @@
         "file": "worldclock.html",
         "width": 1920,
         "height": 1080
+      },
+      {
+        "file": "minimal-scoreboard.html",
+        "width": 1920,
+        "height": 1080
       }
     ],
     "assetCategories": [
