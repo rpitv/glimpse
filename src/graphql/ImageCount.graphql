@@ -1,0 +1,3 @@
+query ImageCount ($filter: FilterImageInput) {
+  imageCount (filter: $filter)
+}

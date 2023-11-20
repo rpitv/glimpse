@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from "url";
 
 import {defineConfig, loadEnv} from "vite";
 import vue from "@vitejs/plugin-vue";
+import vuetify from "vite-plugin-vuetify";
 
 
 // https://vitejs.dev/config/
@@ -12,7 +13,12 @@ export default ({ mode }: { mode: string }) => {
   // import.meta.env.VITE_PORT available here with: process.env.VITE_PORT
 
   return defineConfig({
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      vuetify({
+        autoImport: true
+      })
+    ],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

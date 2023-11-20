@@ -1,0 +1,5 @@
+mutation UpdateProductionVideo($id: BigInt!, $data: UpdateProductionVideoInput!) {
+  productionVideo: updateProductionVideo(id: $id, input: $data) {
+    id
+  }
+}

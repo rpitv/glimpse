@@ -76,6 +76,9 @@ import CategoryList from "@/components/category/CategoryList.vue";
 import EditPersonCard from "@/components/person/EditPersonCard.vue";
 import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 import PersonList from "@/components/person/PersonList.vue";
+import ProductionList from "@/components/production/ProductionList.vue";
+import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
+import EditProductionCard from "@/components/production/EditProductionCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -726,10 +729,111 @@ const router = createRouter({
               { route: { name: "dashboard" }, name: "Dashboard" },
               {
                 route: { name: "dashboard-productions" },
-                title: "Productions",
+                name: "Productions",
               },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-production-list",
+              component: restrictedComponent(ProductionList, () =>
+                canViewProductionsDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: {name: "dashboard"}, name: "Dashboard"},
+                  { route: {name: "dashboard-production-list"}, name: "Productions"}
+                ],
+              },
+            },
+            {
+              path: "create",
+              name: "dashboard-production-create",
+              component: restrictedComponent(
+                h(CreateProductionCard, {
+                  onSave: (id: string) =>
+                    router.push({
+                      name: "dashboard-production-list",
+                      params: { id },
+                    }),
+                }), () => canViewProductionsDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                   { route: { name: "dashboard" }, name: "Dashboard"},
+                   { route: { name: "dashboard-production-list" }, name: "Productions" },
+                   {
+                     route: { name: "dashboard-production-create" },
+                     name: "Create",
+                   }
+                ],
+              },
+            },
+            {
+              path: ":id",
+              name: "dashboard-production-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewProductionsDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  { route: { name: "dashboard-production-list" }, name: "Productions" },
+                  {
+                    route: { name: "dashboard-production-details" },
+                    name: `Production ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "",
+                  name: "dashboard-production-details",
+                  component: restrictedComponent(EditProductionCard, () =>
+                    canViewProductionsDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-productions-list" },
+                        name: "Productions",
+                      },
+                      {
+                        route: { name: "dashboard-production-details" },
+                        name: `Production ${route.params.id}`,
+                      },
+                    ]
+                  },
+                },
+                {
+                  path: "edit",
+                  name: "dashboard-production-details-edit",
+                  component: restrictedComponent(EditProductionCard, () =>
+                    canViewProductionsDashboard()
+                  ),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-productions-list" },
+                        name: "Productions",
+                      },
+                      {
+                        route: { name: "dashboard-production-details" },
+                        name: `Production ${route.params.id}`,
+                      },
+                      {
+                        route: { name: "dashboard-production-details-edit" },
+                        name: "Edit",
+                      },
+                    ],
+                  },
+                },
+              ]
+            },
+          ]
         },
         {
           path: "redirects",

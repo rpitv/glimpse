@@ -1,6 +1,6 @@
-query SearchCategories($pagination: PaginationInput, $filter: FilterCategoryInput) {
+query SearchCategories($pagination: PaginationInput, $filter: FilterCategoryInput, $order: [OrderCategoryInput!]) {
   categoryCount(filter: $filter)
-  categories: findManyCategory(pagination: $pagination, filter: $filter) {
+  categories: findManyCategory(pagination: $pagination, filter: $filter, order: $order) {
     id
     name
   }

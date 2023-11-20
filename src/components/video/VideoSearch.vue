@@ -22,7 +22,7 @@ import {
   CaseSensitivity,
   FilterVideoInput,
   Video,
-  SearchVideosDocument,
+  SearchVideosDocument, CategoryOrderableFields, OrderDirection, VideoOrderableFields,
 } from "@/graphql/types";
 
 const emit = defineEmits(["select"]);
@@ -69,6 +69,10 @@ const videoSearchResults = useQuery(
   SearchVideosDocument,
   () => ({
     filter: searchFilter.value,
+    order: [{
+      field: "id" as VideoOrderableFields,
+      direction: "Desc" as OrderDirection
+    }]
   }),
   {
     throttle: 1000,

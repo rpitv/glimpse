@@ -18,7 +18,7 @@
         <template #trigger>
           <n-button type="success" class="top-button" round>
             <template #icon>
-              <FontAwesomeIcon icon="fa-light fa-plus" />
+              <font-awesome-icon icon="fa-light fa-plus" />
             </template>
             Create
           </n-button>
@@ -26,7 +26,7 @@
       </RouterPopup>
       <n-button class="top-button" @click="refresh" round>
         <template #icon>
-          <FontAwesomeIcon icon="fa-light fa-arrows-rotate" />
+          <font-awesome-icon icon="fa-light fa-arrows-rotate" />
         </template>
         Refresh
       </n-button>

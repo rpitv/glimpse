@@ -3,13 +3,13 @@
   "include": [
     "env.d.ts",
     "src/**/*",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "plugins/*.ts"
   ],
   "exclude": [
     "src/**/__tests__/*"
   ],
   "compilerOptions": {
-    "composite": true,
     "baseUrl": ".",
     "lib": ["ES2021"],
     "paths": {
@@ -18,7 +18,11 @@
       ]
     },
     "types": [
-      "naive-ui/volar"
+      "naive-ui/volar",
+      "vuetify"
     ]
+  },
+  "vueCompilerOptions": {
+    "target": 3.3
   }
 }

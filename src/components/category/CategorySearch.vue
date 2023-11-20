@@ -22,7 +22,7 @@ import {
   CaseSensitivity,
   FilterCategoryInput,
   Category,
-  SearchCategoriesDocument,
+  SearchCategoriesDocument, OrderDirection, CategoryOrderableFields,
 } from "@/graphql/types";
 
 const emit = defineEmits(["select"]);
@@ -69,10 +69,14 @@ const categorySearchResults = useQuery(
   SearchCategoriesDocument,
   () => ({
     filter: searchFilter.value,
+    order: [{
+      field: "id" as CategoryOrderableFields,
+      direction: "Desc" as OrderDirection
+    }]
   }),
   {
     throttle: 1000,
-  }
+  },
 );
 
 const results = computed<AutoCompleteOption[]>(() => {

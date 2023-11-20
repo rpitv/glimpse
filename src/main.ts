@@ -2,9 +2,14 @@ import { createApp, provide, h } from "vue";
 import { createPinia } from "pinia";
 import { createApolloProvider } from "@vue/apollo-option";
 import { DefaultApolloClient } from "@vue/apollo-composable";
-
+import { vuetify } from "../plugins/vuetify";
+import { DatePicker, setupCalendar } from 'v-calendar';
+import 'v-calendar/style.css';
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCaretDown } from "@fortawesome/pro-solid-svg-icons";
+import { faCaretDown, faAngleRight, faAngleLeft, faPen, faCalendar,
+  faCircleXmark, faTrash, faBackwardStep, faForwardStep, faChevronLeft, faChevronRight,
+  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown } from "@fortawesome/pro-solid-svg-icons";
+
 import {
   faCircleInfo,
   faHome,
@@ -52,6 +57,21 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faCaretDown);
+library.add(faAngleLeft);
+library.add(faAngleRight);
+library.add(faPen);
+library.add(faCalendar);
+library.add(faCircleXmark);
+library.add(faTrash)
+library.add(faBackwardStep);
+library.add(faForwardStep);
+library.add(faChevronLeft);
+library.add(faChevronRight);
+library.add(faMagnifyingGlass);
+library.add(faIdCard);
+library.add(faInputText);
+library.add(faArrowUp);
+library.add(faArrowDown);
 
 library.add(faHome);
 library.add(faCircleInfo);
@@ -94,6 +114,8 @@ library.add(faInstagram);
 library.add(faTwitter);
 library.add(faRedditAlien);
 
+library.add(faAngleRight);
+
 import App from "./App.vue";
 import router from "./router";
 import { apolloClient } from "./apollo";
@@ -116,9 +138,10 @@ app.use(createPinia());
 app.use(router);
 app.use(apolloProvider);
 app.component("font-awesome-icon", FontAwesomeIcon);
-
+app.use(vuetify);
 app.mount("#app");
-
+app.use(setupCalendar, {});
+app.component('DatePicker', DatePicker);
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();

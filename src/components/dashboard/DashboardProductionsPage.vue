@@ -1,9 +1,8 @@
 <template>
-  <DashboardComingSoon/>
+  <router-view />
 </template>
 
 <script setup lang="ts">
-import DashboardComingSoon from "@/components/dashboard/DashboardComingSoon.vue";
 
 </script>
 

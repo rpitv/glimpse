@@ -1,21 +1,21 @@
 <template>
-  <n-config-provider :theme="darkTheme" :theme-overrides="theme">
-    <n-loading-bar-provider>
-      <n-dialog-provider>
-        <n-message-provider placement="bottom">
-          <Suspense>
-            <Page/>
-            <template #fallback>
-              <div class="glimpse-loading">
-                <n-spin></n-spin>
-                <p>Loading...</p>
-              </div>
-            </template>
-          </Suspense>
-        </n-message-provider>
-      </n-dialog-provider>
-    </n-loading-bar-provider>
-  </n-config-provider>
+    <n-config-provider :theme="darkTheme" :theme-overrides="theme">
+      <n-loading-bar-provider>
+        <n-dialog-provider>
+          <n-message-provider placement="bottom">
+            <Suspense>
+              <Page/>
+              <template #fallback>
+                <div class="glimpse-loading">
+                  <n-spin></n-spin>
+                  <p>Loading...</p>
+                </div>
+              </template>
+            </Suspense>
+          </n-message-provider>
+        </n-dialog-provider>
+      </n-loading-bar-provider>
+    </n-config-provider>
 </template>
 
 <script lang="ts">

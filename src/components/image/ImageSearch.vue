@@ -19,9 +19,9 @@ import { AutoCompleteOption, NAutoComplete } from "naive-ui";
 import { computed, PropType, ref } from "vue";
 import { useQuery } from "@vue/apollo-composable";
 import {
-  CaseSensitivity,
+  CaseSensitivity, CategoryOrderableFields,
   FilterImageInput,
-  Image,
+  Image, ImageOrderableFields, OrderDirection,
   SearchImagesDocument,
 } from "@/graphql/types";
 
@@ -69,6 +69,10 @@ const imageSearchResults = useQuery(
   SearchImagesDocument,
   () => ({
     filter: searchFilter.value,
+    order: [{
+      field: "id" as ImageOrderableFields,
+      direction: "Desc" as OrderDirection
+    }]
   }),
   {
     throttle: 1000,

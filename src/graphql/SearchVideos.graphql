@@ -1,7 +1,8 @@
-query SearchVideos($pagination: PaginationInput, $filter: FilterVideoInput) {
+query SearchVideos($pagination: PaginationInput, $filter: FilterVideoInput, $order: [OrderVideoInput!]) {
   videoCount(filter: $filter)
-  videos: findManyVideo(pagination: $pagination, filter: $filter) {
+  videos: findManyVideo(pagination: $pagination, filter: $filter, order: $order) {
     id
     name
+    metadata
   }
 }

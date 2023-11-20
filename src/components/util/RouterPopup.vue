@@ -1,11 +1,9 @@
 <template>
-<n-modal v-model:show="isPopupShown" :closable="true" @close="onClose">
-  <div :style="`width: min(${maxWidth}px, 80%)`">
-    <slot />
-  </div>
-</n-modal>
-
-
+  <n-modal v-model:show="isPopupShown" :closable="true" @close="onClose">
+    <div :style="`width: min(${maxWidth}px, 80%)`">
+      <slot />
+    </div>
+  </n-modal>
   <RouterLink v-if="to"
               :to="to"
               custom v-slot="{ href, navigate }"
