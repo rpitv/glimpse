@@ -6,9 +6,11 @@ import { vuetify } from "../plugins/vuetify";
 import { DatePicker, setupCalendar } from 'v-calendar';
 import 'v-calendar/style.css';
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCaretDown, faAngleRight, faAngleLeft, faPen, faCalendar,
+import {
+  faCaretDown, faAngleRight, faAngleLeft, faPen, faCalendar,
   faCircleXmark, faTrash, faBackwardStep, faForwardStep, faChevronLeft, faChevronRight,
-  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown } from "@fortawesome/pro-solid-svg-icons";
+  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown, faEdit
+} from "@fortawesome/pro-solid-svg-icons";
 
 import {
   faCircleInfo,
@@ -72,6 +74,7 @@ library.add(faIdCard);
 library.add(faInputText);
 library.add(faArrowUp);
 library.add(faArrowDown);
+library.add(faEdit);
 
 library.add(faHome);
 library.add(faCircleInfo);

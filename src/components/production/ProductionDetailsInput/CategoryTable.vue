@@ -1,5 +1,33 @@
 <template>
-  <ProductionSearch document-name="Categories" @search="refetchCategory"/>
+    <div class="top-bar">
+      <ProductionSearch document-name="Categories" @search="refetchCategory"/>
+      <div class="buttons">
+        <RouterPopup
+          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
+          :max-width="1100" v-model="showCreatePopup"
+          :to="{ name: 'dashboard-category-create' }"
+        >
+          <CreateCategoryCard
+            closable
+            @save="
+              refresh();
+              showCreatePopup = false;
+            "
+            @close="showCreatePopup = false"
+          />
+          <template #trigger>
+            <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+              prepend-icon="fa-light fa-plus">
+              Create
+            </v-btn>
+          </template>
+        </RouterPopup>
+        <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+           rounded class="text-none top-button">
+            Refresh
+        </v-btn>
+      </div>
+    </div>
   <v-data-table-server class="table" height="300px"
    :items-per-page="take"
    :items-length="queryData.result.value ? queryData.result.value.categoryCount : 0"
@@ -26,6 +54,7 @@
 <script setup lang="ts">
 import ProductionSearch from "@/components/production/ProductionSearch.vue";
 import {
+  AbilitySubjects,
   CaseSensitivity,
   CategoryOrderableFields,
   OrderDirection,
@@ -34,6 +63,10 @@ import {
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch} from "vue";
 import type {PropType} from "vue";
+import {ability, AbilityActions} from "@/casl";
+import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
 
 const props = defineProps({
   take: {
@@ -55,9 +88,10 @@ const categoryHeader = [
 ]
 const order = ref<{key: string, order: string}[]>([]);
 const currentPage = ref(1);
+const showCreatePopup = ref<boolean>(false);
 
 interface Options {
-  name?: { contains: string },
+  name?: { contains: string, mode?: CaseSensitivity.Insensitive },
   id?: { equals: number }
 }
 
@@ -68,7 +102,7 @@ const queryData = useQuery(SearchCategoriesDocument, {
     field: "id" as CategoryOrderableFields
   }],
   filter: {
-    name: { contains: '', mode: CaseSensitivity.Insensitive }
+    name: { contains: '' }
   }
 });
 
@@ -87,7 +121,7 @@ async function refetchCategory(filter: string, type: string) {
   if (type === "ID")
     options.id = { equals: parseInt(filter) };
   else
-    options = { name: { contains: filter as string } };
+    options = { name: { contains: filter as string, mode: CaseSensitivity.Insensitive } };
   await queryData.refetch({
     filter: options,
     order: [{ direction: "Desc" as OrderDirection, field: "id" as CategoryOrderableFields }]
@@ -107,13 +141,28 @@ watch(order, () => {
       order: [{direction: "Desc" as OrderDirection, field: "id" as CategoryOrderableFields }]
     })
 })
+
+async function refresh() {
+  await queryData.refetch();
+}
 </script>
 
 <style scoped lang="scss">
+.top-bar {
+  display: flex;
+  align-items: center;
+}
+.buttons {
+  display:  flex;
+}
+.top-button {
+  margin-bottom: 1.5rem;
+  margin-left: 1rem;
+  float: right;
+}
 .table {
   border-style: solid;
   border-color:  #a9aeb3;
   border-radius: 5px;
 }
-
 </style>

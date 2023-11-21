@@ -6,7 +6,7 @@
             <h2>Loading</h2>
         </div>
     </div>
-    <v-stepper v-else :flat="true" v-model="step">
+    <v-stepper v-else :flat="true" v-model="step" :editable="editable">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
           <v-stepper-item value="1" title="Production Details" subtitle="Required" />
@@ -52,7 +52,7 @@
               <h2>Thumbnail: </h2>
               <v-dialog width="400" scrim="black">
                 <template v-slot:activator="{ props }" >
-                  <v-chip v-bind="props" class="ml-3" closable @click:close="() => {newProductionThumbnail.url = ''; newProductionThumbnail.id = ''}">
+                  <v-chip v-bind="props" class="ml-1" closable @click:close="() => {newProductionThumbnail.url = ''; newProductionThumbnail.id = ''}">
                     Image ID: {{ newProductionThumbnail.id }}
                   </v-chip>
                 </template>
@@ -101,9 +101,9 @@
                 <p>Name: {{ newProductionData.name }}</p>
                 <p>Closet Location: {{ newProductionData.closetLocation }}</p>
                 <p>Event Location: {{ newProductionData.eventLocation }}</p>
-                <p>Closet Time: {{ newProductionData.closetTime }}</p>
-                <p>Start Time: {{ newProductionData.startTime }}</p>
-                <p>End Time: {{ newProductionData.endTime }}</p>
+                <p>Closet Time: {{ new Date(newProductionData.closetTime).toLocaleString() }}</p>
+                <p>Start Time: {{ new Date(newProductionData.startTime).toLocaleString() }}</p>
+                <p>End Time: {{ new Date(newProductionData.endTime).toLocaleString() }}</p>
                 <div class="flex-container" style="align-items: center">
                   <p>Tags: </p>
                   <v-chip-group v-if="newProductionTags.length > 0">
@@ -118,9 +118,16 @@
                 <p>Team Notes: {{ newProductionData.teamNotes ? newProductionData.teamNotes : 'No notes provided.' }}</p>
                 <div class="flex-container" style="align-items: center">
                   <p>Category: </p>
-                  <v-chip class="ml-1" v-if="newProductionCategory.id">
-                    Image ID: {{ newProductionCategory.id }}
-                  </v-chip>
+                  <v-hover v-if="newProductionCategory.id" v-slot:default="{ isHovering, props }">
+                    <div class="ml-1 mb-1" v-bind="props">
+                      <v-chip v-if="isHovering">
+                        Category Name: {{ newProductionCategory.name }}
+                      </v-chip>
+                      <v-chip v-else class="ml-1">
+                        Category ID: {{ newProductionCategory.id }}
+                      </v-chip>
+                    </div>
+                  </v-hover>
                   <p class="ml-1" v-else>No category provided.</p>
                 </div>
                 <div class="flex-container" style="align-items: center">
@@ -140,7 +147,7 @@
                 <div class="flex-container" style="align-items: center">
                   <p>Images: </p>
                   <v-chip-group column v-if="newProductionImages.length">
-                    <v-dialog v-for="(image, i) in newProductionImages" :key="image.id" width="400" scrim="black">
+                    <v-dialog v-for="image in newProductionImages" :key="image.id" width="400" scrim="black">
                       <template v-slot:activator="{ props }">
                         <v-chip class="ml-1" v-bind="props" >
                           Image ID: {{ image.id }}
@@ -178,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import {watch, ref } from "vue";
+import {watch, ref, watchEffect, computed} from "vue";
 import type { PropType } from "vue";
 import {
   UpdateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
@@ -258,6 +265,11 @@ const oldProductionImages = ref<urlInterface[]>([]);
 const newProductionImages = ref<urlInterface[]>([]);
 const oldProductionVideos = ref<urlInterface[]>([]);
 const newProductionVideos = ref<urlInterface[]>([]);
+
+const editable = computed(() => {
+  return !(!newProductionData.value.name || !newProductionData.value.closetLocation || !newProductionData.value.eventLocation ||
+    !newProductionData.value.closetTime || !newProductionData.value.startTime || !newProductionData.value.endTime);
+})
 
 watch(currentProduction.result, () => {
   if (currentProduction.result.value) {

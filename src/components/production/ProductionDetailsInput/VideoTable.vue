@@ -1,5 +1,33 @@
 <template>
-  <ProductionSearch document-name="Images" @search="refetchVideo"/>
+  <div class="top-bar">
+    <ProductionSearch document-name="Videos" @search="refetchVideo"/>
+    <div class="buttons">
+      <RouterPopup
+              v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
+              :max-width="1100" v-model="showCreatePopup"
+              :to="{ name: 'dashboard-video-create' }"
+      >
+        <CreateVideoCard
+          closable
+          @save="
+            refresh();
+            showCreatePopup = false;
+          "
+                @close="showCreatePopup = false"
+        />
+        <template #trigger>
+            <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+                   prepend-icon="fa-light fa-plus">
+                Create
+            </v-btn>
+        </template>
+      </RouterPopup>
+      <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+             rounded class="text-none top-button">
+          Refresh
+      </v-btn>
+    </div>
+  </div>
   <v-data-table-server class="table" height="300px"
                        :items-per-page="take"
                        :items-length="queryData.result.value ? queryData.result.value.videoCount : 0"
@@ -38,6 +66,9 @@ import {ref, watch} from "vue";
 import type {PropType} from "vue";
 import {ability, AbilityActions} from "@/casl";
 import {subject} from "@casl/ability";
+import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
 
 const props = defineProps({
   take: {
@@ -60,9 +91,10 @@ const videoHeader = [
 ]
 const order = ref<{key: string, order: string}[]>([]);
 const currentPage = ref(1);
+const showCreatePopup = ref<boolean>(false);
 
 interface Options {
-  name?: { contains: string },
+  name?: { contains: string, mode?: CaseSensitivity.Insensitive },
   id?: { equals: number }
 }
 
@@ -73,7 +105,7 @@ const queryData = useQuery(SearchVideosDocument, {
     field: "id" as VideoOrderableFields
   }],
   filter: {
-    name: {contains: '', mode: CaseSensitivity.Insensitive}
+    name: {contains: ''}
   }
 });
 
@@ -93,7 +125,7 @@ async function refetchVideo(filter: string, type: string) {
     options.id = { equals: parseInt(filter) }
   else
     options = {
-      name: { contains: filter as string }
+      name: { contains: filter as string, mode: CaseSensitivity.Insensitive }
     }
   await queryData.refetch({
     filter: options,
@@ -114,13 +146,28 @@ watch(order, () => {
       order: [{direction: "Desc" as OrderDirection, field: "id" as VideoOrderableFields }]
     })
 })
+
+async function refresh() {
+  await queryData.refetch();
+}
 </script>
 
 <style scoped lang="scss">
+.top-bar {
+  display: flex;
+  align-items: center;
+}
+.buttons {
+  display:  flex;
+}
+.top-button {
+  margin-bottom: 1.5rem;
+  margin-left: 1rem;
+  float: right;
+}
 .table {
   border-style: solid;
   border-color:  #a9aeb3;
   border-radius: 5px;
 }
-
 </style>

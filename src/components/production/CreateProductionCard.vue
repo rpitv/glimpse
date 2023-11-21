@@ -1,6 +1,6 @@
 <template>
   <v-card title="Create Production">
-    <v-stepper :flat="true" v-model="step">
+    <v-stepper :flat="true" v-model="step" :editable="editable">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
           <v-stepper-item value="1" title="Production Details" subtitle="Required" />
@@ -179,10 +179,10 @@
 </template>
 
 <script setup lang="ts">
-import {watch, ref} from "vue";
+import {watch, ref, computed} from "vue";
 import {
   CreateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
-  CreateProductionVideoDocument, InputMaybe
+  CreateProductionVideoDocument
 } from "@/graphql/types";
 import type { Production } from "@/graphql/types";
 import {useMutation} from "@vue/apollo-composable";
@@ -231,6 +231,11 @@ const productionCategory = ref({id: '', name: ''});
 const productionThumbnail = ref<urlInterface>({id: '', url: '', priority: 0});
 const productionImages = ref<urlInterface[]>([]);
 const productionVideos = ref<urlInterface[]>([]);
+
+const editable = computed(() => {
+  return !(!productionData.value.name || !productionData.value.closetLocation || !productionData.value.eventLocation ||
+    !productionData.value.closetTime || !productionData.value.startTime || !productionData.value.endTime);
+})
 
 watch((productionData.value), () => {
   if (productionData.value.closetTime) {
