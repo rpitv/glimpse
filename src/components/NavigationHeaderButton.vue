@@ -24,7 +24,6 @@
         </v-btn>
       </a>
     </RouterLink>
-
     <v-btn v-else
       class="button-elem"
       :type="route.name === value.route ? '#ff6363' : 'white'"
@@ -57,6 +56,9 @@ const props = defineProps({
     type: Object as PropType<NavButton>,
     required: true
   },
+  active: {
+    type: Boolean as PropType<boolean | undefined>
+  },
   depth: {
     type: Number,
     default: 0
@@ -71,6 +73,14 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
+
+const isButtonActive: Ref<boolean> = computed(() => {
+  if (props.active !== undefined) {
+    return props.active;
+  }
+
+  return route.name === props.value.route;
+})
 
 // Computed list of children for the dropdown. If there are no children, then the dropdown is not shown.
 const children: Ref<DropdownOption[]> = computed(() => {

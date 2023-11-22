@@ -1,19 +1,16 @@
-import '@fortawesome/fontawesome-free/css/all.css'
 import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import {aliases, fa} from 'vuetify/lib/iconsets/fa';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
+import { createVuetify } from 'vuetify';
+import * as directives from 'vuetify/directives'
+import { aliases, fa } from 'vuetify/iconsets/fa-svg'
 
-export default createVuetify({
-  components,
+export const vuetify= createVuetify({
   directives,
+  theme: {
+    defaultTheme: 'dark'
+  },
   icons: {
     defaultSet: 'fa',
     aliases,
     sets: { fa }
-  },
-  theme: {
-    defaultTheme: 'dark'
   }
 });

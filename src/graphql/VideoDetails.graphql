@@ -1,0 +1,8 @@
+query VideoDetails($id: BigInt!) {
+  video: findOneVideo(id: $id) {
+    id
+    name
+    metadata
+    format
+  }
+}

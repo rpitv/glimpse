@@ -1,0 +1,10 @@
+query RoleDetails($id: BigInt!) {
+  role: findOneRole(id: $id) {
+    id
+    name
+    priority
+    description
+    displayInMembership
+    displayInLeadership
+  }
+}

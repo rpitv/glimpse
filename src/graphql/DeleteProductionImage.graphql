@@ -1,0 +1,5 @@
+mutation DeleteProductionImage($id: BigInt!) {
+  productionImage: deleteProductionImage(id: $id) {
+    id
+  }
+}

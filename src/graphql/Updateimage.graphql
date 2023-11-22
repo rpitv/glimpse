@@ -1,0 +1,5 @@
+mutation UpdateImage($id: BigInt!, $data: UpdateImageInput!) {
+  image: updateImage(id: $id, input: $data) {
+    id
+  }
+}

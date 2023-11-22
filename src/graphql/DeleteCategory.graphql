@@ -1,0 +1,6 @@
+mutation DeleteCategory($id: BigInt!) {
+  category: deleteCategory(id: $id) {
+    id
+    name
+  }
+}

@@ -1,0 +1,5 @@
+mutation DeleteUserGroup($id: BigInt!) {
+  userGroup: deleteUserGroup(id: $id) {
+    id
+  }
+}

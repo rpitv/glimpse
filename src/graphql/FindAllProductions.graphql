@@ -1,11 +1,26 @@
-query FindAllProductions($pagination: PaginationInput) {
-  productions: findManyProduction(pagination: $pagination) {
+query FindAllProductions($pagination: PaginationInput, $filter: FilterProductionInput) {
+  productions: findManyProduction(pagination: $pagination, filter: $filter) {
     id
     name
-    startTime
     description
+    images {
+      id
+      imageId
+    }
+    startTime
+    tags {
+      id
+      tag
+    }
     thumbnail {
       path
+    }
+    videos {
+      id
+      video {
+        id
+        name
+      }
     }
   }
 }

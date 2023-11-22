@@ -1,0 +1,7 @@
+query SearchPeople($pagination: PaginationInput, $filter: FilterPersonInput) {
+  personCount(filter: $filter)
+  people: findManyPerson(pagination: $pagination, filter: $filter) {
+    id
+    name
+  }
+}

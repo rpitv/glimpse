@@ -1,0 +1,5 @@
+mutation CreateProductionImage ($data: CreateProductionImageInput!) {
+    image: createProductionImage (input: $data) {
+        id
+    }
+}

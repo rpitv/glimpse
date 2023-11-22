@@ -17,11 +17,11 @@
 import {NBreadcrumb, NBreadcrumbItem} from "naive-ui";
 import type {PropType} from "vue";
 import {computed} from "vue";
-import { RouteLocationRaw, RouterLink } from "vue-router";
+import { RouteLocationNormalizedLoaded, RouteLocationRaw, RouterLink } from "vue-router";
 
 const props = defineProps({
   route: {
-    type: Object as PropType<{name: string, route?: RouteLocationRaw}[]>,
+    type: Object as PropType<{name: string | ((route: RouteLocationNormalizedLoaded) => string), route?: RouteLocationRaw}[]>,
     required: true
   }
 })

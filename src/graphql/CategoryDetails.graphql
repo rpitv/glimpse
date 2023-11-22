@@ -1,0 +1,11 @@
+query CategoryDetails($id: BigInt!) {
+  category: findOneCategory(id: $id) {
+    id
+    name
+    priority
+    parent {
+      id
+      name
+    }
+  }
+}

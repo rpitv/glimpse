@@ -1,0 +1,9 @@
+query FindImages($pagination: PaginationInput, $filter: FilterImageInput) {
+  imageCount(filter: $filter)
+  images: findManyImage(pagination: $pagination, order: [{ field: name, direction: Desc }], filter: $filter) {
+    id
+    name
+    description
+    path
+  }
+}

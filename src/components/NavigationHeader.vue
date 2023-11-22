@@ -3,15 +3,15 @@
     <nav class="navbar" aria-label="Website Navigation">
       <ul ref="leftNav" class="navbar-section left">
         <li v-for="button in leftPriorityPlusCache.nonMoreButtons">
-          <NavigationHeaderButton class="nav-button" :value="button"/>
+          <NavigationHeaderButton class="nav-button" :value="button" :active="button.active"/>
         </li>
         <li v-if="moreDropdownButton.children.length">
-          <NavigationHeaderButton class="nav-button" :value="moreDropdownButton"/>
+          <NavigationHeaderButton class="nav-button" :value="moreDropdownButton" />
         </li>
       </ul>
       <ul ref="rightNav" class="navbar-section right">
         <li v-for="button in rightPriorityPlusCache.nonMoreButtons">
-          <NavigationHeaderButton class="nav-button" :value="button"/>
+          <NavigationHeaderButton class="nav-button" :value="button" :active="button.active"/>
         </li>
       </ul>
       <LoginPopup v-model="showLoginPopup"/>
@@ -105,7 +105,8 @@ const rightButtonsSource: Ref<NavButton[]> = computed(() => {
       icon: ['fal', 'hammer'],
       showIconOnDesktop: true,
       route: "dashboard",
-      visible: canViewDashboard
+      visible: canViewDashboard,
+      active: computed(() => typeof route.name === "string" && route.name?.includes("dashboard"))
     },
     {
       key: refAuthStore.isLoggedIn.value ? "login" : "logout",
