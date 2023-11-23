@@ -1,0 +1,24 @@
+query FindUpcomingProductions($now: DateTime!, $pagination: PaginationInput) {
+  findManyProduction(filter:{
+    endTime:{
+      gt: $now
+    }
+  }, order:[
+    { field: startTime, direction: Asc}
+  ], pagination: $pagination
+  ) {
+    id
+    name
+    description
+    videos (order: [{
+      field: priority, direction: Desc
+    }]){
+      priority
+      video {
+        format
+        metadata
+      }
+    }
+    startTime
+  }
+}
