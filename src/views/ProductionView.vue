@@ -10,11 +10,14 @@
       </v-card-subtitle>
       <v-card-text>
         <p class="prod-description">{{ production.result.value?.ReadProduction?.description }}</p>
-        <ProductionCredits class="prod-credits" :credits="production.result.value?.ReadProduction.credits"/>
-        <ProductionTags class="prod-tags"
-          v-if="production.result.value?.ReadProduction.tags.length > 0"
-          :tags="production.result.value?.ReadProduction?.tags.map(tag => tag.tag)"
-        />
+        <ProductionCredits class="prod-credits" :credits="production.result.value?.ReadProduction?.credits"/>
+        <div v-if="(production.result.value?.ReadProduction?.tags?.length as number) > 0">
+          <h3 class="mt-5 mb-3">Tags</h3>
+          <hr>
+          <ProductionTags class="prod-tags"
+              :tags="production.result.value?.ReadProduction?.tags?.map(tag => tag.tag) as string[]"
+          />
+        </div>
       </v-card-text>
     </v-card>
     <div v-else class="loading">
@@ -27,13 +30,14 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
 import {useQuery} from "@vue/apollo-composable";
-import {ProductionImage, ProductionVideo, ReadProductionDocument} from "@/graphql/types";
-import ProductionTags from "@/components/production/ProductionTags.vue";
-import ProductionCredits from "@/components/production/ProductionCredits.vue";
-import ProductionCarousel from "@/components/production/ProductionCarousel.vue";
+import { ReadProductionDocument } from "@/graphql/types";
+import ProductionTags from "@/components/productionview/ProductionTags.vue";
+import ProductionCredits from "@/components/productionview/ProductionCredits.vue";
+import ProductionCarousel from "@/components/productionview/ProductionCarousel.vue";
 import { computed } from "vue";
 import moment from "moment";
 import type {DeepPartial} from "@/util/helper";
+import type { ProductionImage, ProductionVideo } from "@/graphql/types"
 
 const route = useRoute();
 

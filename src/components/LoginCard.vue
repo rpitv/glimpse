@@ -1,5 +1,5 @@
 <template>
-  <v-card title="Log in" class="login-card" >
+  <v-card title="Log In" class="login-card" >
     <v-card-text>
       <v-alert v-if="loginErrorResponse" title="Login Error" type="error" class="login-error">
         {{ loginErrorResponse }}
@@ -11,9 +11,9 @@
       </div>
       <div :class="{hide: isLoggingIn, show: !isLoggingIn}">
         <v-form @keyup="keyTyped" ref="formRef">
-          <v-text-field v-model="formValue.username" label="Username" :focused="true" :rules="usernameRules" required />
-          <v-text-field v-model="formValue.password" label="Password" type="password" :rules="passwordRules" required />
-          <v-btn @click="submit" rounded class="text-none">Log in</v-btn>
+          <v-text-field v-model="formValue.username" label="Username" :focused="true" :rules="usernameRules" required variant="outlined"/>
+          <v-text-field v-model="formValue.password" label="Password" type="password" :rules="passwordRules" required variant="outlined"/>
+          <v-btn @click="submit" rounded class="text-caption" variant="outlined">Log In</v-btn>
         </v-form>
         <br>
         <v-row class="align-center">
@@ -29,7 +29,7 @@
         </v-row>
         <br>
         <a :href="loginWithDiscordLink">
-          <v-btn color="#5865F2" text-color="#ffffff" rounded class="oauth-button text-none">
+          <v-btn color="#5865F2" text-color="#ffffff" rounded class="oauth-button text-caption">
             <FontAwesomeIcon icon="fab fa-discord" class="oauth-button-icon" />
             Log in with Discord
           </v-btn>

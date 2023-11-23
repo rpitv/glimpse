@@ -1,6 +1,4 @@
 <template>
-  <h3 class="mt-5 mb-3">Tags</h3>
-  <hr>
   <div class="tag-container">
     <div class="mt-3 mr-3 tag" v-for="tag in props.tags" :key="tag" style="color: #68b0d4">
       {{ tag }}
@@ -23,6 +21,7 @@ const props = defineProps({
 
 .tag-container {
   display: flex;
+  flex-wrap: wrap
 }
 
 .tag {

@@ -21,7 +21,7 @@
       </template>
       <v-carousel-item v-for="item of items">
         <div class="img-container" v-if="item.__typename === 'Image'">
-          <img :src="item.path" :alt="item.name">
+          <img :src="item.path as string" :alt="item.name">
         </div>
         <div v-else-if="!item.metadata || !item.metadata.url" class="unsupported-format">
           Video currently doesn't have any metadata or a url to link to.

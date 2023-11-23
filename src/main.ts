@@ -9,7 +9,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faCaretDown, faAngleRight, faAngleLeft, faPen, faCalendar,
   faCircleXmark, faTrash, faBackwardStep, faForwardStep, faChevronLeft, faChevronRight,
-  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown, faEdit
+  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown, faEdit, faExclamationTriangle
 } from "@fortawesome/pro-solid-svg-icons";
 
 import {
@@ -75,6 +75,7 @@ library.add(faInputText);
 library.add(faArrowUp);
 library.add(faArrowDown);
 library.add(faEdit);
+library.add(faExclamationTriangle);
 
 library.add(faHome);
 library.add(faCircleInfo);
@@ -142,7 +143,6 @@ app.use(router);
 app.use(apolloProvider);
 app.use(vuetify);
 app.component("font-awesome-icon", FontAwesomeIcon);
-app.use(vuetify);
 app.mount("#app");
 app.use(setupCalendar, {});
 app.component('DatePicker', DatePicker);

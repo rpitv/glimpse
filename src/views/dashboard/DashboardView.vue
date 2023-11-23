@@ -1,10 +1,8 @@
 <template>
   <div class="dashboard-view">
     <n-card>
-
       <n-layout has-sider>
         <n-layout-sider
-
           bordered
           collapse-mode="width"
           :collapsed-width="64"

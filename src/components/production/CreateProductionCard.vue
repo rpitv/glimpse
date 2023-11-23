@@ -172,7 +172,7 @@
         </v-stepper-window>
         <v-stepper-actions @click:next="validate(next)" @click:prev="prev" :next-text="step >= 6 ? 'Create' : 'Next'"
                            :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
-          </v-stepper-actions>
+        </v-stepper-actions>
       </template>
     </v-stepper>
   </v-card>

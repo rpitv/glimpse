@@ -1,10 +1,11 @@
 <template>
-  <RouterLink :to="productionUrl">
-    <v-card class="production-card" width="300">
+<!--  Height is at 1% because it somehow prevents the anchor tag from extending past the card-->
+  <RouterLink :to="productionUrl" class="production-card" style="height: 1%" link>
+    <v-card class="production-card" variant="elevated" :hover="true" density="comfortable">
       <v-img :src="thumbnail" cover />
-      <v-card-title> {{props.name}}</v-card-title>
+      <v-card-title>{{props.name}}</v-card-title>
       <v-card-text>
-        <p class="production-description">{{ props.description }}</p>
+        <p class="production-description text-body-2">{{ props.description }}</p>
         <br>
         <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
       </v-card-text>
@@ -14,7 +15,7 @@
 
 <script setup lang="ts">
 import moment from "moment";
-import { computed } from "vue";
+import {computed} from "vue";
 
 const props = defineProps({
   id: {
@@ -45,17 +46,12 @@ const productionUrl = import.meta.env.BASE_URL + "productions/" + props.id;
 const thumbnail = computed(() => {
   return props.thumbnailUrl ? props.thumbnailUrl : "/default_thumbnail_300.png";
 })
-
 </script>
 
 <style scoped lang="scss">
 .production-card {
-  max-width: 300px;
+  min-width: 300px;
   display: inline-block;
-}
-
-a:hover {
-  text-decoration: none;
 }
 
 .production-description {

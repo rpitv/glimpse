@@ -1,5 +1,6 @@
-query FindAllProductions($pagination: PaginationInput, $filter: FilterProductionInput) {
-  productions: findManyProduction(pagination: $pagination, filter: $filter) {
+query FindAllProductions($pagination: PaginationInput, $filter: FilterProductionInput, $order: [OrderProductionInput!]) {
+  totalProductions: productionCount(filter: $filter)
+  productions: findManyProduction(pagination: $pagination, filter: $filter, order: $order) {
     id
     name
     description

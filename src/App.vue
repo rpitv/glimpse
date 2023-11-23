@@ -1,21 +1,19 @@
 <template>
   <n-config-provider :theme="darkTheme" :theme-overrides="theme">
-    <n-loading-bar-provider>
-      <n-dialog-provider>
-        <n-message-provider placement="bottom">
-          <Suspense>
-            <Page/>
-            <template #fallback>
-              <div class="glimpse-loading">
-                <v-progress-circular indeterminate :size="54" color="#ff6363">
-                </v-progress-circular>
-                Loading...
-              </div>
-            </template>
-          </Suspense>
-        </n-message-provider>
-      </n-dialog-provider>
-    </n-loading-bar-provider>
+    <v-theme-provider theme="dark">
+      <n-message-provider>
+        <Suspense>
+          <Page/>
+          <template #fallback>
+            <div class="glimpse-loading">
+              <v-progress-circular indeterminate :size="54" color="#ff6363">
+              </v-progress-circular>
+              Loading...
+            </div>
+          </template>
+        </Suspense>
+      </n-message-provider>
+    </v-theme-provider>
   </n-config-provider>
 </template>
 
@@ -59,9 +57,6 @@ export default defineComponent({
   components: {
     NMessageProvider,
     NConfigProvider,
-    NLoadingBarProvider,
-    NDialogProvider,
-    NSpin,
     Page
   }
 });

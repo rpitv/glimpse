@@ -176,8 +176,8 @@
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
-          <v-stepper-actions @click:next="validate(next)" @click:prev="prev" :next-text="step >= 6 ? 'Edit' : 'Next'"
-                             :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" :next-text="step >= 6 ? 'Edit' : 'Next'"
+                   :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
         </v-stepper-actions>
       </template>
     </v-stepper>
@@ -373,7 +373,9 @@ watch(currentProduction.result, () => {
 async function validate(next: any) {
   const validation = await requiredForm.value.validate();
   if (step.value >= 6) {
+    loading.value = true;
     await editProduction();
+    loading.value = false;
     return;
   }
   if (validation.valid && newProductionData.value.closetTime && newProductionData.value.startTime && newProductionData.value.endTime)

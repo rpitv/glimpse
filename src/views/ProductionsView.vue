@@ -1,29 +1,64 @@
 <template>
-  <div v-if="response.loading.value">
-    <div class="glimpse-loading">
-      <v-progress-circular indeterminate :size="54" color="#ff6363" />
-      Loading...
+  <v-infinite-scroll :onLoad="getMoreProductions" style="overflow-y: hidden; ">
+    <div class="production-cards">
+      <template v-for="production in productions" :key="production.id">
+        <ProductionCard  class="production-card"
+           :id="parseInt(production.id)" :name="production.name" :description="production.description ? production.description : ''"
+           :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"/>
+      </template>
     </div>
-  </div>
-  <div v-else class="production-cards">
-    <ProductionCard v-for="production in response.result.value?.productions" class="production-card" :key="production.id"
-      :id="parseInt(production.id)" :name="production.name" :description="production.description ? production.description : ''"
-      :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"/>
-  </div>
+    <template #loading>
+      <div class="glimpse-loading">
+        <v-progress-circular indeterminate :size="54" color="#ff6363" />
+        Loading...
+      </div>
+    </template>
+    <template #empty>
+    </template>
+  </v-infinite-scroll>
 </template>
 
 <script setup lang="ts">
 import {useQuery} from "@vue/apollo-composable";
-import {FindAllProductionsDocument} from "@/graphql/types";
+import {FindAllProductionsDocument, OrderDirection, ProductionOrderableFields} from "@/graphql/types";
 import ProductionCard from "@/components/ProductionCard.vue";
+import {onMounted, ref} from "vue";
+import type { Production } from "@/graphql/types";
 
-let pageSize = 20;
-
+const take = 20;
+const skip = ref(0);
+const productions = ref<Partial<Production>[]>([]);
 const response = useQuery(FindAllProductionsDocument, {
-  pagination: {
-    take: pageSize
-  }
+  order: [{
+    direction: OrderDirection.Desc,
+    field: ProductionOrderableFields.Id
+  }]
 });
+let totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
+
+async function getMoreProductions({ done }) {
+  try {
+    await response.refetch({
+      pagination: {
+        take: take,
+        skip: skip.value,
+      }
+    });
+    totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
+    if (response.result.value) {
+      for (const production of response.result.value.productions)
+        productions.value.push(production);
+    }
+    if (totalProductions <= productions.value.length)
+      done('empty');
+    else
+      done('ok');
+    skip.value = skip.value + take;
+  } catch (e) {
+    done('error');
+  }
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -40,6 +75,6 @@ const response = useQuery(FindAllProductionsDocument, {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  height: 100vh;
+  height: 100px;
 }
 </style>
