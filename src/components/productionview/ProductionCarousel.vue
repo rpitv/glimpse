@@ -1,24 +1,6 @@
 <template>
   <div v-if="items.length > 0">
-    <v-carousel show-arrows="hover" hide-delimiters class="carousel" :height="height">
-      <template v-slot:prev="{ props }">
-        <v-btn
-            variant="elevated"
-            @click="props.onClick"
-            icon=""
-        >
-          <font-awesome-icon icon="fa-sold fa-angle-left" />
-        </v-btn>
-      </template>
-      <template v-slot:next="{ props }">
-        <v-btn
-            variant="elevated"
-            @click="props.onClick"
-            icon=""
-        >
-          <font-awesome-icon icon="fa-sold fa-angle-right" />
-        </v-btn>
-      </template>
+    <v-carousel hide-delimiters class="carousel" style="height: 100%; background-color: black" >
       <v-carousel-item v-for="item of items">
         <div class="img-container" v-if="item.__typename === 'Image'">
           <img :src="item.path as string" :alt="item.name">
@@ -60,10 +42,6 @@ const props = defineProps({
     required: true
   }
 });
-
-const height = computed(() => {
-  return display.width.value * 0.45;
-})
 
 /*
  * Reducing the constraints on what the officer has to put

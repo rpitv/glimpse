@@ -1,5 +1,5 @@
 query FindLiveProductions($now: DateTime!, $pagination: PaginationInput) {
-  findManyProduction(filter:{
+  productions: findManyProduction(filter:{
     startTime:{
       lt: $now
     }
@@ -22,6 +22,7 @@ query FindLiveProductions($now: DateTime!, $pagination: PaginationInput) {
         metadata
       }
     }
+    endTime
     startTime
   }
 }

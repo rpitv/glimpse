@@ -1,9 +1,9 @@
 <template>
   <div class="card-wrapper">
     <v-card class="card" v-if="!production.loading.value">
-      <ProductionCarousel :items="productionImagesAndVideos"/>
+      <ProductionCarousel :items="productionImagesAndVideos" class="carousel"/>
       <v-card-text>
-        <h2 class="prod-title">{{ production.result.value?.ReadProduction?.name }}</h2>
+        <h1 class="prod-title">{{ production.result.value?.ReadProduction?.name }}</h1>
       </v-card-text>
       <v-card-subtitle>
         <p class="prod-subtitle">{{ productionSubtitle }}</p>
@@ -47,13 +47,15 @@ const production = useQuery(ReadProductionDocument, {
 
 const productionImagesAndVideos = computed(() => {
   const images = production.result.value?.ReadProduction?.images?.map((prodImage: DeepPartial<ProductionImage>) => {
-    return prodImage.image;
+    return prodImage;
   }) ?? [];
   const videos = production.result.value?.ReadProduction?.videos?.map((prodVideo: DeepPartial<ProductionVideo>) => {
-    return prodVideo.video;
+    return prodVideo;
   }) ?? [];
 
-  return [...images, ...videos];
+  const sortVideosImages = [...images, ...videos].sort((a, b) => b.priority - a.priority);
+
+  return sortVideosImages.map((item) => item.image ?? item.video)
 });
 
 /**
@@ -87,11 +89,17 @@ const productionSubtitle = computed<string>(() => {
 }
 .card {
   height: 100%;
-  width: 95%;
+  width: 70%;
   margin-bottom: 3em;
-  @media screen and (min-width: 500px) {
-    width: 80%;
+  @media screen and (max-width: 500px) {
+    width: 95%;
   }
+  @media screen and (max-width: 1000px) {
+    width: 85%;
+  }
+}
+.carousel {
+  aspect-ratio: 16 / 9;
 }
 .loading {
   text-align: center;
@@ -99,16 +107,17 @@ const productionSubtitle = computed<string>(() => {
 
 .prod-title {
   margin-bottom: -10px;
-  font-size: 23px;
+  line-height: 32px;
 }
 
 .prod-subtitle {
-  font-weight: 500;
   font-style: italic;
   opacity: 75%;
 }
 
 .prod-description {
+  font-weight: lighter;
+  font-size: large;
 }
 
 .prod-credits {

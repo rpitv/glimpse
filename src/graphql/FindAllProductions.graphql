@@ -1,6 +1,9 @@
 query FindAllProductions($pagination: PaginationInput, $filter: FilterProductionInput, $order: [OrderProductionInput!]) {
   totalProductions: productionCount(filter: $filter)
   productions: findManyProduction(pagination: $pagination, filter: $filter, order: $order) {
+    category {
+      name
+    }
     id
     name
     description
@@ -8,6 +11,7 @@ query FindAllProductions($pagination: PaginationInput, $filter: FilterProduction
       id
       imageId
     }
+    endTime
     startTime
     tags {
       id

@@ -7,7 +7,12 @@
       <v-card-text>
         <p class="production-description text-body-2">{{ props.description }}</p>
         <br>
-        <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
+        <div style="display: flex">
+          <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
+          <v-spacer />
+          <small v-if="props.startTime < new Date() && props.endTime > new Date()" style="color: #FF7878">LIVE</small>
+          <small v-else-if="props.startTime > new Date()" style="color: #64B1FF">UPCOMING</small>
+        </div>
       </v-card-text>
     </v-card>
   </RouterLink>
@@ -35,6 +40,10 @@ const props = defineProps({
     type: Date,
     required: true
   },
+  endTime: {
+    type: Date,
+    required: true
+  },
   thumbnailUrl: {
     type: String,
     required: false
@@ -50,8 +59,8 @@ const thumbnail = computed(() => {
 
 <style scoped lang="scss">
 .production-card {
-  min-width: 300px;
-  display: inline-block;
+  width: 300px;
+  text-decoration: none;
 }
 
 .production-description {

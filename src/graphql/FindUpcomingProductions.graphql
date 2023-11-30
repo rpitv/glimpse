@@ -1,6 +1,6 @@
 query FindUpcomingProductions($now: DateTime!, $pagination: PaginationInput) {
-  findManyProduction(filter:{
-    endTime:{
+  productions: findManyProduction(filter:{
+    startTime:{
       gt: $now
     }
   }, order:[

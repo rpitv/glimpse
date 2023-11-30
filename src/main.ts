@@ -7,9 +7,27 @@ import { DatePicker, setupCalendar } from 'v-calendar';
 import 'v-calendar/style.css';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
-  faCaretDown, faAngleRight, faAngleLeft, faPen, faCalendar,
-  faCircleXmark, faTrash, faBackwardStep, faForwardStep, faChevronLeft, faChevronRight,
-  faMagnifyingGlass, faIdCard, faInputText, faArrowUp, faArrowDown, faEdit, faExclamationTriangle
+  faCaretDown,
+  faAngleRight,
+  faAngleLeft,
+  faPen,
+  faCalendar,
+  faCircleXmark,
+  faTrash,
+  faBackwardStep,
+  faForwardStep,
+  faChevronLeft,
+  faChevronRight,
+  faMagnifyingGlass,
+  faIdCard,
+  faInputText,
+  faArrowUp,
+  faArrowDown,
+  faEdit,
+  faExclamationTriangle,
+  faCircle,
+  faChevronUp,
+  faChevronDown, faSquare, faCheckSquare
 } from "@fortawesome/pro-solid-svg-icons";
 
 import {
@@ -69,6 +87,8 @@ library.add(faBackwardStep);
 library.add(faForwardStep);
 library.add(faChevronLeft);
 library.add(faChevronRight);
+library.add(faChevronUp)
+library.add(faChevronDown)
 library.add(faMagnifyingGlass);
 library.add(faIdCard);
 library.add(faInputText);
@@ -76,6 +96,9 @@ library.add(faArrowUp);
 library.add(faArrowDown);
 library.add(faEdit);
 library.add(faExclamationTriangle);
+library.add(faCircle);
+library.add(faSquare);
+library.add(faCheckSquare);
 
 library.add(faHome);
 library.add(faCircleInfo);

@@ -19,6 +19,7 @@ query ReadProduction($id: BigInt!) {
         description
         path
       }
+      priority
     }
     videos {
       video {
@@ -26,6 +27,7 @@ query ReadProduction($id: BigInt!) {
         format
         metadata
       }
+      priority
     }
     tags {
       tag

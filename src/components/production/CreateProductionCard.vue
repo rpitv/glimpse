@@ -108,8 +108,8 @@
                   </v-chip-group>
                   <p v-else class="ml-1">No tags provided.</p>
                 </div>
-                <p>Description: {{ productionData.description ? productionData.description : 'No description provided.'}}</p>
-                <p>Team Notes: {{ productionData.teamNotes ? productionData.teamNotes : 'No notes provided.' }}</p>
+                <p>Description: {{ productionData.description ?? 'No description provided.'}}</p>
+                <p>Team Notes: {{ productionData.teamNotes ?? 'No notes provided.' }}</p>
                 <div class="flex-container" style="align-items: center">
                   <p>Category: </p>
                   <v-hover v-if="productionCategory.id" v-slot:default="{ isHovering, props }">

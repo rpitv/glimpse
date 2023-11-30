@@ -114,8 +114,8 @@
                   <p v-else class="ml-1">No tags provided.</p>
                 </div>
                 <p>Description:
-                  {{ newProductionData.description ? newProductionData.description : 'No description provided.' }}</p>
-                <p>Team Notes: {{ newProductionData.teamNotes ? newProductionData.teamNotes : 'No notes provided.' }}</p>
+                  {{ newProductionData.description ?? 'No description provided.' }}</p>
+                <p>Team Notes: {{ newProductionData.teamNotes ?? 'No notes provided.' }}</p>
                 <div class="flex-container" style="align-items: center">
                   <p>Category: </p>
                   <v-hover v-if="newProductionCategory.id" v-slot:default="{ isHovering, props }">
@@ -430,7 +430,7 @@ async function editProduction() {
     if (newProductionData.value.endTime !== oldProductionData.value.endTime) production.endTime = newProductionData.value.endTime;
     if (newProductionData.value.description !== oldProductionData.value.description) production.description = newProductionData.value.description;
     if (newProductionData.value.teamNotes !== oldProductionData.value.teamNotes) production.teamNotes = newProductionData.value.teamNotes;
-    if (newProductionCategory.value.id !== newProductionCategory.value.id)
+    if (newProductionCategory.value.id !== oldProductionCategory.value.id)
       production.categoryId = newProductionCategory.value.id.length ? newProductionCategory.value.id : null;
     if (newProductionThumbnail.value.id !== oldProductionThumbnail.value.id)
       production.thumbnailId = newProductionThumbnail.value.id.length ? newProductionThumbnail.value.id : null
@@ -514,39 +514,6 @@ async function editProduction() {
 </script>
 
 <style scoped lang="scss">
-.date-time-container {
-  display: flex;
-  justify-content: space-around;
-  font-size: 20px;
-}
-
-.time-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.second-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.missing {
-  border-style: solid;
-  border-radius: 2.5%;
-  border-width: 1px;
-  border-color: #FF1744;
-}
-
-.search-bar {
-  max-width: 70%
-}
-
-.table {
-  border-style: solid;
-  border-color:  #a9aeb3;
-  border-radius: 5px;
-}
-
 .button-action {
   font-size: 10px;
 }

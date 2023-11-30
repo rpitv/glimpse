@@ -1,28 +1,34 @@
 <template>
-  <n-card>
-    <template #cover>
-      <iframe v-if="production?.videos[0]?.video.metadata.url" :src="production?.videos[0].video.metadata.url" class="player" title="YouTube video player" allowfullscreen/>
-      <h4 v-else class="no-video">Video does not have a url...</h4>
-    </template>
-      <div class="info">
-        <h2 v-if="production?.name" class="filled">{{production?.name}}</h2>
-        <h2 v-else class="empty">No title provided...</h2>
-        <h4 v-if="production?.description" class="filled">{{production?.description}}</h4>
-        <h4 v-else class="empty">No description provided...</h4>
-      </div>
-  </n-card>
+  <div style="display: flex; flex-direction: column">
+    <v-card v-for="(production, i) in productions" style="width: 100%;" class="mt-5">
+      <iframe v-if="production?.videos[0]?.video.metadata.url" :src="production?.videos[0].video.metadata.url + `?rel=0;&autoplay=${i == 0 ? '1' : '0'}&mute=1&enablejsapi=1`"
+          class="player" allowfullscreen allow="autoplay"
+      ></iframe>
+      <img v-else :src="production.thumbnail?.path ? production.thumbnail?.path : '/default_thumbnail_1200.png'" style="width: 100%" >
+      <v-card-title>
+        {{ production.name }}
+      </v-card-title>
+      <v-card-text>
+        <p>{{ production.description }}</p>
+        <br>
+        <small>{{ moment(production.startTime).format("llll") }} to {{ moment(production.endTime).format("llll")}}</small>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { Production } from "@/graphql/types";
 import type { PropType } from "vue";
-import { NCard } from "naive-ui";
+import {computed} from "vue";
+import moment from "moment/moment";
 
 defineProps({
-  production: {
-    type: Object as PropType<Production>,
+  productions: {
+    type: Object as PropType<Production[]>,
+    required: true
   }
-})
+});
 
 </script>
 
@@ -32,9 +38,6 @@ defineProps({
   width: 100%;
   aspect-ratio: 16 / 9;
   background-color: black;
-}
-.n-card{
-  margin-bottom: 4%;
 }
 .filled {
   margin: 0 0;

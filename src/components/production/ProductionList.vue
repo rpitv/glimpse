@@ -2,26 +2,28 @@
   <div class="top-bar">
     <ProductionSearch document-name="Productions" @search="searchProduction" />
     <div class="buttons">
-        <RouterPopup
-          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
-          :max-width="1100" v-model="showCreatePopup"
-          :to="{ name: 'dashboard-production-create' }"
-        >
+      <RouterPopup
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
+        :max-width="1100" v-model="showCreatePopup"
+        :to="{ name: 'dashboard-production-create' }"
+      >
+        <template #default>
           <CreateProductionCard
             closable
             @save="(id: number) => {
-                showCreatePopup = false;
-                refresh();
-                createdProduction = { id: id, show: true }
+              showCreatePopup = false;
+              refresh();
+              createdProduction = { id: id, show: true };
             }"
           />
-          <template #trigger>
-            <v-btn class="top-button text-none" variant="outlined" rounded color="green"
-              prepend-icon="fa-light fa-plus">
-              Create
-            </v-btn>
-          </template>
-        </RouterPopup>
+        </template>
+        <template #trigger>
+          <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+            prepend-icon="fa-light fa-plus">
+            Create
+          </v-btn>
+        </template>
+      </RouterPopup>
       <v-snackbar v-model="createdProduction.show" color="green-darken-1" class="text-center">
         <p>Created Production {{ createdProduction.id }}</p>
         <template #actions>

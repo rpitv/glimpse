@@ -1,28 +1,21 @@
 <template>
-  <n-modal v-model:show="isPopupShown" :closable="true" @close="onClose">
-    <div :style="`width: min(${maxWidth}px, 80%)`">
-      <slot />
-    </div>
-  </n-modal>
+  <v-dialog v-model="isPopupShown" :style="`width: min(${maxWidth}px, 80%)`" scrim="black">
+    <slot name="default"/>
+  </v-dialog>
   <RouterLink v-if="to"
-              :to="to"
-              custom v-slot="{ href, navigate }"
-  >
-    <a :href="href"
-       :aria-current="route.name === to.name ? 'page' : null"
-       @click="onRouterLinkClicked"
-    >
-      <slot name="trigger" />
-    </a>
+      :to="to"
+      custom v-slot="{ href, navigate }">
+      <a :href="href" :aria-current="route.name === to.name ? 'page' : null" style="height: 0"
+         @click="onRouterLinkClicked">
+        <slot name="trigger" style="position: absolute" />
+      </a>
   </RouterLink>
-
   <span v-else @click="isPopupShown = true">
     <slot name="trigger" />
   </span>
 </template>
 
 <script setup lang="ts">
-import {NModal} from "naive-ui";
 import { computed, PropType } from "vue";
 import type { RouteLocationRaw } from "vue-router";
 import { useRoute } from "vue-router";
@@ -66,7 +59,7 @@ function onRouterLinkClicked(event: PointerEvent) {
     return;
   }
   event.preventDefault();
-  isPopupShown.value = true
+  isPopupShown.value = true;
 }
 
 </script>

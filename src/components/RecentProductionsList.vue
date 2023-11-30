@@ -1,30 +1,43 @@
 <template>
-  <n-grid cols="350:1 650:2 950:3 1250:4 1550:5 1850:6" y-gap="10" :collapsed="true" :collapsed-rows="2">
-    <n-grid-item v-for="production in response.result.value?.findManyProduction" class="productions">
-      <ProductionCard
-        :id="parseInt(production.id)" :start-time="new Date(production.startTime)" :description="production.description" :name="production.name" />
-    </n-grid-item>
-  </n-grid>
+  <div style="display: flex; justify-content: center;" class="mt-5">
+    <div class="card-container">
+      <div style="display: flex; justify-content: center" v-for="production in productions">
+        <ProductionCard :id="parseInt(production.id)" style="width: 100%"
+            :start-time="new Date(production.startTime)" :description="production.description" :name="production.name" :thumbnailUrl="production.thumbnail?.path" />
+      </div>
+    </div>
+  </div>
   <div class="link">
-    <router-link to="productions" style="text-decoration: none"><NButton>See more...</NButton></router-link>
+    <router-link to="productions" style="text-decoration: none">
+      <v-btn variant="outlined" class="text-caption">See More...</v-btn>
+    </router-link>
   </div>
 </template>
-
 <script setup lang="ts">
 import ProductionCard from "@/components/ProductionCard.vue";
-import { NButton, NGrid, NGridItem } from "naive-ui";
-import { useQuery } from "@vue/apollo-composable";
-import { FindRecentProductionsDocument } from "@/graphql/types";
+import { NButton,} from "naive-ui";
+import {Production} from "@/graphql/types";
+import type {PropType} from "vue";
 
-const response = useQuery(FindRecentProductionsDocument, {
-  pagination: {
-    take: 12
+defineProps({
+  productions: {
+    type: Object as PropType<Production[]>,
+    required: true
   }
 })
-
 </script>
 
 <style scoped lang="scss">
+.card-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 25px;
+  @media (max-width: 700px) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
 .productions {
   display: flex;
   justify-content: center;
@@ -32,7 +45,7 @@ const response = useQuery(FindRecentProductionsDocument, {
 .link {
   display: flex;
   justify-content: center;
-  margin: 20px;
+  margin: 10px;
 }
 
 </style>
