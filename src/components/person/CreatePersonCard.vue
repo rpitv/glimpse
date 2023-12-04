@@ -195,7 +195,7 @@ import { useRouter } from "vue-router";
 import PersonDetailsInput from "@/components/person/PersonDetailsInput.vue";
 import moment from "moment";
 import Markdown from "@/components/util/Markdown.vue";
-import ImageSearch from "@/components/image/ImageSearch.vue";
+import ImageSearch from "@/components/image/ImageSelect.vue";
 
 const personDetailsInput = ref<PersonDetailsInput | null>(null);
 const personData = ref<Partial<Person>>({

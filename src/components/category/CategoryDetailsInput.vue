@@ -20,7 +20,7 @@
       </n-form-item-grid-item>
       <n-form-item-grid-item path="parentId" label="Parent">
         <div>
-          <CategorySearch
+          <CategorySelect
             class="form-item"
             :disabled-categories="data?.id != null ? [{ id: data?.id }] : []"
             @select="parentCategorySelected"
@@ -55,7 +55,7 @@ import {
 import { computed, PropType, ref, watch } from "vue";
 import { Category } from "@/graphql/types";
 import { FormRules } from "naive-ui";
-import CategorySearch from "@/components/category/CategorySearch.vue";
+import CategorySearch from "@/components/category/CategorySelect.vue";
 
 const props = defineProps({
   data: {

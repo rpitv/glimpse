@@ -124,7 +124,7 @@ import {
   NAlert,
 } from "naive-ui";
 import { computed, ref } from "vue";
-import GroupSearch from "@/components/group/GroupSearch.vue";
+import GroupSearch from "@/components/group/GroupSelect.vue";
 import type { Group, User, UserPermission } from "@/graphql/types";
 import UserDetailsInput from "@/components/user/UserDetailsInput.vue";
 import { useMutation } from "@vue/apollo-composable";

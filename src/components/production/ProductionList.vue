@@ -1,6 +1,6 @@
 <template>
   <div class="top-bar">
-    <ProductionSearch document-name="Productions" @search="searchProduction" />
+    <DashboardSearch document-name="Productions" @search="searchProduction" />
     <div class="buttons">
       <RouterPopup
         v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
@@ -116,7 +116,7 @@ import {onMounted, ref, watch} from "vue";
 import {useQuery, useMutation} from "@vue/apollo-composable";
 import {subject} from "@casl/ability";
 import EditProductionCard from "@/components/production/EditProductionCard.vue";
-import ProductionSearch from "@/components/production/ProductionSearch.vue";
+import DashboardSearch from "@/components/DashboardSearch.vue";
 
 const ability = useGlimpseAbility();
 const showCreatePopup = ref<boolean>(false);

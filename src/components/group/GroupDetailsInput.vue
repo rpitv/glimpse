@@ -51,7 +51,7 @@ import {
 import { computed, PropType, ref, watch } from "vue";
 import { Group } from "@/graphql/types";
 import { FormRules } from "naive-ui";
-import GroupSearch from "@/components/group/GroupSearch.vue";
+import GroupSearch from "@/components/group/GroupSelect.vue";
 
 const props = defineProps({
   data: {

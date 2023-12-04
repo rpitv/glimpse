@@ -110,7 +110,7 @@ import {
 import type { User } from "@/graphql/types";
 import { computed, onMounted, ref } from "vue";
 import UserDetailsInput from "@/components/user/UserDetailsInput.vue";
-import GroupSearch from "@/components/group/GroupSearch.vue";
+import GroupSearch from "@/components/group/GroupSelect.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import UserPermissionsEditor from "@/components/user/UserPermissionsEditor.vue";
 

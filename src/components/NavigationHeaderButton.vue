@@ -12,29 +12,33 @@
          :aria-current="route.name === value.route ? 'page' : null"
          @click="value.onClick !== undefined ? value.onClick($event, value, navigate) : navigate($event)"
       >
-        <v-btn class="button-elem"
-            :color="route.name === value.route ? '#ff6363' : 'white'"
-            :data-depth="props.depth"
-            variant="text"
-            size="small"
-            style="letter-spacing: normal"
-        >
-          <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
-          {{ value.name }}
-        </v-btn>
+          <v-btn class="button-elem text-none"
+                 :color="route.name === value.route ? '#ff6363' : 'white'"
+                 :data-depth="props.depth"
+                 variant="text"
+                 size="small"
+                 style="letter-spacing: normal"
+          >
+              <template #prepend>
+                <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
+              </template>
+              {{ value.name }}
+          </v-btn>
       </a>
     </RouterLink>
-    <v-btn v-else
-      class="button-elem"
-      :type="route.name === value.route ? '#ff6363' : 'white'"
-      :data-depth="props.depth"
-      variant="text"
-      size="small"
-      style="letter-spacing: normal"
-    >
-      <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon"/>
-      {{ value.name }}
-    </v-btn>
+      <v-btn v-else
+             class="button-elem text-none"
+             :color="route.name === value.route ? '#ff6363' : 'white'"
+             :data-depth="props.depth"
+             variant="text"
+             size="small"
+             style="letter-spacing: normal"
+      >
+          <template #prepend>
+            <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
+          </template>
+          {{ value.name }}
+      </v-btn>
   </component>
 </template>
 

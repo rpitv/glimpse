@@ -15,8 +15,7 @@
 </template>
 <script setup lang="ts">
 import ProductionCard from "@/components/ProductionCard.vue";
-import { NButton,} from "naive-ui";
-import {Production} from "@/graphql/types";
+import type {Production} from "@/graphql/types";
 import type {PropType} from "vue";
 
 defineProps({

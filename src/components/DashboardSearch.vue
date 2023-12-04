@@ -18,7 +18,6 @@ defineProps({
 })
 
 const emit = defineEmits(['search']);
-
 const model = ref("Name");
 const searchVal = ref("");
 </script>

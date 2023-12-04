@@ -10,7 +10,7 @@
         <div style="display: flex">
           <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
           <v-spacer />
-          <small v-if="props.startTime < new Date() && props.endTime > new Date()" style="color: #FF7878">LIVE</small>
+          <small v-if="props.endTime && props.startTime < new Date() && props.endTime > new Date()" style="color: #FF7878">LIVE</small>
           <small v-else-if="props.startTime > new Date()" style="color: #64B1FF">UPCOMING</small>
         </div>
       </v-card-text>
@@ -42,7 +42,7 @@ const props = defineProps({
   },
   endTime: {
     type: Date,
-    required: true
+    required: false
   },
   thumbnailUrl: {
     type: String,

@@ -1,6 +1,6 @@
-query FindPeople($pagination: PaginationInput, $filter: FilterPersonInput) {
+query FindPeople($pagination: PaginationInput, $filter: FilterPersonInput, $order: [OrderPersonInput!]) {
   personCount(filter: $filter)
-  people: findManyPerson(pagination: $pagination, order: [{ field: name, direction: Asc }], filter: $filter) {
+  people: findManyPerson(pagination: $pagination, order: $order, filter: $filter) {
     id
     name
     graduation

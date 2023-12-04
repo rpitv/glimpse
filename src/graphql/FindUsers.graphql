@@ -1,6 +1,6 @@
-query FindUsers($pagination: PaginationInput, $filter: FilterUserInput) {
+query FindUsers($pagination: PaginationInput, $filter: FilterUserInput, $order: [OrderUserInput!]) {
   userCount(filter: $filter)
-  users: findManyUser(pagination: $pagination, order: [{ field: joined, direction: Desc }], filter: $filter) {
+  users: findManyUser(pagination: $pagination, order: $order, filter: $filter) {
     id
     username
     joined

@@ -1,53 +1,59 @@
 <template>
-  <div>
-    <n-layout>
+  <div class="top-bar">
+    <DashboardSearch document-name="Users" @search="searchUser" />
+    <div class="buttons">
       <RouterPopup
-        v-if="ability.can(AbilityActions.Create, AbilitySubjects.User)"
-        :max-width="1100"
-        v-model="showCreatePopup"
-        :to="{ name: 'dashboard-user-create' }">
-        <CreateUserCard
-          closable
-          @save="showCreatePopup = false; refresh()"
-          @close="showCreatePopup = false"
-        />
+          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
+          :max-width="1100" v-model="showCreatePopup"
+          :to="{ name: 'dashboard-production-create' }"
+      >
+        <template #default>
+          <CreateRoleCard
+              closable
+              @save="(id: number) => {
+              showCreatePopup = false;
+              refresh();
+              createdUser = { id: id, show: true };
+            }"
+          />
+        </template>
         <template #trigger>
-          <n-button
-            type="success"
-            class="top-button"
-            round
-          >
-            <template #icon>
-              <FontAwesomeIcon icon="fa-light fa-plus" />
-            </template>
+          <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+                 prepend-icon="fa-light fa-plus">
             Create
-          </n-button>
+          </v-btn>
         </template>
       </RouterPopup>
-      <n-button
-        class="top-button"
-        @click="refresh"
-        round
-      >
-        <template #icon>
-          <FontAwesomeIcon icon="fa-light fa-arrows-rotate" />
+      <v-snackbar v-model="createdUser.show" color="green-darken-1" class="text-center">
+        <p>Created Role {{ createdUser.id }}</p>
+        <template #actions>
+          <v-btn @click="createdUser.show = false" icon="fa-circle-xmark"/>
         </template>
+      </v-snackbar>
+      <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+             rounded class="text-none top-button">
         Refresh
-      </n-button>
-    </n-layout>
-    <n-layout> <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
-      <div style="overflow: auto">
-        <n-data-table class="user-data-table" :columns="columns" :data="queryData.result.value?.users ?? []" :row-key="row => row.id" />
-      </div>
-    </n-layout>
+      </v-btn>
+    </div>
   </div>
+  <n-layout> <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
+    <div style="overflow: auto">
+      <n-data-table class="user-data-table" :columns="columns" :data="queryData.result.value?.users ?? []" :row-key="row => row.id" />
+    </div>
+  </n-layout>
 </template>
 
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
-import { AbilitySubjects, DeleteUserDocument, FindUsersDocument } from "@/graphql/types";
+import {
+  AbilitySubjects, CaseSensitivity,
+  DeleteUserDocument,
+  FindUsersDocument,
+  OrderDirection,
+  UserOrderableFields
+} from "@/graphql/types";
 import type { User } from "@/graphql/types";
 import { computed, h, onMounted, ref } from "vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
@@ -57,20 +63,27 @@ import { useRoute } from "vue-router";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditUserCard from "@/components/user/EditUserCard.vue";
 import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
-import CreateUserCard from "@/components/user/CreateUserCard.vue";
+import DashboardSearch from "@/components/DashboardSearch.vue";
+import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();
 const route = useRoute();
+const take = 20;
 
 const showCreatePopup = ref<boolean>(false);
 const shownPopup = ref<string | null>(null);
+const createdUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
 
 const queryData = useQuery(FindUsersDocument, {
   pagination: {
     take: 20,
     skip: 0
-  }
+  },
+  order: [{
+    direction: "Asc" as OrderDirection,
+    field: "id" as UserOrderableFields,
+  }]
 });
 const deleteMutation = useMutation(DeleteUserDocument);
 
@@ -209,6 +222,34 @@ const columns = [
   }
 ];
 
+interface Filter {
+  username: { contains: string, mode: CaseSensitivity.Insensitive }
+  id?: { equals?: number }
+}
+
+async function searchUser(value: string, type: string) {
+  let filter: Filter = {
+    username: { contains: '', mode: CaseSensitivity.Insensitive }
+  };
+  if (value) {
+    if (type === "Name")
+      filter.username.contains = value.trim();
+    if (type === "ID")
+      filter.id = { equals: parseInt(value) }
+  };
+  await queryData.refetch({
+    pagination: {
+      take: take,
+      skip: 0
+    },
+    filter,
+    order: [{
+      direction: "Asc" as OrderDirection,
+      field: "id" as UserOrderableFields,
+    }]
+  });
+}
+
 onMounted(async () => {
   await refresh();
 })
@@ -230,8 +271,17 @@ async function refresh() {
 }
 
 .top-button {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   margin-left: 1rem;
   float: right;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+}
+
+.buttons {
+  display: flex;
 }
 </style>

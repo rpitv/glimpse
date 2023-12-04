@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import ProductionSearch from "@/components/production/ProductionSearch.vue";
+import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
   AbilitySubjects, CaseSensitivity,
   ImageOrderableFields,
