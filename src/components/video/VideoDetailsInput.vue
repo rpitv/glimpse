@@ -1,5 +1,5 @@
 <template>
-  <n-form ref="formRef" :model="inputVideo" :rules="rules" inline>
+  <n-form ref="formRef" :model="inputVideo" :rules="rules" inline @keydown.enter="emit('enter')">
     <n-grid cols="1 m:2" responsive="screen" x-gap="10" y-gap="10">
       <n-form-item-grid-item
         path="name"
@@ -88,6 +88,7 @@ const props = defineProps({
   },
 });
 
+
 const formatOptions = [
   {
     label: "Embed",
@@ -103,7 +104,7 @@ const formatOptions = [
   },
 ];
 
-const emit = defineEmits(["update:data"]);
+const emit = defineEmits(["update:data", "enter"]);
 
 const previewIFrame = ref<null | VNode>(null);
 const isValid = ref<boolean>(false);

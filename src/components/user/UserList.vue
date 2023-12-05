@@ -8,7 +8,7 @@
           :to="{ name: 'dashboard-production-create' }"
       >
         <template #default>
-          <CreateRoleCard
+          <CreateUserCard
               closable
               @save="(id: number) => {
               showCreatePopup = false;
@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
@@ -64,7 +63,7 @@ import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditUserCard from "@/components/user/EditUserCard.vue";
 import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
-import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
+import CreateUserCard from "@/components/user/CreateUserCard.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();

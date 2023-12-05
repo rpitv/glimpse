@@ -17,7 +17,7 @@
     <div v-else class="available-productions"
          :style="{'grid-template-columns':
           ((liveProductions.result.value?.productions.length || upComingProductions.result.value?.productions.length) && !recentProductions.result.value?.productions.length)
-          || (recentProductions.result.value?.productions.length && (!liveProductions.result.value?.productions.length || !upComingProductions.result.value?.productions.length))
+          || (recentProductions.result.value?.productions.length && (!liveProductions.result.value?.productions.length && !upComingProductions.result.value?.productions.length))
           ? '1fr' : '1fr 1fr'}">
       <div v-if="liveProductions.result.value?.productions.length" class="soon-productions">
         <h1 class="text-center mt-5">We're Live!</h1>

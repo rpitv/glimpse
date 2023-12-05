@@ -8,7 +8,7 @@
           :to="{ name: 'dashboard-production-create' }"
       >
         <template #default>
-          <CreateRoleCard
+          <CreateCategoryCard
               closable
               @save="(id: number) => {
               showCreatePopup = false;

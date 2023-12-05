@@ -20,7 +20,7 @@
       <Transition name="steps">
         <div v-if="currentStep === 1">
           <VideoDetailsInput
-            @keypress.enter="enterKeyPressed"
+            @enter="enterKeyPressed"
             v-model:data="videoData"
             ref="videoDetailsInput"
           />

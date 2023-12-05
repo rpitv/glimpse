@@ -7,7 +7,7 @@ query FindRecentProductions($pagination: PaginationInput, $date: DateTime) {
   ],
   pagination: $pagination,
     filter: {
-      startTime: {lt: $date}
+      endTime: {lt: $date}
     }
   ) {
     id

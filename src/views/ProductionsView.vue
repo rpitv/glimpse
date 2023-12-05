@@ -18,7 +18,7 @@
       <template v-for="production in productions" :key="production.id">
         <ProductionCard  class="production-card"
            :id="parseInt(production.id)" :name="production.name" :end-time="new Date(production.endTime)"
-           :description="production.description?.length ? production.description : 'No description provided'"
+           :description="production.description?.length ? production.description : ''"
            :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"/>
       </template>
     </div>

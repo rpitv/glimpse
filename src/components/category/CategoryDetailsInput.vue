@@ -55,7 +55,7 @@ import {
 import { computed, PropType, ref, watch } from "vue";
 import { Category } from "@/graphql/types";
 import { FormRules } from "naive-ui";
-import CategorySearch from "@/components/category/CategorySelect.vue";
+import CategorySelect from "@/components/category/CategorySelect.vue";
 
 const props = defineProps({
   data: {

@@ -8,7 +8,7 @@
           :to="{ name: 'dashboard-production-create' }"
       >
         <template #default>
-          <CreateRoleCard
+          <CreatePersonCard
               closable
               @save="(id: number) => {
               showCreatePopup = false;
@@ -67,7 +67,6 @@ import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditPersonCard from "@/components/person/EditPersonCard.vue";
 import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
-import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();
