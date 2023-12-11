@@ -80,6 +80,8 @@ import PersonList from "@/components/person/PersonList.vue";
 import ProductionList from "@/components/production/ProductionList.vue";
 import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 import EditProductionCard from "@/components/production/EditProductionCard.vue";
+import SubmissionList from "@/components/contactsubmissions/SubmissionList.vue";
+import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 
 function restrictedComponent(
   component: Component,
@@ -174,7 +176,7 @@ const router = createRouter({
         AbilitySubjects.ContactSubmission
       ),
       meta: {
-        layoutCssName: "wave-layout",
+        layoutCssName: "plain-layout",
       },
     },
     {
@@ -386,6 +388,69 @@ const router = createRouter({
               },
             ],
           },
+          children: [
+            {
+              path: "",
+              name: "dashboard-contact-submissions-list",
+              component: restrictedComponent(SubmissionList, () =>
+                canViewContactSubmissionsDashboard()
+              ),
+              meta: {
+                breadcrumb: () => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  {
+                    route: { name: "dashboard-contact-submissions-list" },
+                    name: "Contact Submissions"
+                  }
+                ]
+              }
+            },
+            {
+              path: ":id",
+              name: "dashboard-contact-submissions-parent",
+              component: restrictedComponent(RouterView, () =>
+                canViewContactSubmissionsDashboard()
+              ),
+              meta: {
+                breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                  { route: { name: "dashboard" }, name: "Dashboard" },
+                  {
+                    route: { name: "dashboard-contact-submissions-list" },
+                    name: "Contact Submissions",
+                  },
+                  {
+                    route: { name: "dashboard-contact-submission-details-view" },
+                    name: `Viewing Submission ${route.params.id}`,
+                  },
+                ],
+              },
+              children: [
+                {
+                  path: "view",
+                  name: "dashboard-contact-submission-details-view",
+                  component: restrictedComponent(ViewSubmissionCard, () =>
+                    canViewContactSubmissionsDashboard()
+                  ),
+                  props: (route) => ({
+                    contactSubmissionId: BigInt(route.params.id.toString()),
+                  }),
+                  meta: {
+                    breadcrumb: (route: RouteLocationNormalizedLoaded) => [
+                      { route: { name: "dashboard" }, name: "Dashboard" },
+                      {
+                        route: { name: "dashboard-contact-submissions-list" },
+                        name: "Contact Submissions",
+                      },
+                      {
+                        route: { name: "dashboard-contact-submission-details-view" },
+                        name: `Viewing Submission ${route.params.id}`,
+                      },
+                    ],
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           path: "groups",

@@ -50,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {

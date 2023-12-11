@@ -73,12 +73,12 @@
             :productionId="BigInt(item.id)"
           />
           <template #trigger>
-            <v-btn icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
+            <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
           </template>
         </RouterPopup>
         <v-dialog max-width="500" scrim="black">
           <template #activator="{ props }">
-            <v-btn size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
+            <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
           </template>
           <template #default="{ isActive }">
             <v-card title="Delete Production">
@@ -216,7 +216,6 @@ async function deleteProduction(production: Partial<Production>) {
     if (images)
       for (const image of images)
         await deleteImage.mutate({id: parseInt(image.id)});
-
 
     if (tags)
       for (const tag of tags)

@@ -55,7 +55,7 @@ import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   AbilitySubjects, CaseSensitivity,
   DeleteImageDocument,
-  FindImagesDocument, ImageOrderableFields, OrderDirection, RoleOrderableFields,
+  FindImagesDocument, ImageOrderableFields, OrderDirection
 } from "@/graphql/types";
 import type { Image } from "@/graphql/types";
 import { computed, h, onMounted, ref } from "vue";

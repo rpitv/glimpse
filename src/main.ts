@@ -25,10 +25,10 @@ import {
   faArrowDown,
   faEdit,
   faExclamationTriangle,
-  faCircle,
   faChevronUp,
-  faChevronDown, faSquare, faCheckSquare
+  faChevronDown, faCheckSquare, faPaperclip, faCircleCheck, faEye
 } from "@fortawesome/pro-solid-svg-icons";
+import { faCircle, faDotCircle, faSquare } from "@fortawesome/free-regular-svg-icons"
 
 import {
   faCircleInfo,
@@ -65,6 +65,7 @@ import {
   faDoNotEnter,
   faUserRobotXmarks,
   faUserHelmetSafety,
+
 } from "@fortawesome/pro-duotone-svg-icons";
 import {
   faGithub,
@@ -97,8 +98,12 @@ library.add(faArrowDown);
 library.add(faEdit);
 library.add(faExclamationTriangle);
 library.add(faCircle);
+library.add(faDotCircle);
 library.add(faSquare);
 library.add(faCheckSquare);
+library.add(faPaperclip);
+library.add(faCircleCheck);
+library.add(faEye);
 
 library.add(faHome);
 library.add(faCircleInfo);
@@ -167,8 +172,8 @@ app.use(apolloProvider);
 app.use(vuetify);
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.mount("#app");
-app.use(setupCalendar, {});
 app.component('DatePicker', DatePicker);
+app.use(setupCalendar, {isDark: true});
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();

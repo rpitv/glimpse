@@ -3,16 +3,18 @@
     <n-dialog-provider>
       <v-theme-provider theme="dark">
         <n-message-provider>
-          <Suspense>
-            <Page/>
-            <template #fallback>
-              <div class="glimpse-loading">
-                <v-progress-circular indeterminate :size="54" color="#ff6363">
-                </v-progress-circular>
-                Loading...
-              </div>
-            </template>
-          </Suspense>
+          <v-defaults-provider :defaults="defaults">
+            <Suspense>
+              <Page/>
+              <template #fallback>
+                <div class="glimpse-loading">
+                  <v-progress-circular indeterminate :size="54" color="#ff6363">
+                  </v-progress-circular>
+                  Loading...
+                </div>
+              </template>
+            </Suspense>
+          </v-defaults-provider>
         </n-message-provider>
       </v-theme-provider>
     </n-dialog-provider>
@@ -52,6 +54,27 @@ export default defineComponent({
         },
         Progress: {
           iconColor: "#70c0e8"
+        }
+      },
+      defaults: {
+        VTextField: {
+          variant: "outlined"
+        },
+        VTextarea: {
+          variant: "outlined"
+        },
+        VSelect: {
+          variant: "outlined"
+        },
+        VCombobox: {
+          variant: "outlined"
+        },
+        VFileInput: {
+          variant: "outlined"
+        },
+        VBtn: {
+          class: "text-none",
+          variant: "outlined"
         }
       }
     };

@@ -1,0 +1,5 @@
+mutation DeleteContactSubmission($id: BigInt!) {
+	deleteContactSubmission(id: $id) {
+		id
+	}
+}

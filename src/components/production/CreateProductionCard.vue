@@ -394,4 +394,11 @@ function openURL(url: string) {
   display: flex;
   justify-content: flex-start;
 }
+
+.missing {
+  border-style: solid;
+  border-radius: 2.5%;
+  border-width: 1px;
+  border-color: #FF1744;
+}
 </style>

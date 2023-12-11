@@ -1,10 +1,10 @@
 <template>
   <v-card :title="`Edit Production ${productionId}`" min-height="500">
     <div v-if="currentProduction.loading.value" class="flex-container" style="justify-content: center; text-align: center; align-items: center" >
-        <div>
-            <v-progress-circular color="error" indeterminate></v-progress-circular>
-            <h2>Loading</h2>
-        </div>
+      <div>
+        <v-progress-circular color="error" indeterminate></v-progress-circular>
+        <h2>Loading</h2>
+      </div>
     </div>
     <v-stepper v-else :flat="true" v-model="step" :editable="editable">
       <template v-slot:actions="{ prev, next }">

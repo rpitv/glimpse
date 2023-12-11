@@ -1,0 +1,7 @@
+mutation ResolveContactSubmission($id: BigInt!, $resolve: Boolean!) {
+  submission: updateContactSubmission(id: $id, input: {
+    resolved: $resolve
+  }) {
+    id
+  }
+}

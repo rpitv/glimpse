@@ -67,7 +67,6 @@ import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditCategoryCard from "@/components/category/EditCategoryCard.vue";
 import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
-import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();

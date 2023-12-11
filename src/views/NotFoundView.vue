@@ -20,7 +20,6 @@
 <script setup lang="ts">
 import StaticBackground from "@/components/StaticBackground.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import {NResult, NButton} from "naive-ui";
 </script>
 
 <style scoped lang="scss">

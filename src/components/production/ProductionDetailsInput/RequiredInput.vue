@@ -16,7 +16,7 @@
         </div>
         <div class="center">
           <div :class="{missing: closetTimeMissing}">
-            <DatePicker v-model="modelValue.closetTime" mode="dateTime" :is-dark="true"  />
+            <DatePicker v-model="modelValue.closetTime" mode="dateTime" :is-dark="true" :rules="rules" />
           </div>
         </div>
       </div>
@@ -26,7 +26,7 @@
         </div>
         <div class="center">
           <div :class="{missing: startTimeMissing}" class="calendar">
-            <DatePicker v-model="modelValue.startTime" mode="dateTime" :is-dark="true" />
+            <DatePicker v-model="modelValue.startTime" mode="dateTime" :is-dark="true" :rules="rules"/>
           </div>
         </div>
       </div>
@@ -36,7 +36,7 @@
         </div>
         <div class="center">
           <div :class="{missing: endTimeMissing}">
-            <DatePicker v-model="modelValue.endTime" mode="dateTime" :is-dark="true" />
+            <DatePicker v-model="modelValue.endTime" mode="dateTime" :is-dark="true" :rules="rules"/>
           </div>
         </div>
       </div>
@@ -85,6 +85,12 @@ const closetLocRules = [
 const eventLocRules = [
   (v: string) => !!v || 'Event Location is required'
 ]
+
+const rules =  {
+  minutes: {
+    interval: 15
+  }
+}
 
 </script>
 
