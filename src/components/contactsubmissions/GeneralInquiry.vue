@@ -18,8 +18,6 @@
 </template>
 
 <script setup lang="ts">
-
-
 import {PropType} from "vue";
 import {ContactSubmission} from "@/graphql/types";
 

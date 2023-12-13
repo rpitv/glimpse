@@ -49,6 +49,29 @@
       :loading="queryData.loading.value"
       loading-text="Loading productions..."
     >
+      <template #item.teamNotes="{item}">
+        <v-dialog v-if="item.teamNotes.length" width="800">
+          <template #activator="{ props }">
+            <v-btn v-bind="props" text="View Notes" color="light-blue-lighten-1" />
+          </template>
+          <template #default="{ isActive }">
+            <v-card min-height="400">
+              <v-card-title>Viewing notes for Production {{ item.id }}</v-card-title>
+              <v-card-text>
+                {{ item.teamNotes }}
+              </v-card-text>
+              <v-card-actions>
+                <VSpacer />
+                <v-btn
+                    text="Close"
+                    @click="isActive.value = false"
+                ></v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
+        <p v-else>No notes</p>
+      </template>
       <template #item.thumbnail="{ item }">
         <a v-if="item.thumbnail" :href="item.thumbnail.path" target="_blank">Link</a>
         <p v-else>No thumbnail provided</p>
@@ -151,6 +174,7 @@ const headers = [
   { title: "Name", key: "name", sortable: true },
   { title: "Start Time", key: "startTime", value:
       (production: Partial<Production>) => formattedTime(production.startTime)},
+  { title: "Notes", key: "teamNotes", sortable: false },
   { title: "Thumbnail", key: "thumbnail", sortable: false },
   { title: "Actions", key: "actions", sortable: false }
 ]
@@ -284,6 +308,7 @@ watch(order, () => {
   if (order.value.length)
     queryData.refetch({
       order: [{
+        // It's either asc or desc and we need to capitalize it
         direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
         field: order.value[0].key as ProductionOrderableFields
       }]
@@ -292,7 +317,7 @@ watch(order, () => {
     queryData.refetch({
       order: [{direction: "Desc" as OrderDirection, field: "id" as ProductionOrderableFields }]
     })
-})
+});
 
 onMounted(async () => {
   await refresh();

@@ -31,11 +31,10 @@
           @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null }"
       >
         <ViewSubmissionCard
-            @save="
+            @save="(production: boolean, data: any) => {
+              onSave(production, data);
               list[index] = false;
-              refresh();
-              emit('refresh');
-            "
+            }"
             :id="item.id"
         />
         <template #trigger>
@@ -62,22 +61,57 @@
       </v-dialog>
     </template>
   </v-data-table-server>
+  <v-dialog v-if="!archived" max-width="700px" v-model="productionsModal">
+    <v-card title="Create Production">
+      <v-card-text>Would you like to create a production with some of these details autofilled?</v-card-text>
+      <v-card-actions style="height: 100px">
+        <VSpacer />
+        <RouterPopup
+          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
+          :max-width="1100" v-model="showCreatePopup"
+          :to="{ name: 'dashboard-production-create' }"
+        >
+          <template #default>
+            <CreateProductionCard
+              closable
+              @save="(id: number) => {
+                showCreatePopup = false;
+                createdProduction = { id: id, show: true };
+                productionsModal = false;
+              }"
+              :data="productionData"
+            />
+          </template>
+          <template #trigger>
+            <v-btn variant="outlined" color="green-darken-3">Create</v-btn>
+          </template>
+        </RouterPopup>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-snackbar v-if="!archived" v-model="createdProduction.show" color="green-darken-1" class="text-center">
+    <p>Created Production {{ createdProduction.id }}</p>
+    <template #actions>
+      <v-btn @click="createdProduction.show = false" icon="fa-circle-xmark"/>
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
 import {AbilityActions, useGlimpseAbility} from "@/casl";
 import {subject} from "@casl/ability";
 import {
-  AbilitySubjects, CaseSensitivity, ContactSubmission,
-  ContactSubmissionOrderableFields, DeleteContactSubmissionDocument,
-  FindContactSubmissionsDocument,
-  OrderDirection, ProductionOrderableFields
+  AbilitySubjects, CaseSensitivity, ContactSubmissionOrderableFields,
+  DeleteContactSubmissionDocument, FindContactSubmissionsDocument,
+  OrderDirection
 } from "@/graphql/types";
+import type { Production } from "@/graphql/types";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 import {useMutation, useQuery} from "@vue/apollo-composable";
-import {onMounted, PropType, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
+import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 
 const ability = useGlimpseAbility();
 const order = ref<{key: string, order: string}[]>([]);
@@ -85,6 +119,10 @@ const currentPage = ref(1);
 const shownPopup = ref<string | null>(null);
 const list = ref<boolean[]>([]);
 const isDeleting = ref(false);
+const createdProduction = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const showCreatePopup = ref<boolean>(false);
+const productionsModal = ref(false);
+const productionData = ref<Partial<Production>>();
 
 const take = 20;
 
@@ -137,10 +175,10 @@ function formattedTime(time: string) {
 
 const headers = [
   { title: "ID", sortable: true, key: "id" },
-  { title: "Name", key: "name", sortable: true },
+  { title: "Name", key: "name", sortable: false },
   { title: "Email Address", value: "email" },
   { title: "Subject", value: "subject" },
-  { title: "Created At", key: "startTime", value:
+  { title: "Created At", key: "timestamp", value:
         (submission: Partial<ContactSubmission>) => formattedTime(submission.timestamp)},
   { title: "Actions", key: "actions", sortable: false }
 ]
@@ -215,6 +253,18 @@ async function searchSubmissions(value: string, type: string) {
   });
 }
 
+function onSave(production: boolean, data: any) {
+  refresh();
+  emit('refresh');
+  if (production) {
+    productionsModal.value = true;
+    productionData.value = {
+      endTime: data.endTime,
+      startTime: data.startTime,
+      eventLocation: data.eventLocation,
+    };
+  }
+}
 
 async function refresh() {
   await queryData.refetch();
@@ -223,6 +273,21 @@ async function refresh() {
 watch(() => props.remoteRefresh, () => {
   refresh();
 })
+
+watch(order, () => {
+  if (order.value.length)
+    queryData.refetch({
+      order: [{
+        // It's either asc or desc and we need to capitalize it
+        direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
+        field: order.value[0].key as ContactSubmissionOrderableFields
+      }]
+    })
+  else
+    queryData.refetch({
+      order: [{direction: "Desc" as OrderDirection, field: "timestamp" as ContactSubmissionOrderableFields }]
+    })
+});
 
 </script>
 

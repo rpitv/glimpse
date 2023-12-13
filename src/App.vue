@@ -75,6 +75,9 @@ export default defineComponent({
         VBtn: {
           class: "text-none",
           variant: "outlined"
+        },
+        VDialog: {
+          scrim: "black"
         }
       }
     };

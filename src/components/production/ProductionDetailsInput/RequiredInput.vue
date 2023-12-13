@@ -15,9 +15,7 @@
           <p>Closet Time</p>
         </div>
         <div class="center">
-          <div :class="{missing: closetTimeMissing}">
-            <DatePicker v-model="modelValue.closetTime" mode="dateTime" :is-dark="true" :rules="rules" />
-          </div>
+          <DatePicker v-model="modelValue.closetTime" mode="dateTime" :is-dark="true" :rules="rules" :style="closetTimeMissing ? {'border-color': '#E57373'} : ''" />
         </div>
       </div>
       <div>
@@ -25,9 +23,7 @@
           <p>Start Time</p>
         </div>
         <div class="center">
-          <div :class="{missing: startTimeMissing}" class="calendar">
-            <DatePicker v-model="modelValue.startTime" mode="dateTime" :is-dark="true" :rules="rules"/>
-          </div>
+          <DatePicker v-model="modelValue.startTime" mode="dateTime" :is-dark="true" :rules="rules" :style="startTimeMissing ? {'border-color': '#E57373'} : ''"/>
         </div>
       </div>
       <div>
@@ -35,9 +31,7 @@
           <p>End Time</p>
         </div>
         <div class="center">
-          <div :class="{missing: endTimeMissing}">
-            <DatePicker v-model="modelValue.endTime" mode="dateTime" :is-dark="true" :rules="rules"/>
-          </div>
+          <DatePicker v-model="modelValue.endTime" mode="dateTime" :is-dark="true" :rules="rules" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
         </div>
       </div>
     </div>

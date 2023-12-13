@@ -1,6 +1,6 @@
 <template>
   <v-card title="Create Production">
-    <v-stepper :flat="true" v-model="step" :editable="editable">
+    <v-stepper :flat="true" v-model="step" :editable="editable" max-height="800">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
           <v-stepper-item value="1" title="Production Details" subtitle="Required" />
@@ -89,82 +89,9 @@
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
-            <div class="flex-container"
-                 :style="productionVideos.length > 0 || productionImages.length > 0 ? 'justify-content: space-evenly' : ''">
-              <div>
-                <h2>Production Details</h2>
-                <p>Name: {{ productionData.name }}</p>
-                <p>Closet Location: {{ productionData.closetLocation }}</p>
-                <p>Event Location: {{ productionData.eventLocation }}</p>
-                <p>Closet Time: {{ productionData.closetTime }}</p>
-                <p>Start Time: {{ productionData.startTime }}</p>
-                <p>End Time: {{ productionData.endTime }}</p>
-                <div class="flex-container" style="align-items: center">
-                  <p>Tags: </p>
-                  <v-chip-group v-if="productionTags.length > 0">
-                    <v-chip class="ml-1" v-for="tag in productionTags" :key="tag">
-                      {{ tag }}
-                    </v-chip>
-                  </v-chip-group>
-                  <p v-else class="ml-1">No tags provided.</p>
-                </div>
-                <p>Description: {{ productionData.description ?? 'No description provided.'}}</p>
-                <p>Team Notes: {{ productionData.teamNotes ?? 'No notes provided.' }}</p>
-                <div class="flex-container" style="align-items: center">
-                  <p>Category: </p>
-                  <v-hover v-if="productionCategory.id" v-slot:default="{ isHovering, props }">
-                    <div class="ml-1" v-bind="props">
-                      <v-chip v-if="isHovering">
-                        Category Name: {{ productionCategory.name }}
-                      </v-chip>
-                      <v-chip v-else class="ml-1">
-                        Category ID: {{ productionCategory.id }}
-                      </v-chip>
-                    </div>
-                  </v-hover>
-                  <p class="ml-1" v-else>No category provided.</p>
-                </div>
-                <div class="flex-container mt-2" style="align-items: center">
-                  <p>Thumbnail: </p>
-                  <v-dialog width="400" scrim="black" v-if="productionThumbnail.id">
-                    <template v-slot:activator="{ props }" >
-                      <v-chip v-bind="props" class="ml-1">
-                        Image ID: {{ productionThumbnail.id }}
-                      </v-chip>
-                    </template>
-                    <template v-slot:default>
-                      <img :src="productionThumbnail.url">
-                    </template>
-                  </v-dialog>
-                  <p class="ml-1" v-else>No thumbnail provided.</p>
-                </div>
-                <div class="flex-container" style="align-items: center">
-                  <p>Images: </p>
-                    <v-chip-group column v-if="productionImages.length">
-                      <v-dialog v-for="image in productionImages" :key="image.id" width="400" scrim="black">
-                        <template v-slot:activator="{ props }">
-                          <v-chip class="ml-1" v-bind="props" >
-                            Image ID: {{ image.id }}
-                          </v-chip>
-                        </template>
-                        <template v-slot:default>
-                          <img :src="image.url">
-                        </template>
-                      </v-dialog>
-                    </v-chip-group>
-                    <p class="ml-1" v-else>No images provided.</p>
-                </div>
-                <div class="flex-container" style="align-items: center">
-                  <p>Videos:</p>
-                  <v-chip-group v-if="productionVideos.length > 0">
-                    <v-chip class="ml-2" v-for="video in productionVideos" :key="video.id" @click="openURL(video.url)">
-                      Video ID: {{ video.id }}
-                    </v-chip>
-                  </v-chip-group>
-                  <p v-else class="ml-1">No videos provided.</p>
-                </div>
-              </div>
-              <div></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr">
+              <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionCategory" :thumbnail="productionThumbnail"
+                         :images="productionImages" :videos="productionVideos" />
               <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0"
                       :productionVideos="productionVideos" :productionImages="productionImages" />
             </div>
@@ -180,6 +107,7 @@
 
 <script setup lang="ts">
 import {watch, ref, computed} from "vue";
+import type {PropType} from "vue";
 import {
   CreateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
   CreateProductionVideoDocument
@@ -192,6 +120,7 @@ import CategoryTable from "@/components/production/ProductionDetailsInput/Catego
 import ImageTable from "@/components/production/ProductionDetailsInput/ImageTable.vue";
 import VideoTable from "@/components/production/ProductionDetailsInput/VideoTable.vue";
 import PriorityEditor from "@/components/production/ProductionDetailsInput/PriorityEditor.vue";
+import ReviewTable from "@/components/production/ProductionDetailsInput/ReviewTable.vue";
 
 const createProductionMutation = useMutation(CreateProductionDocument);
 const createTagsMutation = useMutation(CreateProductionTagDocument);
@@ -201,7 +130,15 @@ const createVideoMutation = useMutation(CreateProductionVideoDocument);
 const take = 20;
 const requiredForm = ref();
 const error = ref<string | null>(null);
+
 const emit = defineEmits(["save"]);
+
+const props = defineProps({
+  data: {
+    type: Object as PropType<Partial<Production>>,
+    required: false
+  }
+})
 
 const productionData = ref<Partial<Production>>({
   name: "",
@@ -235,7 +172,16 @@ const productionVideos = ref<urlInterface[]>([]);
 const editable = computed(() => {
   return !(!productionData.value.name || !productionData.value.closetLocation || !productionData.value.eventLocation ||
     !productionData.value.closetTime || !productionData.value.startTime || !productionData.value.endTime);
-})
+});
+
+if (props.data) {
+  const startTime = new Date(props.data.startTime);
+  productionData.value.eventLocation = props.data.eventLocation;
+  productionData.value.closetTime = new Date(startTime.setHours(startTime.getHours() - 2));
+  productionData.value.startTime = new Date(props.data.startTime);
+  productionData.value.endTime = new Date(props.data.endTime);
+  firstTime = false;
+}
 
 watch((productionData.value), () => {
   if (productionData.value.closetTime) {

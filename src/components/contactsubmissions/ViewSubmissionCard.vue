@@ -51,12 +51,15 @@ import GeneralInquiry from "@/components/contactsubmissions/GeneralInquiry.vue";
 import {ability, AbilityActions} from "@/casl";
 import {subject} from "@casl/ability";
 import {ref} from "vue";
+import RouterPopup from "@/components/util/RouterPopup.vue";
+import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
+
 
 const props = defineProps({
   id: {
     type: String,
     required: true
-  },
+  }
 });
 
 const emit = defineEmits(['save']);
@@ -77,13 +80,22 @@ function canResolve() {
 }
 
 async function resolveSubmission() {
+  const details = submission.result.value?.submissionDetails;
   isResolving.value = true;
   try {
+    const data = details?.subject === "Production Request" ? {
+          startTime: details?.additionalData.production.eventStartTime,
+          endTime: details?.additionalData.production.eventEndTime,
+          eventLocation: details?.additionalData.production.eventLocation
+        } : null;
     await resolver.mutate({
       id: props.id,
       resolve: true
     });
-    emit('save');
+    emit('save',
+      (ability.can(AbilityActions.Create, AbilitySubjects.Production) && submission.result.value?.submissionDetails?.subject === "Production Request"),
+      data
+    );
   } catch (e) {
     console.error(e);
   }

@@ -94,85 +94,11 @@
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
-            <div class="flex-container"
-                 :style="newProductionVideos.length > 0 || newProductionImages.length > 0 ? 'justify-content: space-evenly' : ''">
-              <div>
-                <h2>Production Details</h2>
-                <p>Name: {{ newProductionData.name }}</p>
-                <p>Closet Location: {{ newProductionData.closetLocation }}</p>
-                <p>Event Location: {{ newProductionData.eventLocation }}</p>
-                <p>Closet Time: {{ new Date(newProductionData.closetTime).toLocaleString() }}</p>
-                <p>Start Time: {{ new Date(newProductionData.startTime).toLocaleString() }}</p>
-                <p>End Time: {{ new Date(newProductionData.endTime).toLocaleString() }}</p>
-                <div class="flex-container" style="align-items: center">
-                  <p>Tags: </p>
-                  <v-chip-group v-if="newProductionTags.length > 0">
-                    <v-chip class="ml-1" v-for="tag in newProductionTags" :key="tag">
-                      {{ tag }}
-                    </v-chip>
-                  </v-chip-group>
-                  <p v-else class="ml-1">No tags provided.</p>
-                </div>
-                <p>Description:
-                  {{ newProductionData.description ?? 'No description provided.' }}</p>
-                <p>Team Notes: {{ newProductionData.teamNotes ?? 'No notes provided.' }}</p>
-                <div class="flex-container" style="align-items: center">
-                  <p>Category: </p>
-                  <v-hover v-if="newProductionCategory.id" v-slot:default="{ isHovering, props }">
-                    <div class="ml-1 mb-1" v-bind="props">
-                      <v-chip v-if="isHovering">
-                        Category Name: {{ newProductionCategory.name }}
-                      </v-chip>
-                      <v-chip v-else class="ml-1">
-                        Category ID: {{ newProductionCategory.id }}
-                      </v-chip>
-                    </div>
-                  </v-hover>
-                  <p class="ml-1" v-else>No category provided.</p>
-                </div>
-                <div class="flex-container" style="align-items: center">
-                  <p>Thumbnail: </p>
-                  <v-dialog width="400" scrim="black" v-if="newProductionThumbnail.id">
-                    <template v-slot:activator="{ props }" >
-                      <v-chip v-bind="props" class="ml-1">
-                        Image ID: {{ newProductionThumbnail.id }}
-                      </v-chip>
-                    </template>
-                    <template v-slot:default>
-                      <img :src="newProductionThumbnail.url">
-                    </template>
-                  </v-dialog>
-                  <p class="ml-1" v-else>No thumbnail provided.</p>
-                </div>
-                <div class="flex-container" style="align-items: center">
-                  <p>Images: </p>
-                  <v-chip-group column v-if="newProductionImages.length">
-                    <v-dialog v-for="image in newProductionImages" :key="image.id" width="400" scrim="black">
-                      <template v-slot:activator="{ props }">
-                        <v-chip class="ml-1" v-bind="props" >
-                          Image ID: {{ image.id }}
-                        </v-chip>
-                      </template>
-                      <template v-slot:default>
-                        <img :src="image.url">
-                      </template>
-                    </v-dialog>
-                  </v-chip-group>
-                  <p class="ml-1" v-else>No images provided.</p>
-                </div>
-                <div class="flex-container" style="align-items: center">
-                  <p>Videos:</p>
-                  <v-chip-group v-if="newProductionVideos.length > 0">
-                    <v-chip class="ml-2" v-for="video in newProductionVideos" :key="video.id" @click="openURL(video.url)">
-                      Video ID: {{ video.id }}
-                    </v-chip>
-                  </v-chip-group>
-                  <p v-else class="ml-1">No videos provided.</p>
-                </div>
-              </div>
-              <div></div>
-                <PriorityEditor v-if="newProductionVideos.length > 0 || newProductionImages.length > 0"
-                                :productionVideos="newProductionVideos" :productionImages="newProductionImages" />
+            <div style="display: grid; grid-template-columns: 1fr 1fr">
+              <ReviewTable :productionData="newProductionData" :tags="newProductionTags" :category="newProductionCategory" :thumbnail="newProductionThumbnail"
+                            :images="newProductionImages" :videos="newProductionVideos" />
+              <PriorityEditor v-if="newProductionVideos.length > 0 || newProductionImages.length > 0"
+                              :productionVideos="newProductionVideos" :productionImages="newProductionImages" />
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
@@ -201,6 +127,7 @@ import CategoryTable from "@/components/production/ProductionDetailsInput/Catego
 import VideoTable from "@/components/production/ProductionDetailsInput/VideoTable.vue";
 import PriorityEditor from "@/components/production/ProductionDetailsInput/PriorityEditor.vue";
 import ImageTable from "@/components/production/ProductionDetailsInput/ImageTable.vue";
+import ReviewTable from "@/components/production/ProductionDetailsInput/ReviewTable.vue";
 
 const props = defineProps({
   productionId: {

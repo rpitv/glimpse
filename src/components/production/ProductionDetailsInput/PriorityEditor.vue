@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Priority (Larger Numbers = Higher Priority)</h2>
-    <v-table height="300" class="table">
+    <v-table height="500" class="table">
       <thead>
       <tr>
         <th>Media Id</th>

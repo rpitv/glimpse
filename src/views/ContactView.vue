@@ -50,7 +50,7 @@
             <v-text-field label="Name" v-model="name" :rules="[formRules.name]"/>
             <v-text-field label="Organization" v-model="productionData.organization" :rules="[formRules.organization]"/>
             <v-text-field label="Email" type="email" v-model="email" :rules="[formRules.email]" />
-            <v-text-field label="Phone Number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]"/>
+            <v-text-field label="Phone Number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
             <p>
               Will you be paying for your services (recording only, no logo, requestor is external to RPI).
               If unsure, select NO and explain the nature of your request below.
@@ -178,7 +178,7 @@ const generalInquiry = ref<VForm>();
 
 const name = ref("");
 const email = ref("");
-const subject = ref("General Inquiry");
+const subject = ref("");
 const body = ref("");
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
