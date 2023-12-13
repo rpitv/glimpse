@@ -15,6 +15,7 @@ import { CreateContactSubmissionInput } from "./dto/create-contact_submission.in
 import { UpdateContactSubmissionInput } from "./dto/update-contact_submission.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import * as process from "process";
 
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
@@ -91,6 +92,20 @@ export class ContactSubmissionResolver {
             id: result.id
         });
 
+        // Send message to discord
+        if (process.env.DISCORD_WEBHOOK) {
+            const msg = {
+                "content": `# ${input.name} has submitted a ${input.subject}! Their submission ID is ${result.id}.\n` +
+                `### Check the submissions dashboard for more information.`
+            }
+            await fetch(process.env.DISCORD_WEBHOOK, {
+                "method": "POST",
+                "headers": {
+                    "content-type": "application/json"
+                },
+                "body": JSON.stringify(msg)
+            })
+        }
         return result;
     }
 
