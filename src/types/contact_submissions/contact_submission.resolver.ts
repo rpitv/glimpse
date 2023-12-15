@@ -1,7 +1,8 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { validate } from "class-validator";
+import { isObject, validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { BadRequestException, InternalServerErrorException, Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
@@ -11,11 +12,18 @@ import { subject } from "@casl/ability";
 import { ContactSubmission } from "./contact_submission.entity";
 import { FilterContactSubmissionInput } from "./dto/filter-contact_submission.input";
 import { OrderContactSubmissionInput } from "./dto/order-contact_submission.input";
-import { CreateContactSubmissionInput } from "./dto/create-contact_submission.input";
-import { UpdateContactSubmissionInput } from "./dto/update-contact_submission.input";
+import { CreateContactSubmissionProductionRequestInput } from "./dto/create-contact_submission-production-request.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as process from "process";
+import { CreateContactSubmissionGeneralInput } from "./dto/create-contact_submission-general.input";
+import { ContactSubmissionType } from "@prisma/client";
+import { UpdateContactSubmissionGeneralInput } from "./dto/update-contact_submission-general.input";
+import { UpdateContactSubmissionProductionRequestInput } from "./dto/update-contact_submission-production-request.input";
+
+type CreateContactSubmissionInput = Omit<ContactSubmission, "id" | "timestamp">;
+type UpdateContactSubmissionInput = Partial<CreateContactSubmissionInput>;
 
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
@@ -65,100 +73,6 @@ export class ContactSubmissionResolver {
                 AND: [{ id }, accessibleBy(ctx.req.permissions).ContactSubmission]
             }
         });
-    }
-
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ContactSubmission)
-    async createContactSubmission(
-        @Context() ctx: { req: Request },
-        @Args("input", { type: () => CreateContactSubmissionInput }) input: CreateContactSubmissionInput
-    ): Promise<ContactSubmission> {
-        this.logger.verbose("createContactSubmission resolver called");
-        input = plainToClass(CreateContactSubmissionInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const result = await ctx.req.prismaTx.contactSubmission.create({
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            newValue: result,
-            subject: "ContactSubmission",
-            id: result.id
-        });
-
-        // Send message to discord
-        if (process.env.DISCORD_WEBHOOK) {
-            const msg = {
-                "content": `# ${input.name} has submitted a ${input.subject}! Their submission ID is ${result.id}.\n` +
-                `### Check the submissions dashboard for more information.`
-            }
-            await fetch(process.env.DISCORD_WEBHOOK, {
-                "method": "POST",
-                "headers": {
-                    "content-type": "application/json"
-                },
-                "body": JSON.stringify(msg)
-            })
-        }
-        return result;
-    }
-
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Update })
-    @Rule(RuleType.Update, ContactSubmission)
-    async updateContactSubmission(
-        @Context() ctx: { req: Request },
-        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
-        @Args("input", { type: () => UpdateContactSubmissionInput }) input: UpdateContactSubmissionInput
-    ): Promise<ContactSubmission> {
-        this.logger.verbose("updateContactSubmission resolver called");
-        input = plainToClass(UpdateContactSubmissionInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.contactSubmission.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ContactSubmission]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("ContactSubmission not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ContactSubmission", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        const result = await ctx.req.prismaTx.contactSubmission.update({
-            where: {
-                id
-            },
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: rowToUpdate,
-            newValue: result,
-            subject: "ContactSubmission",
-            id: result.id
-        });
-
-        return result;
     }
 
     @Mutation(() => ContactSubmission, { complexity: Complexities.Delete })
@@ -214,5 +128,244 @@ export class ContactSubmissionResolver {
                 AND: [accessibleBy(ctx.req.permissions).ContactSubmission, filter]
             }
         });
+    }
+
+    // -------------------- Custom Resolvers --------------------
+
+    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
+    @Rule(RuleType.Create, ContactSubmission)
+    async createContactSubmissionGeneral(
+        @Context() ctx: { req: Request },
+        @Args("input", { type: () => CreateContactSubmissionGeneralInput }) input: CreateContactSubmissionGeneralInput
+    ): Promise<ContactSubmission> {
+        this.logger.verbose("createContactSubmissionGeneral resolver called");
+        const result = await this.genericCreateContactSubmission(
+            ctx,
+            plainToClass(ContactSubmission, {
+                email: input.email,
+                type: ContactSubmissionType.GENERAL,
+                name: input.name,
+                subject: input.subject,
+                body: input.body,
+                resolved: input.resolved,
+                additionalData: {}
+            })
+        );
+        await this.handleNewSubmissionNotifications(result);
+        return result;
+    }
+
+    @Mutation(() => ContactSubmission, { complexity: Complexities.Update })
+    @Rule(RuleType.Update, ContactSubmission)
+    async updateContactSubmissionGeneral(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
+        @Args("input", { type: () => UpdateContactSubmissionGeneralInput }) input: UpdateContactSubmissionGeneralInput
+    ): Promise<ContactSubmission> {
+        this.logger.verbose("updateContactSubmissionGeneral resolver called");
+
+        return await this.genericUpdateContactSubmission(
+            ctx,
+            id,
+            plainToClass(ContactSubmission, {
+                ...input,
+                type: ContactSubmissionType.GENERAL,
+                additionalData: {}
+            })
+        );
+    }
+    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
+    @Rule(RuleType.Create, ContactSubmission)
+    async createContactSubmissionProductionRequest(
+        @Context() ctx: { req: Request },
+        @Args("input", { type: () => CreateContactSubmissionProductionRequestInput })
+        input: CreateContactSubmissionProductionRequestInput
+    ): Promise<ContactSubmission> {
+        this.logger.verbose("createContactSubmissionProductionRequest resolver called");
+
+        const result = await this.genericCreateContactSubmission(
+            ctx,
+            plainToClass(ContactSubmission, {
+                email: input.email,
+                type: ContactSubmissionType.PRODUCTION_REQUEST,
+                name: input.name,
+                subject: input.subject,
+                body: input.body,
+                resolved: input.resolved,
+                additionalData: this.generateProductionRequestAdditionalData(input)
+            })
+        );
+        await this.handleNewSubmissionNotifications(result);
+        return result;
+    }
+
+    @Mutation(() => ContactSubmission, { complexity: Complexities.Update })
+    @Rule(RuleType.Update, ContactSubmission)
+    async updateContactSubmissionProductionRequest(
+        @Context() ctx: { req: Request },
+        @Args("id", { type: () => GraphQLBigInt }) id: bigint,
+        @Args("input", { type: () => UpdateContactSubmissionProductionRequestInput })
+        input: UpdateContactSubmissionProductionRequestInput
+    ): Promise<ContactSubmission> {
+        this.logger.verbose("updateContactSubmissionProductionRequest resolver called");
+
+        return await this.genericUpdateContactSubmission(
+            ctx,
+            id,
+            plainToClass(ContactSubmission, {
+                ...input,
+                type: ContactSubmissionType.PRODUCTION_REQUEST,
+                additionalData: this.generateProductionRequestAdditionalData(input)
+            })
+        );
+    }
+
+    // --------------------------- Helpers ------------------------
+
+    private async genericCreateContactSubmission(ctx: { req: Request }, input: CreateContactSubmissionInput) {
+        console.log(input);
+        const errors = await validate(input, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            throw new BadRequestException(firstErrorFirstConstraint);
+        }
+
+        // Default non-object additional data (including null/undefined) to just an empty object
+        if (!isObject(input.additionalData)) {
+            input.additionalData = {};
+        }
+
+        const result = await ctx.req.prismaTx.contactSubmission.create({
+            data: input
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            newValue: result,
+            subject: "ContactSubmission",
+            id: result.id
+        });
+
+        return result;
+    }
+
+    private async genericUpdateContactSubmission(
+        ctx: { req: Request },
+        id: bigint,
+        input: UpdateContactSubmissionInput
+    ) {
+        const errors = await validate(input, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
+            throw new BadRequestException(firstErrorFirstConstraint);
+        }
+
+        const rowToUpdate = await ctx.req.prismaTx.contactSubmission.findFirst({
+            where: {
+                AND: [{ id }, accessibleBy(ctx.req.permissions).ContactSubmission]
+            }
+        });
+
+        if (!rowToUpdate) {
+            throw new BadRequestException("ContactSubmission not found");
+        }
+
+        if (rowToUpdate.type !== input.type) {
+            throw new BadRequestException(`ContactSubmission is not of type ${input.type}`);
+        }
+
+        // Make sure the user has permission to update all the fields they are trying to update, given the object's
+        //  current state.
+        for (const field of Object.keys(input)) {
+            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ContactSubmission", rowToUpdate), field)) {
+                ctx.req.passed = false;
+                return null;
+            }
+        }
+
+        // Default non-object additional data (including null/undefined) to just an empty object
+        if (!isObject(rowToUpdate.additionalData)) {
+            rowToUpdate.additionalData = {};
+        }
+        if (!isObject(input.additionalData)) {
+            input.additionalData = {};
+        }
+
+        // Combine the `additionalData` value with the current value. We don't want to overwrite the entire
+        //  object if only some values have changed.
+        input.additionalData = {
+            ...rowToUpdate.additionalData,
+            ...input.additionalData
+        };
+
+        const result = await ctx.req.prismaTx.contactSubmission.update({
+            where: {
+                id
+            },
+            data: input
+        });
+
+        await ctx.req.prismaTx.genAuditLog({
+            user: ctx.req.user,
+            oldValue: rowToUpdate,
+            newValue: result,
+            subject: "ContactSubmission",
+            id: result.id
+        });
+
+        return result;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    private async handleNewSubmissionNotifications(submission: ContactSubmission): Promise<void> {
+        // // Send message to discord
+        // if (process.env.DISCORD_WEBHOOK) {
+        //     let msg: { content: string };
+        //     if (submission.type === ContactSubmissionType.PRODUCTION_REQUEST) {
+        //         msg = {
+        //             content: ""
+        //         };
+        //     } else {
+        //         msg = {
+        //             content:
+        //                 `# ${submission.name} has submitted a ${submission.subject}! Their submission ID is ${submission.id}.\n` +
+        //                 `### Check the submissions dashboard for more information.`
+        //         };
+        //     }
+        //     await fetch(process.env.DISCORD_WEBHOOK, {
+        //         method: "POST",
+        //         headers: {
+        //             "content-type": "application/json"
+        //         },
+        //         body: JSON.stringify(msg)
+        //     });
+        // }
+    }
+
+    /**
+     * Convert a Production Request input value into the additionalData value.
+     * @param input Input create/update values
+     * @returns An object that should be used as the `additionalData` for the contact submission. Note, in the case of
+     * `input` being a `UpdateContactSubmissionProductionRequestInput`, the returned value will only contain the values
+     * which are being updated. The returned value can be merged with the already-present value so data which isn't
+     * updated isn't overwritten.
+     * @private
+     */
+    private generateProductionRequestAdditionalData(
+        input: CreateContactSubmissionProductionRequestInput | UpdateContactSubmissionProductionRequestInput
+    ) {
+        return {
+            location: input.location,
+            organizationName: input.organizationName,
+            startTime: input.startTime.toISOString(),
+            endTime: input.endTime.toISOString(),
+            livestreamed: input.livestreamed,
+            isPublic: input.isPublic,
+            audioAvailable: input.audioAvailable,
+            isStudentOrganization: input.isStudentOrganization,
+            requiresEditing: input.requiresEditing,
+            requiredCameraCount: input.requiredCameraCount,
+            phoneNumber: input.phoneNumber
+        };
     }
 }
