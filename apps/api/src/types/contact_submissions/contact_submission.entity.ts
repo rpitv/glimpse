@@ -1,6 +1,6 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IsBoolean, IsDate, IsObject, MaxLength, MinLength } from "class-validator";
-import { ContactSubmission as PrismaContactSubmission, Prisma } from "@prisma/client";
+import { ContactSubmission as PrismaContactSubmission, ContactSubmissionType, Prisma } from "@prisma/client";
 import { GraphQLBigInt, GraphQLJSON } from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";
 
@@ -24,31 +24,35 @@ export class ContactSubmission implements PrismaContactSubmission {
      * The email address for how to reach the person who submitted this ContactSubmission.
      */
     @MaxLength(300)
-    @Field(() => String, { nullable: true })
-    email: string | null;
+    @Field(() => String)
+    email: string;
+
+    /**
+     * The type of this particular ContactSubmission. Useful for determining how to read the `additionalData`, or for
+     * determining what sort of notifications to send.
+     */
+    @Field(() => ContactSubmissionType)
+    type: ContactSubmissionType;
 
     /**
      * The name of the person who submitted this ContactSubmission.
      */
     @MaxLength(100)
-    @Field(() => String, { nullable: true })
-    name: string | null;
+    name: string;
 
     /**
-     * The subject/title of the ContactSubmission.
+     * The subject/title of the ContactSubmission. Used as the production title in production requests.
      */
     @MinLength(5)
     @MaxLength(100)
-    @Field(() => String, { nullable: true })
-    subject: string | null;
+    subject: string;
 
     /**
-     * The main body of the ContactSubmission.
+     * The main body of the ContactSubmission. Used for additional details in production requests.
      */
     @MinLength(15)
     @MaxLength(1000)
-    @Field(() => String, { nullable: true })
-    body: string | null;
+    body: string;
 
     /**
      * Timestamp at which this ContactSubmission was submitted.
@@ -65,7 +69,7 @@ export class ContactSubmission implements PrismaContactSubmission {
     resolved: boolean | null;
 
     /**
-     * Additional metadata about this ContactSubmission. Unstructured JSON data.
+     * Additional unstructured data about this ContactSubmission. Format is determined by the {@link #type} property.
      */
     @IsObject()
     @Field(() => GraphQLJSON, { nullable: true })

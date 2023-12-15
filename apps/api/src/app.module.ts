@@ -43,6 +43,7 @@ import { GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
 import { StreamModule } from "./types/stream/stream.module";
 import { ConfigModule } from "@nestjs/config";
 import * as Joi from "joi";
+import { ContactSubmissionType } from "@prisma/client";
 
 @Module({
     imports: [
@@ -163,4 +164,8 @@ registerEnumType(CaseSensitivity, {
 });
 registerEnumType(OrderDirection, {
     name: "OrderDirection"
+});
+
+registerEnumType(ContactSubmissionType, {
+    name: "ContactSubmissionType"
 });
