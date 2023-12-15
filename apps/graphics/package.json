@@ -2,15 +2,16 @@
   "name": "glimpse-graphics",
   "version": "1.0.0",
   "description": "NodeCG Graphics bundle for RPI TV Glimpse",
-  "homepage": "https://rpi.tv/",
-  "bugs": {
-    "url": "https://github.com/rpitv/glimpse-graphics/issues"
-  },
+  "private": true,
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rpitv/glimpse-graphics.git"
+    "url": "git+https://github.com/rpitv/glimpse.git"
   },
-  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv",
   "scripts": {
     "start": "node ../..",
     "start-dev": "npx nodemon ../.. | npx pino-pretty -c",

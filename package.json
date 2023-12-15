@@ -1,4 +1,10 @@
 {
+  "name": "glimpse",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "devDependencies": {
     "lerna": "^8.0.1"
   }
