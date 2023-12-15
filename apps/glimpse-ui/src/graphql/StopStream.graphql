@@ -1,5 +1,0 @@
-mutation StopStream($id: UUID!) {
-  deleteStream(id: $id) {
-    id
-  }
-}

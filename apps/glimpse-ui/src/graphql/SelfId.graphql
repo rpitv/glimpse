@@ -1,5 +1,0 @@
-query SelfId {
-  self {
-    id
-  }
-}
