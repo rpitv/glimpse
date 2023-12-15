@@ -1,8 +1,18 @@
 {
-  "name": "glimpse-video-control",
+  "name": "@rpitv/glimpse-video-control",
   "version": "1.0.0",
-  "description": "",
+  "description": "API for controlling the Glimpse RTMP server and active livestreams",
   "main": "index.js",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv",
   "scripts": {
     "prepare": "cd  && husky install ./control/.husky",
     "lint": "npx prettier --check control && eslint . --ext .ts --cache",
@@ -11,16 +21,6 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rpitv/glimpse-video.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rpitv/glimpse-video/issues"
-  },
-  "homepage": "https://github.com/rpitv/glimpse-video#readme",
   "dependencies": {
     "amqplib": "^0.10.3",
     "uuid": "^9.0.0"
