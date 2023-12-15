@@ -1,8 +1,7 @@
 import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { isObject, validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { BadRequestException, InternalServerErrorException, Logger } from "@nestjs/common";
+import { BadRequestException, Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
@@ -15,7 +14,6 @@ import { OrderContactSubmissionInput } from "./dto/order-contact_submission.inpu
 import { CreateContactSubmissionProductionRequestInput } from "./dto/create-contact_submission-production-request.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as process from "process";
 import { CreateContactSubmissionGeneralInput } from "./dto/create-contact_submission-general.input";
 import { ContactSubmissionType } from "@prisma/client";
@@ -316,30 +314,123 @@ export class ContactSubmissionResolver {
         return result;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async handleNewSubmissionNotifications(submission: ContactSubmission): Promise<void> {
-        // // Send message to discord
-        // if (process.env.DISCORD_WEBHOOK) {
-        //     let msg: { content: string };
-        //     if (submission.type === ContactSubmissionType.PRODUCTION_REQUEST) {
-        //         msg = {
-        //             content: ""
-        //         };
-        //     } else {
-        //         msg = {
-        //             content:
-        //                 `# ${submission.name} has submitted a ${submission.subject}! Their submission ID is ${submission.id}.\n` +
-        //                 `### Check the submissions dashboard for more information.`
-        //         };
-        //     }
-        //     await fetch(process.env.DISCORD_WEBHOOK, {
-        //         method: "POST",
-        //         headers: {
-        //             "content-type": "application/json"
-        //         },
-        //         body: JSON.stringify(msg)
-        //     });
-        // }
+        // Send message to discord
+        if (process.env.DISCORD_WEBHOOK) {
+            console.log("Sending Discord msg")
+            let msg: any;
+            if (submission.type === ContactSubmissionType.PRODUCTION_REQUEST) {
+                const additionalData = submission.additionalData as any;
+                msg = {
+                    embeds: [
+                        {
+                            title: "New Production Request",
+                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}/view`,
+                            timestamp: submission.timestamp,
+                            color: 0xff0000,
+                            fields: [
+                                {
+                                    name: "Event Name",
+                                    value: submission.subject
+                                },
+                                {
+                                    name: "Organization",
+                                    value: additionalData.organizationName
+                                },
+                                {
+                                    name: "Name",
+                                    value: submission.name
+                                },
+                                {
+                                    name: "Email",
+                                    value: submission.email
+                                },
+                                {
+                                    name: "Phone Number",
+                                    value: additionalData.phoneNumber ?? "*Unanswered*"
+                                },
+                                {
+                                    name: "Location",
+                                    value: additionalData.location
+                                },
+                                {
+                                    name: "Start Time",
+                                    value: additionalData.startTime
+                                },
+                                {
+                                    name: "End Time",
+                                    value: additionalData.endTime
+                                },
+                                {
+                                    name: "Would you like this event livestreamed?",
+                                    value: additionalData.livestreamed ? "Yes" : "No"
+                                },
+                                {
+                                    name: "Can we share a public recording of this event?",
+                                    value: additionalData.isPublic ? "Yes" : "No"
+                                },
+                                {
+                                    name: "Will you have audio equipment available for us to connect to (e.g. Union Show Techs)?",
+                                    value: additionalData.audioAvailable ? "Yes" : "No"
+                                },
+                                {
+                                    name: "Is your organization part of the Student Union?",
+                                    value: additionalData.isStudentOrganization ? "Yes" : "No"
+                                },
+                                {
+                                    name: "Will your production require additional post-production editing?",
+                                    value: additionalData.requiresEditing ? "Yes" : "No"
+                                },
+                                {
+                                    name: "How many camera angles will you need?",
+                                    value: additionalData.requiredCameraCount ?? "*Unanswered*"
+                                },
+                                {
+                                    name: "Additional Details",
+                                    value: submission.body
+                                }
+                            ]
+                        }
+                    ]
+                };
+            } else {
+                msg = {
+                    embeds: [
+                        {
+                            title: "New Contact Submission",
+                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}/view`,
+                            timestamp: submission.timestamp,
+                            color: 0xff0000,
+                            fields: [
+                                {
+                                    name: "Subject",
+                                    value: submission.subject
+                                },
+                                {
+                                    name: "Name",
+                                    value: submission.name
+                                },
+                                {
+                                    name: "Email",
+                                    value: submission.email
+                                },
+                                {
+                                    name: "Body",
+                                    value: submission.body
+                                }
+                            ]
+                        }
+                    ]
+                };
+            }
+            await fetch(process.env.DISCORD_WEBHOOK, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify(msg)
+            });
+        }
     }
 
     /**
