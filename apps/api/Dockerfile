@@ -9,9 +9,6 @@ WORKDIR /usr/src/app
 # Copy package.json files
 COPY --chown=node:node ./package*.json .
 
-# Disable Husky
-RUN npm pkg delete scripts.prepare
-
 # Install dependencies
 RUN npm ci
 
@@ -25,9 +22,6 @@ RUN npm run build
 
 # Delete build-time modules
 RUN rm -rf ./node_modules
-
-# Disable Husky (I don't know why this is required twice)
-RUN npm pkg delete scripts.prepare
 
 # Install production dependencies and regenerate Prisma client
 RUN npm ci --only=production
