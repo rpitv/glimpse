@@ -1,14 +1,14 @@
 version: '3.9'
 services:
   video:
-    build: .
+    build: ./video.Dockerfile
     ports:
       - "1935:1935"
     restart: unless-stopped
     networks:
       - glimpse_network
   video_control:
-    build: ./control
+    build: .
     restart: unless-stopped
     env_file:
       - .env

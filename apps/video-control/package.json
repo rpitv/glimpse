@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "cd .. && husky install ./control/.husky",
-    "lint": "npx prettier --check . && eslint . --ext .ts --cache",
-    "fix": "npx prettier --write . --ignore-unknown && eslint . --ext .ts --cache --fix",
+    "prepare": "cd  && husky install ./control/.husky",
+    "lint": "npx prettier --check control && eslint . --ext .ts --cache",
+    "fix": "npx prettier --write control --ignore-unknown && eslint . --ext .ts --cache --fix",
     "start": "node dist/index.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
