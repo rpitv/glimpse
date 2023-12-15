@@ -1,3 +1,16 @@
-FROM tiangolo/nginx-rtmp:latest-2021-09-17
+FROM node:16
+CMD [ "npm", "start" ]
 
-COPY nginx.conf /etc/nginx/nginx.conf
+WORKDIR /usr/src/app
+
+RUN apt-get update
+RUN apt-get install -y ffmpeg
+
+COPY package.json .
+COPY package-lock.json .
+RUN npm ci
+
+COPY src ./src
+COPY tsconfig.json .
+
+RUN npm run build
