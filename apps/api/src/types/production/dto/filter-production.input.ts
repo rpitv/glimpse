@@ -2,6 +2,7 @@ import { InputType } from "@nestjs/graphql";
 import { StringComparisonInput } from "../../../gql/string-comparison.input";
 import { NumberComparisonInput } from "../../../gql/number-comparison.input";
 import { DateComparisonInput } from "../../../gql/date-comparison.input";
+import { BooleanComparisonInput } from "../../../gql/boolean-comparison.input";
 
 /**
  * Input type for filtering Productions in ReadMany queries.
@@ -52,6 +53,26 @@ export class FilterProductionInput {
      * Filter by thumbnail Image ID
      */
     thumbnailId?: NumberComparisonInput;
+    /**
+     * Filter by ID of the Discord server that {@link discordChannel} belongs to
+     */
+    discordServer?: StringComparisonInput;
+    /**
+     * Filter by ID of the Discord channel that this production's communication takes place in
+     */
+    discordChannel?: StringComparisonInput;
+    /**
+     * Filter by whether this production's Discord channel has been archived by the Discord bot
+     */
+    isDiscordChannelArchived?: BooleanComparisonInput;
+    /**
+     * Filter by ID of the Discord message that volunteers can react to volunteer for this production
+     */
+    discordVolunteerMessage?: StringComparisonInput;
+    /**
+     * Filter by ID of the Discord message that volunteers can react to unvolunteer for this production
+     */
+    discordUnvolunteerMessage?: StringComparisonInput;
 
     AND?: FilterProductionInput[];
     OR?: FilterProductionInput[];

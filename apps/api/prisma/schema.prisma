@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["clientExtensions"]
 }
 
@@ -9,11 +9,11 @@ datasource db {
 }
 
 model AccessLog {
-  userId    BigInt   @db.BigInt @map("user")
+  userId    BigInt   @map("user") @db.BigInt
   service   String   @db.VarChar(100)
   timestamp DateTime @default(now()) @db.Timestamp(6)
   ip        String?  @db.VarChar(60)
-  id        BigInt   @db.BigInt @id(map: "access_logs_pk") @default(autoincrement())
+  id        BigInt   @id(map: "access_logs_pk") @default(autoincrement()) @db.BigInt
   user      User     @relation(fields: [userId], references: [id], map: "access_logs_users_id_fk")
 
   @@index([userId, timestamp], map: "access_logs_userId_timestamp_index")
@@ -22,7 +22,7 @@ model AccessLog {
 }
 
 model AlertLog {
-  id        BigInt   @db.BigInt @id(map: "alert_logs_pk") @default(autoincrement())
+  id        BigInt   @id(map: "alert_logs_pk") @default(autoincrement()) @db.BigInt
   message   String   @db.VarChar(300)
   severity  String   @db.VarChar(8)
   timestamp DateTime @default(now()) @db.Timestamp(6)
@@ -33,11 +33,11 @@ model AlertLog {
 }
 
 model Asset {
-  id                 BigInt    @db.BigInt @id(map: "assets_pk") @default(autoincrement())
+  id                 BigInt    @id(map: "assets_pk") @default(autoincrement()) @db.BigInt
   tag                Int?
   name               String    @db.VarChar(150)
   lastKnownLocation  String?   @map("last_known_location") @db.VarChar(100)
-  lastKnownHandlerId BigInt?   @db.BigInt @map("last_known_handler")
+  lastKnownHandlerId BigInt?   @map("last_known_handler") @db.BigInt
   isLost             Boolean   @default(false) @map("is_lost")
   notes              String?   @db.VarChar(500)
   purchasePrice      Int?      @map("purchase_price")
@@ -45,7 +45,7 @@ model Asset {
   purchaseDate       DateTime? @map("purchase_date") @db.Date
   modelNumber        String?   @map("model_number") @db.VarChar(100)
   serialNumber       String?   @map("serial_number") @db.VarChar(100)
-  parentId           BigInt?   @db.BigInt @map("parent")
+  parentId           BigInt?   @map("parent") @db.BigInt
   lastKnownHandler   User?     @relation("assetsTousers", fields: [lastKnownHandlerId], references: [id], onDelete: Restrict, map: "assets_users_id_fk")
   parent             Asset?    @relation("assetsToassets_parent", fields: [parentId], references: [id], onDelete: Restrict, map: "assets_assets_id_fk")
   children           Asset[]   @relation("assetsToassets_parent")
@@ -60,15 +60,15 @@ model Asset {
 }
 
 model AuditLog {
-  id               BigInt   @db.BigInt @id(map: "audit_logs_pk") @default(autoincrement())
-  message          String?  @db.VarChar(300)
-  userId           BigInt?  @db.BigInt @map("user")
-  timestamp        DateTime @default(now()) @db.Timestamp(6)
-  subject          String?  @map("subject") @db.VarChar(50)
-  identifier       BigInt?  @db.BigInt
-  newValue         Json?    @map("new_value") @db.Json
-  oldValue         Json?    @map("old_value") @db.Json
-  user             User?    @relation(fields: [userId], references: [id], onDelete: Restrict, map: "audit_logs_users_id_fk")
+  id         BigInt   @id(map: "audit_logs_pk") @default(autoincrement()) @db.BigInt
+  message    String?  @db.VarChar(300)
+  userId     BigInt?  @map("user") @db.BigInt
+  timestamp  DateTime @default(now()) @db.Timestamp(6)
+  subject    String?  @map("subject") @db.VarChar(50)
+  identifier BigInt?  @db.BigInt
+  newValue   Json?    @map("new_value") @db.Json
+  oldValue   Json?    @map("old_value") @db.Json
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Restrict, map: "audit_logs_users_id_fk")
 
   @@index([timestamp], map: "audit_logs_timestamp_index")
   @@index([userId, timestamp], map: "audit_logs_userId_timestamp_index")
@@ -76,10 +76,10 @@ model AuditLog {
 }
 
 model BlogPost {
-  id                BigInt   @db.BigInt @id(map: "blog_pk") @default(autoincrement())
+  id                BigInt   @id(map: "blog_pk") @default(autoincrement()) @db.BigInt
   postedAt          DateTime @default(now()) @map("posted_at") @db.Timestamp(6)
   content           String
-  authorId          BigInt   @db.BigInt @map("author")
+  authorId          BigInt   @map("author") @db.BigInt
   authorDisplayName String?  @map("author_display_name") @db.VarChar(100)
   title             String   @db.VarChar(150)
   author            Person   @relation(fields: [authorId], references: [id], map: "blog_people_id_fk")
@@ -92,10 +92,10 @@ model BlogPost {
 }
 
 model Category {
-  id          BigInt       @db.BigInt @id(map: "categories_pk") @default(autoincrement())
+  id          BigInt       @id(map: "categories_pk") @default(autoincrement()) @db.BigInt
   name        String?      @db.VarChar(50)
   priority    Int          @default(0)
-  parentId    BigInt?      @db.BigInt @map("parent")
+  parentId    BigInt?      @map("parent") @db.BigInt
   parent      Category?    @relation("CategoryToCategory_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "categories_categories_id_fk")
   children    Category[]   @relation("CategoryToCategory_parentId")
   productions Production[]
@@ -107,7 +107,7 @@ model Category {
 }
 
 model ContactSubmission {
-  id             BigInt   @db.BigInt @id(map: "contact_submissions_pk") @unique(map: "contact_submissions_id_uindex") @default(autoincrement())
+  id             BigInt   @id(map: "contact_submissions_pk") @unique(map: "contact_submissions_id_uindex") @default(autoincrement()) @db.BigInt
   email          String   @db.VarChar(300)
   name           String   @db.VarChar(100)
   subject        String   @db.VarChar(100)
@@ -125,11 +125,11 @@ model ContactSubmission {
 }
 
 model Credit {
-  productionId BigInt     @db.BigInt @map("production")
-  personId     BigInt     @db.BigInt @map("person")
+  productionId BigInt     @map("production") @db.BigInt
+  personId     BigInt     @map("person") @db.BigInt
   title        String?    @db.VarChar(100)
   priority     Int        @default(0)
-  id           BigInt     @db.BigInt @id(map: "credits_pk") @default(autoincrement())
+  id           BigInt     @id(map: "credits_pk") @default(autoincrement()) @db.BigInt
   person       Person     @relation(fields: [personId], references: [id], map: "credits_people_id_fk")
   production   Production @relation(fields: [productionId], references: [id], map: "credits_productions_id_fk")
 
@@ -140,14 +140,14 @@ model Credit {
 }
 
 model Group {
-  id                BigInt            @db.BigInt @id(map: "groups_pk") @default(autoincrement())
-  name              String            @db.VarChar(50)
-  parentId          BigInt?           @db.BigInt @map("parent")
-  priority          Int               @default(0)
-  parent            Group?            @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
-  permissions       GroupPermission[] @relation("group_permissionsTogroups")
-  children          Group[]           @relation("GroupToGroup_parentId")
-  users             UserGroup[]       @relation("groupsTouser_groups")
+  id          BigInt            @id(map: "groups_pk") @default(autoincrement()) @db.BigInt
+  name        String            @db.VarChar(50)
+  parentId    BigInt?           @map("parent") @db.BigInt
+  priority    Int               @default(0)
+  parent      Group?            @relation("GroupToGroup_parentId", fields: [parentId], references: [id], onDelete: Restrict, map: "groups_groups_id_fk")
+  permissions GroupPermission[] @relation("group_permissionsTogroups")
+  children    Group[]           @relation("GroupToGroup_parentId")
+  users       UserGroup[]       @relation("groupsTouser_groups")
 
   @@index([parentId, priority, name], map: "groups_parent_priority_name_index")
   @@index([priority, name], map: "groups_priority_name_index")
@@ -157,8 +157,8 @@ model Group {
 }
 
 model GroupPermission {
-  id         BigInt   @db.BigInt @id(map: "group_permissions_pk") @default(autoincrement())
-  groupId    BigInt   @db.BigInt @map("group")
+  id         BigInt   @id(map: "group_permissions_pk") @default(autoincrement()) @db.BigInt
+  groupId    BigInt   @map("group") @db.BigInt
   action     String   @db.VarChar(100)
   subject    String[] @db.VarChar(300)
   fields     String[] @db.VarChar(100)
@@ -175,7 +175,7 @@ model GroupPermission {
 }
 
 model Image {
-  id                BigInt            @db.BigInt @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement())
+  id                BigInt            @id(map: "images_pk") @unique(map: "images_id_uindex") @default(autoincrement()) @db.BigInt
   name              String            @db.VarChar(50)
   description       String?           @db.VarChar(200)
   path              String            @db.VarChar(1000)
@@ -190,11 +190,11 @@ model Image {
 }
 
 model Person {
-  id               BigInt        @db.BigInt @id(map: "people_pk") @unique(map: "people_id_uindex") @default(autoincrement())
+  id               BigInt        @id(map: "people_pk") @unique(map: "people_id_uindex") @default(autoincrement()) @db.BigInt
   name             String        @db.VarChar(100)
   pronouns         String?       @db.VarChar(20)
   graduation       DateTime?     @db.Date
-  profilePictureId BigInt?       @db.BigInt @map("profile_picture")
+  profilePictureId BigInt?       @map("profile_picture") @db.BigInt
   profilePicture   Image?        @relation(fields: [profilePictureId], references: [id], map: "people_images_id_fk")
   description      String?
   blogPosts        BlogPost[]
@@ -209,10 +209,10 @@ model Person {
 }
 
 model PersonImage {
-  imageId  BigInt @db.BigInt @map("image")
-  personId BigInt @db.BigInt @map("person")
+  imageId  BigInt @map("image") @db.BigInt
+  personId BigInt @map("person") @db.BigInt
   priority Int    @default(0)
-  id       BigInt @db.BigInt @id(map: "people_images_pk") @default(autoincrement())
+  id       BigInt @id(map: "people_images_pk") @default(autoincrement()) @db.BigInt
   image    Image  @relation(fields: [imageId], references: [id], map: "people_images_images_id_fk")
   person   Person @relation(fields: [personId], references: [id], map: "people_images_people_id_fk")
 
@@ -222,9 +222,9 @@ model PersonImage {
 }
 
 model PersonRole {
-  id        BigInt    @db.BigInt @id(map: "people_roles_pk") @default(autoincrement())
-  personId  BigInt    @db.BigInt @map("person")
-  roleId    BigInt    @db.BigInt @map("role")
+  id        BigInt    @id(map: "people_roles_pk") @default(autoincrement()) @db.BigInt
+  personId  BigInt    @map("person") @db.BigInt
+  roleId    BigInt    @map("role") @db.BigInt
   startTime DateTime  @default(now()) @map("start_time") @db.Timestamp(6)
   endTime   DateTime? @map("end_time") @db.Timestamp(6)
   person    Person    @relation(fields: [personId], references: [id], map: "people_roles_people_id_fk")
@@ -237,26 +237,29 @@ model PersonRole {
 }
 
 model Production {
-  id             BigInt            @db.BigInt @id(map: "productions_pk") @default(autoincrement())
-  name           String            @db.VarChar(100)
-  description    String?
-  startTime      DateTime?         @map("start_time") @db.Timestamp(6)
-  endTime        DateTime?         @map("end_time") @db.Timestamp(6)
-  categoryId     BigInt?           @db.BigInt @map("category")
-  closetLocation String?           @map("closet_location") @db.VarChar(100)
-  eventLocation  String?           @map("event_location") @db.VarChar(100)
-  teamNotes      String?           @map("team_notes")
-  discordServer  String?           @map("discord_server") @db.Char(18)
-  discordChannel String?           @map("discord_channel") @db.Char(18)
-  thumbnailId    BigInt?           @db.BigInt @map("thumbnail")
-  closetTime     DateTime?         @map("closet_time") @db.Timestamp(6)
-  category       Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
-  thumbnail      Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
-  credits        Credit[]
-  images         ProductionImage[] @relation("production_imagesToproductions")
-  rsvps          ProductionRSVP[]
-  tags           ProductionTag[]
-  videos         ProductionVideo[]
+  id                        BigInt            @id(map: "productions_pk") @default(autoincrement()) @db.BigInt
+  name                      String            @db.VarChar(100)
+  description               String?
+  startTime                 DateTime?         @map("start_time") @db.Timestamp(6)
+  endTime                   DateTime?         @map("end_time") @db.Timestamp(6)
+  categoryId                BigInt?           @map("category") @db.BigInt
+  closetLocation            String?           @map("closet_location") @db.VarChar(100)
+  eventLocation             String?           @map("event_location") @db.VarChar(100)
+  teamNotes                 String?           @map("team_notes")
+  discordServer             String?           @map("discord_server") @db.Char(21)
+  discordChannel            String?           @map("discord_channel") @db.Char(21)
+  isDiscordChannelArchived  Boolean           @default(false) @map("is_discord_channel_archived") @db.Boolean
+  discordVolunteerMessage   String?           @map("discord_volunteer_message") @db.Char(21)
+  discordUnvolunteerMessage String?           @map("discord_unvolunteer_message") @db.Char(21)
+  thumbnailId               BigInt?           @map("thumbnail") @db.BigInt
+  closetTime                DateTime?         @map("closet_time") @db.Timestamp(6)
+  category                  Category?         @relation(fields: [categoryId], references: [id], onDelete: Restrict, map: "productions_categories_id_fk")
+  thumbnail                 Image?            @relation(fields: [thumbnailId], references: [id], onDelete: Restrict, map: "productions_images_id_fk")
+  credits                   Credit[]
+  images                    ProductionImage[] @relation("production_imagesToproductions")
+  rsvps                     ProductionRSVP[]
+  tags                      ProductionTag[]
+  videos                    ProductionVideo[]
 
   @@index([categoryId, startTime, name], map: "productions_category_start_time_name_index")
   @@index([startTime, name], map: "productions_start_time_name_index")
@@ -265,10 +268,10 @@ model Production {
 }
 
 model ProductionImage {
-  productionId BigInt     @db.BigInt @map("production")
-  imageId      BigInt     @db.BigInt @map("image")
+  productionId BigInt     @map("production") @db.BigInt
+  imageId      BigInt     @map("image") @db.BigInt
   priority     Int        @default(0)
-  id           BigInt     @db.BigInt @id(map: "production_images_pk") @default(autoincrement())
+  id           BigInt     @id(map: "production_images_pk") @default(autoincrement()) @db.BigInt
   image        Image      @relation(fields: [imageId], references: [id], map: "production_images_images_id_fk")
   production   Production @relation("production_imagesToproductions", fields: [productionId], references: [id], map: "production_images_productions_id_fk")
 
@@ -280,11 +283,11 @@ model ProductionImage {
 }
 
 model ProductionRSVP {
-  productionId BigInt     @db.BigInt @map("production")
-  userId       BigInt     @db.BigInt @map("user")
+  productionId BigInt     @map("production") @db.BigInt
+  userId       BigInt     @map("user") @db.BigInt
   willAttend   String?    @map("will_attend") @db.VarChar(5)
   notes        String?
-  id           BigInt     @db.BigInt @id(map: "production_rsvps_pk") @default(autoincrement())
+  id           BigInt     @id(map: "production_rsvps_pk") @default(autoincrement()) @db.BigInt
   production   Production @relation(fields: [productionId], references: [id], map: "production_rsvps_productions_id_fk")
   user         User       @relation(fields: [userId], references: [id], map: "production_rsvps_users_id_fk")
 
@@ -296,9 +299,9 @@ model ProductionRSVP {
 }
 
 model ProductionTag {
-  productionId BigInt     @db.BigInt @map("production")
+  productionId BigInt     @map("production") @db.BigInt
   tag          String     @db.VarChar(50)
-  id           BigInt     @db.BigInt @id(map: "production_tags_pk") @default(autoincrement())
+  id           BigInt     @id(map: "production_tags_pk") @default(autoincrement()) @db.BigInt
   production   Production @relation(fields: [productionId], references: [id], map: "production_tags_productions_id_fk")
 
   @@unique([productionId, tag], map: "production_tags_pk_2")
@@ -307,10 +310,10 @@ model ProductionTag {
 }
 
 model ProductionVideo {
-  productionId BigInt     @db.BigInt @map("production")
-  videoId      BigInt     @db.BigInt @map("video")
+  productionId BigInt     @map("production") @db.BigInt
+  videoId      BigInt     @map("video") @db.BigInt
   priority     Int        @default(0)
-  id           BigInt     @db.BigInt @id(map: "production_videos_pk") @default(autoincrement())
+  id           BigInt     @id(map: "production_videos_pk") @default(autoincrement()) @db.BigInt
   production   Production @relation(fields: [productionId], references: [id], map: "production_videos_productions_id_fk")
   video        Video      @relation(fields: [videoId], references: [id], map: "production_videos_videos_id_fk")
 
@@ -325,7 +328,7 @@ model Redirect {
   key      String    @unique(map: "redirects_pk_2") @db.VarChar(100)
   location String    @db.VarChar(3000)
   expires  DateTime? @db.Timestamp(6)
-  id       BigInt    @db.BigInt @id(map: "redirects_pk") @default(autoincrement())
+  id       BigInt    @id(map: "redirects_pk") @default(autoincrement()) @db.BigInt
 
   @@index([key, expires], map: "redirects_key_expires_index")
   @@index([expires], map: "redirects_expires_index")
@@ -334,11 +337,11 @@ model Redirect {
 }
 
 model Role {
-  id                  BigInt       @db.BigInt @id(map: "roles_pk") @default(autoincrement())
+  id                  BigInt       @id(map: "roles_pk") @default(autoincrement()) @db.BigInt
   name                String       @db.VarChar(100)
   description         String?      @db.VarChar(1000)
-  displayInMembership Boolean      @db.Boolean @default(false) @map("display_in_membership")
-  displayInLeadership Boolean      @db.Boolean @default(false) @map("display_in_leadership")
+  displayInMembership Boolean      @default(false) @map("display_in_membership") @db.Boolean
+  displayInLeadership Boolean      @default(false) @map("display_in_leadership") @db.Boolean
   priority            Int          @default(0)
   people              PersonRole[]
 
@@ -347,21 +350,21 @@ model Role {
 }
 
 model User {
-  id                         BigInt           @db.BigInt @id(map: "users_pk") @default(autoincrement())
-  username                   String           @unique(map: "users_username_uindex") @db.VarChar(8)
-  mail                       String           @unique(map: "users_mail_uindex") @db.VarChar(300)
-  personId                   BigInt?          @db.BigInt @map("person")
-  discord                    String?          @unique(map: "users_discord_uindex") @db.Char(18)
-  password                   String?          @db.VarChar(300)
-  joined                     DateTime         @default(now()) @db.Timestamp(6)
-  person                     Person?          @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
-  accessLogs                 AccessLog[]
-  checkedOutAssets           Asset[]          @relation("assetsTousers")
-  auditLogs                  AuditLog[]
-  productionRsvps            ProductionRSVP[]
-  groups                     UserGroup[]      @relation("user_groupsTousers")
-  permissions                UserPermission[] @relation("user_permissionsTousers")
-  voteResponses              VoteResponse[]
+  id               BigInt           @id(map: "users_pk") @default(autoincrement()) @db.BigInt
+  username         String           @unique(map: "users_username_uindex") @db.VarChar(8)
+  mail             String           @unique(map: "users_mail_uindex") @db.VarChar(300)
+  personId         BigInt?          @map("person") @db.BigInt
+  discord          String?          @unique(map: "users_discord_uindex") @db.Char(21)
+  password         String?          @db.VarChar(300)
+  joined           DateTime         @default(now()) @db.Timestamp(6)
+  person           Person?          @relation(fields: [personId], references: [id], onDelete: Restrict, map: "users_people_id_fk")
+  accessLogs       AccessLog[]
+  checkedOutAssets Asset[]          @relation("assetsTousers")
+  auditLogs        AuditLog[]
+  productionRsvps  ProductionRSVP[]
+  groups           UserGroup[]      @relation("user_groupsTousers")
+  permissions      UserPermission[] @relation("user_permissionsTousers")
+  voteResponses    VoteResponse[]
 
   @@index([personId], map: "users_person_index")
   @@index([joined], map: "users_joined_index")
@@ -369,9 +372,9 @@ model User {
 }
 
 model UserGroup {
-  id      BigInt @db.BigInt @id(map: "user_groups_pk") @default(autoincrement())
-  userId  BigInt @db.BigInt @map("user")
-  groupId BigInt @db.BigInt @map("group")
+  id      BigInt @id(map: "user_groups_pk") @default(autoincrement()) @db.BigInt
+  userId  BigInt @map("user") @db.BigInt
+  groupId BigInt @map("group") @db.BigInt
   group   Group  @relation("groupsTouser_groups", fields: [groupId], references: [id], map: "user_groups_groups_id_fk")
   user    User   @relation("user_groupsTousers", fields: [userId], references: [id], map: "user_groups_users_id_fk")
 
@@ -381,8 +384,8 @@ model UserGroup {
 }
 
 model UserPermission {
-  id         BigInt   @db.BigInt @id(map: "user_permissions_pk") @default(autoincrement())
-  userId     BigInt   @db.BigInt @map("user")
+  id         BigInt   @id(map: "user_permissions_pk") @default(autoincrement()) @db.BigInt
+  userId     BigInt   @map("user") @db.BigInt
   action     String   @db.VarChar(100)
   subject    String[] @db.VarChar(300)
   fields     String[] @db.VarChar(100)
@@ -399,7 +402,7 @@ model UserPermission {
 }
 
 model Video {
-  id       BigInt            @db.BigInt @id(map: "videos_pk") @default(autoincrement())
+  id       BigInt            @id(map: "videos_pk") @default(autoincrement()) @db.BigInt
   name     String            @db.VarChar(100)
   format   String            @db.VarChar(32)
   metadata Json?             @db.Json
@@ -411,7 +414,7 @@ model Video {
 }
 
 model Vote {
-  id          BigInt         @db.BigInt @id(map: "votes_pk") @default(autoincrement())
+  id          BigInt         @id(map: "votes_pk") @default(autoincrement()) @db.BigInt
   question    String         @db.VarChar(200)
   options     String[]       @db.VarChar(200)
   expires     DateTime?      @db.Timestamp(6)
@@ -424,10 +427,10 @@ model Vote {
 }
 
 model VoteResponse {
-  voteId    BigInt   @db.BigInt @map("vote")
-  userId    BigInt   @db.BigInt @map("user")
+  voteId    BigInt   @map("vote") @db.BigInt
+  userId    BigInt   @map("user") @db.BigInt
   timestamp DateTime @default(now()) @db.Timestamp(6)
-  id        BigInt   @db.BigInt @id(map: "vote_responses_pk") @default(autoincrement())
+  id        BigInt   @id(map: "vote_responses_pk") @default(autoincrement()) @db.BigInt
   selection String   @db.VarChar(200)
   user      User     @relation(fields: [userId], references: [id], map: "vote_responses_users_id_fk")
   vote      Vote     @relation(fields: [voteId], references: [id], map: "vote_responses_votes_id_fk")

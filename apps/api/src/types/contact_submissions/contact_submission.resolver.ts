@@ -92,20 +92,6 @@ export class ContactSubmissionResolver {
             id: result.id
         });
 
-        // Send message to discord
-        if (process.env.DISCORD_WEBHOOK) {
-            const msg = {
-                "content": `# ${input.name} has submitted a ${input.subject}! Their submission ID is ${result.id}.\n` +
-                `### Check the submissions dashboard for more information.`
-            }
-            await fetch(process.env.DISCORD_WEBHOOK, {
-                "method": "POST",
-                "headers": {
-                    "content-type": "application/json"
-                },
-                "body": JSON.stringify(msg)
-            })
-        }
         return result;
     }
 

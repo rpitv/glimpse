@@ -2,18 +2,13 @@ import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } f
 import { User } from "./user.entity";
 import { CreateUserInput } from "./dto/create-user.input";
 import { UpdateUserInput } from "./dto/update-user.input";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger, Session } from "@nestjs/common";
+import { Logger, Session } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import { FilterUserInput } from "./dto/filter-user.input";
 import { OrderUserInput } from "./dto/order-user.input";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
-import { AuthService } from "../../auth/auth.service";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 import { Person } from "../person/person.entity";
 import { AccessLog } from "../access_log/access_log.entity";
 import { FilterAccessLogInput } from "../access_log/dto/filter-access_log.input";
@@ -37,12 +32,13 @@ import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_respon
 import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import { UserService } from "./user.service";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly userService: UserService) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -55,23 +51,7 @@ export class UserResolver {
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<User[]> {
         this.logger.verbose("findManyUser resolver called");
-        // If filter is provided, combine it with the CASL accessibleBy filter.
-        const where = filter
-            ? {
-                  AND: [accessibleBy(ctx.req.permissions).User, filter]
-              }
-            : accessibleBy(ctx.req.permissions).User;
-
-        // If ordering args are provided, convert them to Prisma's orderBy format.
-        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
-
-        return ctx.req.prismaTx.user.findMany({
-            where,
-            orderBy,
-            skip: pagination?.skip,
-            take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
-        });
+        return this.userService.findManyUser(ctx.req.prismaTx, { filter, order, pagination }, ctx);
     }
 
     @Query(() => User, { nullable: true, complexity: Complexities.ReadOne })
@@ -81,11 +61,7 @@ export class UserResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<User> {
         this.logger.verbose("findOneUser resolver called");
-        return ctx.req.prismaTx.user.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
-            }
-        });
+        return this.userService.findOneUser(id, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => User, { complexity: Complexities.Create })
@@ -95,30 +71,7 @@ export class UserResolver {
         @Args("input", { type: () => CreateUserInput }) input: CreateUserInput
     ): Promise<User> {
         this.logger.verbose("createUser resolver called");
-        input = plainToClass(CreateUserInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        // Hash the password if it is provided.
-        if (input.password) {
-            input.password = await this.authService.hashPassword(input.password);
-        }
-
-        const result = await ctx.req.prismaTx.user.create({
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            newValue: result,
-            subject: "User",
-            id: result.id
-        });
-
-        return result;
+        return this.userService.createUser(input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => User, { complexity: Complexities.Update })
@@ -129,53 +82,7 @@ export class UserResolver {
         @Args("input", { type: () => UpdateUserInput }) input: UpdateUserInput
     ): Promise<User> {
         this.logger.verbose("updateUser resolver called");
-        input = plainToClass(UpdateUserInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.user.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("User not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("User", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        // Hash the password if it is provided.
-        if (input.password) {
-            input.password = await this.authService.hashPassword(input.password);
-        }
-
-        const result = await ctx.req.prismaTx.user.update({
-            where: {
-                id
-            },
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog.bind(ctx.req.prismaTx)({
-            user: ctx.req.user,
-            oldValue: rowToUpdate,
-            newValue: result,
-            subject: "User",
-            id: result.id
-        });
-
-        return result;
+        return this.userService.updateUser(id, input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => User, { complexity: Complexities.Delete })
@@ -185,38 +92,7 @@ export class UserResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<User> {
         this.logger.verbose("deleteUser resolver called");
-
-        const rowToDelete = await ctx.req.prismaTx.user.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).User]
-            }
-        });
-
-        if (!rowToDelete) {
-            throw new BadRequestException("User not found");
-        }
-
-        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
-        //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("User", rowToDelete))) {
-            ctx.req.passed = false;
-            return null;
-        }
-
-        const result = await ctx.req.prismaTx.user.delete({
-            where: {
-                id
-            }
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: result,
-            subject: "User",
-            id: result.id
-        });
-
-        return result;
+        return this.userService.deleteUser(id, ctx.req.prismaTx, ctx);
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
@@ -225,11 +101,8 @@ export class UserResolver {
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterUserInput, nullable: true }) filter?: FilterUserInput
     ): Promise<number> {
-        return ctx.req.prismaTx.user.count({
-            where: {
-                AND: [accessibleBy(ctx.req.permissions).User, filter]
-            }
-        });
+        this.logger.verbose("userCount resolver called");
+        return this.userService.userCount(ctx.req.prismaTx, { filter }, ctx);
     }
 
     // -------------------- Relation Resolvers --------------------

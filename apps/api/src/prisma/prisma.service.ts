@@ -1,4 +1,4 @@
-import { INestApplication, Injectable, OnModuleInit } from "@nestjs/common";
+import { INestApplication, Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { Prisma, PrismaClient, UnwrapTuple } from "@prisma/client";
 import { AuditLog } from "../types/audit_log/audit_log.entity";
 import { AbilitySubjects } from "../casl/casl-ability.factory";
@@ -35,6 +35,7 @@ class BasePrismaService extends PrismaClient implements OnModuleInit {
     }
 }
 
+const logger = new Logger("genAuditLog");
 /**
  * General purpose audit log generator function. This function should not be called directly. It must first be bound
  *  to the context of a Prisma transaction client. It's used both in {@link PrismaService#$transaction} and
@@ -48,6 +49,7 @@ async function genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<Audi
         return Promise.all(entry.map((entry) => this.genAuditLog(entry)));
     }
 
+    logger.verbose(`Generating audit log: ${JSON.stringify(entry)}`);
     return await this.auditLog.create({
         data: {
             message: entry.displayText,

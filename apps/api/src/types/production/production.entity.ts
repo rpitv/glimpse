@@ -1,5 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
-import { IsDate, MaxLength } from "class-validator";
+import { IsBoolean, IsDate, MaxLength } from "class-validator";
 import { Production as PrismaProduction } from "@prisma/client";
 import { GraphQLBigInt } from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";
@@ -86,7 +86,7 @@ export class Production implements PrismaProduction {
     /**
      * The ID of the Discord server that messages related to this Production should be sent to.
      */
-    @MaxLength(18)
+    @MaxLength(21)
     @Field(() => String, { nullable: true })
     discordServer: string | null;
 
@@ -94,9 +94,30 @@ export class Production implements PrismaProduction {
      * The ID of the Discord channel within the Discord server that messages related to this Production should be sent
      *  to.
      */
-    @MaxLength(18)
+    @MaxLength(21)
     @Field(() => String, { nullable: true })
     discordChannel: string | null;
+
+    /**
+     *  Flag indicating whether this Production's Discord channel has been archived by the Discord bot.
+     */
+    @IsBoolean()
+    @Field(() => Boolean, { nullable: true })
+    isDiscordChannelArchived: boolean | null;
+
+    /**
+     * The ID of the Discord message which users interact with in order to RSVP for this production.
+     */
+    @MaxLength(21)
+    @Field(() => String, { nullable: true })
+    discordVolunteerMessage: string | null;
+
+    /**
+     * The ID of the Discord message which users interact with in order to remove their RSVP for this production.
+     */
+    @MaxLength(21)
+    @Field(() => String, { nullable: true })
+    discordUnvolunteerMessage: string | null;
 
     /**
      * The ID of the Image which should be used as the thumbnail for this Production.

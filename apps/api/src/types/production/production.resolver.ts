@@ -1,13 +1,9 @@
 import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { accessibleBy } from "@casl/prisma";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 import { Production } from "./production.entity";
 import { FilterProductionInput } from "./dto/filter-production.input";
 import { OrderProductionInput } from "./dto/order-production.input";
@@ -32,10 +28,12 @@ import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import { ProductionService } from "./production.service";
 
 @Resolver(() => Production)
 export class ProductionResolver {
     private logger: Logger = new Logger("ProductionResolver");
+    constructor(private readonly productionService: ProductionService) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -48,23 +46,7 @@ export class ProductionResolver {
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<Production[]> {
         this.logger.verbose("findManyProduction resolver called");
-        // If filter is provided, combine it with the CASL accessibleBy filter.
-        const where = filter
-            ? {
-                  AND: [accessibleBy(ctx.req.permissions).Production, filter]
-              }
-            : accessibleBy(ctx.req.permissions).Production;
-
-        // If ordering args are provided, convert them to Prisma's orderBy format.
-        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
-
-        return ctx.req.prismaTx.production.findMany({
-            where,
-            orderBy,
-            skip: pagination?.skip,
-            take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
-        });
+        return this.productionService.findManyProduction(ctx.req.prismaTx, { filter, order, pagination }, ctx);
     }
 
     @Query(() => Production, { nullable: true, complexity: Complexities.ReadOne })
@@ -74,11 +56,7 @@ export class ProductionResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Production> {
         this.logger.verbose("findOneProduction resolver called");
-        return ctx.req.prismaTx.production.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).Production]
-            }
-        });
+        return this.productionService.findOneProduction(id, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => Production, { complexity: Complexities.Create })
@@ -88,25 +66,7 @@ export class ProductionResolver {
         @Args("input", { type: () => CreateProductionInput }) input: CreateProductionInput
     ): Promise<Production> {
         this.logger.verbose("createProduction resolver called");
-        input = plainToClass(CreateProductionInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const result = await ctx.req.prismaTx.production.create({
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            newValue: result,
-            subject: "Production",
-            id: result.id
-        });
-
-        return result;
+        return this.productionService.createProduction(input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => Production, { complexity: Complexities.Update })
@@ -117,48 +77,7 @@ export class ProductionResolver {
         @Args("input", { type: () => UpdateProductionInput }) input: UpdateProductionInput
     ): Promise<Production> {
         this.logger.verbose("updateProduction resolver called");
-        input = plainToClass(UpdateProductionInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.production.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).Production]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("Production not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("Production", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        const result = await ctx.req.prismaTx.production.update({
-            where: {
-                id
-            },
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: rowToUpdate,
-            newValue: result,
-            subject: "Production",
-            id: result.id
-        });
-
-        return result;
+        return this.productionService.updateProduction(id, input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => Production, { complexity: Complexities.Delete })
@@ -168,38 +87,7 @@ export class ProductionResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<Production> {
         this.logger.verbose("deleteProduction resolver called");
-
-        const rowToDelete = await ctx.req.prismaTx.production.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).Production]
-            }
-        });
-
-        if (!rowToDelete) {
-            throw new BadRequestException("Production not found");
-        }
-
-        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
-        //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("Production", rowToDelete))) {
-            ctx.req.passed = false;
-            return null;
-        }
-
-        const result = await ctx.req.prismaTx.production.delete({
-            where: {
-                id
-            }
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: result,
-            subject: "Production",
-            id: result.id
-        });
-
-        return result;
+        return this.productionService.deleteProduction(id, ctx.req.prismaTx, ctx);
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
@@ -208,11 +96,8 @@ export class ProductionResolver {
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionInput, nullable: true }) filter?: FilterProductionInput
     ): Promise<number> {
-        return ctx.req.prismaTx.production.count({
-            where: {
-                AND: [accessibleBy(ctx.req.permissions).Production, filter]
-            }
-        });
+        this.logger.verbose("productionCount resolver called");
+        return this.productionService.productionCount(ctx.req.prismaTx, { filter }, ctx);
     }
 
     // -------------------- Relation Resolvers --------------------

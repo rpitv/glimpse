@@ -1,13 +1,8 @@
 import { Args, Context, Int, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
-import { BadRequestException, Logger } from "@nestjs/common";
-import { accessibleBy } from "@casl/prisma";
+import { Logger } from "@nestjs/common";
 import PaginationInput from "../../gql/pagination.input";
 import { Complexities } from "../../gql/gql-complexity.plugin";
 import { Request } from "express";
-import { AbilityAction } from "../../casl/casl-ability.factory";
-import { subject } from "@casl/ability";
 import { ProductionRSVP } from "./production_rsvp.entity";
 import { FilterProductionRSVPInput } from "./dto/filter-production_rsvp.input";
 import { OrderProductionRSVPInput } from "./dto/order-production_rsvp.input";
@@ -17,10 +12,12 @@ import { Production } from "../production/production.entity";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import { ProductionRSVPService } from "./production_rsvp.service";
 
 @Resolver(() => ProductionRSVP)
 export class ProductionRSVPResolver {
     private logger: Logger = new Logger("ProductionRSVPResolver");
+    constructor(private readonly productionRSVPService: ProductionRSVPService) {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -33,23 +30,7 @@ export class ProductionRSVPResolver {
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
     ): Promise<ProductionRSVP[]> {
         this.logger.verbose("findManyProductionRSVP resolver called");
-        // If filter is provided, combine it with the CASL accessibleBy filter.
-        const where = filter
-            ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
-              }
-            : accessibleBy(ctx.req.permissions).ProductionRSVP;
-
-        // If ordering args are provided, convert them to Prisma's orderBy format.
-        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
-
-        return ctx.req.prismaTx.productionRSVP.findMany({
-            where,
-            orderBy,
-            skip: pagination?.skip,
-            take: Math.max(0, pagination?.take ?? 20),
-            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
-        });
+        return this.productionRSVPService.findManyProductionRSVP(ctx.req.prismaTx, { filter, order, pagination }, ctx);
     }
 
     @Query(() => ProductionRSVP, { nullable: true, complexity: Complexities.ReadOne })
@@ -59,11 +40,7 @@ export class ProductionRSVPResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionRSVP> {
         this.logger.verbose("findOneProductionRSVP resolver called");
-        return ctx.req.prismaTx.productionRSVP.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
-            }
-        });
+        return this.productionRSVPService.findOneProductionRSVP(id, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Create })
@@ -73,25 +50,7 @@ export class ProductionRSVPResolver {
         @Args("input", { type: () => CreateProductionRSVPInput }) input: CreateProductionRSVPInput
     ): Promise<ProductionRSVP> {
         this.logger.verbose("createProductionRSVP resolver called");
-        input = plainToClass(CreateProductionRSVPInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const result = await ctx.req.prismaTx.productionRSVP.create({
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            newValue: result,
-            subject: "ProductionRSVP",
-            id: result.id
-        });
-
-        return result;
+        return this.productionRSVPService.createProductionRSVP(input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Update })
@@ -102,48 +61,7 @@ export class ProductionRSVPResolver {
         @Args("input", { type: () => UpdateProductionRSVPInput }) input: UpdateProductionRSVPInput
     ): Promise<ProductionRSVP> {
         this.logger.verbose("updateProductionRSVP resolver called");
-        input = plainToClass(UpdateProductionRSVPInput, input);
-        const errors = await validate(input, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
-            throw new BadRequestException(firstErrorFirstConstraint);
-        }
-
-        const rowToUpdate = await ctx.req.prismaTx.productionRSVP.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
-            }
-        });
-
-        if (!rowToUpdate) {
-            throw new BadRequestException("ProductionRSVP not found");
-        }
-
-        // Make sure the user has permission to update all the fields they are trying to update, given the object's
-        //  current state.
-        for (const field of Object.keys(input)) {
-            if (!ctx.req.permissions.can(AbilityAction.Update, subject("ProductionRSVP", rowToUpdate), field)) {
-                ctx.req.passed = false;
-                return null;
-            }
-        }
-
-        const result = await ctx.req.prismaTx.productionRSVP.update({
-            where: {
-                id
-            },
-            data: input
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: rowToUpdate,
-            newValue: result,
-            subject: "ProductionRSVP",
-            id: result.id
-        });
-
-        return result;
+        return this.productionRSVPService.updateProductionRSVP(id, input, ctx.req.prismaTx, ctx);
     }
 
     @Mutation(() => ProductionRSVP, { complexity: Complexities.Delete })
@@ -153,38 +71,7 @@ export class ProductionRSVPResolver {
         @Args("id", { type: () => GraphQLBigInt }) id: bigint
     ): Promise<ProductionRSVP> {
         this.logger.verbose("deleteProductionRSVP resolver called");
-
-        const rowToDelete = await ctx.req.prismaTx.productionRSVP.findFirst({
-            where: {
-                AND: [{ id }, accessibleBy(ctx.req.permissions).ProductionRSVP]
-            }
-        });
-
-        if (!rowToDelete) {
-            throw new BadRequestException("ProductionRSVP not found");
-        }
-
-        // Make sure the user has permission to delete the object. Technically not required since the interceptor would
-        //  handle this after the object has been deleted, but this saves an extra database call.
-        if (!ctx.req.permissions.can(AbilityAction.Delete, subject("ProductionRSVP", rowToDelete))) {
-            ctx.req.passed = false;
-            return null;
-        }
-
-        const result = await ctx.req.prismaTx.productionRSVP.delete({
-            where: {
-                id
-            }
-        });
-
-        await ctx.req.prismaTx.genAuditLog({
-            user: ctx.req.user,
-            oldValue: result,
-            subject: "ProductionRSVP",
-            id: result.id
-        });
-
-        return result;
+        return this.productionRSVPService.deleteProductionRSVP(id, ctx.req.prismaTx, ctx);
     }
 
     @Query(() => Int, { complexity: Complexities.Count })
@@ -193,11 +80,8 @@ export class ProductionRSVPResolver {
         @Context() ctx: { req: Request },
         @Args("filter", { type: () => FilterProductionRSVPInput, nullable: true }) filter?: FilterProductionRSVPInput
     ): Promise<number> {
-        return ctx.req.prismaTx.productionRSVP.count({
-            where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
-            }
-        });
+        this.logger.verbose("productionRSVPCount resolver called");
+        return this.productionRSVPService.productionRSVPCount(ctx.req.prismaTx, { filter }, ctx);
     }
 
     // -------------------- Relation Resolvers --------------------
