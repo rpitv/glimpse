@@ -1,5 +1,0 @@
-.idea
-.env
-control/node_modules
-dist
-.eslintcache
