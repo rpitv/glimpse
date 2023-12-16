@@ -1,0 +1,25 @@
+{
+  "name": "@rpitv/glimpse-cli",
+  "description": "Command line interface for interacting with Glimpse tooling",
+  "version": "1.0.0-pre.1",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv",
+  "scripts": {
+    "cli": "ts-node ./cli.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "argon2": "^0.30.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  }
+}
