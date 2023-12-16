@@ -1,22 +1,19 @@
-import { Group, GroupPermission, PrismaClient } from "@prisma/client";
+#! /usr/bin/env node
+import { Group, PrismaClient } from "@prisma/client";
 import * as readline from "node:readline/promises";
 import { Writable } from "node:stream";
-import { argon2id, hash } from "argon2";
+import argon2 from "argon2";
+import * as fs from "fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Color } from "./Color";
+import { adminPermissions, GroupPermissionInput, guestPermissions, memberPermissions } from "./default-permissions";
+import { style } from "./util";
+const { argon2id, hash } = argon2;
 
-enum Color {
-    Reset = "0",
-    Bold = "1",
-    Dim = "2",
-    Italic = "3",
-    Underline = "4",
-    Red = "31",
-    Green = "32",
-    Yellow = "33",
-    Blue = "34",
-    Magenta = "35",
-    Cyan = "36",
-    White = "37"
-}
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+const prisma = new PrismaClient()
 
 let asciiArt =
     "" +
@@ -37,12 +34,6 @@ let asciiArt =
 
 asciiArt = asciiArt.replace(/(\*+)/g, style("$1", [Color.Red, Color.Bold]));
 
-function style(text: string, color: Color | Color[]): string {
-    const control = Array.isArray(color) ? color.join(";") : color;
-    return `\x1b[${control}m${text}\x1b[${Color.Reset}m`;
-}
-
-const prisma = new PrismaClient();
 
 // These are copy-pasted from src/auth/auth.service.ts. If you change them here, change them there too.
 const hashOptions = {
@@ -54,7 +45,7 @@ const hashOptions = {
 
 // Stdout is "mutable" so we can hide password inputs.
 const mutableStdout: Writable & { muted?: boolean } = new Writable({
-    write: function (chunk, encoding, callback) {
+    write: function(chunk, encoding, callback) {
         if (!(this as Writable & { muted?: boolean }).muted) process.stdout.write(chunk, encoding);
         callback();
     }
@@ -65,468 +56,12 @@ const rl = readline.createInterface({
     terminal: true
 });
 
-type GroupPermissionInput = Partial<GroupPermission> & { action: string };
-
-const guestPermissions: GroupPermissionInput[] = [
-    {
-        action: "create",
-        subject: ["ContactSubmission"],
-        fields: ["email", "name", "subject", "body"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionImage"],
-        fields: ["productionId", "imageId"]
-    },
-    {
-        action: "filter",
-        subject: ["PersonRole"],
-        fields: ["personId", "roleId"]
-    },
-    {
-        action: "filter",
-        subject: ["Production"],
-        fields: ["name", "description", "startTime", "endTime", "category"]
-    },
-    {
-        action: "filter",
-        subject: ["Person"],
-        fields: ["name", "graduation"]
-    },
-    {
-        action: "filter",
-        subject: ["Role"],
-        fields: ["name", "displayInMembership", "displayInLeadership"]
-    },
-    {
-        action: "filter",
-        subject: ["Video"],
-        fields: ["name"]
-    },
-    {
-        action: "filter",
-        subject: ["Category"],
-        fields: ["name", "priority", "parentId"]
-    },
-    {
-        action: "filter",
-        subject: ["Credit"],
-        fields: ["personId", "productionId"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionVideo"],
-        fields: ["productionId", "videoId"]
-    },
-    {
-        action: "filter",
-        subject: ["PersonImage"],
-        fields: ["personId", "imageId"]
-    },
-    {
-        action: "filter",
-        subject: ["BlogPost"],
-        fields: ["authorId", "authorDisplayName", "title", "content"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionTag"],
-        fields: ["productionId", "tag"]
-    },
-    {
-        action: "read",
-        subject: ["GroupPermission"],
-        conditions: {
-            groupId: {
-                in: "$groups"
-            }
-        }
-    },
-    {
-        action: "read",
-        subject: ["BlogPost"],
-        conditions: {
-            postedAt: {
-                lte: "$now"
-            }
-        }
-    },
-    {
-        action: "read",
-        subject: [
-            "Category",
-            "Credit",
-            "Image",
-            "Person",
-            "PersonImage",
-            "PersonRole",
-            "ProductionImage",
-            "ProductionTag",
-            "ProductionVideo",
-            "Role",
-            "Video"
-        ]
-    },
-    {
-        action: "read",
-        subject: ["Redirect"],
-        fields: ["key", "location", "id"],
-        conditions: {
-            OR: [
-                {
-                    expires: {
-                        gt: "$now"
-                    }
-                },
-                {
-                    expires: null
-                }
-            ]
-        }
-    },
-    {
-        action: "read",
-        subject: ["Production"],
-        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail"]
-    },
-    {
-        action: "sort",
-        subject: ["BlogPost"],
-        fields: ["postedAt", "title"]
-    },
-    {
-        action: "sort",
-        subject: ["Role"],
-        fields: ["name", "priority"]
-    },
-    {
-        action: "sort",
-        subject: ["Production"],
-        fields: ["name", "startTime", "endTime"]
-    },
-    {
-        action: "sort",
-        subject: ["Category"],
-        fields: ["name", "priority"]
-    },
-    {
-        action: "sort",
-        subject: ["PersonRole"],
-        fields: ["startTime", "endTime"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionVideo"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionTag"],
-        fields: ["tag"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionImage"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["PersonImage"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["Person"],
-        fields: ["name", "graduation"]
-    },
-    {
-        action: "sort",
-        subject: ["Image"],
-        fields: ["name"]
-    },
-    {
-        action: "sort",
-        subject: ["Credit"],
-        fields: ["priority", "title"]
-    },
-    {
-        action: "sort",
-        subject: ["Video"],
-        fields: ["name"]
-    }
-];
-const memberPermissions: GroupPermissionInput[] = [
-    {
-        action: "create",
-        subject: ["ProductionRSVP"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "create",
-        subject: ["VoteResponse"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "delete",
-        subject: ["VoteResponse"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "filter",
-        subject: ["Production"],
-        fields: ["name", "description", "startTime", "endTime", "category", "closetLocation", "closetTime", "teamNotes"]
-    },
-    {
-        action: "filter",
-        subject: ["Role"],
-        fields: ["name", "displayInMembership", "displayInLeadership"]
-    },
-    {
-        action: "filter",
-        subject: ["Video"],
-        fields: ["name"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionRSVP"],
-        fields: ["productionId"]
-    },
-    {
-        action: "filter",
-        subject: ["VoteResponse"],
-        fields: ["voteId"]
-    },
-    {
-        action: "filter",
-        subject: ["AccessLog"],
-        fields: ["ip", "timestamp", "service"]
-    },
-    {
-        action: "filter",
-        subject: ["BlogPost"],
-        fields: ["authorId", "authorDisplayName", "title", "content"]
-    },
-    {
-        action: "filter",
-        subject: ["Credit"],
-        fields: ["personId", "productionId"]
-    },
-    {
-        action: "filter",
-        subject: ["Person"],
-        fields: ["name", "graduation"]
-    },
-    {
-        action: "filter",
-        subject: ["PersonImage"],
-        fields: ["personId", "imageId"]
-    },
-    {
-        action: "filter",
-        subject: ["PersonRole"],
-        fields: ["personId", "roleId"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionImage"],
-        fields: ["productionId", "imageId"]
-    },
-    {
-        action: "filter",
-        subject: ["Category"],
-        fields: ["name", "priority", "parentId"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionTag"],
-        fields: ["productionId", "tag"]
-    },
-    {
-        action: "filter",
-        subject: ["ProductionVideo"],
-        fields: ["productionId", "videoId"]
-    },
-    {
-        action: "read",
-        subject: ["Vote"],
-        fields: ["question", "options", "description", "expires"]
-    },
-    {
-        action: "read",
-        subject: ["GroupPermission"],
-        conditions: {
-            groupId: {
-                in: "$groups"
-            }
-        }
-    },
-    {
-        action: "read",
-        subject: ["BlogPost"],
-        conditions: {
-            postedAt: {
-                lte: "$now"
-            }
-        }
-    },
-    {
-        action: "read",
-        subject: [
-            "Category",
-            "Credit",
-            "Image",
-            "Person",
-            "PersonImage",
-            "PersonRole",
-            "ProductionImage",
-            "ProductionRSVP",
-            "ProductionTag",
-            "ProductionVideo",
-            "Role",
-            "Video",
-            "Production"
-        ]
-    },
-    {
-        action: "read",
-        subject: ["Redirect"],
-        fields: ["key", "location", "id"],
-        conditions: {
-            OR: [
-                {
-                    expires: {
-                        gt: "$now"
-                    }
-                },
-                {
-                    expires: null
-                }
-            ]
-        }
-    },
-    {
-        action: "read",
-        subject: ["UserPermission", "AccessLog", "VoteResponse", "UserGroup", "User"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "sort",
-        subject: ["AccessLog"],
-        fields: ["ip", "timestamp", "service"]
-    },
-    {
-        action: "sort",
-        subject: ["Category"],
-        fields: ["name", "priority"]
-    },
-    {
-        action: "sort",
-        subject: ["Credit"],
-        fields: ["priority", "title"]
-    },
-    {
-        action: "sort",
-        subject: ["Image"],
-        fields: ["name"]
-    },
-    {
-        action: "sort",
-        subject: ["Person"],
-        fields: ["name", "graduation"]
-    },
-    {
-        action: "sort",
-        subject: ["PersonImage"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["PersonRole"],
-        fields: ["startTime", "endTime"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionImage"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionTag"],
-        fields: ["tag"]
-    },
-    {
-        action: "sort",
-        subject: ["ProductionVideo"],
-        fields: ["priority"]
-    },
-    {
-        action: "sort",
-        subject: ["Production"],
-        fields: ["name", "startTime", "endTime"]
-    },
-    {
-        action: "sort",
-        subject: ["Role"],
-        fields: ["name", "priority"]
-    },
-    {
-        action: "sort",
-        subject: ["Video"],
-        fields: ["name"]
-    },
-    {
-        action: "sort",
-        subject: ["VoteResponse"],
-        fields: ["selection", "timestamp"]
-    },
-    {
-        action: "sort",
-        subject: ["BlogPost"],
-        fields: ["postedAt", "title"]
-    },
-    {
-        action: "update",
-        subject: ["VoteResponse"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "update",
-        subject: ["User"],
-        fields: ["mail", "password"],
-        conditions: {
-            userId: "$id"
-        }
-    },
-    {
-        action: "update",
-        subject: ["ProductionRSVP"],
-        conditions: {
-            userId: "$id"
-        }
-    }
-];
-const adminPermissions: GroupPermissionInput[] = [
-    {
-        action: "manage",
-        subject: ["all"]
-    }
-];
-
 interface Command {
     name: string;
     description: string;
     run: () => Promise<void>;
 }
+
 const commands: Map<string[], Command> = new Map();
 
 // Help command
@@ -542,8 +77,8 @@ commands.set(["help", "h"], {
         }
 
         console.log(style("\tUsage", [Color.Cyan, Color.Underline, Color.Bold]));
-        console.log('\t"npm run cli" for interactive mode.');
-        console.log('\t"npm run cli -- <commands>" for non-interactive mode.');
+        console.log("\t\"npm run cli\" for interactive mode.");
+        console.log("\t\"npm run cli -- <commands>\" for non-interactive mode.");
         console.log("");
         console.log(
             style(`\tCommands${"\t".repeat(minTabCount)}Description`, [Color.Cyan, Color.Underline, Color.Bold])
@@ -579,6 +114,15 @@ commands.set(["help", "h"], {
         console.log("");
     }
 });
+
+// License command
+commands.set(["license"], {
+    name: "Copy License",
+    description: "Copy the LICENSE file into each app/package for distribution",
+    run: async () => {
+        await fs.promises.copyFile(join(__dirname, "..", "..", "LICENSE"), join(__dirname, "LICENSE"))
+    }
+})
 
 // Exit command
 commands.set(["exit", "quit", "q"], {
@@ -635,7 +179,7 @@ commands.set(["user", "u"], {
         console.log(
             style(
                 "WARNING! As a security precaution, this command can only be ran once. Once a user exists in the" +
-                    " database, this command will no longer work.",
+                " database, this command will no longer work.",
                 [Color.Yellow, Color.Bold, Color.Italic]
             )
         );

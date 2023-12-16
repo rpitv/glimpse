@@ -1,0 +1,25 @@
+{
+  "name": "@rpitv/glimpse-prisma",
+  "description": "Package containing the Prisma schema and its migrations used by Glimpse",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv",
+  "scripts": {
+    "prepare": "node -e \"fs.copyFileSync('../../LICENSE', './LICENSE')\"",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  }
+}

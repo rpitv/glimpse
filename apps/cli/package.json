@@ -2,8 +2,12 @@
   "name": "@rpitv/glimpse-cli",
   "description": "Command line interface for interacting with Glimpse tooling",
   "version": "1.0.0-pre.1",
+  "type": "module",
   "private": true,
   "license": "MIT",
+  "bin": {
+    "rpitv": "./dist/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rpitv/glimpse.git"
@@ -13,13 +17,16 @@
   },
   "homepage": "https://glimpse.rpi.tv",
   "scripts": {
-    "cli": "ts-node ./cli.ts"
+    "build": "tsc",
+    "dev": "node --experimental-specifier-resolution=node --loader ts-node/esm src/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.7.0",
-    "argon2": "^0.30.3"
+    "@rpitv/glimpse-prisma": "*",
+    "argon2": "^0.30.3",
+    "prisma": "^5.7.0"
   },
   "devDependencies": {
-    "prisma": "^5.7.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }

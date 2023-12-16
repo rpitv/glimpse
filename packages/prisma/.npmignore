@@ -1,0 +1,7 @@
+migrations
+node_modules
+.env
+.env.sample
+.npmignore
+schema.prisma
+!dist/schema.prisma
