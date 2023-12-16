@@ -195,7 +195,7 @@ export class PersonRoleResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.personRole.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).PersonRole, filter]
             }
         });
     }

@@ -1,5 +1,5 @@
 <!--suppress HtmlDeprecatedAttribute -->
-<img src="./rpitv_glimpse_logo.png" width="125" alt="Logo of the project" align="right">
+<img src="rpitv_glimpse_logo.png" width="125" alt="Logo of the project" align="right">
 
 # Glimpse API &middot; <!-- [![Build Status](https://img.shields.io/travis/npm/npm/latest.svg?style=flat-square)](https://travis-ci.org/npm/npm) --> [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
 

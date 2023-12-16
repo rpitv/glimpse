@@ -1,5 +1,6 @@
-import { InputType, registerEnumType } from "@nestjs/graphql";
+import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
+import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
 enum ProductionImageOrderableFields {
     priority = "priority"
@@ -17,9 +18,11 @@ export class OrderProductionImageInput {
     /**
      * Name of the field to sort by.
      */
+    @Field(() => ProductionImageOrderableFields)
     field: ProductionImageOrderableFields;
     /**
      * Direction to order in. Required.
      */
+    @Field(() => OrderDirection)
     direction: OrderDirection;
 }

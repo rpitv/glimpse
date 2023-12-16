@@ -193,7 +193,7 @@ export class RedirectResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.redirect.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).Redirect, filter]
             }
         });
     }
