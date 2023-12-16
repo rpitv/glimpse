@@ -7,7 +7,7 @@ graphics
 node_modules
 shared
 dumps
-.gitattributes
+../../.gitattributes
 .gitignore
 docker-compose.yml
 docker-compose-dev.yml
