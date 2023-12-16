@@ -15,7 +15,6 @@
   "scripts": {
     "build": "nest build",
     "generate": "prisma generate",
-    "cli": "ts-node ./cli.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
