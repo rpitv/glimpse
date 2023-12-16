@@ -1,5 +1,6 @@
-import { InputType, registerEnumType } from "@nestjs/graphql";
+import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
+import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
 enum RoleOrderableFields {
     id = "id",
@@ -19,9 +20,11 @@ export class OrderRoleInput {
     /**
      * Name of the field to sort by.
      */
+    @Field(() => RoleOrderableFields)
     field: RoleOrderableFields;
     /**
      * Direction to order in. Required.
      */
+    @Field(() => OrderDirection)
     direction: OrderDirection;
 }

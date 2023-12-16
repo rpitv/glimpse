@@ -204,7 +204,7 @@ export class ImageResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.image.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).Image, filter]
             }
         });
     }
