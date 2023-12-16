@@ -1,4 +1,4 @@
-import { InputType } from "@nestjs/graphql";
+import {Field, InputType} from "@nestjs/graphql";
 import { StringComparisonInput } from "../../../gql/string-comparison.input";
 import { NumberComparisonInput } from "../../../gql/number-comparison.input";
 import { BooleanComparisonInput } from "../../../gql/boolean-comparison.input";
@@ -11,25 +11,33 @@ export class FilterGroupPermissionInput {
     /**
      * Filter by ID
      */
+    @Field(() => NumberComparisonInput, { nullable: true })
     id?: NumberComparisonInput;
     /**
      * Filter by group ID
      */
+    @Field(() => NumberComparisonInput, { nullable: true })
     groupId?: NumberComparisonInput;
     /**
      * Filter by permission action
      */
+    @Field(() => StringComparisonInput, { nullable: true })
     action?: StringComparisonInput;
     /**
      * Filter by inverted status
      */
+    @Field(() => BooleanComparisonInput, { nullable: true })
     inverted?: BooleanComparisonInput;
     /**
      * Filter by inverted permissions denial reason
      */
+    @Field(() => StringComparisonInput, { nullable: true })
     reason?: StringComparisonInput;
 
+    @Field(() => [FilterGroupPermissionInput], { nullable: true })
     AND?: FilterGroupPermissionInput[];
+    @Field(() => [FilterGroupPermissionInput], { nullable: true })
     OR?: FilterGroupPermissionInput[];
+    @Field(() => FilterGroupPermissionInput, { nullable: true })
     NOT?: FilterGroupPermissionInput;
 }

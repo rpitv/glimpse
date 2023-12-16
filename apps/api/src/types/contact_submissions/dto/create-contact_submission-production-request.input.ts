@@ -13,23 +13,32 @@ export class CreateContactSubmissionProductionRequestInput extends OmitType(
 ) {
     @IsString()
     @MaxLength(300)
+    @Field(() => String)
     location: string;
     @IsString()
     @MaxLength(300)
+    @Field(() => String)
     organizationName: string;
     @IsDate()
+    @Field(() => Date)
     startTime: Date;
     @IsDate()
+    @Field(() => Date)
     endTime: Date;
     @IsBoolean()
+    @Field(() => Boolean)
     livestreamed: boolean;
     @IsBoolean()
     isPublic: boolean;
+    @Field(() => Boolean)
     @IsBoolean()
+    @Field(() => Boolean)
     audioAvailable: boolean;
     @IsBoolean()
+    @Field(() => Boolean)
     isStudentOrganization: boolean;
     @IsBoolean()
+    @Field(() => Boolean)
     requiresEditing: boolean;
     @IsNumber()
     @Field(() => Int, { nullable: true })

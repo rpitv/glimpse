@@ -3,6 +3,7 @@ import { IsBoolean, IsDate, IsObject, MaxLength, MinLength } from "class-validat
 import { ContactSubmission as PrismaContactSubmission, ContactSubmissionType, Prisma } from "@prisma/client";
 import { GraphQLBigInt, GraphQLJSON } from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";
+import {NumberComparisonInput} from "../../gql/number-comparison.input";
 
 @ObjectType()
 export class ContactSubmission implements PrismaContactSubmission {
@@ -38,6 +39,7 @@ export class ContactSubmission implements PrismaContactSubmission {
      * The name of the person who submitted this ContactSubmission.
      */
     @MaxLength(100)
+    @Field(() => String)
     name: string;
 
     /**
@@ -45,6 +47,7 @@ export class ContactSubmission implements PrismaContactSubmission {
      */
     @MinLength(5)
     @MaxLength(100)
+    @Field(() => String)
     subject: string;
 
     /**
@@ -52,6 +55,7 @@ export class ContactSubmission implements PrismaContactSubmission {
      */
     @MinLength(15)
     @MaxLength(1000)
+    @Field(() => String)
     body: string;
 
     /**
