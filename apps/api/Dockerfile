@@ -12,10 +12,6 @@ COPY --chown=node:node ./package*.json .
 # Install dependencies
 RUN npm ci
 
-# Generate Prisma Client
-COPY --chown=node:node ./prisma ./prisma
-RUN npm run generate
-
 # Build NestJS app
 COPY --chown=node:node . .
 RUN npm run build
