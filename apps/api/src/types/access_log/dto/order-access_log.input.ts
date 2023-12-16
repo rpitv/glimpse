@@ -1,4 +1,4 @@
-import { InputType, registerEnumType } from "@nestjs/graphql";
+import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
 
 enum AccessLogOrderableFields {
@@ -19,9 +19,11 @@ export class OrderAccessLogInput {
     /**
      * Name of the field to sort by.
      */
+    @Field(() => AccessLogOrderableFields)
     field: AccessLogOrderableFields;
     /**
      * Direction to order in. Required.
      */
+    @Field(() => OrderDirection)
     direction: OrderDirection;
 }

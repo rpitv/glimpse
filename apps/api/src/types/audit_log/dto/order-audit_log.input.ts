@@ -1,5 +1,6 @@
-import { InputType, registerEnumType } from "@nestjs/graphql";
+import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
+import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
 enum AuditLogOrderableFields {
     id = "id",
@@ -21,9 +22,11 @@ export class OrderAuditLogInput {
     /**
      * Name of the field to sort by.
      */
+    @Field(() => AuditLogOrderableFields)
     field: AuditLogOrderableFields;
     /**
      * Direction to order in. Required.
      */
+    @Field(() => OrderDirection)
     direction: OrderDirection;
 }

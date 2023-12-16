@@ -50,7 +50,7 @@ export class PrismaInterceptor implements NestInterceptor {
         await new Promise((resolve) => {
             this.prisma.$transaction<void>(async (tx) => {
                 this.logger.verbose("Prisma transaction created.");
-                req.prismaTx = tx;
+                req.prismaTx = tx as PrismaService;
                 // Resolve the upper Promise, allowing the request to continue.
                 resolve(undefined);
 

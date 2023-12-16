@@ -196,7 +196,7 @@ export class VideoResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.video.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).Video, filter]
             }
         });
     }

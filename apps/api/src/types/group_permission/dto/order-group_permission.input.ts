@@ -1,5 +1,6 @@
-import { InputType, registerEnumType } from "@nestjs/graphql";
+import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
+import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
 enum GroupPermissionOrderableFields {
     id = "id",
@@ -18,9 +19,11 @@ export class OrderGroupPermissionInput {
     /**
      * Name of the field to sort by.
      */
+    @Field(() => GroupPermissionOrderableFields)
     field: GroupPermissionOrderableFields;
     /**
      * Direction to order in. Required.
      */
+    @Field(() => OrderDirection)
     direction: OrderDirection;
 }

@@ -196,7 +196,7 @@ export class VoteResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.vote.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).Vote, filter]
             }
         });
     }
