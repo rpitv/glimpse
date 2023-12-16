@@ -3,6 +3,7 @@ import { StringComparisonInput } from "../../../gql/string-comparison.input";
 import { NumberComparisonInput } from "../../../gql/number-comparison.input";
 import { DateComparisonInput } from "../../../gql/date-comparison.input";
 import { BooleanComparisonInput } from "../../../gql/boolean-comparison.input";
+import {ContactSubmissionTypeComparisonInput} from "../../../gql/contact-submission-type-comparison.input";
 
 /**
  * Input type for filtering ContactSubmissions in ReadMany queries.
@@ -24,6 +25,11 @@ export class FilterContactSubmissionInput {
      */
     @Field(() => StringComparisonInput, { nullable: true })
     name?: StringComparisonInput;
+    /**
+     * Filter by the type of the ContactSubmission.
+     */
+    @Field(() => ContactSubmissionTypeComparisonInput, { nullable: true })
+    type?:ContactSubmissionTypeComparisonInput;
     /**
      * Filter by timestamp at which the ContactSubmission was created.
      */
