@@ -1,4 +1,3 @@
-
 export enum Color {
     Reset = "0",
     Bold = "1",

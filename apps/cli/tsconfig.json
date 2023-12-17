@@ -1,21 +1,8 @@
 {
+  "extends": "@rpitv/glimpse-tsconfig/base.tsconfig.json",
   "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
-    "moduleResolution": "node",
     "outDir": "./dist",
     "rootDir": "./src",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "inlineSourceMap": true,
-    "incremental": true,
-    "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
     "typeRoots": [
       "node_modules/@types",
       "@types/"
