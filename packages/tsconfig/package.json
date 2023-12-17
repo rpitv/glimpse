@@ -1,0 +1,15 @@
+{
+  "name": "@rpitv/glimpse-tsconfig",
+  "description": "Package containing the base TypeScript configs that can be extended by other Glimpse packages",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv"
+}
