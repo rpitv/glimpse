@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^8.0.1",
-    "@rpitv/glimpse-cli": "*"
+    "@rpitv/glimpse-cli": "*",
+    "lerna": "^8.0.1"
   }
 }

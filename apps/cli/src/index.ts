@@ -2,46 +2,16 @@
 import { Group, PrismaClient } from "@prisma/client";
 import * as readline from "node:readline/promises";
 import { Writable } from "node:stream";
-import argon2 from "argon2";
 import * as fs from "fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Color } from "./Color";
-import { adminPermissions, GroupPermissionInput, guestPermissions, memberPermissions } from "./default-permissions";
-import { style } from "./util";
-const { argon2id, hash } = argon2;
+import { Color } from "./Color.js";
+import { adminPermissions, GroupPermissionInput, guestPermissions, memberPermissions } from "./default-permissions.js";
+import { hashPassword, printSplashText, style } from "./util.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const prisma = new PrismaClient()
-
-let asciiArt =
-    "" +
-    "                                          *******************                     \n" +
-    "                              ****             ****************************       \n" +
-    "                                                            ******************    \n" +
-    "                                      ▄▄      ██      ██           ************** \n" +
-    "          *     ▄ ▄▄▄▄   ▄ ▄▄▄▄▄▄             ██     ████              ***********\n" +
-    "      ***       ▀██  ██  ▀██▀   ██   ▀██      ██      ██    ▀█▀  █▀      ******** \n" +
-    "    *****        ██       ██    ██    ██      ██      ██     █████        ******  \n" +
-    "  ********      ▄██▄      ███████   ██████    ██      ████    ███         ***     \n" +
-    "  **********              ██                  ██                        *         \n" +
-    "  ***************       ▄████▄                ██                                  \n" +
-    "    *******************                                                           \n" +
-    "         *******************************************                              \n" +
-    "                      ************                                                \n" +
-    "                                               ";
-
-asciiArt = asciiArt.replace(/(\*+)/g, style("$1", [Color.Red, Color.Bold]));
-
-
-// These are copy-pasted from src/auth/auth.service.ts. If you change them here, change them there too.
-const hashOptions = {
-    type: argon2id,
-    memoryCost: 32768, // 32MiB
-    timeCost: 4,
-    parallelism: 1
-};
 
 // Stdout is "mutable" so we can hide password inputs.
 const mutableStdout: Writable & { muted?: boolean } = new Writable({
@@ -219,7 +189,7 @@ commands.set(["user", "u"], {
         const user = await prisma.user.create({
             data: {
                 username: username,
-                password: await hash(password, hashOptions),
+                password: await hashPassword(password),
                 mail: email,
                 groups: {
                     create: {
@@ -328,7 +298,7 @@ async function userCount(): Promise<number> {
         await exit();
     } else {
         if (process.stdout.columns >= 80) {
-            console.log(asciiArt);
+            printSplashText()
         }
         console.log(
             style("Starting interactive mode. Type 'help' for a list of commands or 'exit' to exit.", [
