@@ -31,6 +31,7 @@ import { Vote } from "../types/vote/vote.entity";
 import { VoteResponse } from "../types/vote_response/vote_response.entity";
 import { GraphQLEnumType } from "graphql/type";
 import { Stream } from "../types/stream/stream.entity";
+import * as moment from "moment";
 
 type ValueOf<T> = T[keyof T];
 
@@ -116,7 +117,7 @@ export class CaslAbilityFactory {
     constructor(private readonly prisma: PrismaService) {}
 
     /**
-     * Visit each value in an object and apply a visitor function to it. Used by {@link replaceConditionVariables}.
+     * Visit each value in an object and apply a visitor function to it. Used by {@link replaceConditionExpressions}.
      * @param obj Object to visit each property of.
      * @param visitor Visitor function to apply to each value. The return value of this function is used as the new
      *  value.
@@ -132,18 +133,24 @@ export class CaslAbilityFactory {
     }
 
     /**
-     * Replace variables within a permission's conditions with their actual values.
+     * Replace expressions and variables within a permission's conditions with their actual values.
      *  Currently supported variables:
      *  - $id: Replaced with the ID of the user that is logged in. Throws an error if no user is logged in.
      *  - $groups: Replaced with an array of the IDs of the groups that the user is a member of.
      *  - $now: Replaced with a Date object equal to the current time.
+     *  Currently supported expressions:
+     *  - ADDINTERVAL($now, interval): Add an ISO8601 duration interval (as supported by Moment.js) to the current
+     *   timestamp. If the given duration is invalid, it will have no effect.
+     *   e.g. The duration "P1M-14DT3H" is equivalent to 1 month minus 14 days plus 3 hours (usually 16 days 3 hours).
      * @param permission Permission to replace variables in.
      * @param user User that is currently logged in, or undefined or null if no user is logged in.
      * @param groupIds Array of IDs of the groups that the user is a member of. If the user is a guest, this should be
      *  an array with a single element: the ID of the guest group.
      * @returns An updated Permission object with the variables replaced.
+     * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
+     * @see https://momentjs.com/docs/#/durations/
      */
-    private replaceConditionVariables<T extends UserPermission | GroupPermission>(
+    private replaceConditionExpressions<T extends UserPermission | GroupPermission>(
         permission: T,
         user?: User | null,
         groupIds?: bigint[]
@@ -152,6 +159,10 @@ export class CaslAbilityFactory {
 
         if (conditions && typeof conditions === "object") {
             this.visit(conditions, (key, value) => {
+                if(typeof value !== "string") {
+                    return value;
+                }
+
                 if (value === "$id") {
                     if (!user) {
                         throw new Error("Cannot replace $id variable in conditions because no user is logged in.");
@@ -179,6 +190,16 @@ export class CaslAbilityFactory {
                 }
                 if (value === "\\$now") {
                     return "$now";
+                }
+
+                // Parse ADDINTERVAL(...) fn calls into a JavaScript date. Regex is loose, a malformed interval will
+                // just have no effect.
+                const matched = value.match(/^ADDINTERVAL\(\$now, ?([-PTMWDTHMS0-9]+)\)$/);
+                if(matched && matched[1]) {
+                    const millis = moment.duration(matched[1]).asMilliseconds()
+                    const result = moment().add(millis, "milliseconds").toDate();
+                    this.logger.verbose(`Parsed ${value} to equal ${result.toISOString()} (diff ${moment.duration(millis).humanize()})`)
+                    return result;
                 }
 
                 return value;
@@ -227,7 +248,7 @@ export class CaslAbilityFactory {
             ).map((ug) => ug.groupId);
 
             const permissions = [...userPermissions, ...groupPermissions].map((permission) =>
-                this.replaceConditionVariables(permission, user, groups)
+                this.replaceConditionExpressions(permission, user, groups)
             );
 
             delete (<any>user).password; // Hide password from logs
@@ -256,7 +277,7 @@ export class CaslAbilityFactory {
             this.logger.debug("Retrieved guest permissions from database", guestPermissions);
 
             return guestPermissions.map((permission) =>
-                this.replaceConditionVariables(permission, null, [guestGroupId])
+                this.replaceConditionExpressions(permission, null, [guestGroupId])
             );
         }
     }
