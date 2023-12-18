@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Logger, Module } from "@nestjs/common";
 import { AuditLogEntry, PrismaService } from "./prisma.service";
 import { PrismaInterceptor } from "./prisma.interceptor";
 import { PrismaPlugin } from "./prisma.plugin";
@@ -8,7 +8,19 @@ import { AuditLog } from "../types/audit_log/audit_log.entity";
 const prismaServiceProvider = {
     provide: PrismaService,
     useFactory: () => {
-        const prisma = new PrismaClient();
+        const  logger: Logger = new Logger("PrismaServiceProvider");
+
+        const prisma = new PrismaClient({ log: [
+                {
+                    emit: 'event',
+                    level: 'query'
+                }
+            ] });
+
+        prisma.$on('query', (event) => {
+            logger.debug(`Sent query to database.\nQuery: ${event.query}\nParameters: ${event.params}\nDuration: ${event.duration}ms`)
+        })
+
         return prisma.$extends({
             client: {
                 async genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
