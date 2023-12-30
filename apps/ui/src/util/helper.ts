@@ -1,4 +1,4 @@
-import type { NavButton } from "@/util/NavButton";
+import type { NavButton } from "./NavButton";
 import type { DropdownOption } from "naive-ui";
 import NavigationHeaderButton from "@/components/NavigationHeaderButton.vue";
 import { h } from "vue";

@@ -4,11 +4,11 @@ EXPOSE 4000
 
 WORKDIR /usr/src/app
 
-COPY ./package.json .
-COPY ./package-lock.json .
+COPY package.json .
+COPY package-lock.json .
 RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc npm ci
 
-COPY . .
+COPY ../.. .
 RUN npm run generate
 RUN npm run build
 
