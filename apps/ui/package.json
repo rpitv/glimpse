@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.6.2",
-    "@casl/ability": "^5.4.4",
+    "@casl/ability": "^6.5.0",
     "@casl/vue": "^2.1.2",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
@@ -47,7 +47,6 @@
     "pinia": "^2.0.13",
     "v-calendar": "^3.1.2",
     "validator": "^13.9.0",
-    "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14",
     "vuetify": "^3.4.0"
@@ -64,7 +63,7 @@
     "@rushstack/eslint-patch": "^1.1.0",
     "@types/dompurify": "^2.4.0",
     "@types/jsdom": "^16.2.14",
-    "@types/node": "^16.11.27",
+    "@types/node": "^20.10.5",
     "@types/validator": "^13.7.14",
     "@vitejs/plugin-vue": "^2.3.1",
     "@vue/eslint-config-prettier": "^7.0.0",
@@ -80,8 +79,9 @@
     "prettier": "^2.5.1",
     "sass": "^1.51.0",
     "start-server-and-test": "^1.14.0",
+    "vite-plugin-vuetify": "^2.0.1",
     "typescript": "^5.2.2",
-    "vite": "^2.9.5",
+    "vite": "^5.0.10",
     "vitest": "^0.9.3",
     "vue-tsc": "^0.34.7"
   }

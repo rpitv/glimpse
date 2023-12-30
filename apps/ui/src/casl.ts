@@ -1,5 +1,5 @@
-import type { AbilityClass, InferSubjects } from "@casl/ability";
-import { Ability, AbilityBuilder } from "@casl/ability";
+import type { AbilityClass, MongoQuery, InferSubjects } from "@casl/ability";
+import { AbilityBuilder, createMongoAbility, PureAbility } from "@casl/ability";
 import { ABILITY_TOKEN, useAbility } from "@casl/vue";
 import type { InjectionKey, Ref } from "vue";
 import { computed } from "vue";
@@ -46,6 +46,7 @@ export enum AbilityActions {
   Filter = "filter",
 }
 
+export type GlimpseAbility = PureAbility<[AbilityActions, InferSubjects<AbilitySubjectTypes> | AbilitySubjects], MongoQuery>;
 type AbilitySubjectTypes =
   | User
   | AccessLog
@@ -76,13 +77,9 @@ type AbilitySubjectTypes =
   | Vote
   | VoteResponse;
 
-export type GlimpseAbility = Ability<
-  [AbilityActions, InferSubjects<AbilitySubjectTypes> | AbilitySubjects]
->;
-
-export const GlimpseAbility = Ability as AbilityClass<GlimpseAbility>;
+export const GlimpseAbility = PureAbility as AbilityClass<GlimpseAbility>;
 export const TOKEN = ABILITY_TOKEN as InjectionKey<GlimpseAbility>;
-export const ability = new GlimpseAbility();
+export const ability = createMongoAbility() as GlimpseAbility;
 
 export function useGlimpseAbility() {
   return useAbility<GlimpseAbility>();
