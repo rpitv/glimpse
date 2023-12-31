@@ -70,9 +70,8 @@ export const useAuthStore = defineStore("auth", {
           );
           await new Promise<void>((resolve, reject) => {
             selfIdResult.onResult(({ data }) => {
-              if (typeof data.self?.id === "string") {
-                this.userId = parseInt(data.self.id);
-              } else {
+              this.userId = parseInt(data.self?.id);
+              if (isNaN(this.userId)) {
                 this.userId = null;
               }
               resolve();
