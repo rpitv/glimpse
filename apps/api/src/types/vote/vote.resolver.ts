@@ -37,7 +37,7 @@ export class VoteResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Vote, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Vote, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Vote;
 
@@ -196,7 +196,7 @@ export class VoteResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.vote.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Vote, filter]
+                AND: [accessibleBy(ctx.req.permissions).Vote, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -223,7 +223,7 @@ export class VoteResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { voteId: vote.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { voteId: vote.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { voteId: vote.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

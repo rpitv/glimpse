@@ -43,7 +43,7 @@ export class ContactSubmissionResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ContactSubmission, filter]
+                  AND: [accessibleBy(ctx.req.permissions).ContactSubmission, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).ContactSubmission;
 
@@ -123,7 +123,7 @@ export class ContactSubmissionResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.contactSubmission.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ContactSubmission, filter]
+                AND: [accessibleBy(ctx.req.permissions).ContactSubmission, filter].filter(v => v !== undefined)
             }
         });
     }

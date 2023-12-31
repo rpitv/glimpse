@@ -39,7 +39,7 @@ export class GroupResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Group, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Group, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Group;
 
@@ -198,7 +198,7 @@ export class GroupResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.group.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Group, filter]
+                AND: [accessibleBy(ctx.req.permissions).Group, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -242,7 +242,7 @@ export class GroupResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).GroupPermission, { groupId: group.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).GroupPermission, { groupId: group.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).GroupPermission, { groupId: group.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -276,7 +276,7 @@ export class GroupResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Group, { parentId: group.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Group, { parentId: group.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Group, { parentId: group.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -309,7 +309,7 @@ export class GroupResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).UserGroup, { groupId: group.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).UserGroup, { groupId: group.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).UserGroup, { groupId: group.id }] };
 
         return ctx.req.prismaTx.userGroup.findMany({

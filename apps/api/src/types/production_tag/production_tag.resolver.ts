@@ -34,7 +34,7 @@ export class ProductionTagResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionTag, filter]
+                  AND: [accessibleBy(ctx.req.permissions).ProductionTag, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).ProductionTag;
 
@@ -141,7 +141,7 @@ export class ProductionTagResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.productionTag.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionTag, filter]
+                AND: [accessibleBy(ctx.req.permissions).ProductionTag, filter].filter(v => v !== undefined)
             }
         });
     }

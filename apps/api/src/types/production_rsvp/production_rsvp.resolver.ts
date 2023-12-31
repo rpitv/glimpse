@@ -36,7 +36,7 @@ export class ProductionRSVPResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                  AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).ProductionRSVP;
 
@@ -195,7 +195,7 @@ export class ProductionRSVPResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.productionRSVP.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter]
+                AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, filter].filter(v => v !== undefined)
             }
         });
     }

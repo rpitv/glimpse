@@ -165,7 +165,7 @@ export class ProductionImageResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.productionImage.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).ProductionImage, filter]
+                AND: [accessibleBy(ctx.req.permissions).ProductionImage, filter].filter(v => v !== undefined)
             }
         });
     }

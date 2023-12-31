@@ -34,7 +34,7 @@ export class RedirectResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Redirect, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Redirect, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Redirect;
 
@@ -193,7 +193,7 @@ export class RedirectResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.redirect.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Redirect, filter]
+                AND: [accessibleBy(ctx.req.permissions).Redirect, filter].filter(v => v !== undefined)
             }
         });
     }

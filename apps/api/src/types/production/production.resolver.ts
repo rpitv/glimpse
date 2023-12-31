@@ -51,7 +51,7 @@ export class ProductionResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Production, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Production, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Production;
 
@@ -210,7 +210,7 @@ export class ProductionResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.production.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Production, filter]
+                AND: [accessibleBy(ctx.req.permissions).Production, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -271,7 +271,7 @@ export class ProductionResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Credit, { productionId: production.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Credit, { productionId: production.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Credit, { productionId: production.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -305,7 +305,7 @@ export class ProductionResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { productionId: production.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { productionId: production.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionImage, { productionId: production.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -339,7 +339,7 @@ export class ProductionResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { productionId: production.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { productionId: production.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { productionId: production.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

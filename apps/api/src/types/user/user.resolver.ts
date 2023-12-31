@@ -58,7 +58,7 @@ export class UserResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).User, filter]
+                  AND: [accessibleBy(ctx.req.permissions).User, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).User;
 
@@ -227,7 +227,7 @@ export class UserResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.user.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).User, filter]
+                AND: [accessibleBy(ctx.req.permissions).User, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -271,7 +271,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).AccessLog, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).AccessLog, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).AccessLog, { userId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -305,7 +305,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Asset, { lastKnownHandlerId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Asset, { lastKnownHandlerId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Asset, { lastKnownHandlerId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -339,7 +339,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).AuditLog, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).AuditLog, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).AuditLog, { userId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -373,7 +373,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionRSVP, { userId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -406,7 +406,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).UserGroup, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).UserGroup, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).UserGroup, { userId: user.id }] };
 
         return ctx.req.prismaTx.userGroup.findMany({
@@ -439,7 +439,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).UserPermission, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).UserPermission, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).UserPermission, { userId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -473,7 +473,7 @@ export class UserResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { userId: user.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { userId: user.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).VoteResponse, { userId: user.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

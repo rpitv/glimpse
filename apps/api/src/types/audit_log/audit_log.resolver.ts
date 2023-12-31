@@ -40,7 +40,7 @@ export class AuditLogResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).AuditLog, filter]
+                  AND: [accessibleBy(ctx.req.permissions).AuditLog, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).AuditLog;
 
@@ -78,7 +78,7 @@ export class AuditLogResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.auditLog.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).AuditLog, filter]
+                AND: [accessibleBy(ctx.req.permissions).AuditLog, filter].filter(v => v !== undefined)
             }
         });
     }

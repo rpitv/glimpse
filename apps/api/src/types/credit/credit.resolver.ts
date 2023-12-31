@@ -36,7 +36,7 @@ export class CreditResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Credit, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Credit;
 
@@ -195,7 +195,7 @@ export class CreditResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.credit.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Credit, filter]
+                AND: [accessibleBy(ctx.req.permissions).Credit, filter].filter(v => v !== undefined)
             }
         });
     }
