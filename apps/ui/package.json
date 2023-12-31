@@ -25,6 +25,7 @@
   "dependencies": {
     "@apollo/client": "^3.6.2",
     "@casl/ability": "^6.5.0",
+    "@casl/prisma": "^1.4.1",
     "@casl/vue": "^2.1.2",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-brands-svg-icons": "^6.1.1",

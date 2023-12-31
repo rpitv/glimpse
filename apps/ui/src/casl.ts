@@ -1,5 +1,5 @@
 import type { AbilityClass, MongoQuery } from "@casl/ability";
-import { AbilityBuilder, createMongoAbility, PureAbility } from "@casl/ability";
+import { AbilityBuilder, PureAbility } from "@casl/ability";
 import { ABILITY_TOKEN, useAbility } from "@casl/vue";
 import type { InjectionKey, Ref } from "vue";
 import { computed } from "vue";
@@ -7,6 +7,7 @@ import {
   AbilitySubjects,
 } from "@/graphql/types";
 import { useAuthStore } from "@/stores/auth";
+import {createPrismaAbility} from "@casl/prisma";
 
 export enum AbilityActions {
   Create = "create",
@@ -22,7 +23,7 @@ export type GlimpseAbility = PureAbility<[AbilityActions, AbilitySubjects], Mong
 
 export const GlimpseAbility = PureAbility as AbilityClass<GlimpseAbility>;
 export const TOKEN = ABILITY_TOKEN as InjectionKey<GlimpseAbility>;
-export const ability = createMongoAbility() as GlimpseAbility;
+export const ability = createPrismaAbility() as GlimpseAbility;
 
 export function useGlimpseAbility() {
   return useAbility<GlimpseAbility>();
@@ -260,7 +261,7 @@ export function canViewUsersDashboard(): boolean {
   // If user is logged in, remove ability to edit self from temporary ability. This way, when we check if
   //   the user can Update any Users, it won't report true just because they can edit themselves.
   if (authStore.isLoggedIn && typeof authStore.userId === "number") {
-    const builder = new AbilityBuilder(GlimpseAbility);
+    const builder = new AbilityBuilder<GlimpseAbility>(createPrismaAbility);
     // Add all rules from current ability
     for (const rule of ability.rules) {
       // Check if this is an update rule specifically with the condition for the user's ID
