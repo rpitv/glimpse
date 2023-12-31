@@ -37,7 +37,7 @@ export class CategoryResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Category, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Category, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Category;
 
@@ -196,7 +196,7 @@ export class CategoryResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.category.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Category, filter]
+                AND: [accessibleBy(ctx.req.permissions).Category, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -240,7 +240,7 @@ export class CategoryResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Category, { parentId: category.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Category, { parentId: category.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Category, { parentId: category.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -274,7 +274,7 @@ export class CategoryResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Production, { categoryId: category.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Production, { categoryId: category.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Production, { categoryId: category.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

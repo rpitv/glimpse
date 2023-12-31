@@ -112,7 +112,7 @@ export class UserGroupResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.userGroup.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).UserGroup, filter]
+                AND: [accessibleBy(ctx.req.permissions).UserGroup, filter].filter(v => v !== undefined)
             }
         });
     }

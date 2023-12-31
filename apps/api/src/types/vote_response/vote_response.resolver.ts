@@ -36,7 +36,7 @@ export class VoteResponseResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter]
+                  AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).VoteResponse;
 
@@ -195,7 +195,7 @@ export class VoteResponseResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.voteResponse.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter]
+                AND: [accessibleBy(ctx.req.permissions).VoteResponse, filter].filter(v => v !== undefined)
             }
         });
     }

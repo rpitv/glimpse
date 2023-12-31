@@ -37,7 +37,7 @@ export class RoleResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Role, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Role, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Role;
 
@@ -196,7 +196,7 @@ export class RoleResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.role.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Role, filter]
+                AND: [accessibleBy(ctx.req.permissions).Role, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -223,7 +223,7 @@ export class RoleResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { roleId: role.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { roleId: role.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).PersonRole, { roleId: role.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

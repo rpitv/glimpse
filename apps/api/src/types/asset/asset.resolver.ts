@@ -35,7 +35,7 @@ export class AssetResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Asset, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Asset, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Asset;
 
@@ -194,7 +194,7 @@ export class AssetResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.asset.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Asset, filter]
+                AND: [accessibleBy(ctx.req.permissions).Asset, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -255,7 +255,7 @@ export class AssetResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Asset, { parentId: asset.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

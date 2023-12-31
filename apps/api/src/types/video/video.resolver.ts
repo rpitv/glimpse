@@ -37,7 +37,7 @@ export class VideoResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Video, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Video, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Video;
 
@@ -196,7 +196,7 @@ export class VideoResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.video.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Video, filter]
+                AND: [accessibleBy(ctx.req.permissions).Video, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -223,7 +223,7 @@ export class VideoResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).ProductionVideo, { videoId: video.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

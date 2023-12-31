@@ -35,7 +35,7 @@ export class BlogPostResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).BlogPost, filter]
+                  AND: [accessibleBy(ctx.req.permissions).BlogPost, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).BlogPost;
 
@@ -194,7 +194,7 @@ export class BlogPostResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.blogPost.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).BlogPost, filter]
+                AND: [accessibleBy(ctx.req.permissions).BlogPost, filter].filter(v => v !== undefined)
             }
         });
     }

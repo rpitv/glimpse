@@ -29,7 +29,7 @@ export class AccessLogResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).AccessLog, filter]
+                  AND: [accessibleBy(ctx.req.permissions).AccessLog, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).AccessLog;
 
@@ -67,7 +67,7 @@ export class AccessLogResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.accessLog.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).AccessLog, filter]
+                AND: [accessibleBy(ctx.req.permissions).AccessLog, filter].filter(v => v !== undefined)
             }
         });
     }

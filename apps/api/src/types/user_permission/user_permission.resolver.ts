@@ -64,7 +64,7 @@ export class UserPermissionResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).UserPermission, filter]
+                  AND: [accessibleBy(ctx.req.permissions).UserPermission, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).UserPermission;
 
@@ -223,7 +223,7 @@ export class UserPermissionResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.userPermission.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).UserPermission, filter]
+                AND: [accessibleBy(ctx.req.permissions).UserPermission, filter].filter(v => v !== undefined)
             }
         });
     }

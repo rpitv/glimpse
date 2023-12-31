@@ -49,7 +49,7 @@ export class PersonResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).Person, filter]
+                  AND: [accessibleBy(ctx.req.permissions).Person, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).Person;
 
@@ -208,7 +208,7 @@ export class PersonResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.person.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).Person, filter]
+                AND: [accessibleBy(ctx.req.permissions).Person, filter].filter(v => v !== undefined)
             }
         });
     }
@@ -235,7 +235,7 @@ export class PersonResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).BlogPost, { authorId: person.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).BlogPost, { authorId: person.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).BlogPost, { authorId: person.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -269,7 +269,7 @@ export class PersonResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).Credit, { personId: person.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).Credit, { personId: person.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).Credit, { personId: person.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -302,7 +302,7 @@ export class PersonResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).PersonImage, { personId: person.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonImage, { personId: person.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).PersonImage, { personId: person.id }] };
 
         return ctx.req.prismaTx.personImage.findMany({
@@ -333,7 +333,7 @@ export class PersonResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { personId: person.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).PersonRole, { personId: person.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).PersonRole, { personId: person.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.
@@ -367,7 +367,7 @@ export class PersonResolver {
         }
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
-            ? { AND: [accessibleBy(ctx.req.permissions).User, { personId: person.id }, filter] }
+            ? { AND: [accessibleBy(ctx.req.permissions).User, { personId: person.id }, filter].filter(v => v !== undefined) }
             : { AND: [accessibleBy(ctx.req.permissions).User, { personId: person.id }] };
 
         // If ordering args are provided, convert them to Prisma's orderBy format.

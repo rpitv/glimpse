@@ -35,7 +35,7 @@ export class GroupPermissionResolver {
         // If filter is provided, combine it with the CASL accessibleBy filter.
         const where = filter
             ? {
-                  AND: [accessibleBy(ctx.req.permissions).GroupPermission, filter]
+                  AND: [accessibleBy(ctx.req.permissions).GroupPermission, filter].filter(v => v !== undefined)
               }
             : accessibleBy(ctx.req.permissions).GroupPermission;
 
@@ -194,7 +194,7 @@ export class GroupPermissionResolver {
     ): Promise<number> {
         return ctx.req.prismaTx.groupPermission.count({
             where: {
-                AND: [accessibleBy(ctx.req.permissions).GroupPermission, filter]
+                AND: [accessibleBy(ctx.req.permissions).GroupPermission, filter].filter(v => v !== undefined)
             }
         });
     }
