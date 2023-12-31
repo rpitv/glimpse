@@ -1,0 +1,12 @@
+query FindUserPermissions($pagination: PaginationInput, $filter: FilterUserPermissionInput) {
+  userPermissionCount(filter: $filter)
+  permissions: findManyUserPermission(pagination: $pagination, filter: $filter) {
+    id
+    action
+    subject
+    fields
+    conditions
+    inverted
+    reason
+  }
+}

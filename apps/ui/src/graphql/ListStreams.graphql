@@ -1,0 +1,8 @@
+query ListStreams {
+  findManyStream {
+    id
+    to
+    from
+    message
+  }
+}

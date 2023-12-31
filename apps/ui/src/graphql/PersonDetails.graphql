@@ -1,0 +1,33 @@
+query PersonDetails($id: BigInt!) {
+  person: findOnePerson(id: $id) {
+    id
+    name
+    description
+    graduation
+    pronouns
+    roles {
+      role {
+        id
+        name
+      }
+    }
+    users {
+      id
+      username
+    }
+    profilePicture {
+      id
+      name
+      description
+      path
+    }
+    images {
+      image {
+        id
+        name
+        path
+        description
+      }
+    }
+  }
+}

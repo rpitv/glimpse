@@ -1,0 +1,6 @@
+node_modules
+cypress
+cypress.json
+.editorconfig
+.gitignore
+.npmrc

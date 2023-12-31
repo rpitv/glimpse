@@ -1,0 +1,7 @@
+query SearchRoles($pagination: PaginationInput, $filter: FilterRoleInput) {
+  roleCount(filter: $filter)
+  roles: findManyRole(pagination: $pagination, filter: $filter) {
+    id
+    name
+  }
+}

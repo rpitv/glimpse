@@ -1,0 +1,3 @@
+query productionCount ($filter: FilterProductionInput) {
+	productionCount (filter: $filter)
+}

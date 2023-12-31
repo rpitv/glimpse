@@ -1,0 +1,28 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "plugins/*.ts"
+  ],
+  "exclude": [
+    "src/**/__tests__/*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["ES2021"],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "types": [
+      "naive-ui/volar",
+      "vuetify"
+    ]
+  },
+  "vueCompilerOptions": {
+    "target": 3.3
+  }
+}

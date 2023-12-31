@@ -1,0 +1,5 @@
+mutation CreateUserGroup($userId: BigInt!, $groupId: BigInt!) {
+  userGroup: createUserGroup(input: { userId: $userId, groupId: $groupId }) {
+    id
+  }
+}

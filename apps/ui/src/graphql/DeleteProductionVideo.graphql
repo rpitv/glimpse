@@ -1,0 +1,5 @@
+mutation DeleteProductionVideo($id: BigInt!) {
+  productionVideo: deleteProductionVideo(id: $id) {
+    id
+  }
+}

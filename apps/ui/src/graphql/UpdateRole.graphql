@@ -1,0 +1,5 @@
+mutation UpdateRole($id: BigInt!, $data: UpdateRoleInput!) {
+  role: updateRole(id: $id, input: $data) {
+    id
+  }
+}

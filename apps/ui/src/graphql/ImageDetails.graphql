@@ -1,0 +1,8 @@
+query ImageDetails($id: BigInt!) {
+  image: findOneImage(id: $id) {
+    id
+    name
+    description
+    path
+  }
+}

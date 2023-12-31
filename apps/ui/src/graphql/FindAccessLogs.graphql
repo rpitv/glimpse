@@ -1,0 +1,13 @@
+query FindAccessLogs($pagination: PaginationInput, $filter: FilterAccessLogInput) {
+  accessLogCount(filter: $filter)
+  accessLogs: findManyAccessLog(pagination: $pagination, order: [{ field: timestamp, direction: Desc }], filter: $filter) {
+    id
+    ip
+    service
+    user {
+      id
+      username
+    }
+    timestamp
+  }
+}

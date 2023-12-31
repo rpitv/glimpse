@@ -1,0 +1,5 @@
+mutation CreateUserPermission($input: CreateUserPermissionInput!) {
+  permission: createUserPermission(input: $input) {
+    id
+  }
+}

@@ -1,0 +1,5 @@
+mutation UpdateProduction($id: BigInt!, $data: UpdateProductionInput!) {
+  person: updateProduction(id: $id, input: $data) {
+    id
+  }
+}

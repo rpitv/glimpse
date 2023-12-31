@@ -1,0 +1,19 @@
+query FindPeople($pagination: PaginationInput, $filter: FilterPersonInput, $order: [OrderPersonInput!]) {
+  personCount(filter: $filter)
+  people: findManyPerson(pagination: $pagination, order: $order, filter: $filter) {
+    id
+    name
+    graduation
+    pronouns
+    profilePicture {
+      id
+      name
+      description
+      path
+    }
+    users {
+      id
+      username
+    }
+  }
+}
