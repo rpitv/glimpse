@@ -1,301 +1,133 @@
-# This file was generated based on ".graphqlconfig". Do not edit manually.
+# This file was generated. Do not edit manually.
 
 schema {
   query: Query
   mutation: Mutation
 }
 
-directive @custom_rule(name: String!, options: RuleOptions) on FIELD_DEFINITION
-
-directive @rule(options: RuleOptions, ruleType: RuleType, subject: AbilitySubjects) on FIELD_DEFINITION
+directive @rule(id: String!, options: RuleOptions, subject: AbilitySubjects) on FIELD_DEFINITION
 
 union Permission = GroupPermission | UserPermission
 
 type AccessLog {
-  "Unique ID for this AccessLog. Automatically generated."
   id: BigInt
-  "IP address which the access that generated this access log originated from."
   ip: String
-  "Name of the service which this access log is a record for."
   service: String
-  "DateTime at which this access log was generated."
   timestamp: DateTime
   user: User
-  "ID of the user who initiated this access log."
   userId: BigInt
 }
 
 type AlertLog {
-  "Unique ID for this alert. Automatically generated."
   id: BigInt
-  "The message logged by this alert. This is what is displayed to the user(s) viewing alerts."
   message: String
-  """
-
-  Severity of this alert. Currently can be any value, but should probably be one of the following:
-  - "INFO"
-  - "WARN"
-  - "ERROR"
-  A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
-  for easier filtering of alerts by severity.
-  """
   severity: String
-  "DateTime at which this alert was generated."
   timestamp: DateTime
 }
 
-"""
-
-Assets are the physical objects that are property of RPI TV, or are otherwise managed and tracked by RPI TV.
-
-Due to the club's rapidly revolving door of members, it's easy for equipment to get lost or forgotten about. The
-Asset system is intended to assist in keeping track of what assets RPI TV owns, where they were purchased, how
-much they were purchased for, and where they are being used (and by whom).
-
-Assets currently do not have a "checked in" or "checked out" status. Instead, each asset has a last known location,
-as well as the last known user who was using the asset. When an asset is "checked out", the user will scan the
-location's bar code and the asset's QR code, which will update the asset's last known location and last known
-handler. It is presumed that an asset will not be checked out for long, or if it is, the user who checked it out
-will have it in their possession at all times, so they will know the status of it while it is in their possession.
-When the user wants to "check in" the asset, the same process is done as when they checked it out.
-"""
 type Asset {
   children(filter: FilterAssetInput, order: [OrderAssetInput!], pagination: PaginationInput): [Asset!]
-  "Unique ID for this asset. Automatically generated."
   id: BigInt
-  """
-
-  Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
-  known location and the last known handler cannot account for its current location.
-  """
   isLost: Boolean
   lastKnownHandler: User
-  "The user ID of the user who last checked this asset out/in."
   lastKnownHandlerId: BigInt
-  """
-
-  The last known location of this asset. This should be the last location that the asset was checked out
-  from/checked into.
-  """
   lastKnownLocation: String
-  """
-
-  The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
-  asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
-  asset. This is useful for future club members who wish to re-purchase an asset or find out more information
-  about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
-  """
   modelNumber: String
-  "The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable"
   name: String
-  "Optional notes about this asset."
   notes: String
   parent: Asset
-  """
-
-  Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
-  includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
-  for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
-  scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
-  set to null.
-  """
   parentId: BigInt
-  """
-
-  DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
-  members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
-  should be the date that the asset was purchased, not the date that it was received. If the purchase date is
-  unknown, it can be set to null.
-  """
   purchaseDate: DateTime
-  """
-
-  The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
-  asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
-  Purchase location should be as specific as possible, and can be either a physical location or a website URL.
-  """
   purchaseLocation: String
-  """
-
-  The price which this asset was purchased for in pennies. This is useful for new club members who wish to
-  re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
-  (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
-  to null.
-  """
   purchasePrice: Int
-  """
-
-  The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
-  Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
-  make sense to log it. In this case, the serial number can be set to null.
-  """
   serialNumber: String
-  """
-
-  Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
-  are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
-  """
   tag: Int
 }
 
-"""
-
-Audit logs are used to track changes to resources within the database. At the moment, Prisma does not have an elegant
-way of generating these automatically with the user's ID. It would be possible to generate automatically if we
-weren't logging the user who made the change using Prisma middleware or extensions. For now, they have to be
-logged manually using {@link PrismaServicegenAuditLog }.
-
-All automatic generation solutions that I came up with involved violating type safety, relying on private Prisma
-interfaces, and/or were so obtuse and hacky that it wasn't worth it.
-"""
 type AuditLog {
   action: String!
   details: [String!]!
-  "Unique ID for this audit log. Automatically generated."
   id: BigInt
-  """
-
-  Identifier of the resource that was changed. This should be the ID of the resource. If {@link  #subject} is null,
-  then this should also be null.
-  """
-  identifier: ID
-  """
-
-  Custom message to display to the user when this audit log is displayed. This should be a human-readable message.
-  This will be combined with the automatically generated message based on {@link  #prevValue}.
-  """
+  identifier: BigInt
   message: String
-  """
-
-  The type of subject which was changed. This should be one of the values in {@link AbilitySubjects }. If the change
-  was to a resource that is not a subject, this should be null.
-  """
   subject: String
-  "DateTime at which this audit log was created."
   timestamp: DateTime
   user: User
-  "User ID of the user that initiated this audit log."
   userId: BigInt
 }
 
 type BlogPost {
   author: Person
-  """
-
-  The name to display for the author, as opposed to the actual username/person name. This allows for posting
-  blogs as a "group".
-  """
   authorDisplayName: String
-  "The User ID of the author of this blog post."
   authorId: BigInt
-  "The actual body of the blog post."
   content: String
-  "Unique ID for this blog post. Automatically generated."
   id: BigInt
-  "DateTime at which this blog post was posted."
   postedAt: DateTime
-  "The title of the blog post."
   title: String
 }
 
 type Category {
   children(filter: FilterCategoryInput, order: [OrderCategoryInput!], pagination: PaginationInput): [Category!]
-  "Unique ID for this category. Automatically generated."
   id: BigInt
-  "The name of this category"
   name: String
   parent: Category
-  "The ID of the parent category, or null if this is a top-level category."
   parentId: BigInt
-  "The priority of this category. Categories with a higher priority should be displayed first."
   priority: Int
   productions(filter: FilterProductionInput, order: [OrderProductionInput!], pagination: PaginationInput): [Production!]
 }
 
 type ContactSubmission {
-  "Additional metadata about this ContactSubmission. Unstructured JSON data."
   additionalData: JSON
-  "The main body of the ContactSubmission."
-  body: String
-  "The email address for how to reach the person who submitted this ContactSubmission."
-  email: String
-  "Unique ID for this ContactSubmission. Automatically generated."
+  body: String!
+  email: String!
   id: BigInt
-  "The name of the person who submitted this ContactSubmission."
-  name: String
-  "Flag whether this contact submission has been resolved or not."
+  name: String!
   resolved: Boolean
-  "The subject/title of the ContactSubmission."
-  subject: String
-  "Timestamp at which this ContactSubmission was submitted."
+  subject: String!
   timestamp: DateTime
+  type: ContactSubmissionType!
 }
 
 type Credit {
-  "Unique ID for this Credit. Automatically generated."
   id: BigInt
   person: Person
-  "The ID of the person this Credit belongs to."
   personId: BigInt
-  "The priority of this Credit. Credits with a higher priority should be displayed first."
   priority: Int
   production: Production
-  "The ID of the production this Credit is for."
   productionId: BigInt
-  "The title of this Credit"
   title: String
 }
 
 type Group {
   children(filter: FilterGroupInput, order: [OrderGroupInput!], pagination: PaginationInput): [Group!]
-  "Unique ID for this Group. Automatically generated."
   id: BigInt
-  "The display name for this Group"
   name: String
   parent: Group
-  "The ID of the parent of this Group. If null, this Group is a top-level Group."
   parentId: BigInt
   permissions(filter: FilterGroupPermissionInput, order: [OrderGroupPermissionInput!], pagination: PaginationInput): [GroupPermission!]
-  """
-
-  The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
-  priority.
-  """
   priority: Int
   users(filter: FilterUserGroupInput, pagination: PaginationInput): [UserGroup!]
 }
 
 type GroupPermission {
-  "The action for this GroupPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this GroupPermission."
   conditions: JSON
-  "The set of fields for this GroupPermission."
   fields: [String!]
   group: Group
-  "ID of the group which this GroupPermission is for."
   groupId: BigInt
-  "Unique ID for this GroupPermission. Automatically generated."
   id: BigInt
-  "True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
 }
 
 type Image {
-  "The description for this image."
   description: String
-  "Unique ID for this Image. Automatically generated."
   id: BigInt
-  "The display name for this image."
   name: String
-  "The path/URI for this image."
   path: String
   people(filter: FilterPersonImageInput, pagination: PaginationInput): [PersonImage!]
-  productions(filter: FilterProductionImageInput, pagination: PaginationInput): [ProductionImage!]
+  productions(filter: FilterProductionImageInput, order: [OrderProductionImageInput!], pagination: PaginationInput): [ProductionImage!]
   profilePictureFor(filter: FilterPersonInput, order: [OrderPersonInput!], pagination: PaginationInput): [Person!]
   thumbnailFor(filter: FilterProductionInput, order: [OrderProductionInput!], pagination: PaginationInput): [Production!]
 }
@@ -305,7 +137,8 @@ type Mutation {
   createAsset(input: CreateAssetInput!): Asset!
   createBlogPost(input: CreateBlogPostInput!): BlogPost!
   createCategory(input: CreateCategoryInput!): Category!
-  createContactSubmission(input: CreateContactSubmissionInput!): ContactSubmission!
+  createContactSubmissionGeneral(input: CreateContactSubmissionGeneralInput!): ContactSubmission!
+  createContactSubmissionProductionRequest(input: CreateContactSubmissionProductionRequestInput!): ContactSubmission!
   createCredit(input: CreateCreditInput!): Credit!
   createGroup(input: CreateGroupInput!): Group!
   createGroupPermission(input: CreateGroupPermissionInput!): GroupPermission!
@@ -359,7 +192,8 @@ type Mutation {
   updateAsset(id: BigInt!, input: UpdateAssetInput!): Asset!
   updateBlogPost(id: BigInt!, input: UpdateBlogPostInput!): BlogPost!
   updateCategory(id: BigInt!, input: UpdateCategoryInput!): Category!
-  updateContactSubmission(id: BigInt!, input: UpdateContactSubmissionInput!): ContactSubmission!
+  updateContactSubmissionGeneral(id: BigInt!, input: UpdateContactSubmissionGeneralInput!): ContactSubmission!
+  updateContactSubmissionProductionRequest(id: BigInt!, input: UpdateContactSubmissionProductionRequestInput!): ContactSubmission!
   updateCredit(id: BigInt!, input: UpdateCreditInput!): Credit!
   updateGroup(id: BigInt!, input: UpdateGroupInput!): Group!
   updateGroupPermission(id: BigInt!, input: UpdateGroupPermissionInput!): GroupPermission!
@@ -383,151 +217,92 @@ type Mutation {
 type Person {
   blogPosts(filter: FilterBlogPostInput, order: [OrderBlogPostInput!], pagination: PaginationInput): [BlogPost!]
   credits(filter: FilterCreditInput, order: [OrderCreditInput!], pagination: PaginationInput): [Credit!]
-  "An \"about me\" section for this Person."
   description: String
-  """
-
-  The date that this Person intends on graduating from the university. This allows for automated role removals,
-  as well as displaying the Person's class year on their profile.
-  """
   graduation: DateTime
-  "Unique ID for this Person. Automatically generated."
   id: BigInt
   images(filter: FilterPersonImageInput, pagination: PaginationInput): [PersonImage!]
-  "The name (or pseudonym) for this Person. Should likely be in the format \"First Last\"."
   name: String
-  "ID of the image which should be used for this Person's profile picture."
+  profilePicture: Image
   profilePictureId: BigInt
-  "The pronouns for this Person. Should likely be in the format \"they/them\". Optional."
   pronouns: String
   roles(filter: FilterPersonRoleInput, order: [OrderPersonRoleInput!], pagination: PaginationInput): [PersonRole!]
   users(filter: FilterUserInput, order: [OrderUserInput!], pagination: PaginationInput): [User!]
 }
 
 type PersonImage {
-  "Unique ID for this PersonImage. Automatically generated."
   id: BigInt
   image: Image
-  "ID of the image this PersonImage is associated with."
   imageId: BigInt
   person: Person
-  "ID of the person this PersonImage is associated with."
   personId: BigInt
-  "Priority of this PersonImage. Higher priority images should be displayed first."
   priority: Int
 }
 
 type PersonRole {
-  "End date of when this PersonRole association should no longer be active."
   endTime: DateTime
-  "Unique ID for this PersonRole. Automatically generated."
   id: BigInt
   person: Person
-  "ID of the person this PersonRole is associated with."
   personId: BigInt
   role: Role
-  "ID of the role this PersonRole is associated with."
   roleId: BigInt
-  "Start date of when this PersonRole association should begin."
   startTime: DateTime
 }
 
 type Production {
   category: Category
-  "The ID of the category which this Production belongs to."
   categoryId: BigInt
-  "The closet meeting location for club members to meet at before the Production."
   closetLocation: String
-  "The time that club members should meet at the closet location before the Production."
   closetTime: DateTime
   credits(filter: FilterCreditInput, order: [OrderCreditInput!], pagination: PaginationInput): [Credit!]
-  "The Description of this Production"
   description: String
-  """
-
-  The ID of the Discord channel within the Discord server that messages related to this Production should be sent
-  to.
-  """
   discordChannel: String
-  "The ID of the Discord server that messages related to this Production should be sent to."
   discordServer: String
-  """
-
-  The expected end time of this Production. This is used, in combination with start time, to determine which
-  Productions are live.
-  """
   endTime: DateTime
-  "The location of the event for this Production."
   eventLocation: String
-  "Unique ID for this Production. Automatically generated."
   id: BigInt
-  images(filter: FilterProductionImageInput, pagination: PaginationInput): [ProductionImage!]
-  "The title/name of this Production"
+  images(filter: FilterProductionImageInput, order: [OrderProductionImageInput!], pagination: PaginationInput): [ProductionImage!]
   name: String
   rsvps(filter: FilterProductionRSVPInput, order: [OrderProductionRSVPInput!], pagination: PaginationInput): [ProductionRSVP!]
-  """
-
-  The expected start time of this Production. This is used, in combination with end time, to determine which
-  Productions are live.
-  """
   startTime: DateTime
   tags(filter: FilterProductionTagInput, order: [OrderProductionTagInput!], pagination: PaginationInput): [ProductionTag!]
-  "Any notes that the team has about this Production. Can be markup."
   teamNotes: String
   thumbnail: Image
-  "The ID of the Image which should be used as the thumbnail for this Production."
   thumbnailId: BigInt
-  videos(filter: FilterProductionVideoInput, pagination: PaginationInput): [ProductionVideo!]
+  videos(filter: FilterProductionVideoInput, order: [OrderProductionVideoInput!], pagination: PaginationInput): [ProductionVideo!]
 }
 
 type ProductionImage {
-  "Unique ID for this ProductionImage. Automatically generated."
   id: BigInt
   image: Image
-  "ID of the image this ProductionImage is associated with."
   imageId: BigInt
-  "The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones."
   priority: Int
   production: Production
-  "ID of the production this ProductionImage is associated with."
   productionId: BigInt
 }
 
 type ProductionRSVP {
-  "Unique ID for this ProductionRSVP. Automatically generated."
   id: BigInt
-  "Any additional notes provided by the User, officers, or producers."
   notes: String
   production: Production
-  "ID of the Production that the User is RSVPing for."
   productionId: BigInt
   user: User
-  "ID of the User that is RSVPing for the Production."
   userId: BigInt
-  "The User's response to the Production's RSVP. Should be \"yes\", \"no\", or \"maybe\"."
   willAttend: String
 }
 
 type ProductionTag {
-  "Unique ID for this ProductionTag. Automatically generated."
   id: BigInt
   production: Production
-  "ID of the Production that this tag is associated with."
   productionId: BigInt
-  "This tag's value."
   tag: String
 }
 
 type ProductionVideo {
-  "Unique ID for this ProductionVideo. Automatically generated."
   id: BigInt
-  "The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones."
   priority: Int
   production: Production
-  "ID of the person this ProductionVideo is associated with."
   productionId: BigInt
   video: Video
-  "ID of the video this ProductionVideo is associated with."
   videoId: BigInt
 }
 
@@ -617,34 +392,26 @@ type Query {
 }
 
 type Redirect {
-  "The date and time at which this Redirect expires. If null, this Redirect never expires."
   expires: DateTime
-  "Unique ID for this Redirect. Automatically generated."
   id: BigInt
-  "The key used in URLs to access this Redirect."
   key: String
-  "The URL which this Redirect redirects to."
   location: String
 }
 
 type Role {
-  "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
-  "Unique ID for this Role. Automatically generated."
+  displayInLeadership: Boolean
+  displayInMembership: Boolean
   id: BigInt
-  "The name of this role."
   name: String
   people(filter: FilterPersonRoleInput, order: [OrderPersonRoleInput!], pagination: PaginationInput): [PersonRole!]
+  priority: Int
 }
 
 type Stream {
-  "The location this stream is being pulled from."
   from: String
-  "Unique ID for this stream. Automatically generated."
   id: UUID
-  "The latest message from this stream."
   message: String
-  "The location this stream is being pushed to."
   to: String
 }
 
@@ -652,106 +419,63 @@ type User {
   accessLogs(filter: FilterAccessLogInput, order: [OrderAccessLogInput!], pagination: PaginationInput): [AccessLog!]
   auditLogs(filter: FilterAuditLogInput, order: [OrderAuditLogInput!], pagination: PaginationInput): [AuditLog!]
   checkedOutAssets(filter: FilterAssetInput, order: [OrderAssetInput!], pagination: PaginationInput): [Asset!]
-  "Discord account ID for this user, or null if the user does not have a linked Discord account."
   discord: String
   groups(filter: FilterUserGroupInput, pagination: PaginationInput): [UserGroup!]
-  "Unique ID for this User. Automatically generated."
   id: BigInt
-  "DateTime at which the user's account was created."
   joined: DateTime
-  "Email address for this user."
   mail: String
   permissions(filter: FilterUserPermissionInput, order: [OrderUserPermissionInput!], pagination: PaginationInput): [UserPermission!]
   person: Person
-  "Attached Person's ID, or null if this user does not have a linked Person."
   personId: BigInt
   productionRsvps(filter: FilterProductionRSVPInput, order: [OrderProductionRSVPInput!], pagination: PaginationInput): [ProductionRSVP!]
-  """
-
-  Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
-  Recommended to be the user's RCS ID.
-  """
   username: String
   voteResponses(filter: FilterVoteResponseInput, order: [OrderVoteResponseInput!], pagination: PaginationInput): [VoteResponse!]
 }
 
 type UserGroup {
   group: Group
-  "ID of the group this UserGroup is associated with."
   groupId: BigInt
-  "Unique ID for this UserGroup. Automatically generated."
   id: BigInt
   user: User
-  "ID of the user this UserGroup is associated with."
   userId: BigInt
 }
 
 type UserPermission {
-  "The action for this UserPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this UserPermission."
   conditions: JSON
-  "The set of fields for this UserPermission."
   fields: [String!]
-  "Unique ID for this UserPermission. Automatically generated."
   id: BigInt
-  "True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
   user: User
-  "ID of the user which this UserPermission is for."
   userId: BigInt
 }
 
 type Video {
-  "The format for this Video. Probably either \"EMBED\", \"RTMP\", or \"HLS\"."
   format: String
-  "Unique ID for this Video. Automatically generated."
   id: BigInt
-  """
-
-  All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
-  format of the video.
-  """
   metadata: JSON
-  "The display name for this Video."
   name: String
-  videoFor(filter: FilterProductionVideoInput, pagination: PaginationInput): [ProductionVideo!]
+  productions(filter: FilterProductionVideoInput, order: [OrderProductionVideoInput!], pagination: PaginationInput): [ProductionVideo!]
 }
 
 type Vote {
-  "Additional describing information about this vote."
   description: String
-  "Timestamp at which this vote closes and no more responses will be accepted."
   expires: DateTime
-  "Unique ID for this Vote. Automatically generated."
   id: BigInt
-  "An array of available options for responses to this vote."
   options: [String!]
-  "The question proposed in this vote."
   question: String
   responses(filter: FilterVoteResponseInput, order: [OrderVoteResponseInput!], pagination: PaginationInput): [VoteResponse!]
 }
 
 type VoteResponse {
-  "Unique ID for this VoteResponse. Automatically generated."
   id: BigInt
-  """
-
-  The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
-  unchanged unless the user updates their vote.
-  """
   selection: String
-  "Timestamp at which this VoteResponse was submitted."
   timestamp: DateTime
   user: User
-  "ID of the user this VoteResponse is associated with."
   userId: BigInt
   vote: Vote
-  "ID of the vote this VoteResponse is associated with."
   voteId: BigInt
 }
 
@@ -837,6 +561,11 @@ enum ContactSubmissionOrderableFields {
   timestamp
 }
 
+enum ContactSubmissionType {
+  GENERAL
+  PRODUCTION_REQUEST
+}
+
 enum CreditOrderableFields {
   id
   priority
@@ -875,6 +604,10 @@ enum PersonRoleOrderableFields {
   startTime
 }
 
+enum ProductionImageOrderableFields {
+  priority
+}
+
 enum ProductionOrderableFields {
   categoryId
   id
@@ -892,6 +625,10 @@ enum ProductionTagOrderableFields {
   tag
 }
 
+enum ProductionVideoOrderableFields {
+  priority
+}
+
 enum RedirectOrderableFields {
   expires
   id
@@ -901,15 +638,7 @@ enum RedirectOrderableFields {
 enum RoleOrderableFields {
   id
   name
-}
-
-enum RuleType {
-  Count
-  Create
-  Delete
-  ReadMany
-  ReadOne
-  Update
+  priority
 }
 
 enum UserOrderableFields {
@@ -956,424 +685,221 @@ input BooleanComparisonInput {
   equals: Boolean
 }
 
-"Input type for createAlertLog mutation"
-input CreateAlertLogInput {
-  "The message logged by this alert. This is what is displayed to the user(s) viewing alerts."
-  message: String
-  """
+input ContactSubmissionTypeComparisonInput {
+  equals: ContactSubmissionType
+  in: [ContactSubmissionType!]
+  not: ContactSubmissionTypeComparisonInput
+  notIn: [ContactSubmissionType!]
+}
 
-  Severity of this alert. Currently can be any value, but should probably be one of the following:
-  - "INFO"
-  - "WARN"
-  - "ERROR"
-  A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
-  for easier filtering of alerts by severity.
-  """
+input CreateAlertLogInput {
+  message: String
   severity: String
 }
 
-"Input type for createAsset mutation"
 input CreateAssetInput {
-  """
-
-  Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
-  known location and the last known handler cannot account for its current location.
-  """
   isLost: Boolean
-  "The user ID of the user who last checked this asset out/in."
   lastKnownHandlerId: BigInt
-  """
-
-  The last known location of this asset. This should be the last location that the asset was checked out
-  from/checked into.
-  """
   lastKnownLocation: String
-  """
-
-  The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
-  asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
-  asset. This is useful for future club members who wish to re-purchase an asset or find out more information
-  about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
-  """
   modelNumber: String
-  "The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable"
   name: String
-  "Optional notes about this asset."
   notes: String
-  """
-
-  Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
-  includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
-  for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
-  scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
-  set to null.
-  """
   parentId: BigInt
-  """
-
-  DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
-  members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
-  should be the date that the asset was purchased, not the date that it was received. If the purchase date is
-  unknown, it can be set to null.
-  """
   purchaseDate: DateTime
-  """
-
-  The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
-  asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
-  Purchase location should be as specific as possible, and can be either a physical location or a website URL.
-  """
   purchaseLocation: String
-  """
-
-  The price which this asset was purchased for in pennies. This is useful for new club members who wish to
-  re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
-  (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
-  to null.
-  """
   purchasePrice: Int
-  """
-
-  The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
-  Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
-  make sense to log it. In this case, the serial number can be set to null.
-  """
   serialNumber: String
-  """
-
-  Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
-  are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
-  """
   tag: Int
 }
 
-"Input type for createBlogPost mutation"
 input CreateBlogPostInput {
-  """
-
-  The name to display for the author, as opposed to the actual username/person name. This allows for posting
-  blogs as a "group".
-  """
   authorDisplayName: String
-  "The User ID of the author of this blog post."
   authorId: BigInt
-  "The actual body of the blog post."
   content: String
-  "DateTime at which this blog post was posted."
   postedAt: DateTime
-  "The title of the blog post."
   title: String
 }
 
-"Input type for createCategory mutation"
 input CreateCategoryInput {
-  "The name of this category"
   name: String
-  "The ID of the parent category, or null if this is a top-level category."
   parentId: BigInt
-  "The priority of this category. Categories with a higher priority should be displayed first."
   priority: Int
 }
 
-"Input type for createContactSubmission mutation"
-input CreateContactSubmissionInput {
-  "Additional metadata about this ContactSubmission. Unstructured JSON data."
-  additionalData: JSON
-  "The main body of the ContactSubmission."
-  body: String
-  "The email address for how to reach the person who submitted this ContactSubmission."
-  email: String
-  "The name of the person who submitted this ContactSubmission."
-  name: String
-  "Flag whether this contact submission has been resolved or not."
+input CreateContactSubmissionGeneralInput {
+  body: String!
+  email: String!
+  name: String!
   resolved: Boolean
-  "The subject/title of the ContactSubmission."
-  subject: String
+  subject: String!
 }
 
-"Input type for createCredit mutation"
+input CreateContactSubmissionProductionRequestInput {
+  audioAvailable: Boolean!
+  body: String!
+  email: String!
+  endTime: DateTime!
+  isStudentOrganization: Boolean!
+  livestreamed: Boolean!
+  location: String!
+  name: String!
+  organizationName: String!
+  phoneNumber: String
+  requiredCameraCount: Int
+  requiresEditing: Boolean!
+  resolved: Boolean
+  startTime: DateTime!
+  subject: String!
+}
+
 input CreateCreditInput {
-  "The ID of the person this Credit belongs to."
   personId: BigInt
-  "The priority of this Credit. Credits with a higher priority should be displayed first."
   priority: Int
-  "The ID of the production this Credit is for."
   productionId: BigInt
-  "The title of this Credit"
   title: String
 }
 
-"Input type for createGroup mutation"
 input CreateGroupInput {
-  "The display name for this Group"
   name: String
-  "The ID of the parent of this Group. If null, this Group is a top-level Group."
   parentId: BigInt
-  """
-
-  The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
-  priority.
-  """
   priority: Int
 }
 
-"Input type for createGroupPermission mutation"
 input CreateGroupPermissionInput {
-  "The action for this GroupPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this GroupPermission."
   conditions: JSON
-  "The set of fields for this GroupPermission."
   fields: [String!]
-  "ID of the group which this GroupPermission is for."
   groupId: BigInt
-  "True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
 }
 
-"Input type for createImage mutation"
 input CreateImageInput {
-  "The description for this image."
   description: String
-  "The display name for this image."
   name: String
-  "The path/URI for this image."
   path: String
 }
 
-"Input type for createPersonImage mutation"
 input CreatePersonImageInput {
-  "ID of the image this PersonImage is associated with."
   imageId: BigInt
-  "ID of the person this PersonImage is associated with."
   personId: BigInt
-  "Priority of this PersonImage. Higher priority images should be displayed first."
   priority: Int
 }
 
-"Input type for createPerson mutation"
 input CreatePersonInput {
-  "An \"about me\" section for this Person."
   description: String
-  """
-
-  The date that this Person intends on graduating from the university. This allows for automated role removals,
-  as well as displaying the Person's class year on their profile.
-  """
   graduation: DateTime
-  "The name (or pseudonym) for this Person. Should likely be in the format \"First Last\"."
   name: String
-  "ID of the image which should be used for this Person's profile picture."
   profilePictureId: BigInt
-  "The pronouns for this Person. Should likely be in the format \"they/them\". Optional."
   pronouns: String
 }
 
-"Input type for createPersonRole mutation"
 input CreatePersonRoleInput {
-  "End date of when this PersonRole association should no longer be active."
   endTime: DateTime
-  "ID of the person this PersonRole is associated with."
   personId: BigInt
-  "ID of the role this PersonRole is associated with."
   roleId: BigInt
-  "Start date of when this PersonRole association should begin."
   startTime: DateTime
 }
 
-"Input type for createProductionImage mutation"
 input CreateProductionImageInput {
-  "ID of the image this ProductionImage is associated with."
   imageId: BigInt
-  "The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones."
   priority: Int
-  "ID of the production this ProductionImage is associated with."
   productionId: BigInt
 }
 
-"Input type for createProduction mutation"
 input CreateProductionInput {
-  "The ID of the category which this Production belongs to."
   categoryId: BigInt
-  "The closet meeting location for club members to meet at before the Production."
   closetLocation: String
-  "The time that club members should meet at the closet location before the Production."
   closetTime: DateTime
-  "The Description of this Production"
   description: String
-  """
-
-  The ID of the Discord channel within the Discord server that messages related to this Production should be sent
-  to.
-  """
   discordChannel: String
-  "The ID of the Discord server that messages related to this Production should be sent to."
   discordServer: String
-  """
-
-  The expected end time of this Production. This is used, in combination with start time, to determine which
-  Productions are live.
-  """
   endTime: DateTime
-  "The location of the event for this Production."
   eventLocation: String
-  "The title/name of this Production"
   name: String
-  """
-
-  The expected start time of this Production. This is used, in combination with end time, to determine which
-  Productions are live.
-  """
   startTime: DateTime
-  "Any notes that the team has about this Production. Can be markup."
   teamNotes: String
-  "The ID of the Image which should be used as the thumbnail for this Production."
   thumbnailId: BigInt
 }
 
-"Input type for createProductionRSVP mutation"
 input CreateProductionRSVPInput {
-  "Any additional notes provided by the User, officers, or producers."
   notes: String
-  "ID of the Production that the User is RSVPing for."
   productionId: BigInt
-  "ID of the User that is RSVPing for the Production."
   userId: BigInt
-  "The User's response to the Production's RSVP. Should be \"yes\", \"no\", or \"maybe\"."
   willAttend: String
 }
 
-"Input type for createProductionTag mutation"
 input CreateProductionTagInput {
-  "ID of the Production that this tag is associated with."
   productionId: BigInt
-  "This tag's value."
   tag: String
 }
 
-"Input type for createProductionVideo mutation"
 input CreateProductionVideoInput {
-  "The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones."
   priority: Int
-  "ID of the person this ProductionVideo is associated with."
   productionId: BigInt
-  "ID of the video this ProductionVideo is associated with."
   videoId: BigInt
 }
 
-"Input type for createRedirect mutation"
 input CreateRedirectInput {
-  "The date and time at which this Redirect expires. If null, this Redirect never expires."
   expires: DateTime
-  "The key used in URLs to access this Redirect."
   key: String
-  "The URL which this Redirect redirects to."
   location: String
 }
 
-"Input type for createRole mutation"
 input CreateRoleInput {
-  "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
-  "The name of this role."
+  displayInLeadership: Boolean
+  displayInMembership: Boolean
   name: String
+  priority: Int
 }
 
-"Input type for createCategory mutation"
 input CreateStreamInput {
-  "The location this stream is being pulled from."
   from: String
-  "The location this stream is being pushed to."
   to: String
 }
 
-"Input type for createUserGroup mutation"
 input CreateUserGroupInput {
-  "ID of the group this UserGroup is associated with."
   groupId: BigInt
-  "ID of the user this UserGroup is associated with."
   userId: BigInt
 }
 
-"Input type for createUser mutation"
 input CreateUserInput {
-  "Discord account ID for this user, or null if the user does not have a linked Discord account."
   discord: String
-  "Email address for this user."
   mail: String
-  "The password to set for this user"
   password: String
-  "Attached Person's ID, or null if this user does not have a linked Person."
   personId: BigInt
-  """
-
-  Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
-  Recommended to be the user's RCS ID.
-  """
   username: String
 }
 
-"Input type for createUserPermission mutation"
 input CreateUserPermissionInput {
-  "The action for this UserPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this UserPermission."
   conditions: JSON
-  "The set of fields for this UserPermission."
   fields: [String!]
-  "True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
-  "ID of the user which this UserPermission is for."
   userId: BigInt
 }
 
-"Input type for createVideo mutation"
 input CreateVideoInput {
-  "The format for this Video. Probably either \"EMBED\", \"RTMP\", or \"HLS\"."
   format: String
-  """
-
-  All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
-  format of the video.
-  """
   metadata: JSON
-  "The display name for this Video."
   name: String
 }
 
-"Input type for createVote mutation"
 input CreateVoteInput {
-  "Additional describing information about this vote."
   description: String
-  "Timestamp at which this vote closes and no more responses will be accepted."
   expires: DateTime
-  "An array of available options for responses to this vote."
   options: [String!]
-  "The question proposed in this vote."
   question: String
 }
 
-"Input type for createVoteResponse mutation"
 input CreateVoteResponseInput {
-  """
-
-  The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
-  unchanged unless the user updates their vote.
-  """
   selection: String
-  "Timestamp at which this VoteResponse was submitted."
   timestamp: DateTime
-  "ID of the user this VoteResponse is associated with."
   userId: BigInt
-  "ID of the vote this VoteResponse is associated with."
   voteId: BigInt
 }
 
@@ -1386,444 +912,294 @@ input DateComparisonInput {
   not: DateTime
 }
 
-"Input type for filtering AccessLogs in ReadMany queries."
 input FilterAccessLogInput {
   AND: [FilterAccessLogInput!]
   NOT: FilterAccessLogInput
   OR: [FilterAccessLogInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by IP address"
   ip: StringComparisonInput
-  "Filter by service name"
   service: StringComparisonInput
-  "Filter by timestamp"
   timestamp: DateComparisonInput
-  "Filter by User ID"
   userId: NumberComparisonInput
 }
 
-"Input type for filtering AlertLogs in ReadMany queries."
 input FilterAlertLogInput {
   AND: [FilterAlertLogInput!]
   NOT: FilterAlertLogInput
   OR: [FilterAlertLogInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by message"
   message: StringComparisonInput
-  "Filter by severity"
   severity: StringComparisonInput
-  "Filter by timestamp"
   timestamp: DateComparisonInput
 }
 
-"Input type for filtering Assets in ReadMany queries."
 input FilterAssetInput {
   AND: [FilterAssetInput!]
-  NOT: FilterAssetInput
+  NOT: [FilterAssetInput!]
   OR: [FilterAssetInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by whether the asset is lost or not"
   isLost: BooleanComparisonInput
-  "Filter by the last known handler of the asset"
   lastKnownHandlerId: NumberComparisonInput
-  "Filter by the last known location of the asset"
   lastKnownLocation: StringComparisonInput
-  "Filter by the model number of the asset"
   modelNumber: StringComparisonInput
-  "Filter by human-readable name"
   name: StringComparisonInput
-  "Filter by the notes associated with the asset"
   notes: StringComparisonInput
-  "Filter by the parent asset of the asset"
   parentId: NumberComparisonInput
-  "Filter by when the asset was purchased"
   purchaseDate: DateComparisonInput
-  "Filter by where the asset was purchased"
   purchaseLocation: StringComparisonInput
-  "Filter by the purchase price of the asset"
   purchasePrice: NumberComparisonInput
-  "Filter by the serial number of the asset"
   serialNumber: StringComparisonInput
-  "Filter by tag number"
   tag: NumberComparisonInput
 }
 
-"Input type for filtering AuditLogs in ReadMany queries."
 input FilterAuditLogInput {
   AND: [FilterAuditLogInput!]
   NOT: FilterAuditLogInput
   OR: [FilterAuditLogInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by the identifier of the object within the subject type (e.g. the ID of the user)"
   identifier: NumberComparisonInput
-  "Filter by the changed subject type"
   subject: StringComparisonInput
-  "Filter by the time the change was made"
   timestamp: DateComparisonInput
-  "Filter by the user who made the change"
   userId: NumberComparisonInput
 }
 
-"Input type for filtering BlogPosts in ReadMany queries."
 input FilterBlogPostInput {
   AND: [FilterBlogPostInput!]
   NOT: FilterBlogPostInput
   OR: [FilterBlogPostInput!]
-  "Filter by author display name"
   authorDisplayName: StringComparisonInput
-  "Filter by author ID"
   authorId: NumberComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by when the blog post was posted."
   postedAt: DateComparisonInput
-  "Filter by title"
   title: StringComparisonInput
 }
 
-"Input type for filtering Categories in ReadMany queries."
 input FilterCategoryInput {
   AND: [FilterCategoryInput!]
   NOT: FilterCategoryInput
   OR: [FilterCategoryInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by name"
   name: StringComparisonInput
-  "Filter by parent category ID"
   parentId: NumberComparisonInput
-  "Filter by priority"
   priority: NumberComparisonInput
 }
 
-"Input type for filtering ContactSubmissions in ReadMany queries."
 input FilterContactSubmissionInput {
   AND: [FilterContactSubmissionInput!]
   NOT: FilterContactSubmissionInput
   OR: [FilterContactSubmissionInput!]
-  "Filter by the email of the person who submitted the ContactSubmission."
   email: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by the name of the person who submitted the ContactSubmission."
   name: StringComparisonInput
-  "Filter by resolved status"
   resolved: BooleanComparisonInput
-  "Filter by timestamp"
   timestamp: DateComparisonInput
+  type: ContactSubmissionTypeComparisonInput
 }
 
-"Input type for filtering Credits in ReadMany queries."
 input FilterCreditInput {
   AND: [FilterCreditInput!]
   NOT: FilterCreditInput
   OR: [FilterCreditInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by ID of the Person the Credit is for"
   personId: NumberComparisonInput
-  "Filter by ID of the Production the Credit is for"
   productionId: NumberComparisonInput
-  "Filter by position title"
   title: StringComparisonInput
 }
 
-"Input type for filtering Groups in ReadMany queries."
 input FilterGroupInput {
   AND: [FilterGroupInput!]
   NOT: FilterGroupInput
   OR: [FilterGroupInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by name"
   name: StringComparisonInput
-  "Filter by parent group ID"
   parentId: NumberComparisonInput
 }
 
-"Input type for filtering GroupPermissions in ReadMany queries."
 input FilterGroupPermissionInput {
   AND: [FilterGroupPermissionInput!]
   NOT: FilterGroupPermissionInput
   OR: [FilterGroupPermissionInput!]
-  "Filter by permission action"
   action: StringComparisonInput
-  "Filter by group ID"
   groupId: NumberComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by inverted status"
   inverted: BooleanComparisonInput
-  "Filter by inverted permissions denial reason"
   reason: StringComparisonInput
 }
 
-"Input type for filtering Images in ReadMany queries."
 input FilterImageInput {
   AND: [FilterImageInput!]
   NOT: FilterImageInput
   OR: [FilterImageInput!]
-  "Filter by the description of this Image."
   description: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by the name of this Image."
   name: StringComparisonInput
-  "Filter by the path of this Image."
   path: StringComparisonInput
 }
 
-"Input type for filtering PersonImages in ReadMany queries."
 input FilterPersonImageInput {
   AND: [FilterPersonImageInput!]
   NOT: FilterPersonImageInput
   OR: [FilterPersonImageInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by image ID"
   imageId: NumberComparisonInput
-  "Filter by person ID"
   personId: NumberComparisonInput
 }
 
-"Input type for filtering Persons in ReadMany queries."
 input FilterPersonInput {
   AND: [FilterPersonInput!]
   NOT: FilterPersonInput
   OR: [FilterPersonInput!]
-  "Filter by graduation"
   graduation: DateComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by name"
   name: StringComparisonInput
 }
 
-"Input type for filtering PersonRoles in ReadMany queries."
 input FilterPersonRoleInput {
   AND: [FilterPersonRoleInput!]
   NOT: FilterPersonRoleInput
   OR: [FilterPersonRoleInput!]
-  "Filter by the end time of the PersonRole"
   endTime: DateComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by Person ID"
   personId: NumberComparisonInput
-  "Filter by Role ID"
   roleId: NumberComparisonInput
-  "Filter by the start time of the PersonRole"
   startTime: DateComparisonInput
 }
 
-"Input type for filtering ProductionImages in ReadMany queries."
 input FilterProductionImageInput {
   AND: [FilterProductionImageInput!]
   NOT: FilterProductionImageInput
   OR: [FilterProductionImageInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by Image ID"
   imageId: NumberComparisonInput
-  "Filter by Production ID"
   productionId: NumberComparisonInput
 }
 
-"Input type for filtering Productions in ReadMany queries."
 input FilterProductionInput {
   AND: [FilterProductionInput!]
   NOT: FilterProductionInput
   OR: [FilterProductionInput!]
-  "Filter by category ID"
   categoryId: NumberComparisonInput
-  "Filter by closet location"
   closetLocation: StringComparisonInput
-  "Filter by closet time"
   closetTime: DateComparisonInput
-  "Filter by description"
   description: StringComparisonInput
-  "Filter by end time"
   endTime: DateComparisonInput
-  "Filter by event location"
   eventLocation: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by name"
   name: StringComparisonInput
-  "Filter by start time"
   startTime: DateComparisonInput
-  "Filter by team notes"
   teamNotes: StringComparisonInput
-  "Filter by thumbnail Image ID"
   thumbnailId: NumberComparisonInput
 }
 
-"Input type for filtering ProductionRSVPs in ReadMany queries."
 input FilterProductionRSVPInput {
   AND: [FilterProductionRSVPInput!]
   NOT: FilterProductionRSVPInput
   OR: [FilterProductionRSVPInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by any additional notes provided by the User, officers, or producers"
   notes: StringComparisonInput
-  "Filter by Production ID"
   productionId: NumberComparisonInput
-  "Filter by User ID"
   userId: NumberComparisonInput
-  "Filter by whether the User will attend the Production"
   willAttend: StringComparisonInput
 }
 
-"Input type for filtering ProductionTags in ReadMany queries."
 input FilterProductionTagInput {
   AND: [FilterProductionTagInput!]
   NOT: FilterProductionTagInput
   OR: [FilterProductionTagInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by Production ID"
   productionId: NumberComparisonInput
-  "Filter by tag"
   tag: StringComparisonInput
 }
 
-"Input type for filtering ProductionVideos in ReadMany queries."
 input FilterProductionVideoInput {
   AND: [FilterProductionVideoInput!]
   NOT: FilterProductionVideoInput
   OR: [FilterProductionVideoInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by Production ID"
   productionId: NumberComparisonInput
-  "Filter by Video ID"
   videoId: NumberComparisonInput
 }
 
-"Input type for filtering Redirects in ReadMany queries."
 input FilterRedirectInput {
   AND: [FilterRedirectInput!]
   NOT: FilterRedirectInput
   OR: [FilterRedirectInput!]
-  "Filter by when the Redirect expires."
   expires: DateComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by Redirect key, used in URLs."
   key: StringComparisonInput
-  "Filter by Redirect location. User is redirected to this URL."
   location: StringComparisonInput
 }
 
-"Input type for filtering Roles in ReadMany queries."
 input FilterRoleInput {
   AND: [FilterRoleInput!]
   NOT: FilterRoleInput
   OR: [FilterRoleInput!]
-  "Filter by the description of this Role."
   description: StringComparisonInput
-  "Filter by ID"
+  displayInLeadership: BooleanComparisonInput
+  displayInMembership: BooleanComparisonInput
   id: NumberComparisonInput
-  "Filter by the name of this Role."
   name: StringComparisonInput
 }
 
-"Input type for filtering UserGroups in ReadMany queries."
 input FilterUserGroupInput {
   AND: [FilterUserGroupInput!]
   NOT: FilterUserGroupInput
   OR: [FilterUserGroupInput!]
-  "Filter by Group ID"
   groupId: NumberComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by User ID"
   userId: NumberComparisonInput
 }
 
-"Input type for filtering Users in ReadMany queries."
 input FilterUserInput {
   AND: [FilterUserInput!]
   NOT: FilterUserInput
   OR: [FilterUserInput!]
-  "Filter by Discord ID"
   discord: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by joined date"
   joined: DateComparisonInput
-  "Filter by email address"
   mail: StringComparisonInput
-  "Filter by Person ID"
   personId: NumberComparisonInput
-  "Filter by username"
   username: StringComparisonInput
 }
 
-"Input type for filtering UserPermissions in ReadMany queries."
 input FilterUserPermissionInput {
   AND: [FilterUserPermissionInput!]
   NOT: FilterUserPermissionInput
   OR: [FilterUserPermissionInput!]
-  "Filter by permission action"
   action: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by inverted status"
   inverted: BooleanComparisonInput
-  "Filter by inverted permissions denial reason"
   reason: StringComparisonInput
-  "Filter by User ID"
   userId: NumberComparisonInput
 }
 
-"Input type for filtering Videos in ReadMany queries."
 input FilterVideoInput {
   AND: [FilterVideoInput!]
   NOT: FilterVideoInput
   OR: [FilterVideoInput!]
-  "Filter by format"
   format: StringComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by name"
   name: StringComparisonInput
 }
 
-"Input type for filtering Votes in ReadMany queries."
 input FilterVoteInput {
   AND: [FilterVoteInput!]
   NOT: FilterVoteInput
   OR: [FilterVoteInput!]
-  "Filter by description"
   description: StringComparisonInput
-  "Filter by expiry datetime"
   expires: DateComparisonInput
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by question"
   question: StringComparisonInput
 }
 
-"Input type for filtering VoteResponses in ReadMany queries."
 input FilterVoteResponseInput {
   AND: [FilterVoteResponseInput!]
   NOT: FilterVoteResponseInput
   OR: [FilterVoteResponseInput!]
-  "Filter by ID"
   id: NumberComparisonInput
-  "Filter by their selection"
   selection: StringComparisonInput
-  "Filter by when they voted"
   timestamp: DateComparisonInput
-  "Filter by user ID"
   userId: NumberComparisonInput
-  "Filter by vote ID"
   voteId: NumberComparisonInput
 }
 
@@ -1831,192 +1207,134 @@ input NumberComparisonInput {
   equals: Float
   gt: Float
   gte: Float
+  in: [Float!]
   lt: Float
   lte: Float
   not: Float
 }
 
-"Input type for ordering AccessLogs in ReadMany queries."
 input OrderAccessLogInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: AccessLogOrderableFields!
 }
 
-"Input type for ordering AlertLogs in ReadMany queries."
 input OrderAlertLogInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: AlertLogOrderableFields!
 }
 
-"Input type for ordering Assets in ReadMany queries."
 input OrderAssetInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: AssetOrderableFields!
 }
 
-"Input type for ordering AuditLogs in ReadMany queries."
 input OrderAuditLogInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: AuditLogOrderableFields!
 }
 
-"Input type for ordering BlogPosts in ReadMany queries."
 input OrderBlogPostInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: BlogPostOrderableFields!
 }
 
-"Input type for ordering Categories in ReadMany queries."
 input OrderCategoryInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: CategoryOrderableFields!
 }
 
-"Input type for ordering ContactSubmissions in ReadMany queries."
 input OrderContactSubmissionInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: ContactSubmissionOrderableFields!
 }
 
-"Input type for ordering Credits in ReadMany queries."
 input OrderCreditInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: CreditOrderableFields!
 }
 
-"Input type for ordering Groups in ReadMany queries."
 input OrderGroupInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: GroupOrderableFields!
 }
 
-"Input type for ordering GroupPermissions in ReadMany queries."
 input OrderGroupPermissionInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: GroupPermissionOrderableFields!
 }
 
-"Input type for ordering Images in ReadMany queries."
 input OrderImageInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: ImageOrderableFields!
 }
 
-"Input type for ordering Persons in ReadMany queries."
 input OrderPersonInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: PersonOrderableFields!
 }
 
-"Input type for ordering PersonRoles in ReadMany queries."
 input OrderPersonRoleInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: PersonRoleOrderableFields!
 }
 
-"Input type for ordering Productions in ReadMany queries."
-input OrderProductionInput {
-  "Direction to order in. Required."
+input OrderProductionImageInput {
   direction: OrderDirection!
-  "Name of the field to sort by."
+  field: ProductionImageOrderableFields!
+}
+
+input OrderProductionInput {
+  direction: OrderDirection!
   field: ProductionOrderableFields!
 }
 
-"Input type for ordering ProductionRSVPs in ReadMany queries."
 input OrderProductionRSVPInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: ProductionRSVPOrderableFields!
 }
 
-"Input type for ordering ProductionTags in ReadMany queries."
 input OrderProductionTagInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: ProductionTagOrderableFields!
 }
 
-"Input type for ordering Redirects in ReadMany queries."
-input OrderRedirectInput {
-  "Direction to order in. Required."
+input OrderProductionVideoInput {
   direction: OrderDirection!
-  "Name of the field to sort by."
+  field: ProductionVideoOrderableFields!
+}
+
+input OrderRedirectInput {
+  direction: OrderDirection!
   field: RedirectOrderableFields!
 }
 
-"Input type for ordering Roles in ReadMany queries."
 input OrderRoleInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: RoleOrderableFields!
 }
 
-"Input type for ordering Users in ReadMany queries."
 input OrderUserInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: UserOrderableFields!
 }
 
-"Input type for ordering UserPermissions in ReadMany queries."
 input OrderUserPermissionInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: UserPermissionOrderableFields!
 }
 
-"Input type for ordering Videos in ReadMany queries."
 input OrderVideoInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: VideoOrderableFields!
 }
 
-"Input type for ordering Votes in ReadMany queries."
 input OrderVoteInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: VoteOrderableFields!
 }
 
-"Input type for ordering VoteResponses in ReadMany queries."
 input OrderVoteResponseInput {
-  "Direction to order in. Required."
   direction: OrderDirection!
-  "Name of the field to sort by."
   field: VoteResponseOrderableFields!
 }
 
@@ -2041,468 +1359,192 @@ input StringComparisonInput {
   contains: String
   endsWith: String
   equals: String
+  in: [String!]
   mode: CaseSensitivity
   not: String
   startsWith: String
 }
 
-"""
-
-Input type for updateAlertLog mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateAlertLogInput {
-  "The message logged by this alert. This is what is displayed to the user(s) viewing alerts."
   message: String
-  """
-
-  Severity of this alert. Currently can be any value, but should probably be one of the following:
-  - "INFO"
-  - "WARN"
-  - "ERROR"
-  A Postgres enum could be added in the future to enforce this. This could also be a number, which would allow
-  for easier filtering of alerts by severity.
-  """
   severity: String
 }
 
-"""
-
-Input type for updateAsset mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateAssetInput {
-  """
-
-  Flag whether this asset is lost or not. The asset is usually considered lost if the asset is not at the last
-  known location and the last known handler cannot account for its current location.
-  """
   isLost: Boolean
-  "The user ID of the user who last checked this asset out/in."
   lastKnownHandlerId: BigInt
-  """
-
-  The last known location of this asset. This should be the last location that the asset was checked out
-  from/checked into.
-  """
   lastKnownLocation: String
-  """
-
-  The model number of this asset. While the asset name is a human-readable name for quickly identifying what the
-  asset is for, the model number is defined by the manufacturer, and is used to identify the exact model of the
-  asset. This is useful for future club members who wish to re-purchase an asset or find out more information
-  about it, such as the manual. Not all assets will have a model number, in which case this can be set to null.
-  """
   modelNumber: String
-  "The name of this asset. This isn't necessarily the same as the model name, but it should be a human-readable"
   name: String
-  "Optional notes about this asset."
   notes: String
-  """
-
-  Some assets are part of a larger set of assets. For example, a camera may be part of a camera kit, which
-  includes a camera, a lens, a battery, and a bag. It doesn't make sense to require the user to scan the QR code
-  for all of these assets. Instead, the kit itself can be scanned and all child assets will be updated. Note that
-  scanning a child will not update a parent, nor it's siblings. If the asset is not part of a set, this can be
-  set to null.
-  """
   parentId: BigInt
-  """
-
-  DateTime at which this asset was purchased. This doesn't have to be super specific, but gives future club
-  members a rough idea of how old a piece of equipment is, and whether it may still be under warranty. This
-  should be the date that the asset was purchased, not the date that it was received. If the purchase date is
-  unknown, it can be set to null.
-  """
   purchaseDate: DateTime
-  """
-
-  The location where this asset was purchased. This is useful for new club members who wish to re-purchase an
-  asset, and want to know where to purchase it from. If the purchase location is unknown, it can be set to null.
-  Purchase location should be as specific as possible, and can be either a physical location or a website URL.
-  """
   purchaseLocation: String
-  """
-
-  The price which this asset was purchased for in pennies. This is useful for new club members who wish to
-  re-purchase an asset, and want to know the worth of the asset, for example. If an asset wasn't purchased,
-  (i.e. it was donated), the purchase price can be set to 0. If the purchase price is unknown, it can also be set
-  to null.
-  """
   purchasePrice: Int
-  """
-
-  The serial number of this asset. Serial numbers are useful for warranty or support tickets with the manufacturer.
-  Most assets will likely have a serial number somewhere, however it may be hard to find, or doesn't necessarily
-  make sense to log it. In this case, the serial number can be set to null.
-  """
   serialNumber: String
-  """
-
-  Unique tag number for this asset. This is what is printed/written/labeled on the asset itself. Sometimes, assets
-  are not tagged (e.g. due to physical size constraints), however they should still have a tag number.
-  """
   tag: Int
 }
 
-"""
-
-Input type for updateBlogPost mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateBlogPostInput {
-  """
-
-  The name to display for the author, as opposed to the actual username/person name. This allows for posting
-  blogs as a "group".
-  """
   authorDisplayName: String
-  "The User ID of the author of this blog post."
   authorId: BigInt
-  "The actual body of the blog post."
   content: String
-  "DateTime at which this blog post was posted."
   postedAt: DateTime
-  "The title of the blog post."
   title: String
 }
 
-"""
-
-Input type for updateCategory mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateCategoryInput {
-  "The name of this category"
   name: String
-  "The ID of the parent category, or null if this is a top-level category."
   parentId: BigInt
-  "The priority of this category. Categories with a higher priority should be displayed first."
   priority: Int
 }
 
-"""
-
-Input type for updateContactSubmission mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
-input UpdateContactSubmissionInput {
-  "Additional metadata about this ContactSubmission. Unstructured JSON data."
-  additionalData: JSON
-  "The main body of the ContactSubmission."
+input UpdateContactSubmissionGeneralInput {
   body: String
-  "The email address for how to reach the person who submitted this ContactSubmission."
   email: String
-  "The name of the person who submitted this ContactSubmission."
   name: String
-  "Flag whether this contact submission has been resolved or not."
   resolved: Boolean
-  "The subject/title of the ContactSubmission."
   subject: String
 }
 
-"""
+input UpdateContactSubmissionProductionRequestInput {
+  audioAvailable: Boolean
+  body: String
+  email: String
+  endTime: DateTime
+  isStudentOrganization: Boolean
+  livestreamed: Boolean
+  location: String
+  name: String
+  organizationName: String
+  phoneNumber: String
+  requiredCameraCount: Int
+  requiresEditing: Boolean
+  resolved: Boolean
+  startTime: DateTime
+  subject: String
+}
 
-Input type for updateCredit mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateCreditInput {
-  "The ID of the person this Credit belongs to."
   personId: BigInt
-  "The priority of this Credit. Credits with a higher priority should be displayed first."
   priority: Int
-  "The ID of the production this Credit is for."
   productionId: BigInt
-  "The title of this Credit"
   title: String
 }
 
-"""
-
-Input type for updateGroup mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateGroupInput {
-  "The display name for this Group"
   name: String
-  "The ID of the parent of this Group. If null, this Group is a top-level Group."
   parentId: BigInt
-  """
-
-  The priority of this Group. Groups with a higher priority will override the permissions of Groups with a lower
-  priority.
-  """
   priority: Int
 }
 
-"""
-
-Input type for updateGroupPermission mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateGroupPermissionInput {
-  "The action for this GroupPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this GroupPermission."
   conditions: JSON
-  "The set of fields for this GroupPermission."
   fields: [String!]
-  "ID of the group which this GroupPermission is for."
   groupId: BigInt
-  "True if this GroupPermission is a denying permission. False if this GroupPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this GroupPermission if this GroupPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this GroupPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
 }
 
-"""
-
-Input type for updateImage mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateImageInput {
-  "The description for this image."
   description: String
-  "The display name for this image."
   name: String
-  "The path/URI for this image."
   path: String
 }
 
-"""
-
-Input type for updatePersonImage mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdatePersonImageInput {
-  "Priority of this PersonImage. Higher priority images should be displayed first."
   priority: Int
 }
 
-"""
-
-Input type for updatePerson mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdatePersonInput {
-  "An \"about me\" section for this Person."
   description: String
-  """
-
-  The date that this Person intends on graduating from the university. This allows for automated role removals,
-  as well as displaying the Person's class year on their profile.
-  """
   graduation: DateTime
-  "The name (or pseudonym) for this Person. Should likely be in the format \"First Last\"."
   name: String
-  "ID of the image which should be used for this Person's profile picture."
   profilePictureId: BigInt
-  "The pronouns for this Person. Should likely be in the format \"they/them\". Optional."
   pronouns: String
 }
 
-"""
-
-Input type for updatePersonRole mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdatePersonRoleInput {
-  "End date of when this PersonRole association should no longer be active."
   endTime: DateTime
-  "Start date of when this PersonRole association should begin."
   startTime: DateTime
 }
 
-"""
-
-Input type for updateProductionImage mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateProductionImageInput {
-  "The priority of this ProductionImage. Higher priority ProductionImages should appear before lower priority ones."
   priority: Int
 }
 
-"""
-
-Input type for updateProduction mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateProductionInput {
-  "The ID of the category which this Production belongs to."
   categoryId: BigInt
-  "The closet meeting location for club members to meet at before the Production."
   closetLocation: String
-  "The time that club members should meet at the closet location before the Production."
   closetTime: DateTime
-  "The Description of this Production"
   description: String
-  """
-
-  The ID of the Discord channel within the Discord server that messages related to this Production should be sent
-  to.
-  """
   discordChannel: String
-  "The ID of the Discord server that messages related to this Production should be sent to."
   discordServer: String
-  """
-
-  The expected end time of this Production. This is used, in combination with start time, to determine which
-  Productions are live.
-  """
   endTime: DateTime
-  "The location of the event for this Production."
   eventLocation: String
-  "The title/name of this Production"
   name: String
-  """
-
-  The expected start time of this Production. This is used, in combination with end time, to determine which
-  Productions are live.
-  """
   startTime: DateTime
-  "Any notes that the team has about this Production. Can be markup."
   teamNotes: String
-  "The ID of the Image which should be used as the thumbnail for this Production."
   thumbnailId: BigInt
 }
 
-"""
-
-Input type for updateProductionRSVP mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateProductionRSVPInput {
-  "Any additional notes provided by the User, officers, or producers."
   notes: String
-  "The User's response to the Production's RSVP. Should be \"yes\", \"no\", or \"maybe\"."
   willAttend: String
 }
 
-"""
-
-Input type for updateProductionVideo mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateProductionVideoInput {
-  "The priority of this ProductionVideo. Higher priority ProductionVideos should appear before lower priority ones."
   priority: Int
 }
 
-"""
-
-Input type for updateRedirect mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateRedirectInput {
-  "The date and time at which this Redirect expires. If null, this Redirect never expires."
   expires: DateTime
-  "The key used in URLs to access this Redirect."
   key: String
-  "The URL which this Redirect redirects to."
   location: String
 }
 
-"""
-
-Input type for updateRole mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateRoleInput {
-  "The optional description of this role. May be what people within this role are responsible for, for example."
   description: String
-  "The name of this role."
+  displayInLeadership: Boolean
+  displayInMembership: Boolean
   name: String
+  priority: Int
 }
 
-"Input type for updateUser mutation. Null values are not updated. To update a non-null value to null, explicitly pass null."
 input UpdateUserInput {
-  "Discord account ID for this user, or null if the user does not have a linked Discord account."
   discord: String
-  "Email address for this user."
   mail: String
-  "The password to set for this user"
   password: String
-  "Attached Person's ID, or null if this user does not have a linked Person."
   personId: BigInt
-  """
-
-  Unique username for this user. Must be less than or equal to 8 characters in length and must be alphanumeric.
-  Recommended to be the user's RCS ID.
-  """
   username: String
 }
 
-"""
-
-Input type for updateUserPermission mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateUserPermissionInput {
-  "The action for this UserPermission. Should be a valid action within {@link AbilityAction }."
   action: String
-  "Any conditional checks for this UserPermission."
   conditions: JSON
-  "The set of fields for this UserPermission."
   fields: [String!]
-  "True if this UserPermission is a denying permission. False if this UserPermission is an allowing permission."
   inverted: Boolean
-  "The reason for this UserPermission if this UserPermission has {@link  #inverted} equal to true."
   reason: String
-  "The set of subjects for this UserPermission. Should be all valid subjects within {@link AbilitySubjects }."
   subject: [String!]
-  "ID of the user which this UserPermission is for."
   userId: BigInt
 }
 
-"""
-
-Input type for updateVideo mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateVideoInput {
-  "The format for this Video. Probably either \"EMBED\", \"RTMP\", or \"HLS\"."
   format: String
-  """
-
-  All additional data about this video. This is an unstructured JSON object. The data will vary depending on the
-  format of the video.
-  """
   metadata: JSON
-  "The display name for this Video."
   name: String
 }
 
-"""
-
-Input type for updateVote mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateVoteInput {
-  "Additional describing information about this vote."
   description: String
-  "Timestamp at which this vote closes and no more responses will be accepted."
   expires: DateTime
-  "An array of available options for responses to this vote."
   options: [String!]
-  "The question proposed in this vote."
   question: String
 }
 
-"""
-
-Input type for updateVoteResponse mutation. Null values are not updated. To update a non-null value to null, explicitly
-pass null.
-"""
 input UpdateVoteResponseInput {
-  """
-
-  The user's selection for this VoteResponse. If the vote's options are changed, this field will still remain
-  unchanged unless the user updates their vote.
-  """
   selection: String
-  "Timestamp at which this VoteResponse was submitted."
   timestamp: DateTime
 }
