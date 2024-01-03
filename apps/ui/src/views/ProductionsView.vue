@@ -112,14 +112,15 @@ async function search() {
       filter.push({name: { contains: searchVal.value, mode: CaseSensitivity.Insensitive}})
     if (filterCategory.value || noneChecked.value) {
       const filteredCategories = await categories.refetch({
-        filter: {name: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}}
+        filter: {name: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}},
+        order: []
       });
       if (filteredCategories?.data.categories.length)
-      filter.push({OR: filteredCategories?.data.categories.map(category => ({categoryId: {equals: parseInt(category.id)}}))});
+        filter.push({OR: filteredCategories?.data.categories.map(category => ({categoryId: {equals: parseInt(category.id)}}))});
     }
     if (filterTag.value || noneChecked.value) {
       const filteredTags = await tags.refetch({
-        filter: {tag: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}}
+        filter: {tag: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}},
       });
       if (filteredTags?.data.tags.length)
         filter.push({OR: filteredTags.data.tags.map(tag => ({id: {equals: parseInt(tag.productionId)}}))});
@@ -139,7 +140,7 @@ async function search() {
       },
       filter: {
         OR: filter
-      }
+      },
     });
     totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
     if (response.result.value) {
@@ -147,7 +148,7 @@ async function search() {
         productions.value.add(production);
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 

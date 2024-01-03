@@ -355,31 +355,23 @@ export class ContactSubmissionResolver {
                                 },
                                 {
                                     name: "Start Time",
-                                    value: additionalData.startTime
+                                    value: new Date(additionalData.startTime).toLocaleString()
                                 },
                                 {
                                     name: "End Time",
-                                    value: additionalData.endTime
+                                    value: new Date(additionalData.endTime).toLocaleString()
                                 },
                                 {
                                     name: "Would you like this event livestreamed?",
                                     value: additionalData.livestreamed ? "Yes" : "No"
                                 },
                                 {
-                                    name: "Can we share a public recording of this event?",
-                                    value: additionalData.isPublic ? "Yes" : "No"
-                                },
-                                {
                                     name: "Will you have audio equipment available for us to connect to (e.g. Union Show Techs)?",
-                                    value: additionalData.audioAvailable ? "Yes" : "No"
+                                    value: additionalData.audioSource ?? "No"
                                 },
                                 {
                                     name: "Is your organization part of the Student Union?",
                                     value: additionalData.isStudentOrganization ? "Yes" : "No"
-                                },
-                                {
-                                    name: "Will your production require additional post-production editing?",
-                                    value: additionalData.requiresEditing ? "Yes" : "No"
                                 },
                                 {
                                     name: "How many camera angles will you need?",
@@ -387,7 +379,7 @@ export class ContactSubmissionResolver {
                                 },
                                 {
                                     name: "Additional Details",
-                                    value: submission.body
+                                    value: submission.body.length ? submission.body : "*Unanswered*"
                                 }
                             ]
                         }

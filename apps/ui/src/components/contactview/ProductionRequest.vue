@@ -26,11 +26,11 @@
     </v-list-item>
   </v-list>
   <v-form class="mt-10" ref="productionRequest">
-    <v-text-field class="mt-2" label="Name" v-model="name" :rules="[formRules.name]"/>
-    <v-text-field class="mt-2" label="Email" type="email" v-model="email" :rules="[formRules.email]" />
-    <v-text-field class="mt-2" label="Phone Number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
+    <v-text-field class="mt-2" label="Entery your name" v-model="name" :rules="[formRules.name]"/>
+    <v-text-field class="mt-2" label="Enter your email" type="email" v-model="email" :rules="[formRules.email]" />
+    <v-text-field class="mt-2" label="Enter your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
     <p>What is the event name?</p>
-    <v-text-field class="mt-2" label="Enter your event name" v-model="subject" :rules="[formRules.subject]" />
+    <v-text-field class="mt-2" label="Enter the event name" v-model="subject" :rules="[formRules.subject]" />
     <p>What is your organization?</p>
     <v-text-field class="mt-2" label="Enter your organization" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
     <p>Is your organization affiliated with RPI?</p>

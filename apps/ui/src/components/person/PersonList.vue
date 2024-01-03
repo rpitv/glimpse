@@ -25,7 +25,7 @@
         </template>
       </RouterPopup>
       <v-snackbar v-model="createdPerson.show" color="green-darken-1" class="text-center">
-        <p>Created Role {{ createdPerson.id }}</p>
+        <p>Created Person {{ createdPerson.id }}</p>
         <template #actions>
           <v-btn @click="createdPerson.show = false" icon="fa-circle-xmark"/>
         </template>

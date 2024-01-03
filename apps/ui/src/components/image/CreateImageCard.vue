@@ -20,7 +20,7 @@
       <Transition name="steps">
         <div v-if="currentStep === 1">
           <ImageDetailsInput
-            @keypress.enter="enterKeyPressed"
+            @keydown.enter="enterKeyPressed"
             v-model:data="imageData"
             ref="imageDetailsInput"
           />

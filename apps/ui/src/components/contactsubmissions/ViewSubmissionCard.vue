@@ -87,7 +87,6 @@ function canResolve() {
 async function resolveSubmission() {
   const details = submission.result.value?.submissionDetails;
   isResolving.value = true;
-  console.log(details);
   try {
     const data = details?.type === "PRODUCTION_REQUEST" ? {
           name: details?.subject,
@@ -95,7 +94,6 @@ async function resolveSubmission() {
           endTime: details?.additionalData.endTime,
           eventLocation: details?.additionalData.location
         } : null;
-    console.log(data);
     if (details?.type === "GENERAL")
       await resolveGeneral.mutate({
         id: props.id,

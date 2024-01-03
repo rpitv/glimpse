@@ -1,9 +1,5 @@
 <template>
   <div class="container">
-    <h1 class="title">
-      About
-    </h1>
-    <br>
     <div class="about">
       <h3 class="about-content">
         RPI TV is RPI's student-run, volunteer television club.

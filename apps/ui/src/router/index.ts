@@ -144,7 +144,7 @@ const router = createRouter({
       name: "about",
       component: AboutView,
       meta: {
-        layoutCssName: "plain-layout",
+        layoutCssName: "wave-layout",
       },
     },
     {
@@ -192,7 +192,7 @@ const router = createRouter({
       name: "donate",
       component: DonateView,
       meta: {
-        layoutCssName: "plain-layout",
+        layoutCssName: "wave-layout",
       },
     },
     {

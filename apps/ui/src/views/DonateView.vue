@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-16 text-center container">
+  <div class="text-center container">
     <h1>
       Like what we do? Consider donating!
     </h1>

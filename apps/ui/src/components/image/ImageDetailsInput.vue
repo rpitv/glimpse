@@ -29,6 +29,7 @@
         @click="previewPath = inputImage.path || null"
         >Load Preview</n-button
       >
+      <br>
       <img
         v-if="previewPath"
         class="preview-image"
@@ -146,6 +147,7 @@ const rules: FormRules = {
 }
 .preview-image {
   max-width: 100%;
+  max-height: 300px;
   margin-top: 1em;
 }
 </style>
