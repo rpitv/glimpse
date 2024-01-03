@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isPopupShown" :style="`width: min(${maxWidth}px, 80%)`" scrim="black" scrollable>
+  <v-dialog v-model="isPopupShown" :style="`width: min(${maxWidth}px, 80%); z-index: 1500`" scrim="black" scrollable>
     <slot name="default"/>
   </v-dialog>
   <RouterLink v-if="to"
