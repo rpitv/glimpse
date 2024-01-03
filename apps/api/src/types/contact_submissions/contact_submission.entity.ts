@@ -53,7 +53,6 @@ export class ContactSubmission implements PrismaContactSubmission {
     /**
      * The main body of the ContactSubmission. Used for additional details in production requests.
      */
-    @MinLength(15)
     @MaxLength(1000)
     @Field(() => String)
     body: string;

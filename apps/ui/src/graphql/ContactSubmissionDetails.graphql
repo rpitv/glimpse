@@ -9,5 +9,6 @@ query ContactSubmissionDetails($id: BigInt!){
 		resolved
 		name
 		body
+    type
 	}
 }

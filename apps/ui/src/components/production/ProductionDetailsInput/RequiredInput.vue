@@ -81,9 +81,7 @@ const eventLocRules = [
 ]
 
 const rules =  {
-  minutes: {
-    interval: 15
-  }
+  minutes: { interval: 15 }
 }
 
 </script>

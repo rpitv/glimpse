@@ -176,8 +176,9 @@ const editable = computed(() => {
 
 if (props.data) {
   const startTime = new Date(props.data.startTime);
+  productionData.value.name = props.data.name;
   productionData.value.eventLocation = props.data.eventLocation;
-  productionData.value.closetTime = new Date(startTime.setHours(startTime.getHours() - 2));
+  productionData.value.closetTime = new Date(startTime.setHours(startTime.getHours() - 3));
   productionData.value.startTime = new Date(props.data.startTime);
   productionData.value.endTime = new Date(props.data.endTime);
   firstTime = false;

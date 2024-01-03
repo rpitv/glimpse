@@ -7,5 +7,6 @@ query FindContactSubmissions($filter: FilterContactSubmissionInput, $pagination:
 		resolved
 		subject
 		timestamp
+    type
 	}
 }

@@ -9,10 +9,10 @@
         <h2>Loading...</h2>
       </div>
     </div>
-    <div v-else-if="submission.result.value?.submissionDetails?.subject === 'Production Request'">
+    <div v-else-if="submission.result.value?.submissionDetails?.type === 'PRODUCTION_REQUEST'">
       <ProductionRequest :production="submission.result.value.submissionDetails" />
     </div>
-    <div v-else-if="submission.result.value?.submissionDetails?.subject === 'General Inquiry'">
+    <div v-else-if="submission.result.value?.submissionDetails?.type === 'GENERAL'">
       <GeneralInquiry :inquiry="submission.result.value.submissionDetails"/>
     </div>
     <v-card-actions>
@@ -45,19 +45,22 @@
 
 <script setup lang="ts">
 import {useMutation, useQuery} from "@vue/apollo-composable";
-import {AbilitySubjects, ContactSubmissionDetailsDocument, ResolveContactSubmissionDocument} from "@/graphql/types";
+import {
+  AbilitySubjects,
+  ContactSubmissionDetailsDocument,
+  ResolveGeneralContactSubmissionDocument,
+  ResolveProductionContactSubmissionDocument
+} from "@/graphql/types";
 import ProductionRequest from "@/components/contactsubmissions/ProductionRequest.vue";
 import GeneralInquiry from "@/components/contactsubmissions/GeneralInquiry.vue";
 import {ability, AbilityActions} from "@/casl";
 import {subject} from "@casl/ability";
 import {ref} from "vue";
-import RouterPopup from "@/components/util/RouterPopup.vue";
-import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 
 
 const props = defineProps({
   id: {
-    type: String,
+    type: Number,
     required: true
   }
 });
@@ -70,7 +73,9 @@ const submission = useQuery(ContactSubmissionDetailsDocument, {
   id: props.id
 });
 
-const resolver = useMutation(ResolveContactSubmissionDocument);
+
+const resolveGeneral = useMutation(ResolveGeneralContactSubmissionDocument);
+const resolveProduction = useMutation(ResolveProductionContactSubmissionDocument);
 
 function canResolve() {
   return ability.can(AbilityActions.Update, subject(AbilitySubjects.ContactSubmission, {
@@ -82,18 +87,28 @@ function canResolve() {
 async function resolveSubmission() {
   const details = submission.result.value?.submissionDetails;
   isResolving.value = true;
+  console.log(details);
   try {
-    const data = details?.subject === "Production Request" ? {
-          startTime: details?.additionalData.production.eventStartTime,
-          endTime: details?.additionalData.production.eventEndTime,
-          eventLocation: details?.additionalData.production.eventLocation
+    const data = details?.type === "PRODUCTION_REQUEST" ? {
+          name: details?.subject,
+          startTime: details?.additionalData.startTime,
+          endTime: details?.additionalData.endTime,
+          eventLocation: details?.additionalData.location
         } : null;
-    await resolver.mutate({
-      id: props.id,
-      resolve: true
-    });
+    console.log(data);
+    if (details?.type === "GENERAL")
+      await resolveGeneral.mutate({
+        id: props.id,
+        resolve: true
+      });
+    else if (details?.type === "PRODUCTION_REQUEST")
+      await resolveProduction.mutate({
+        id: props.id,
+        resolve: true
+      });
+
     emit('save',
-      (ability.can(AbilityActions.Create, AbilitySubjects.Production) && submission.result.value?.submissionDetails?.subject === "Production Request"),
+      (ability.can(AbilityActions.Create, AbilitySubjects.Production) && details?.type === "PRODUCTION_REQUEST"),
       data
     );
   } catch (e) {
@@ -105,10 +120,17 @@ async function resolveSubmission() {
 async function unresolveSubmission() {
   isResolving.value = true;
   try {
-    await resolver.mutate({
-      id: props.id,
-      resolve: false
-    });
+    if (submission.result.value?.submissionDetails?.type === "PRODUCTION_REQUEST")
+      await resolveProduction.mutate({
+        id: props.id,
+        resolve: false
+      });
+    else if (submission.result.value?.submissionDetails?.type === "GENERAL")
+      await resolveGeneral.mutate({
+        id: props.id,
+        resolve: false
+      });
+
     emit('save');
   } catch (e) {
     console.error(e);

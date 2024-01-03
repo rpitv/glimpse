@@ -26,9 +26,14 @@ import {
   faEdit,
   faExclamationTriangle,
   faChevronUp,
-  faChevronDown, faCheckSquare, faPaperclip, faCircleCheck, faEye
+  faChevronDown,
+  faCheckSquare,
+  faPaperclip,
+  faCircleCheck,
+  faEye,
+  faSquare
 } from "@fortawesome/pro-solid-svg-icons";
-import { faCircle, faDotCircle, faSquare } from "@fortawesome/free-regular-svg-icons"
+import { faCircle, faDotCircle } from "@fortawesome/free-regular-svg-icons"
 
 import {
   faCircleInfo,

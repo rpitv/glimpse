@@ -30,16 +30,12 @@ export class CreateContactSubmissionProductionRequestInput extends OmitType(
     livestreamed: boolean;
     @IsBoolean()
     isPublic: boolean;
-    @Field(() => Boolean)
-    @IsBoolean()
-    @Field(() => Boolean)
-    audioAvailable: boolean;
+    @Field(() => String, { nullable: true })
+    @IsString()
+    audioSource: boolean;
     @IsBoolean()
     @Field(() => Boolean)
     isStudentOrganization: boolean;
-    @IsBoolean()
-    @Field(() => Boolean)
-    requiresEditing: boolean;
     @IsNumber()
     @Field(() => Int, { nullable: true })
     requiredCameraCount: number | null;

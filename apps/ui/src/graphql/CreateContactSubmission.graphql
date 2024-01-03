@@ -1,5 +1,0 @@
-mutation CreateContactSubmission($data: CreateContactSubmissionInput!) {
-  contactSubmission: createContactSubmission(input: $data) {
-    id
-  }
-}

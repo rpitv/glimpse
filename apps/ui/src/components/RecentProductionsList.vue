@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: center;" class="mt-5">
     <div class="card-container">
       <div style="display: flex; justify-content: center" v-for="production in productions">
-        <ProductionCard :id="parseInt(production.id)" style="width: 100%"
+        <ProductionCard :id="parseInt(production.id)" class="mt-5"
             :start-time="new Date(production.startTime)" :description="production.description" :name="production.name" :thumbnailUrl="production.thumbnail?.path" />
       </div>
     </div>
@@ -28,12 +28,12 @@ defineProps({
 
 <style scoped lang="scss">
 .card-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 25px;
-  @media (max-width: 700px) {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  max-width: 800px;
+  @media (max-width: 800px) {
+    max-width: 500px;
     justify-content: center;
   }
 }

@@ -32,7 +32,6 @@
         <RecentProductionsList :productions="recentProductions.result.value.productions" />
       </div>
     </div>
-    <p class="contact mt-10">Contact us at rpitv@union.lists.rpi.edu</p>
   </div>
 </template>
 
@@ -45,7 +44,6 @@ import {
 import NextLivestream from "@/components/NextLivestream.vue";
 import RecentProductionsList from "@/components/RecentProductionsList.vue";
 import UpcomingProductionsList from "@/components/UpcomingProductionsList.vue";
-
 
 const liveProductions = useQuery(FindLiveProductionsDocument, {
   now: new Date().toISOString(),
@@ -96,10 +94,6 @@ const recentProductions = useQuery(FindRecentProductionsDocument, {
     display: inline-block;
     max-width: 600px;
   }
-}
-.contact {
-  text-align: center;
-  font-style: italic;
 }
 
 .available-productions {

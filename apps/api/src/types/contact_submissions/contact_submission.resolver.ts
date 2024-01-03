@@ -448,13 +448,12 @@ export class ContactSubmissionResolver {
         return {
             location: input.location,
             organizationName: input.organizationName,
-            startTime: input.startTime.toISOString(),
-            endTime: input.endTime.toISOString(),
+            startTime: input.startTime?.toISOString(),
+            endTime: input.endTime?.toISOString(),
             livestreamed: input.livestreamed,
             isPublic: input.isPublic,
-            audioAvailable: input.audioAvailable,
+            audioSource: input.audioSource,
             isStudentOrganization: input.isStudentOrganization,
-            requiresEditing: input.requiresEditing,
             requiredCameraCount: input.requiredCameraCount,
             phoneNumber: input.phoneNumber
         };

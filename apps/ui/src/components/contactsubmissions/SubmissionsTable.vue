@@ -38,7 +38,7 @@
             :id="item.id"
         />
         <template #trigger>
-          <v-btn color="green-darken-3" class="mr-2" variant="flat" size="small" icon="eye"></v-btn>
+          <v-btn color="green-darken-3" class="mr-2" variant="flat" size="small" icon="eye" />
         </template>
       </RouterPopup>
       <v-dialog max-width="500" scrim="black">
@@ -105,11 +105,11 @@ import {
   DeleteContactSubmissionDocument, FindContactSubmissionsDocument,
   OrderDirection
 } from "@/graphql/types";
-import type { Production } from "@/graphql/types";
+import type { Production, ContactSubmission } from "@/graphql/types";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 import {useMutation, useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
+import {ref, watch, onMounted} from "vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
 import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 
@@ -129,7 +129,7 @@ const take = 20;
 for (let i = 0; i < take; i++)
   list.value[i] = false;
 
-// When an adminstrative user resolves or unresolves a submission, we want to tell the other component to refresh.
+// When an administrative user resolves or unresolves a submission, we want to tell the other component to refresh.
 const props = defineProps({
   remoteRefresh: {
     type: Boolean,
@@ -177,7 +177,7 @@ const headers = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", key: "name", sortable: false },
   { title: "Email Address", value: "email" },
-  { title: "Subject", value: "subject" },
+  { title: "Type", value: "type" },
   { title: "Created At", key: "timestamp", value:
         (submission: Partial<ContactSubmission>) => formattedTime(submission.timestamp)},
   { title: "Actions", key: "actions", sortable: false }
@@ -259,6 +259,7 @@ function onSave(production: boolean, data: any) {
   if (production) {
     productionsModal.value = true;
     productionData.value = {
+      name: data.name,
       endTime: data.endTime,
       startTime: data.startTime,
       eventLocation: data.eventLocation,
@@ -288,6 +289,10 @@ watch(order, () => {
       order: [{direction: "Desc" as OrderDirection, field: "timestamp" as ContactSubmissionOrderableFields }]
     })
 });
+
+onMounted(() => {
+  refresh();
+})
 
 </script>
 

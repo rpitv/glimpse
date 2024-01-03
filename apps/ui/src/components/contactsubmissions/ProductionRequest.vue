@@ -12,56 +12,50 @@
       <tr>
         <td>Phone #</td>
         <td>{{
-            production.additionalData.production.phone.trim().length ? production.additionalData.production.phone : 'No phone number provided'
+            production.additionalData.production?.phoneNumber?.trim().length ? production.additionalData.production.phoneNumber : 'No phone number provided'
           }}</td>
       </tr>
       <tr>
-        <td>Organization</td>
-        <td>{{ production.additionalData.production.organization }}</td>
+        <td>Organization Name</td>
+        <td>{{ production.additionalData.organizationName }}</td>
       </tr>
       <tr>
-        <td>Paying for our services</td>
-        <td>{{ production.additionalData.production.services.paying ? '✅' : '❌' }}</td>
+        <td>An RPI Org</td>
+        <td>{{ production.additionalData.isStudentOrganization ? '✅' : '❌' }}</td>
       </tr>
       <tr>
-        <td>Services Requested</td>
-        <td>
-          <v-chip-group>
-            <v-chip v-for="request of production.additionalData.production.services.request">
-              {{ request }}
-            </v-chip>
-          </v-chip-group>
-        </td>
+        <td>Event Name</td>
+        <td>{{ production.subject }}</td>
       </tr>
       <tr>
         <td>Source of Audio Equipment</td>
         <td>
-          {{ production.additionalData.production.equipment.exists ? production.additionalData.production.equipment.provider : 'None' }}
+          {{ production.additionalData.audioSource ?? 'None' }}
         </td>
       </tr>
       <tr>
+        <td>Minimum Cameras Needed</td>
+        <td>{{ production.additionalData.requiredCameraCount }}</td>
+      </tr>
+      <tr>
+        <td>Livestream</td>
+        <td>{{ production.additionalData.livestream ? '✅' : '❌'}}</td>
+      </tr>
+      <tr>
         <td>Event Location</td>
-        <td>{{ production.additionalData.production.eventLocation }}</td>
+        <td>{{ production.additionalData.location }}</td>
       </tr>
       <tr>
         <td>Event Start Time</td>
-        <td>{{ formattedTime(production.additionalData.production.eventStartTime) }}</td>
+        <td>{{ formattedTime(production.additionalData.startTime) }}</td>
       </tr>
       <tr>
         <td>Event End Time</td>
-        <td>{{ formattedTime(production.additionalData.production.eventEndTime) }}</td>
+        <td>{{ formattedTime(production.additionalData.endTime) }}</td>
       </tr>
       <tr>
-        <td>Possible Needs</td>
-        <td>{{ production.additionalData.production.uniqueNeeds.trim().length ? production.additionalData.production.uniqueNeeds : 'No needs' }}</td>
-      </tr>
-      <tr>
-        <td>Questions</td>
-        <td>{{ production.additionalData.production.questions.trim().length? production.additionalData.production.questions : 'No questions' }}</td>
-      </tr>
-      <tr>
-        <td>Additional Links</td>
-        <td>{{ production.additionalData.production.links.trim().length ? production.additionalData.production.links : 'No links'}}</td>
+        <td>Additional Information</td>
+        <td>{{ production.additionalData.body?.trim().length ? production.additionalData.body : 'None' }}</td>
       </tr>
     </tbody>
   </v-table>
@@ -70,6 +64,7 @@
 <script setup lang="ts">
 import type {ContactSubmission} from "@/graphql/types";
 import type {PropType} from "vue";
+import {canViewProductionsDashboard} from "@/casl";
 
 const props = defineProps({
   production: {

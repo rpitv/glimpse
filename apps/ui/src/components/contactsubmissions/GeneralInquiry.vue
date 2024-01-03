@@ -10,6 +10,10 @@
         <td>{{ inquiry.email }}</td>
       </tr>
       <tr>
+        <td>Subject</td>
+        <td>{{ inquiry.subject }}</td>
+      </tr>
+      <tr>
         <td>Inquiry</td>
         <td>{{ inquiry.body }}</td>
       </tr>
