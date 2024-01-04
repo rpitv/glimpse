@@ -1,12 +1,13 @@
 <template>
   <div class="container">
+    <h1 style="font-size: 40px">About</h1>
     <div class="about">
-      <h3 class="about-content">
+      <h2 class="about-content">
         RPI TV is RPI's student-run, volunteer television club.
         We film various campus events and sports in an effort to
         preserve campus culture through video. Full videos of all
         the events we film can be watched for free on our <a href="https://www.youtube.com/@rpi-tv" target="_blank">youtube channel</a>.
-      </h3>
+      </h2>
       <div class="about-content">
         <iframe src="https://www.youtube.com/embed/MfzmM3EFqIY?si=Q0ovRqJmr46-NN7z" allowfullscreen class="video-player" />
       </div>

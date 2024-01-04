@@ -25,11 +25,12 @@
             ref="groupDetailsInput"
           />
         </div>
-        <div v-else-if="currentStep === 2">
+        <div v-else-if="currentStep === 2" >
           <PermissionsEditor
             :save-required="false"
             :count="permissionsToAdd.length"
             v-model:permissions="permissionsToAdd"
+            :creator="true"
           />
         </div>
         <div v-else-if="currentStep === 3">

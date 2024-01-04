@@ -11,10 +11,11 @@
           <CreateGroupCard
               closable
               @save="(id: number) => {
-              showCreatePopup = false;
-              refresh();
-              createdGroup = { id: id, show: true };
-            }"
+                showCreatePopup = false;
+                refresh();
+                createdGroup = { id: id, show: true };
+              }"
+              @close="showCreatePopup = false"
           />
         </template>
         <template #trigger>

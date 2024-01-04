@@ -34,10 +34,6 @@
         </td>
       </tr>
       <tr>
-        <td>Minimum Cameras Needed</td>
-        <td>{{ production.additionalData.requiredCameraCount }}</td>
-      </tr>
-      <tr>
         <td>Livestream</td>
         <td>{{ production.additionalData.livestream ? '✅' : '❌'}}</td>
       </tr>

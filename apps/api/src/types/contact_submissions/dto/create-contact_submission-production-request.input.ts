@@ -36,9 +36,6 @@ export class CreateContactSubmissionProductionRequestInput extends OmitType(
     @IsBoolean()
     @Field(() => Boolean)
     isStudentOrganization: boolean;
-    @IsNumber()
-    @Field(() => Int, { nullable: true })
-    requiredCameraCount: number | null;
     @IsString()
     @MaxLength(25)
     @Field(() => String, { nullable: true })

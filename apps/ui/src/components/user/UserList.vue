@@ -11,10 +11,11 @@
           <CreateUserCard
               closable
               @save="(id: number) => {
-              showCreatePopup = false;
-              refresh();
-              createdUser = { id: id, show: true };
-            }"
+                showCreatePopup = false;
+                refresh();
+                createdUser = { id: id, show: true };
+              }"
+              @close="showCreatePopup = false"
           />
         </template>
         <template #trigger>

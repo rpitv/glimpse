@@ -36,6 +36,7 @@
             :save-required="false"
             :count="permissionsToAdd.length"
             v-model:permissions="permissionsToAdd"
+            :creator="true"
           />
         </div>
         <div v-else-if="currentStep === 4">

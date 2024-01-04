@@ -1,6 +1,6 @@
 <template>
   <div>
-    <n-card class="card">
+    <n-card class="card" :style="creator ? 'max-height: 55vh' : ''">
       <div class="intro">
         <h1>Permissions Editor</h1>
         <n-alert type="warning">
@@ -136,21 +136,25 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  creator: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 const emit = defineEmits(["update:permissions", "close"]);
 
-// const hasUnsavedChanges = computed(() => {
-//   // Simple way to make sure nothing has changed. If it has, the user will be prompted to save.
-//   //  This is not a perfect solution, but it's good enough for now. Actual changes are checked in the parent component.
-//   return (
-//     JSON.stringify(localPermissions.value) !== JSON.stringify(props.permissions)
-//   );
-// });
+const hasUnsavedChanges = computed(() => {
+  // Simple way to make sure nothing has changed. If it has, the user will be prompted to save.
+  //  This is not a perfect solution, but it's good enough for now. Actual changes are checked in the parent component.
+  return (
+    JSON.stringify(localPermissions.value) !== JSON.stringify(props.permissions)
+  );
+});
 
-// defineExpose({
-//   hasUnsavedChanges,
-// });
+defineExpose({
+  hasUnsavedChanges,
+});
 
 const localPermissions = ref<Permission[]>(
   props.permissions?.map((permission) => ({ ...permission }))
@@ -202,34 +206,30 @@ watch([editedPermissionActionSubject], () => {
 
 // We can't use a dialog on the unload event (i.e. page reload/close/etc.) so we have to use the built-in browser
 //  functionality.
-// useEventListener(window, "beforeunload", (e: BeforeUnloadEvent) => {
-//   if (hasUnsavedChanges.value) {
-//     e.returnValue = true;
-//   }
-// });
+useEventListener(window, "beforeunload", (e: BeforeUnloadEvent) => {
+  if (hasUnsavedChanges.value) {
+    e.returnValue = true;
+  }
+});
 
 function save() {
   emit("update:permissions", localPermissions.value);
 }
 
 function closeButtonClicked() {
-
-  // if (hasUnsavedChanges.value) {
-  //   dialog.warning({
-  //     title: "Close without saving?",
-  //     content: "Are you sure you want to close without saving?",
-  //     positiveText: "Yes",
-  //     negativeText: "Go Back",
-  //     onPositiveClick: () => {
-  //       emit("close");
-  //     },
-  //     onNegativeClick: () => {
-  //       console.log("close");
-  //     }
-  //   });
-  // } else {
+  if (hasUnsavedChanges.value) {
+    dialog.warning({
+      title: "Close without saving?",
+      content: "Are you sure you want to close without saving?",
+      positiveText: "Yes",
+      negativeText: "Go Back",
+      onPositiveClick: () => {
+        emit("close");
+      },
+    });
+  } else {
     emit("close");
-  // }
+  }
 }
 
 function formatSubject(subject: string) {

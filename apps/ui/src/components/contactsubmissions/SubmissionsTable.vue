@@ -61,7 +61,7 @@
       </v-dialog>
     </template>
   </v-data-table-server>
-  <v-dialog v-if="!archived" max-width="700px" v-model="productionsModal">
+  <v-dialog v-if="!archived" max-width="700px" v-model="productionsModal" style="z-index: 1000">
     <v-card title="Create Production">
       <v-card-text>Would you like to create a production with some of these details autofilled?</v-card-text>
       <v-card-actions style="height: 100px">
@@ -153,7 +153,7 @@ const queryData = useQuery(FindContactSubmissionsDocument, {
   },
   order: [{
     field: "timestamp" as ContactSubmissionOrderableFields,
-    direction: "Desc" as OrderDirection
+    direction: props.archived ? "Desc" as OrderDirection : "Asc" as OrderDirection
   }]
 });
 

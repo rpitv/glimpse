@@ -1,10 +1,8 @@
 <template>
   <div style="display: flex; justify-content: center;" class="mt-5">
     <div class="card-container">
-      <div style="display: flex; justify-content: center" v-for="production in productions">
-        <ProductionCard :id="parseInt(production.id)" class="mt-5"
-            :start-time="new Date(production.startTime)" :description="production.description" :name="production.name" :thumbnailUrl="production.thumbnail?.path" />
-      </div>
+      <ProductionCard :id="parseInt(production.id)" class="mt-5" v-for="production in productions"
+          :start-time="new Date(production.startTime)" :description="production.description" :name="production.name" :thumbnailUrl="production.thumbnail?.path" />
     </div>
   </div>
   <div class="link">
@@ -31,9 +29,8 @@ defineProps({
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
-  max-width: 800px;
+  width: min(800px, 95%);
   @media (max-width: 800px) {
-    max-width: 500px;
     justify-content: center;
   }
 }

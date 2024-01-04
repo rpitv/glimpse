@@ -31,15 +31,13 @@
     <v-text-field class="mt-2" label="Enter your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
     <p>What is the event name?</p>
     <v-text-field class="mt-2" label="Enter the event name" v-model="subject" :rules="[formRules.subject]" />
-    <p>What is your organization?</p>
-    <v-text-field class="mt-2" label="Enter your organization" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
+    <p>What is your organization's name?</p>
+    <v-text-field class="mt-2" label="Enter your organization's name" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
     <p>Is your organization affiliated with RPI?</p>
     <v-radio-group class="mt-2" v-model="productionData.schoolOrg" :rules="[formRules.affiliation]">
       <v-radio label="Yes" :value="true" />
       <v-radio label="No" :value="false" />
     </v-radio-group>
-    <p>What is the minimum number of cameras needed?</p>
-    <v-text-field class="mt-2" label="Enter the # of cameras" type="number" v-model="productionData.cameras" :rules="[formRules.cameras]" />
     <p>Would you like this event to be livestreamed?</p>
     <v-radio-group class="mt-2" v-model="productionData.livestreamed" :rules="[formRules.livestream]">
       <v-radio label="Yes" :value="true" />
@@ -103,11 +101,10 @@ const productionData = ref({
     provider: ""
   },
   eventLocation: "",
-  eventStartTime: new Date(),
-  eventEndTime: new Date(),
+  eventStartTime: new Date().setSeconds(0),
+  eventEndTime: new Date().setSeconds(0),
   additionalDetails: "",
   livestreamed: null,
-  cameras: 1,
 });
 
 const locations = ['Academy Hall Auditorium', 'CBIS Auditorium',
@@ -179,10 +176,6 @@ const formRules = {
     if (value === false || value === true) return true;
     return "Please choose if you want this event to be livestreamed or not.";
   },
-  cameras: (value: number) => {
-    if (value <= 0) return "Please input a valid number.";
-    return true;
-  },
 }
 
 const timeRules =  {
@@ -211,8 +204,6 @@ async function submitProductionReq() {
         name: name.value,
         organizationName: productionData.value.organizationName,
         phoneNumber: productionData.value.phone,
-        // fuck js
-        requiredCameraCount: parseInt(productionData.value.cameras.toString()),
         startTime: productionData.value.eventStartTime.toISOString(),
         subject: subject.value,
       }

@@ -11,10 +11,11 @@
           <CreateCategoryCard
               closable
               @save="(id: number) => {
-              showCreatePopup = false;
-              refresh();
-              createdCategory = { id: id, show: true };
-            }"
+                showCreatePopup = false;
+                refresh();
+                createdCategory = { id: id, show: true };
+              }"
+              @close="showCreatePopup = false"
           />
         </template>
         <template #trigger>

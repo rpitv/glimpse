@@ -11,7 +11,7 @@
         <div class="mt-10" style="display: flex; justify-content: center;">
           <FontAwesomeIcon icon="fa-sharp fa-circle-check" class="icon"/>
         </div>
-        <h1 class="text-center">We've received your submission! We'll respond within 1-2 weeks at the time of your submission.</h1>
+        <h1 class="text-center">We've received your submission! We'll respond within 1-2 business weeks at the time of your submission.</h1>
       </div>
       <div v-else>
         <v-card-text>

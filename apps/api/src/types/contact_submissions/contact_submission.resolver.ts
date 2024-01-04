@@ -366,16 +366,12 @@ export class ContactSubmissionResolver {
                                     value: additionalData.livestreamed ? "Yes" : "No"
                                 },
                                 {
-                                    name: "Will you have audio equipment available for us to connect to (e.g. Union Show Techs)?",
-                                    value: additionalData.audioSource ?? "No"
+                                    name: "What is the source of your audio?",
+                                    value: additionalData.audioSource ?? "None"
                                 },
                                 {
                                     name: "Is your organization part of the Student Union?",
                                     value: additionalData.isStudentOrganization ? "Yes" : "No"
-                                },
-                                {
-                                    name: "How many camera angles will you need?",
-                                    value: additionalData.requiredCameraCount ?? "*Unanswered*"
                                 },
                                 {
                                     name: "Additional Details",
@@ -446,7 +442,6 @@ export class ContactSubmissionResolver {
             isPublic: input.isPublic,
             audioSource: input.audioSource,
             isStudentOrganization: input.isStudentOrganization,
-            requiredCameraCount: input.requiredCameraCount,
             phoneNumber: input.phoneNumber
         };
     }

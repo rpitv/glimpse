@@ -11,6 +11,7 @@
         <small>{{ moment(production.startTime).format("llll") }}</small>
       </v-card-text>
     </v-card>
+    <br>
   </div>
 </template>
 

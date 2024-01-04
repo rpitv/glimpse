@@ -745,7 +745,6 @@ input CreateContactSubmissionProductionRequestInput {
   name: String!
   organizationName: String!
   phoneNumber: String
-  requiredCameraCount: Int
   resolved: Boolean
   startTime: DateTime!
   subject: String!
@@ -1417,7 +1416,6 @@ input UpdateContactSubmissionProductionRequestInput {
   name: String
   organizationName: String
   phoneNumber: String
-  requiredCameraCount: Int
   resolved: Boolean
   startTime: DateTime
   subject: String
