@@ -100,7 +100,7 @@
           <td>Video(s)</td>
           <td>
             <v-chip-group v-if="videos.length > 0">
-              <v-chip class="ml-2" v-for="video in videos" :key="video.id" @click="openURL(video.url)">
+              <v-chip v-for="video in videos" :key="video.id" @click="openURL(video.url)">
                 Video ID: {{ video.id }}
               </v-chip>
             </v-chip-group>

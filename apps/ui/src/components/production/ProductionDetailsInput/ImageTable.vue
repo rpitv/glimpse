@@ -85,7 +85,7 @@ const props = defineProps({
     required: true
   },
   thumbnailId: {
-    type: String,
+    type: null,
     required: true
   }
 });

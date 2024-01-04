@@ -32,12 +32,16 @@
             <OptionalInput v-model="newProductionData" :tags="newProductionTags" @update:tags="(value: string[]) => newProductionTags = value" />
           </v-stepper-window-item>
           <v-stepper-window-item value="3">
-            <CategoryTable :take="take" :productionCategory="newProductionCategory" @setCategory="(category: any) => newProductionCategory = category"/>
+            <CategoryTable :take="take" :productionCategory="newProductionCategory"
+              @setCategory="(category: any) => newProductionCategory = {
+                id: category.id,
+                name: category.name
+              }"/>
             <div class="flex-container mt-2" v-if="newProductionCategory.id">
               <h2>Chosen Category: </h2>
               <v-chip-group column>
                 <v-chip class="ml-3" closable
-                        @click:close="newProductionCategory = { id: '', name: ''}" >
+                        @click:close="newProductionCategory = { id: null, name: ''}" >
                   Category ID: {{ newProductionCategory.id }}
                 </v-chip>
               </v-chip-group>
@@ -52,7 +56,7 @@
               <h2>Thumbnail: </h2>
               <v-dialog width="400" scrim="black">
                 <template v-slot:activator="{ props }" >
-                  <v-chip v-bind="props" class="ml-1" closable @click:close="() => {newProductionThumbnail.url = ''; newProductionThumbnail.id = ''}">
+                  <v-chip v-bind="props" class="ml-1" closable @click:close="() => {newProductionThumbnail.url = ''; newProductionThumbnail.id = null}">
                     Image ID: {{ newProductionThumbnail.id }}
                   </v-chip>
                 </template>
@@ -111,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import {watch, ref, watchEffect, computed} from "vue";
+import {watch, ref, computed, onMounted} from "vue";
 import type { PropType } from "vue";
 import {
   UpdateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
@@ -171,7 +175,7 @@ const newProductionData = ref<Partial<Production>>({});
  */
 interface urlInterface {
   prodId?: string
-  id: string,
+  id: number | null,
   url: string,
   priority: number,
 }
@@ -184,10 +188,10 @@ const endTimeMissing = ref(false);
 const take = 20;
 const oldProductionTags = ref<{id: string, tag: string}[]>([]);
 const newProductionTags = ref<string[]>([]);
-const oldProductionCategory = ref({id: '', name: ''});
-const newProductionCategory = ref({id: '', name: ''});
-const oldProductionThumbnail = ref<urlInterface>({id: '', url: '', priority: 0});
-const newProductionThumbnail = ref<urlInterface>({id: '', url: '', priority: 0});
+const oldProductionCategory = ref<{id: number | null, name: string}>({id: null, name: ''});
+const newProductionCategory = ref<{id: number | null, name: string}>({id: null, name: ''});
+const oldProductionThumbnail = ref<urlInterface>({id: null, url: '', priority: 0});
+const newProductionThumbnail = ref<urlInterface>({id: null, url: '', priority: 0});
 const oldProductionImages = ref<urlInterface[]>([]);
 const newProductionImages = ref<urlInterface[]>([]);
 const oldProductionVideos = ref<urlInterface[]>([]);
@@ -249,6 +253,7 @@ watch(currentProduction.result, () => {
     }
 
     const category = production?.category;
+
     if (category) {
       oldProductionCategory.value = {
         id: category.id,
@@ -316,7 +321,7 @@ async function validate(next: any) {
 
 }
 
-function setThumbnailId(imageId: string, url: string) {
+function setThumbnailId(imageId: number, url: string) {
   newProductionThumbnail.value = {
     id: imageId,
     url: url,
@@ -324,7 +329,7 @@ function setThumbnailId(imageId: string, url: string) {
   }
 }
 
-function addImage(imageId: string, url: string) {
+function addImage(imageId: number, url: string) {
   newProductionImages.value.push({
     id: imageId,
     url: url,
@@ -332,7 +337,7 @@ function addImage(imageId: string, url: string) {
   });
 }
 
-function addVideo(videoId: string, url: string) {
+function addVideo(videoId: number, url: string) {
   newProductionVideos.value.push({
     id: videoId,
     url: url,
@@ -357,10 +362,12 @@ async function editProduction() {
     if (newProductionData.value.endTime !== oldProductionData.value.endTime) production.endTime = newProductionData.value.endTime;
     if (newProductionData.value.description !== oldProductionData.value.description) production.description = newProductionData.value.description;
     if (newProductionData.value.teamNotes !== oldProductionData.value.teamNotes) production.teamNotes = newProductionData.value.teamNotes;
-    if (newProductionCategory.value.id !== oldProductionCategory.value.id)
-      production.categoryId = newProductionCategory.value.id.length ? newProductionCategory.value.id : null;
+    if (newProductionCategory.value.id !== oldProductionCategory.value.id) {
+      production.categoryId = newProductionCategory.value.id;
+    }
     if (newProductionThumbnail.value.id !== oldProductionThumbnail.value.id)
-      production.thumbnailId = newProductionThumbnail.value.id.length ? newProductionThumbnail.value.id : null
+      production.thumbnailId = newProductionThumbnail.value.id ?? null;
+
 
     await updateProductionMutation.mutate({
       data: production,
@@ -405,9 +412,11 @@ async function editProduction() {
         data: {
           priority: parseInt(image.priority.toString())
         }
-      })
+      });
+    console.log(newProductionVideos.value);
+    console.log(oldProductionVideos.value);
     const vidsToCreate = newProductionVideos.value.filter((newVid) => !oldProductionVideos.value.some((oldVid) => oldVid.id === newVid.id));
-    const vidsToDelete = newProductionVideos.value.filter((oldVid) => !newProductionVideos.value.some((newVid) => oldVid.id === newVid.id));
+    const vidsToDelete = oldProductionVideos.value.filter((oldVid) => !newProductionVideos.value.some((newVid) => oldVid.id === newVid.id));
     const vidsToUpdate = newProductionVideos.value.filter((newVid) => !vidsToCreate.includes(newVid)).filter((newVid) => !vidsToDelete.includes(newVid));
 
     for (const video of vidsToCreate)
@@ -435,8 +444,11 @@ async function editProduction() {
     return;
   }
   emit("save", props.productionId);
-
 }
+
+onMounted(() => {
+  currentProduction.refetch();
+})
 
 </script>
 

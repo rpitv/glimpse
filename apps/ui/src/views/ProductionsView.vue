@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import {useQuery} from "@vue/apollo-composable";
-import type {Production} from "@/graphql/types";
+import {CategoryOrderableFields, Production} from "@/graphql/types";
 import {
   CaseSensitivity,
   FindAllProductionsDocument,
@@ -69,7 +69,11 @@ const tags = useQuery(FindProductionTagsDocument, {
   filter: {}
 });
 const categories = useQuery(FindCategoriesDocument, {
-  filter: {}
+  filter: {},
+  order: [{
+    direction: "Asc" as OrderDirection,
+    field: "id" as CategoryOrderableFields,
+  }]
 });
 
 let totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
@@ -112,8 +116,7 @@ async function search() {
       filter.push({name: { contains: searchVal.value, mode: CaseSensitivity.Insensitive}})
     if (filterCategory.value || noneChecked.value) {
       const filteredCategories = await categories.refetch({
-        filter: {name: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}},
-        order: []
+        filter: {name: {contains: searchVal.value, mode: CaseSensitivity.Insensitive}}
       });
       if (filteredCategories?.data.categories.length)
         filter.push({OR: filteredCategories?.data.categories.map(category => ({categoryId: {equals: parseInt(category.id)}}))});

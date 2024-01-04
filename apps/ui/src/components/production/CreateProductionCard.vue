@@ -26,7 +26,13 @@
             <OptionalInput v-model="productionData" :tags="productionTags" @update:tags="(value: string[]) => productionTags = value" />
           </v-stepper-window-item>
           <v-stepper-window-item value="3">
-            <CategoryTable :take="take" :productionCategory="productionCategory" @setCategory="(category: any) => productionCategory = category"/>
+            <CategoryTable :take="take" :productionCategory="productionCategory"
+               @setCategory="
+               (category: any) => productionCategory = {
+                  id: category.id,
+                  name: category.name
+                }"
+            />
             <div class="flex-container mt-2" v-if="productionCategory.id">
               <h2>Chosen Category: </h2>
               <v-chip-group column>
@@ -152,7 +158,7 @@ const productionData = ref<Partial<Production>>({
 });
 
 interface urlInterface {
-  id: string,
+  id: number | null,
   url: string,
   priority: number,
 }
@@ -165,7 +171,7 @@ const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
 const productionTags = ref<string[]>([]);
 const productionCategory = ref({id: '', name: ''});
-const productionThumbnail = ref<urlInterface>({id: '', url: '', priority: 0});
+const productionThumbnail = ref<urlInterface>({id: null, url: '', priority: 0});
 const productionImages = ref<urlInterface[]>([]);
 const productionVideos = ref<urlInterface[]>([]);
 
@@ -292,7 +298,7 @@ async function createProduction() {
   emit("save", createdProduction?.data?.production.id);
 }
 
-function setThumbnailId(imageId: string, url: string) {
+function setThumbnailId(imageId: number, url: string) {
   productionThumbnail.value = {
     id: imageId,
     url: url,
@@ -300,7 +306,7 @@ function setThumbnailId(imageId: string, url: string) {
   }
 }
 
-function addImage(imageId: string, url: string) {
+function addImage(imageId: number, url: string) {
   productionImages.value.push({
     id: imageId,
     url: url,
@@ -308,7 +314,7 @@ function addImage(imageId: string, url: string) {
   });
 }
 
-function addVideo(videoId: string, url: string) {
+function addVideo(videoId: number, url: string) {
   productionVideos.value.push({
     id: videoId,
     url: url,
