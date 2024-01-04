@@ -124,7 +124,7 @@ export const guestPermissions: GroupPermissionInput[] = [
     {
         action: "read",
         subject: ["Production"],
-        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail", "videos", "images", "credits", "tags"]
+        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail", "videos", "images", "credits"]
     },
     {
         action: "sort",
