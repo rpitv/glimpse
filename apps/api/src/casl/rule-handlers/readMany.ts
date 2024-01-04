@@ -128,7 +128,7 @@ export function handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
 
         // Test the ability against each requested field
         for (const field of fields) {
-            if (!req.permissions.can(AbilityAction.Read, subjectStr, field)) {
+            if (field !== "__typename" && !req.permissions.can(AbilityAction.Read, subjectStr, field)) {
                 logger.verbose(`Failed field-based ReadMany rule test for field "${field}".`);
                 req.passed = false;
                 return of(null);
@@ -174,7 +174,7 @@ export function handleReadManyRule<T extends Exclude<AbilitySubjects, string>>(
 
                 // Test the ability against each requested field with subject value.
                 for (const field of fields) {
-                    if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
+                    if (field !== "__typename" && !req.permissions.can(AbilityAction.Read, subjectObj, field)) {
                         // Strict mode will cause the entire request to fail if any field fails. Otherwise, the field
                         //  will be set to null. The user won't necessarily know (as of now) whether the field is
                         //  actually null, or they just can't read it.
