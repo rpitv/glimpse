@@ -1,5 +1,3 @@
 mutation CreateContactSubmissionProductionRequest ($data: CreateContactSubmissionProductionRequestInput!) {
-  createContactSubmissionProductionRequest(input: $data) {
-    id
-  }
+  createContactSubmissionProductionRequest(input: $data)
 }

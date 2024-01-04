@@ -6,7 +6,7 @@ import { Directive } from "@nestjs/graphql";
 import { CaslHelper } from "./casl.helper";
 import { handleReadOneRule } from "./rule-handlers/readOne";
 import { handleReadManyRule } from "./rule-handlers/readMany";
-import { handleCreateRule } from "./rule-handlers/create";
+import {handleCreateInvisibleRule, handleCreateRule} from "./rule-handlers/create";
 import { handleUpdateRule } from "./rule-handlers/update";
 import { handleDeleteRule } from "./rule-handlers/delete";
 import { handleCountRule } from "./rule-handlers/count";
@@ -55,6 +55,7 @@ export enum RuleType {
     ReadOne = "ReadOne",
     ReadMany = "ReadMany",
     Create = "Create",
+    CreateInvisible = "CreateInvisible",
     Update = "Update",
     Delete = "Delete",
     Count = "Count"
@@ -64,6 +65,7 @@ const ruleHandlers: Map<RuleType, RuleHandler> = new Map([
     [RuleType.ReadOne, handleReadOneRule],
     [RuleType.ReadMany, handleReadManyRule],
     [RuleType.Create, handleCreateRule],
+    [RuleType.CreateInvisible, handleCreateInvisibleRule],
     [RuleType.Update, handleUpdateRule],
     [RuleType.Delete, handleDeleteRule],
     [RuleType.Count, handleCountRule]

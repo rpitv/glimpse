@@ -6,7 +6,9 @@ export const guestPermissions: GroupPermissionInput[] = [
     {
         action: "create",
         subject: ["ContactSubmission"],
-        fields: ["email", "name", "subject", "body"]
+        conditions: {
+            resolved: false
+        }
     },
     {
         action: "filter",

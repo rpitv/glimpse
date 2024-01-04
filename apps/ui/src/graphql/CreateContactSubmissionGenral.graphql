@@ -1,5 +1,3 @@
 mutation CreateContactSubmissionGeneral($data: CreateContactSubmissionGeneralInput!) {
-  createContactSubmissionGeneral(input: $data) {
-    id
-  }
+  createContactSubmissionGeneral(input: $data)
 }

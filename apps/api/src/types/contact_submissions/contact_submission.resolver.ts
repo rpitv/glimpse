@@ -130,8 +130,8 @@ export class ContactSubmissionResolver {
 
     // -------------------- Custom Resolvers --------------------
 
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ContactSubmission)
+    @Mutation(() => Boolean, { complexity: Complexities.Create })
+    @Rule(RuleType.CreateInvisible, ContactSubmission)
     async createContactSubmissionGeneral(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateContactSubmissionGeneralInput }) input: CreateContactSubmissionGeneralInput
@@ -172,8 +172,8 @@ export class ContactSubmissionResolver {
             })
         );
     }
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ContactSubmission)
+    @Mutation(() => Boolean, { complexity: Complexities.Create })
+    @Rule(RuleType.CreateInvisible, ContactSubmission)
     async createContactSubmissionProductionRequest(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateContactSubmissionProductionRequestInput })
