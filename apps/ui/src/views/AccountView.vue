@@ -28,7 +28,7 @@ onMounted(async () => {
     justify-content: center;
 
     .change-password-card {
-      width: 500px;
+      width: min(500px, 90vw);
     }
   }
 

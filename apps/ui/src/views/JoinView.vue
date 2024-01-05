@@ -1,5 +1,5 @@
 <template>
-  <div class="container text-center">
+  <div class="container text-center mt-10">
     <h1>We hold weekly meetings on Tuesdays at
       9:00 PM in the Rensselaer Union, Room 3202
       This is where we plan for the week’s

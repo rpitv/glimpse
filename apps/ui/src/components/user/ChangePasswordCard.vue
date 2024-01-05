@@ -1,25 +1,25 @@
 <template>
-<n-card>
-  <h1>Change Password</h1>
+  <n-card>
+    <h1>Change Password</h1>
 
-  <n-alert class="error-msg" v-if="!!error && passwordInput.length > 0" type="error">
-    {{ error }}
-  </n-alert>
+    <n-alert class="error-msg" v-if="!!error && passwordInput.length > 0" type="error">
+      {{ error }}
+    </n-alert>
 
-  <div class="input-section">
-    <label>New Password</label>
-    <n-input type="password" v-model:value="passwordInput" @keup="inputKeyPressed"></n-input>
-  </div>
-  <div class="input-section">
-    <label>Confirm Password</label>
-    <n-input type="password" v-model:value="confirmPasswordInput" @keyup="inputKeyPressed"></n-input>
-  </div>
+    <div class="input-section">
+      <label>New Password</label>
+      <n-input type="password" v-model:value="passwordInput" @keup="inputKeyPressed"></n-input>
+    </div>
+    <div class="input-section">
+      <label>Confirm Password</label>
+      <n-input type="password" v-model:value="confirmPasswordInput" @keyup="inputKeyPressed"></n-input>
+    </div>
 
-  <div class="actions">
-    <n-button class="action-button" type="success" :disabled="!!error" @click="save">Save</n-button>
-    <n-button v-if="closable" class="action-button" type="error" @click="emit('close')">Cancel</n-button>
-  </div>
-</n-card>
+    <div class="actions">
+      <n-button class="action-button" type="success" :disabled="!!error" @click="save">Save</n-button>
+      <n-button v-if="closable" class="action-button" type="error" @click="emit('close')">Cancel</n-button>
+    </div>
+  </n-card>
 </template>
 
 <script setup lang="ts">

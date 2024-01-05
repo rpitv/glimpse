@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center container">
+  <div class="text-center container mt-5">
     <h1>
       Like what we do? Consider donating!
     </h1>
@@ -14,6 +14,7 @@
     <br>
     <h1>Thank you for your donation!</h1>
   </div>
+  <br>
 </template>
 
 <script setup lang="ts">
