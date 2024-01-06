@@ -16,18 +16,50 @@ export class HelpCommand extends Command {
     }
 
     async run(ctx: CommandContext, args: string[]): Promise<void> {
-        let helpStr = "";
-        for(const cmd of ctx.commands) {
-            // If user is asking for help about a specific command then we only want to output that commands help message
-            if(args.length === 1 && !cmd.getAliases().includes(args[0])) {
-                continue;
-            }
-            // Format: Aliases (comma-separated) - Command name. Command name is blue, aliases are bold, dash is gray.
-            helpStr += `${style(cmd.getAliases().join(', '), Color.Bold)} ${style('-', Color.Dim)} ${style(cmd.getName(), Color.Blue)}\n`
-            helpStr += `${cmd.getDescription()}\n\n`
+
+        let minTabCount = 1;
+        for (const cmd of ctx.commands) {
+            const aliasLength = cmd.getAliases().join(", ").length;
+            const tabCount = Math.ceil(aliasLength / 8);
+            minTabCount = Math.max(minTabCount, tabCount);
         }
-        helpStr = helpStr.slice(0, -2)
-        console.log(helpStr);
+
+        console.log(style("\tUsage", [Color.Cyan, Color.Underline, Color.Bold]));
+        console.log("\t\"rpitv\" for interactive mode.");
+        console.log("\t\"rpitv <command>\" for non-interactive mode.");
+        console.log("");
+        console.log(
+            style(`\tCommands${"\t".repeat(minTabCount)}Description`, [Color.Cyan, Color.Underline, Color.Bold])
+        );
+
+        const descriptionWidth = process.stdout.columns - (minTabCount + 3) * 8 - 5;
+
+        for (const cmd of ctx.commands) {
+            const aliasesString = cmd.getAliases().join(", ");
+            const tabStr = "\t".repeat(minTabCount - Math.ceil(aliasesString.length / 8) + 2);
+            const description = cmd.getDescription();
+
+            const descriptionLines = [];
+            let nextLine = "";
+            for (const word of description.split(" ")) {
+                if (nextLine.length + word.length > descriptionWidth) {
+                    descriptionLines.push(nextLine);
+                    nextLine = "";
+                }
+                nextLine += word + " ";
+            }
+            descriptionLines.push(nextLine);
+
+            process.stdout.write(style(`\t${aliasesString}${tabStr}`, [Color.Bold]));
+            for (let i = 0; i < descriptionLines.length; i++) {
+                if (i > 0) {
+                    process.stdout.write("\t".repeat(minTabCount + 2));
+                }
+                process.stdout.write(`${descriptionLines[i]}\n`);
+            }
+        }
+
+        console.log("");
     }
 
     getAliases(): string[] {
