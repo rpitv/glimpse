@@ -23,12 +23,14 @@
   "dependencies": {
     "@rpitv/glimpse-prisma": "*",
     "argon2": "^0.30.3",
+    "inquirer": "^9.2.12",
     "prisma": "^5.7.0"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.5",
     "@rpitv/glimpse-tsconfig": "*",
+    "@types/inquirer": "^9.0.7",
     "rollup": "^4.9.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
