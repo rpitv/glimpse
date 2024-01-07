@@ -6,7 +6,9 @@ export const guestPermissions: GroupPermissionInput[] = [
     {
         action: "create",
         subject: ["ContactSubmission"],
-        fields: ["email", "name", "subject", "body"]
+        conditions: {
+            resolved: false
+        }
     },
     {
         action: "filter",
@@ -122,7 +124,7 @@ export const guestPermissions: GroupPermissionInput[] = [
     {
         action: "read",
         subject: ["Production"],
-        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail"]
+        fields: ["id", "name", "description", "startTime", "endTime", "category", "eventLocation", "thumbnail", "videos", "images", "credits", "tags"]
     },
     {
         action: "sort",

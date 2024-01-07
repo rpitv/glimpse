@@ -1,0 +1,5 @@
+mutation DeleteProduction($id: BigInt!) {
+  production: deleteProduction(id: $id) {
+    id
+  }
+}

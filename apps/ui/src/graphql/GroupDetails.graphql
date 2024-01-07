@@ -1,0 +1,11 @@
+query GroupDetails($id: BigInt!) {
+  group: findOneGroup(id: $id) {
+    id
+    name
+    priority
+    parent {
+      id
+      name
+    }
+  }
+}

@@ -8,6 +8,7 @@ export type NavButton = {
   showIconOnDesktop: boolean;
   route?: string;
   children?: NavButton[];
+  active?: Ref<boolean>;
   visible?: () => Ref<boolean>;
   onClick?: (
     event: MouseEvent,

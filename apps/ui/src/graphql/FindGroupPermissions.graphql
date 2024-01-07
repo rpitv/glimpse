@@ -1,0 +1,12 @@
+query FindGroupPermissions($pagination: PaginationInput, $filter: FilterGroupPermissionInput) {
+  groupPermissionCount(filter: $filter)
+  permissions: findManyGroupPermission(pagination: $pagination, filter: $filter) {
+    id
+    action
+    subject
+    fields
+    conditions
+    inverted
+    reason
+  }
+}

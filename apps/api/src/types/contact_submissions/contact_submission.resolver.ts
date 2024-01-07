@@ -130,8 +130,8 @@ export class ContactSubmissionResolver {
 
     // -------------------- Custom Resolvers --------------------
 
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ContactSubmission)
+    @Mutation(() => Boolean, { complexity: Complexities.Create })
+    @Rule(RuleType.CreateInvisible, ContactSubmission)
     async createContactSubmissionGeneral(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateContactSubmissionGeneralInput }) input: CreateContactSubmissionGeneralInput
@@ -172,8 +172,8 @@ export class ContactSubmissionResolver {
             })
         );
     }
-    @Mutation(() => ContactSubmission, { complexity: Complexities.Create })
-    @Rule(RuleType.Create, ContactSubmission)
+    @Mutation(() => Boolean, { complexity: Complexities.Create })
+    @Rule(RuleType.CreateInvisible, ContactSubmission)
     async createContactSubmissionProductionRequest(
         @Context() ctx: { req: Request },
         @Args("input", { type: () => CreateContactSubmissionProductionRequestInput })
@@ -355,39 +355,27 @@ export class ContactSubmissionResolver {
                                 },
                                 {
                                     name: "Start Time",
-                                    value: additionalData.startTime
+                                    value: new Date(additionalData.startTime).toLocaleString()
                                 },
                                 {
                                     name: "End Time",
-                                    value: additionalData.endTime
+                                    value: new Date(additionalData.endTime).toLocaleString()
                                 },
                                 {
                                     name: "Would you like this event livestreamed?",
                                     value: additionalData.livestreamed ? "Yes" : "No"
                                 },
                                 {
-                                    name: "Can we share a public recording of this event?",
-                                    value: additionalData.isPublic ? "Yes" : "No"
-                                },
-                                {
-                                    name: "Will you have audio equipment available for us to connect to (e.g. Union Show Techs)?",
-                                    value: additionalData.audioAvailable ? "Yes" : "No"
+                                    name: "What is the source of your audio?",
+                                    value: additionalData.audioSource ?? "None"
                                 },
                                 {
                                     name: "Is your organization part of the Student Union?",
                                     value: additionalData.isStudentOrganization ? "Yes" : "No"
                                 },
                                 {
-                                    name: "Will your production require additional post-production editing?",
-                                    value: additionalData.requiresEditing ? "Yes" : "No"
-                                },
-                                {
-                                    name: "How many camera angles will you need?",
-                                    value: additionalData.requiredCameraCount ?? "*Unanswered*"
-                                },
-                                {
                                     name: "Additional Details",
-                                    value: submission.body
+                                    value: submission.body.length ? submission.body : "*Unanswered*"
                                 }
                             ]
                         }
@@ -448,14 +436,12 @@ export class ContactSubmissionResolver {
         return {
             location: input.location,
             organizationName: input.organizationName,
-            startTime: input.startTime.toISOString(),
-            endTime: input.endTime.toISOString(),
+            startTime: input.startTime?.toISOString(),
+            endTime: input.endTime?.toISOString(),
             livestreamed: input.livestreamed,
             isPublic: input.isPublic,
-            audioAvailable: input.audioAvailable,
+            audioSource: input.audioSource,
             isStudentOrganization: input.isStudentOrganization,
-            requiresEditing: input.requiresEditing,
-            requiredCameraCount: input.requiredCameraCount,
             phoneNumber: input.phoneNumber
         };
     }

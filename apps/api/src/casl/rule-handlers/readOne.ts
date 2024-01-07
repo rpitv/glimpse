@@ -76,7 +76,7 @@ export function handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
 
         // Test the ability against each requested field
         for (const field of fields) {
-            if (!rule.options?.defer && !req.permissions.can(AbilityAction.Read, subjectStr, field)) {
+            if (field !== "__typename" && !rule.options?.defer && !req.permissions.can(AbilityAction.Read, subjectStr, field)) {
                 logger.verbose(`Failed field-based ReadOne rule test for field "${field}".`);
                 req.passed = false;
                 return of(null);
@@ -122,7 +122,7 @@ export function handleReadOneRule<T extends Exclude<AbilitySubjects, string>>(
 
             // Test the ability against each requested field with subject value.
             for (const field of fields) {
-                if (!req.permissions.can(AbilityAction.Read, subjectObj, field)) {
+                if (field !== "__typename" && !req.permissions.can(AbilityAction.Read, subjectObj, field)) {
                     logger.verbose(`Failed field-based ReadOne rule test for field "${field}" with value as subject.`);
                     req.passed = false;
                     return null;

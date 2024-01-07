@@ -1,0 +1,14 @@
+query ContactSubmissionDetails($id: BigInt!){
+	submissionDetails: findOneContactSubmission(id: $id) {
+		id
+		name
+		email
+		additionalData
+		timestamp
+		subject
+		resolved
+		name
+		body
+    type
+	}
+}

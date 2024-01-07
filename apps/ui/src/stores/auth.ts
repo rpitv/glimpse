@@ -37,9 +37,14 @@ export const useAuthStore = defineStore("auth", {
           );
           await new Promise<void>((resolve, reject) => {
             permissionsResult.onResult(({ data }) => {
-              this.permissions = data.permissions;
+              this.permissions = data.permissions?.map((p) => {
+                if (p.fields?.length === 0) {
+                  p.fields = null;
+                }
+                return p;
+              });
               // Cast to get rid of err about string not being covariant with AbilityActions. Assume server is correct.
-              ability.update(<any>this.permissions);
+              ability.update(this.permissions as any);
               resolve();
             });
             permissionsResult.onError((error) => {

@@ -1,0 +1,28 @@
+query FindLiveProductions($now: DateTime!, $pagination: PaginationInput) {
+  productions: findManyProduction(filter:{
+    startTime:{
+      lt: $now
+    }
+    endTime: {
+      gt: $now
+    }
+  }, order:[
+    { field: startTime, direction: Asc}
+  ], pagination: $pagination
+  ) {
+    id
+    name
+    description
+    videos (order: [{
+      field: priority, direction: Desc
+    }]){
+      priority
+      video {
+        format
+        metadata
+      }
+    }
+    endTime
+    startTime
+  }
+}

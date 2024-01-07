@@ -1,0 +1,6 @@
+query FindProductionTags($filter: FilterProductionTagInput) {
+  tags: findManyProductionTag(filter: $filter) {
+    id
+    productionId
+  }
+}

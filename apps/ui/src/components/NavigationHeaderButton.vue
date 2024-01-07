@@ -12,37 +12,38 @@
          :aria-current="route.name === value.route ? 'page' : null"
          @click="value.onClick !== undefined ? value.onClick($event, value, navigate) : navigate($event)"
       >
-        <n-button class="button-elem"
-                  :type="route.name === value.route ? 'primary' : 'default'"
-                  large
-                  quaternary
-                  :data-depth="props.depth"
-        >
-          <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
-            <FontAwesomeIcon :icon="value.icon"/>
-          </template>
-          {{ value.name }}
-        </n-button>
+          <v-btn class="button-elem text-none"
+                 :color="route.name === value.route ? '#ff6363' : 'white'"
+                 :data-depth="props.depth"
+                 variant="text"
+                 size="small"
+                 style="letter-spacing: normal"
+          >
+              <template #prepend>
+                <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
+              </template>
+              {{ value.name }}
+          </v-btn>
       </a>
     </RouterLink>
-
-    <n-button v-else
-              class="button-elem"
-              :type="route.name === value.route ? 'primary' : 'default'"
-              large
-              quaternary
-              :data-depth="props.depth"
-    >
-      <template #icon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500">
-        <FontAwesomeIcon :icon="value.icon"/>
-      </template>
-      {{ value.name }}
-    </n-button>
+      <v-btn v-else
+             class="button-elem text-none"
+             :color="route.name === value.route ? '#ff6363' : 'white'"
+             :data-depth="props.depth"
+             variant="text"
+             size="small"
+             style="letter-spacing: normal"
+      >
+          <template #prepend>
+            <FontAwesomeIcon v-if="props.depth > 0 || value.showIconOnDesktop || windowWidth < 500" :icon="value.icon" style="margin-right: 3px"/>
+          </template>
+          {{ value.name }}
+      </v-btn>
   </component>
 </template>
 
 <script setup lang="ts">
-import {DropdownOption, NButton, NDropdown} from "naive-ui";
+import {DropdownOption, NDropdown} from "naive-ui";
 import type {NavButton} from "@/util/NavButton";
 import type {PropType, Ref} from "vue";
 import {RouterLink, useRoute} from "vue-router";
@@ -59,6 +60,9 @@ const props = defineProps({
     type: Object as PropType<NavButton>,
     required: true
   },
+  active: {
+    type: Boolean as PropType<boolean | undefined>
+  },
   depth: {
     type: Number,
     default: 0
@@ -73,6 +77,14 @@ onUnmounted(() => window.removeEventListener("resize", updateWindowWidth));
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
+
+const isButtonActive: Ref<boolean> = computed(() => {
+  if (props.active !== undefined) {
+    return props.active;
+  }
+
+  return route.name === props.value.route;
+})
 
 // Computed list of children for the dropdown. If there are no children, then the dropdown is not shown.
 const children: Ref<DropdownOption[]> = computed(() => {

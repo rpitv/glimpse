@@ -1,0 +1,3 @@
+query VideoCount ($filter: FilterVideoInput) {
+  videoCount (filter: $filter)
+}

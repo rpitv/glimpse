@@ -104,3 +104,57 @@ export function handleCreateRule<T extends Exclude<AbilitySubjects, string>>(
             return handleReadOneRule(context, rule, () => v, caslHelper);
         });
 }
+
+export function handleCreateInvisibleRule<T extends Exclude<AbilitySubjects, string>>(
+    context: ExecutionContext | GraphQLResolverArgs,
+    rule: RuleDef,
+    handler: () => Observable<T | null>,
+    caslHelper: CaslHelper
+): Observable<true> {
+    logger.debug("Handling CreateInvisible rule.");
+    // Asserts that the rule is not a RuleType.Custom rule.
+    const { req, subjectStr } = caslHelper.getReqAndSubject(context, rule);
+
+    // Basic test with the provided action and subject.
+    if (!req.permissions.can(AbilityAction.Create, subjectStr)) {
+        logger.verbose("Failed basic CreateInvisible rule test.");
+        req.passed = false;
+        return of(null);
+    }
+
+    const inputFields = caslHelper.getInputFields(context, rule.options?.inputName ?? "input");
+
+    // Make sure user can create an object with the fields they've supplied.
+    for (const field of inputFields) {
+        if (!req.permissions.can(AbilityAction.Create, subjectStr, field)) {
+            logger.verbose(`Failed CreateInvisible rule test for field ${field}.`);
+            req.passed = false;
+            return of(null);
+        }
+    }
+
+    return handler()
+        .pipe(
+            map((newValue) => {
+                // Handler already marked the request as failed for some permission error.
+                if (req.passed === false) {
+                    logger.verbose("Failed CreateInvisible rule test. Handler already marked as failed.");
+                    return null;
+                }
+
+                const subjectObj = subject(subjectStr, newValue);
+
+                // Check that the user has permission to create an object like this one. If not, prisma tx will roll back.
+                for (const field of Object.keys(newValue)) {
+                    if (!req.permissions.can(AbilityAction.Create, subjectObj, field)) {
+                        logger.verbose(`Failed CreateInvisible rule test for field ${field} with value.`);
+                        req.passed = false;
+                        return null;
+                    }
+                }
+
+                req.passed = true;
+                return true;
+            })
+        )
+}

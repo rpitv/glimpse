@@ -1,0 +1,5 @@
+mutation DeleteProductionTag($id: BigInt!) {
+  productionTag: deleteProductionTag(id: $id) {
+    id
+  }
+}

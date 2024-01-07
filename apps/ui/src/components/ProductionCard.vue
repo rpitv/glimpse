@@ -1,23 +1,27 @@
 <template>
-  <RouterLink :to="productionUrl">
-    <n-card class="production-card" :title="props.name">
-      <template #cover>
-        <n-image class="production-thumbnail"
-                 :src="props.thumbnailUrl"
-                 preview-disabled
-                 fallback-src="/default_thumbnail_300.png"
-                 object-fit="cover"
-        ></n-image>
-      </template>
-      <p class="production-description">{{ props.description }}</p>
-      <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
-    </n-card>
-  </RouterLink>
+  <div>
+    <RouterLink :to="productionUrl" class="production-card" link>
+      <v-card class="production-card" variant="elevated" :hover="true" density="comfortable" ref="card">
+        <v-img :src="thumbnail" cover />
+        <v-card-title>{{props.name}}</v-card-title>
+        <v-card-text>
+          <p class="production-description text-body-2">{{ props.description }}</p>
+          <br>
+          <div style="display: flex">
+            <small class="production-date">{{ moment(props.startTime).format("llll") }}</small>
+            <v-spacer />
+            <small v-if="props.endTime && props.startTime < new Date() && props.endTime > new Date()" style="color: #FF7878">LIVE</small>
+            <small v-else-if="props.startTime > new Date()" style="color: #64B1FF">UPCOMING</small>
+          </div>
+        </v-card-text>
+      </v-card>
+    </RouterLink>
+  </div>
 </template>
 
 <script setup lang="ts">
 import moment from "moment";
-import {NCard, NImage} from "naive-ui";
+import {computed} from "vue";
 
 const props = defineProps({
   id: {
@@ -30,11 +34,16 @@ const props = defineProps({
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    default: ""
   },
   startTime: {
     type: Date,
     required: true
+  },
+  endTime: {
+    type: Date,
+    required: false
   },
   thumbnailUrl: {
     type: String,
@@ -43,15 +52,15 @@ const props = defineProps({
 })
 
 const productionUrl = import.meta.env.BASE_URL + "productions/" + props.id;
+
+const thumbnail = computed(() => {
+  return props.thumbnailUrl ? props.thumbnailUrl : "/default_thumbnail_300.png";
+})
 </script>
 
 <style scoped lang="scss">
 .production-card {
-  max-width: 300px;
-  display: inline-block;
-}
-
-a:hover {
+  width: 300px;
   text-decoration: none;
 }
 

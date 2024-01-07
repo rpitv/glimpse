@@ -1,0 +1,65 @@
+query ProductionDetails($id: BigInt!) {
+	production: findOneProduction(id: $id) {
+		id
+		category {
+			id
+			name
+			parentId
+			priority
+		}
+		categoryId
+		closetLocation
+		closetTime
+		credits {
+			id
+			person {
+				id
+				name
+			}
+		}
+		description
+		discordChannel
+		discordServer
+		endTime
+		eventLocation
+		images {
+			id
+			priority
+			image {
+				id
+				description
+				name
+				path
+			}
+			imageId
+		}
+		name
+		rsvps {
+			id
+			notes
+			userId
+		}
+		startTime
+		tags {
+			id
+			tag
+		}
+		teamNotes
+		thumbnail {
+			id
+			name
+			description
+			path
+		}
+		thumbnailId
+		videos {
+			id
+			priority
+			video {
+				id
+				name
+				metadata
+			}
+		}
+	}
+}

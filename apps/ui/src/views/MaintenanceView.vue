@@ -3,8 +3,7 @@
     <h1 class="header">Under Construction</h1>
     <FontAwesomeIcon class="icon" icon="fa-duotone fa-user-helmet-safety" />
     <p>The new RPI TV website is currently under construction. We apologize for the inconvenience!</p>
-    <hr>
-    <p>To watch our broadcasts, please visit our YouTube channel here: <a href="https://www.youtube.com/@rpi-tv?sub_confirmation=1">https://youtube.com/@rpi-tv</a></p>
+    <p>To watch our broadcasts, please visit our YouTube channel here: <a href="https://www.youtube.com/@rpi-tv">https://youtube.com/rpitv</a></p>
     <p>For service requests or any questions or concerns, you can contact us at <a href="mailto:rpitv@union.lists.rpi.edu">rpitv@union.lists.rpi.edu</a></p>
     <p></p>
   </div>

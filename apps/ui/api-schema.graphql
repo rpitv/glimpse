@@ -137,8 +137,8 @@ type Mutation {
   createAsset(input: CreateAssetInput!): Asset!
   createBlogPost(input: CreateBlogPostInput!): BlogPost!
   createCategory(input: CreateCategoryInput!): Category!
-  createContactSubmissionGeneral(input: CreateContactSubmissionGeneralInput!): ContactSubmission!
-  createContactSubmissionProductionRequest(input: CreateContactSubmissionProductionRequestInput!): ContactSubmission!
+  createContactSubmissionGeneral(input: CreateContactSubmissionGeneralInput!): Boolean!
+  createContactSubmissionProductionRequest(input: CreateContactSubmissionProductionRequestInput!): Boolean!
   createCredit(input: CreateCreditInput!): Credit!
   createGroup(input: CreateGroupInput!): Group!
   createGroupPermission(input: CreateGroupPermissionInput!): GroupPermission!
@@ -735,7 +735,7 @@ input CreateContactSubmissionGeneralInput {
 }
 
 input CreateContactSubmissionProductionRequestInput {
-  audioAvailable: Boolean!
+  audioSource: String
   body: String!
   email: String!
   endTime: DateTime!
@@ -745,8 +745,6 @@ input CreateContactSubmissionProductionRequestInput {
   name: String!
   organizationName: String!
   phoneNumber: String
-  requiredCameraCount: Int
-  requiresEditing: Boolean!
   resolved: Boolean
   startTime: DateTime!
   subject: String!
@@ -1408,7 +1406,7 @@ input UpdateContactSubmissionGeneralInput {
 }
 
 input UpdateContactSubmissionProductionRequestInput {
-  audioAvailable: Boolean
+  audioSource: String
   body: String
   email: String
   endTime: DateTime
@@ -1418,8 +1416,6 @@ input UpdateContactSubmissionProductionRequestInput {
   name: String
   organizationName: String
   phoneNumber: String
-  requiredCameraCount: Int
-  requiresEditing: Boolean
   resolved: Boolean
   startTime: DateTime
   subject: String

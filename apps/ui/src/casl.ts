@@ -1,10 +1,38 @@
-import type { AbilityClass, MongoQuery } from "@casl/ability";
+import type { AbilityClass, MongoQuery, InferSubjects } from "@casl/ability";
 import { AbilityBuilder, PureAbility } from "@casl/ability";
 import { ABILITY_TOKEN, useAbility } from "@casl/vue";
 import type { InjectionKey, Ref } from "vue";
 import { computed } from "vue";
-import {
-  AbilitySubjects,
+import { AbilitySubjects } from "@/graphql/types";
+import type {
+  User,
+  AccessLog,
+  AlertLog,
+  Asset,
+  AuditLog,
+  BlogPost,
+  Category,
+  ContactSubmission,
+  Credit,
+  Group,
+  GroupPermission,
+  Image,
+  Person,
+  PersonImage,
+  PersonRole,
+  ProductionImage,
+  ProductionRsvp,
+  ProductionTag,
+  ProductionVideo,
+  Production,
+  Redirect,
+  Role,
+  Stream,
+  UserGroup,
+  UserPermission,
+  Video,
+  Vote,
+  VoteResponse,
 } from "@/graphql/types";
 import { useAuthStore } from "@/stores/auth";
 import {createPrismaAbility} from "@casl/prisma";
@@ -19,7 +47,36 @@ export enum AbilityActions {
   Filter = "filter",
 }
 
-export type GlimpseAbility = PureAbility<[AbilityActions, AbilitySubjects], MongoQuery>;
+export type GlimpseAbility = PureAbility<[AbilityActions, InferSubjects<AbilitySubjectTypes> | AbilitySubjects], MongoQuery>;
+type AbilitySubjectTypes =
+  | User
+  | AccessLog
+  | AlertLog
+  | Asset
+  | AuditLog
+  | BlogPost
+  | Category
+  | ContactSubmission
+  | Credit
+  | Group
+  | GroupPermission
+  | Image
+  | Person
+  | PersonImage
+  | PersonRole
+  | ProductionImage
+  | ProductionRsvp
+  | ProductionTag
+  | ProductionVideo
+  | Production
+  | Redirect
+  | Role
+  | Stream
+  | UserGroup
+  | UserPermission
+  | Video
+  | Vote
+  | VoteResponse;
 
 export const GlimpseAbility = PureAbility as AbilityClass<GlimpseAbility>;
 export const TOKEN = ABILITY_TOKEN as InjectionKey<GlimpseAbility>;
@@ -109,13 +166,11 @@ export function canViewCategoriesDashboard(): boolean {
  *   have any CRUD permission on the "ContactSubmissionAssignee" subject.
  */
 export function canViewContactSubmissionsDashboard(): boolean {
-  return (
-    hasAnyActionPermissionForSubject(AbilitySubjects.ContactSubmission, [
-      AbilityActions.Read,
-      AbilityActions.Update,
-      AbilityActions.Delete,
-    ])
-  );
+  return hasAnyActionPermissionForSubject(AbilitySubjects.ContactSubmission, [
+    AbilityActions.Read,
+    AbilityActions.Update,
+    AbilityActions.Delete,
+  ]);
 }
 
 /**
@@ -162,8 +217,8 @@ export function canViewLogsDashboard(): boolean {
 
 /**
  * Check whether the currently logged-in user has permission to open the "People" page on the dashboard. At the
- *   moment, the requirement for this is to have any CRUD permission besides read on the "Person" subject, or to have
- *   any CRUD permission besides read on the "PersonImage" subject.
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Person", "PersonImage", or
+ *   "PersonRole" subjects.
  *   TODO: Users in the future should be able to edit their own Person profile(s). This would be outside of the
  *     dashboard, and a separate check needs to be made to exclude their own Persons from this check.
  */
@@ -178,8 +233,25 @@ export function canViewPeopleDashboard(): boolean {
       AbilityActions.Create,
       AbilityActions.Update,
       AbilityActions.Delete,
+    ]) ||
+    hasAnyActionPermissionForSubject(AbilitySubjects.PersonRole, [
+      AbilityActions.Create,
+      AbilityActions.Update,
+      AbilityActions.Delete,
     ])
   );
+}
+
+/**
+ * Check whether the currently logged-in user has permission to open the "Roles" page on the dashboard. At the
+ *   moment, the requirement for this is to have any CRUD permission besides read on the "Role" subject.
+ */
+export function canViewRolesDashboard(): boolean {
+  return hasAnyActionPermissionForSubject(AbilitySubjects.Role, [
+    AbilityActions.Create,
+    AbilityActions.Update,
+    AbilityActions.Delete,
+  ]);
 }
 
 /**
@@ -293,11 +365,7 @@ export function canViewUsersDashboard(): boolean {
   return (
     hasAnyActionPermissionForSubject(
       AbilitySubjects.User,
-      [
-        AbilityActions.Create,
-        AbilityActions.Update,
-        AbilityActions.Delete,
-      ],
+      [AbilityActions.Create, AbilityActions.Update, AbilityActions.Delete],
       tmpAbility
     ) ||
     hasAnyActionPermissionForSubject(AbilitySubjects.UserPermission, [

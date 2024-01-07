@@ -1,38 +1,38 @@
 <template>
   <!-- Background -->
-  <div class="background"/>
-  <div v-if="topLevelError !== null">
-    <ServerErrorView :error="topLevelError" />
-  </div>
-  <div v-else>
-    <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
-
-    <!-- Navbar -->
-    <NavigationHeader/>
-
-    <!-- Logo -->
-    <div class="main-logo-wrapper">
-      <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
-           alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+    <div class="background"/>
+    <div v-if="topLevelError !== null">
+      <ServerErrorView :error="topLevelError" />
     </div>
+    <div v-else>
+      <BackgroundShape :class="layoutCssName + ' layout background-shape'"/>
 
-    <!-- Page content -->
-    <div :class="layoutCssName + ' layout content'">
-      <RouterView v-slot="{ Component, route }">
-        <Transition name="router">
-          <div :class="layoutCssName + ' layout router-page'" :key="route.name">
-            <div v-if="maintenanceMode && !authStore.isLoggedIn">
-              <MaintenanceView />
+      <!-- Navbar -->
+      <NavigationHeader/>
+
+      <!-- Logo -->
+      <div class="main-logo-wrapper">
+        <img :class="layoutCssName + ' layout main-logo'" :data-scroll="scrollY"
+             alt="RPI TV logo" src="@/assets/rpitv_logo.svg"/>
+      </div>
+
+      <!-- Page content -->
+      <div :class="layoutCssName + ' layout content'">
+        <RouterView v-slot="{ Component, route }">
+          <Transition name="router">
+            <div :class="layoutCssName + ' layout router-page'" :key="route.name">
+              <div v-if="maintenanceMode && !authStore.isLoggedIn">
+                <MaintenanceView />
+              </div>
+              <div v-else>
+                <component :is="Component"/>
+              </div>
+              <Footer/>
             </div>
-            <div v-else>
-              <component :is="Component"/>
-            </div>
-            <Footer/>
-          </div>
-        </Transition>
-      </RouterView>
+          </Transition>
+        </RouterView>
+      </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -41,14 +41,12 @@ import NavigationHeader from "@/components/NavigationHeader.vue";
 import BackgroundShape from "@/components/BackgroundShape.vue";
 import Footer from "@/components/Footer.vue";
 import {onMounted, onUnmounted, ref, watch} from "vue";
-import {useLoadingBar, useMessage} from "naive-ui";
 import {useRoute} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
 import ServerErrorView from "@/views/ServerErrorView.vue";
 import MaintenanceView from "@/views/MaintenanceView.vue";
 
 const route = useRoute();
-const message = useMessage();
 const authStore = useAuthStore();
 
 const topLevelError = ref<Error | null>(null);
@@ -81,37 +79,37 @@ function updateScroll() {
 onMounted(() => window.addEventListener("scroll", updateScroll));
 onUnmounted(() => window.removeEventListener("scroll", updateScroll));
 
-const loadingBar = useLoadingBar();
-// Listen to all fetch calls for the loading bar
-// https://stackoverflow.com/questions/38995750/how-to-listen-on-all-fetch-api-calls
-let pendingFetches = 0;
-(function (ns, fetch) {
-  if (typeof fetch !== "function") {
-    return;
-  }
-  ns.fetch = function () {
-    // @ts-ignore
-    const out = fetch.apply(this, arguments);
-
-    if (pendingFetches++ === 0) {
-      loadingBar.start();
-    }
-    out
-      .then(() => {
-        if (--pendingFetches === 0) {
-          loadingBar.finish()
-        }
-      })
-      .catch((e: Error) => {
-        loadingBar.error();
-        // Send an error message to the user
-        message.error("Network error: " + e.message);
-      });
-
-    return out;
-  };
-
-}(window, window.fetch));
+// const loadingBar = useLoadingBar();
+// // Listen to all fetch calls for the loading bar
+// // https://stackoverflow.com/questions/38995750/how-to-listen-on-all-fetch-api-calls
+// let pendingFetches = 0;
+// (function (ns, fetch) {
+//   if (typeof fetch !== "function") {
+//     return;
+//   }
+//   ns.fetch = function () {
+//     // @ts-ignore
+//     const out = fetch.apply(this, arguments);
+//
+//     if (pendingFetches++ === 0) {
+//       loadingBar.start();
+//     }
+//     out
+//       .then(() => {
+//         if (--pendingFetches === 0) {
+//           loadingBar.finish()
+//         }
+//       })
+//       .catch((e: Error) => {
+//         loadingBar.error();
+//         // Send an error message to the user
+//         message.error("Network error: " + e.message);
+//       });
+//
+//     return out;
+//   };
+//
+// }(window, window.fetch));
 
 // Watch for page layout CSS class to change on the router
 let layoutCssName = ref(route.meta.layoutCssName);

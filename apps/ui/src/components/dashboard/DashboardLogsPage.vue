@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { NTabs, NTabPane, NDataTable, NTooltip } from "naive-ui";
+import { NTabs, NTabPane, NDataTable } from "naive-ui";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import {
   AbilitySubjects,
@@ -34,9 +34,10 @@ import {
 import type { AlertLog, AccessLog, AuditLog } from "@/graphql/types";
 import { FindAlertLogsDocument } from "@/graphql/types";
 import { useLazyQuery } from "@vue/apollo-composable";
-import { computed, h, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import moment from "moment";
-import Markdown from "@/components/Markdown.vue";
+import { computed, h, ref, watch } from "vue";
+import Markdown from "@/components/util/Markdown.vue";
+import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
+import { useScroll } from "@vueuse/core";
 
 const ability = useGlimpseAbility();
 
@@ -82,18 +83,6 @@ const activeTable = computed(() => {
       return auditLogTable.value;
   }
 });
-
-// Add event listeners to make the browser y position into a reactive variable
-const yScrollPos = ref(0);
-function updateYScrollPos() {
-  yScrollPos.value = window.scrollY;
-}
-onMounted(() => {
-  window.addEventListener('scroll', updateYScrollPos);
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', updateYScrollPos);
-})
 
 const alertLogColumns = [
   {
@@ -156,14 +145,7 @@ const alertLogData = computed(() => {
   return (tabQueries.alert.result.value?.alertLogs ?? []).map((alertLog: AlertLog) => {
     return {
       ...alertLog,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(alertLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(alertLog.timestamp).fromNow()
-        }
-      )
+      timestamp: h(RelativeTimeTooltip, { date: new Date(alertLog.timestamp) })
     }
   })
 })
@@ -173,14 +155,7 @@ const accessLogData = computed(() => {
     return {
       ...accessLog,
       username: accessLog.user?.username,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(accessLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(accessLog.timestamp).fromNow()
-        }
-      )
+      timestamp: h(RelativeTimeTooltip, { date: new Date(accessLog.timestamp) })
     }
   })
 })
@@ -195,20 +170,14 @@ const auditLogData = computed(() => {
       ...auditLog,
       message: auditLog.message ? `${auditLog.message} (${description})` : description,
       username: auditLog.user?.username,
-      timestamp: h(
-        NTooltip,
-        { trigger: 'hover' },
-        {
-          default: () => moment(auditLog.timestamp).format('MMM Do, YYYY h:mm:ss A'),
-          trigger: () => moment(auditLog.timestamp).fromNow()
-        }
-      )
+      timestamp:h(RelativeTimeTooltip, { date: new Date(auditLog.timestamp) })
     }
   })
 })
 
 const loadMargins = window.innerHeight;
-watch([yScrollPos, tabQueries.access.loading, tabQueries.alert.loading, tabQueries.audit.loading], () => {
+const scroll = useScroll(window);
+watch([scroll.y, tabQueries.access.loading, tabQueries.alert.loading, tabQueries.audit.loading], () => {
   // Data is already being loaded, so when the query completes, loading will be set to false, re-firing this watcher.
   //  Then we check if the bottom of the able is still in view, and if so, load more data.
   if(tabQueries[selectedTab.value].loading.value) {

@@ -1,0 +1,8 @@
+query FindRoles($pagination: PaginationInput, $filter: FilterRoleInput, $order: [OrderRoleInput!]) {
+  roleCount(filter: $filter)
+  roles: findManyRole(pagination: $pagination, order: $order, filter: $filter) {
+    id
+    name
+    priority
+  }
+}
