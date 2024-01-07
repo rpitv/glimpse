@@ -190,6 +190,9 @@ const router = createRouter({
     {
       path: "/donate",
       name: "donate",
+      beforeEnter() {
+        window.location.replace("https://impact.rpi.edu/project/40580")
+      },
       component: DonateView,
       meta: {
         layoutCssName: "wave-layout",
