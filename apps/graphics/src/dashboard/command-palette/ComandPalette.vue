@@ -4,7 +4,7 @@
 			size="large"
 			class="show-scoreboard-button"
 			:type="isScoreboardShown ? 'error' : 'success'"
-			@click="isScoreboardShown = !isScoreboardShown"
+			@click="showScoreboard"
 		>
 			{{ isScoreboardShown ? 'Hide' : 'Show' }} Scoreboard
 		</n-button>
@@ -42,6 +42,12 @@ const replicants = await loadReplicants();
 const palette = ref<HTMLElement|null>(null);
 
 const isScoreboardShown = replicants.scoreboard.visible;
+
+function showScoreboard() {
+	if (replicants.gameSettings.style.value === "football" && replicants.lowerThird.bug.value)
+		replicants.lowerThird.bug.value = false;
+	isScoreboardShown.value = !isScoreboardShown.value;
+}
 
 type Command = {
 	displayedChar: string,

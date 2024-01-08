@@ -8,6 +8,8 @@
 	<div id="rightLogo" class="logo">
 		<img :src="replicants.lowerThird.school2Logo.value" :alt="replicants.teams[1].name.value">
 	</div>
+	<div id="leftTeam">{{replicants.teams[0].schoolName.value}}</div>
+	<div id="rightTeam">{{replicants.teams[1].schoolName.value}}</div>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +22,16 @@ const replicants = await loadReplicants()
 </script>
 
 <style scoped>
+
+@font-face{
+	font-family: "Rubik";
+	src: url('../../../../../assets/rpitv-modern/Rubik.ttf');
+}
+div {
+	font-family: 'Rubik', sans-serif;
+	color: white;
+}
+
 img {
 	position: absolute;
 	width: 100vw;
@@ -55,21 +67,39 @@ img {
 	width: auto;
 	height: auto;
 	max-width: 9vw;
-	max-height: 17.1vh;
+	max-height: 12.3vh;
+}
+
+#leftTeam{
+	position: absolute;
+	text-align: center;
+	bottom: 16.2vh;
+	width: 87.3vw;
+	left: 0;
+	font-size: 2.4vh;
 }
 
 #leftLogo {
 	width: 87.3vw;
-	bottom: 16.5vh;
+	bottom: 19.8vh;
 }
 
 #leftLogo > img {
 	position: relative;
 }
 
+#rightTeam {
+	position: absolute;
+	text-align: center;
+	bottom: 16.2vh;
+	width: 112.6vw;
+	left: 0;
+	font-size: 2.4vh;
+}
+
 #rightLogo {
 	width: 112.6vw;
-	bottom: 16.5vh;
+	bottom: 19.8vh;
 }
 
 #rightLogo > img {

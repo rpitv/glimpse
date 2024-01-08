@@ -2,20 +2,19 @@
   "name": "glimpse-graphics",
   "version": "1.0.0",
   "description": "NodeCG Graphics bundle for RPI TV Glimpse",
-  "private": true,
-  "license": "MIT",
+  "homepage": "https://rpi.tv/",
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse-graphics/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rpitv/glimpse.git"
+    "url": "git+https://github.com/rpitv/glimpse-graphics.git"
   },
-  "bugs": {
-    "url": "https://github.com/rpitv/glimpse/issues"
-  },
-  "homepage": "https://glimpse.rpi.tv",
+  "license": "MIT",
   "scripts": {
     "start": "node ../..",
     "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
-    "clean": "rm -rf node_modules/.cache && rm -rf shared/dist && rm -rf dashboard && rm -rf graphics && rm -rf extension",
+    "clean": "npx ts-node clean.ts",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
@@ -24,16 +23,23 @@
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.3.0",
     "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
+    "firebase": "^9.22.1",
     "fs-extra": "^11.1.0",
+    "gsap": "^3.12.2",
     "module-alias": "^2.2.2",
     "pinia": "^2.0.23",
     "pino": "^8.7.0",
     "serialport": "^10.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vuedraggable": "^4.1.0",
+    "vuetify": "^3.1.11"
   },
   "devDependencies": {
+    "@types/animejs": "^3.1.7",
+    "@types/color": "^3.0.3",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^16.11.47",
     "@types/uuid": "^8.3.4",
@@ -50,12 +56,20 @@
     "vite": "^2.9.14",
     "vite-plugin-checker": "^0.4.9",
     "vite-plugin-nodecg": "^1.0.2",
+    "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.2.37",
     "vue-tsc": "^0.39.5"
   },
   "nodecg": {
     "compatibleRange": "^1.9.0",
     "dashboardPanels": [
+      {
+        "name": "playlist",
+        "title": "Playlist",
+        "file": "playlist.html",
+        "workspace": "Advertisements",
+        "width": "8"
+      },
       {
         "name": "game-settings",
         "title": "Game Settings",
@@ -118,6 +132,13 @@
         "file": "lower-third.html",
         "workspace": "Images",
         "width": "8"
+      },
+      {
+        "name": "slideshow",
+        "title": "Slideshow",
+        "file": "slideshow.html",
+        "workspace": "Images",
+        "width": "8"
       }
     ],
     "graphics": [
@@ -125,6 +146,16 @@
         "file": "glimpse.html",
         "width": 3840,
         "height": 2160
+      },
+      {
+        "file": "worldclock.html",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "file": "minimal-scoreboard.html",
+        "width": 1920,
+        "height": 1080
       }
     ],
     "assetCategories": [
@@ -136,6 +167,23 @@
           "jpeg",
           "gif",
           "png"
+        ]
+      },
+      {
+        "name": "slideshow-images",
+        "title": "Slideshow",
+        "allowedTypes": [
+          "jpg",
+          "jpeg",
+          "gif",
+          "png"
+        ]
+      },
+      {
+        "name": "advertisements",
+        "title": "Advertisements",
+        "allowedTypes": [
+          "mp4"
         ]
       }
     ]

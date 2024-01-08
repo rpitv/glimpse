@@ -1,5 +1,5 @@
 <template>
-	<div class="body">
+	<div class="body" v-if="replicants.lowerThird.endGraphics.type.value === 'scroll'">
 		<div class="fade"></div>
 		<section class="scroll-text">
 			<div :class="{crawl: showCrawl}"

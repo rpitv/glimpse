@@ -1,6 +1,5 @@
 <template>
 <div>
-
 	<div class="display-text">
 		{{ formattedCurrentTime }}
 	</div>
@@ -8,7 +7,6 @@
 	<div class="display-text">
 		{{ formattedPeriod }}
 	</div>
-
 </div>
 </template>
 

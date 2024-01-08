@@ -1,9 +1,7 @@
 <template>
 	<n-config-provider :theme="darkTheme">
 		<Suspense>
-			<div>
-				<LowerThird />
-			</div>
+			<LowerThird />
 			<template #fallback>
 				Loading...
 			</template>

@@ -1,5 +1,6 @@
 import {replicant} from "./replicant";
 import {Announcement} from "../common/Announcement";
+import {get as nodecg} from "../extension/util/nodecg";
 
 export async function loadReplicants() {
 	return {
@@ -26,10 +27,14 @@ export async function loadReplicants() {
 						score: await replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
 						name: await replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
 						abbreviation: await replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+						shots: await replicant<boolean>("shots", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
+						timeouts: await replicant<boolean>("timeouts", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
 					}, {
 						score: await replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
 						name: await replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
 						abbreviation: await replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+						shots: await replicant<boolean>("shots", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
+						timeouts: await replicant<boolean>("timeouts", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
 					}
 				],
 				baseball: {
@@ -41,11 +46,17 @@ export async function loadReplicants() {
 					possession: await replicant<boolean>("possession", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 					yardsToGo: await replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 					playClock: await replicant<boolean>("playClock", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
-				}
+				},
+				sogs: await replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
 			}
 		},
 		gameSettings: {
-			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-classic'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
+			api: {
+				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.api", {defaultValue: false}),
+				key: await replicant<string>("key", `glimpse-graphics.game-settings.api`, {defaultValue: 'CHANGE_ME_API_KEY'}),
+				forceReload: await replicant<boolean>("forceReload", "glimpse-graphics.game-settings.api", {defaultValue: false}),
+			},
+			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-classic' | 'rpitv-style7' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
 			clock: {
 				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
 			},
@@ -60,7 +71,7 @@ export async function loadReplicants() {
 				},
 				shootouts: await replicant<boolean>('shootouts', 'glimpse-graphics.game-settings.periods', {defaultValue: false}),
 			},
-
+			showShootouts: await replicant<boolean>("showShootouts", 'glimpse-graphics.game-settings',{defaultValue: false}),
 			baseball: {
 				bases: await replicant<boolean>("bases", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
 				bottomTop: await replicant<boolean>("bottomTop", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
@@ -82,7 +93,12 @@ export async function loadReplicants() {
 					persistent: false
 				}),
 			},
-			period: await replicant<number>('period', 'glimpse-graphics.scoreboard', {defaultValue: 1})
+			period: await replicant<number>('period', 'glimpse-graphics.scoreboard', {defaultValue: 1}),
+			playClock: await replicant<number>('playClock', 'glimpse-graphics.playClock', {defaultValue: 0}),
+			down: await replicant<number>('down', 'glimpse-graphics.down', {defaultValue: 1}),
+			yardsToGo: await replicant<string>('yardsToGo', 'glimpse-graphics.yardsToGo', {defaultValue: ""}),
+			possession: await replicant<string>('possession', 'glimpse-graphics.possession', {defaultValue: ''}),
+			penalty: await replicant<boolean>("penalty", "glimpse-graphics.penalty", {defaultValue: true}),
 		},
 		teams: [
 			{
@@ -92,9 +108,17 @@ export async function loadReplicants() {
 				abbreviation: await replicant<string>("abbreviation", `glimpse-graphics.game-settings.team0`, {defaultValue: "ONE"}),
 				primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.game-settings.team0`, {defaultValue: '#ffffff'}),
 				secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.game-settings.team0`, {defaultValue: '#aaaaaa'}),
+				scoreboardPrimaryColor: await replicant<string>("scoreboardPrimaryColor", `glimpse-graphics.game-settings.team0`, {defaultValue: '#ffffff'}),
+				scoreboardSecondaryColor: await replicant<string>("scoreboardSecondaryColor", `glimpse-graphics.game-settings.team0`, {defaultValue: '#aaaaaa'}),
 				logo: await replicant<string>("logo", `glimpse-graphics.game-settings.team0`, {defaultValue: ''}),
 				schoolName: await replicant<string>("schoolName", `glimpse-graphics.game-settings.team0`, {defaultValue: 'School One'}),
 				shots: await replicant<number>("shots", `glimpse-graphics.game-settings.team0`, {defaultValue: 0}),
+				player1PenaltyNumber: await replicant<string>("player1PenaltyNumber", `glimpse-graphics.game-settings.team0`, {defaultValue: ""}),
+				player1PenaltyClock: await replicant<string>("player1PenaltyClock", `glimpse-graphics.game-settings.team0`, {defaultValue: ""}),
+				player2PenaltyNumber: await replicant<string>("player2PenaltyNumber", `glimpse-graphics.game-settings.team0`, {defaultValue: ""}),
+				player2PenaltyClock: await replicant<string>("player2PenaltyClock", `glimpse-graphics.game-settings.team0`, {defaultValue: ""}),
+				timeouts: await replicant<number>("timeouts", `glimpse-graphics.game-settings.team0`, {defaultValue: 0}),
+				shootouts: await replicant<string>("shootouts", `glimpse-graphics.game-settings.team0`, {defaultValue: ""})
 			},
 			{
 				enabled: await replicant<boolean>("enabled", `glimpse-graphics.game-settings.team1`, {defaultValue: true}),
@@ -103,9 +127,17 @@ export async function loadReplicants() {
 				abbreviation: await replicant<string>("abbreviation", `glimpse-graphics.game-settings.team1`, {defaultValue: "TWO"}),
 				primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.game-settings.team1`, {defaultValue: '#ffffff'}),
 				secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.game-settings.team1`, {defaultValue: '#aaaaaa'}),
+				scoreboardPrimaryColor: await replicant<string>("scoreboardPrimaryColor", `glimpse-graphics.game-settings.team1`, {defaultValue: '#ffffff'}),
+				scoreboardSecondaryColor: await replicant<string>("scoreboardSecondaryColor", `glimpse-graphics.game-settings.team1`, {defaultValue: '#aaaaaa'}),
 				logo: await replicant<string>("logo", `glimpse-graphics.game-settings.team1`, {defaultValue: ''}),
 				schoolName: await replicant<string>("schoolName", `glimpse-graphics.game-settings.team1`, {defaultValue: 'School Two'}),
 				shots: await replicant<number>("shots", `glimpse-graphics.game-settings.team1`, {defaultValue: 0}),
+				player1PenaltyNumber: await replicant<string>("player1PenaltyNumber", `glimpse-graphics.game-settings.team1`, {defaultValue: ""}),
+				player1PenaltyClock: await replicant<string>("player1PenaltyClock", `glimpse-graphics.game-settings.team1`, {defaultValue: ""}),
+				player2PenaltyNumber: await replicant<string>("player2PenaltyNumber", `glimpse-graphics.game-settings.team1`, {defaultValue: ""}),
+				player2PenaltyClock: await replicant<string>("player2PenaltyClock", `glimpse-graphics.game-settings.team1`, {defaultValue: ""}),
+				timeouts: await replicant<number>("timeouts", `glimpse-graphics.game-settings.team1`, {defaultValue: 0}),
+				shootouts: await replicant<string>("shootouts", `glimpse-graphics.game-settings.team1`, {defaultValue: ""})
 			}
 		],
 		announcements: {
@@ -120,21 +152,29 @@ export async function loadReplicants() {
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
 				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
-				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+				centerPerson: await replicant<string>("centerPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan"}),
+				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
 				offset: {
 					enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 0})
+					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})
 				}
 			},
 			endGraphics: {
 				disabled: await replicant<boolean>("disabled", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
-				show: await replicant<boolean>("endGraphics", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
+				show: await replicant<boolean>("show", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
 				title: await replicant<string>("title", `glimpse-graphics.images.endGraphics`, {defaultValue: "RPI TV Crew"}),
 				message: await replicant<string>("message", `glimpse-graphics.images.endGraphics`, {defaultValue: "Director\nProducer\nReplay Operator\nCamera Operator"}),
-				length: await replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30})
+				length: await replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30}),
+				type: await replicant<'scroll' | 'box'>("type", `glimpse-graphics.images.endGraphics`, {defaultValue: 'box'}),
 			},
 			bug: await replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
+			showCopyright: await replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			location: await replicant<"Houston Field House" | "ECAV Stadium">("location", `glimpse-graphics.images.lowerThird`, {defaultValue: "ECAV Stadium"}),
+		},
+		slideshow: {
+			enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
+			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
 		}
 	}
 }

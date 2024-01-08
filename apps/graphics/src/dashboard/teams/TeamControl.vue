@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<div v-if="synced">
-			<n-alert type="info">
+			<v-alert type="info">
 				Score cannot be manually controlled while Daktronics RTD sync is enabled.
-			</n-alert>
+			</v-alert>
 		</div>
 		<div v-else class="score-input-group">
 			<div>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import {NButton, NInputNumber, NInputGroup, NAlert} from "naive-ui";
+import {NButton, NInputNumber, NInputGroup} from "naive-ui";
 import {ref} from "vue";
 
 const props = defineProps({

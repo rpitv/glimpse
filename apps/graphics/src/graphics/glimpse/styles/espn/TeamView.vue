@@ -58,38 +58,38 @@ const logoBgColor = team.primaryColor;
 		}
 	}
 
-	.name-section {
-		display: inline-flex;
-		align-items: center;
+.name-section {
+	display: inline-flex;
+	align-items: center;
 
-		p {
-			margin-left: 0.6vw;
-		}
-
-		width: 13.5vw;
-		height: 100%;
-
-		background-color: rgb(240,240,240);
-		color: rgb(73,73,68);
-		font-weight: 700;
-		font-size: 1.7vw;
+	p {
+		margin-left: 0.6vw;
 	}
 
-	.score-section {
-		display: inline-flex;
-		justify-content: right;
-		align-items: center;
+	width: 13.5vw;
+	height: 100%;
 
-		width: 4.5vw;
-		height: 100%;
+	background-color: rgb(240,240,240);
+	color: rgb(73,73,68);
+	font-weight: 700;
+	font-size: 1.7vw;
+}
 
-		p {
-			margin-right: 0.2vw;
-		}
+.score-section {
+	display: inline-flex;
+	justify-content: right;
+	align-items: center;
 
-		background-color: rgb(240,240,240);
-		color: rgb(73,73,68);
-		font-weight: 900;
-		font-size: 2vw;
+	width: 4.5vw;
+	height: 100%;
+
+	p {
+		margin-right: 0.2vw;
 	}
+
+	background-color: rgb(240,240,240);
+	color: rgb(73,73,68);
+	font-weight: 900;
+	font-size: 2vw;
+}
 </style>

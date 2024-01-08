@@ -143,3 +143,6 @@ dist
 
 # jet brains
 .idea
+
+# firebase
+/src/dashboard/firebase.ts

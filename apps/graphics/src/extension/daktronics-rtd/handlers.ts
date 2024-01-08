@@ -1,6 +1,7 @@
 import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
 import {announcementTimersTick} from "../scoreboard-clock";
+import * as repl from "repl";
 
 export function mainClockHandler(value: string): void {
 	logger.trace({value}, 'mainClockHandler called');
@@ -101,4 +102,71 @@ export function awayShotHandler(value: string): void {
 	}
 
 	replicants.teams[1].shots.value = parseInt(value, 10) || 0;
+}
+
+export function homePenalty1Handler(value: string): void {
+	const data = value.split(" ");
+	replicants.teams[0].player1PenaltyNumber.value = data[0] || "";
+	replicants.teams[0].player1PenaltyClock.value = data[1] || "";
+}
+export function homePenalty2Handler(value: string): void {
+	const data = value.split(" ");
+	replicants.teams[0].player2PenaltyNumber.value = data[0] || "";
+	replicants.teams[0].player2PenaltyClock.value = data[1] || "";
+}
+export function awayPenalty1Handler(value: string): void {
+	const data = value.split(" ");
+	replicants.teams[1].player1PenaltyNumber.value = data[0] || "";
+	replicants.teams[1].player1PenaltyClock.value = data[1] || "";
+}
+export function awayPenalty2Handler(value: string): void {
+	const data = value.split(" ");
+	replicants.teams[1].player2PenaltyNumber.value = data[0] || "";
+	replicants.teams[1].player2PenaltyClock.value = data[1] || "";
+}
+
+export function timeoutsHandler(value: string): void {
+	if (!replicants.sync.values.teams[0].timeouts.value) {
+		logger.trace('Timeout sync is disabled, ignoring penalty updates');
+		return;
+	}
+
+	replicants.teams[0].timeouts.value = parseInt(value.split(" ")[0]);
+	replicants.teams[1].timeouts.value = parseInt(value.split(" ")[4]);
+}
+
+export function playClockHandler(value: string): void {
+	if (!replicants.gameSettings.football.playClock) {
+		logger.trace('Play clock sync is disabled, ignoring penalty updates');
+		return;
+	}
+
+	replicants.scoreboard.playClock.value = parseInt(value);
+}
+
+export function possessionHandler(value: string): void {
+	if (!replicants.sync.values.football.possession.value) {
+		logger.trace('Possession sync is disabled, ignoring possession updates');
+		return;
+	}
+
+	replicants.scoreboard.possession.value = value.split("")[0];
+}
+
+export function downHandler(value: string): void {
+	if (!replicants.gameSettings.football.downs.value) {
+		logger.trace('Down sync is disabled, ignoring down updates');
+		return;
+	}
+
+	replicants.scoreboard.down.value = parseInt(value);
+}
+
+export function yardsToGoHandler(value: string): void {
+	if (!replicants.gameSettings.football.yardsToGo.value) {
+		logger.trace('Yards to go sync is disabled, ignoring yards to go updates');
+		return;
+	}
+
+	replicants.scoreboard.yardsToGo.value = value;
 }

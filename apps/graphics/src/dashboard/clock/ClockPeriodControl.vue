@@ -47,12 +47,12 @@
 			</div>
 		</div>
 
-		<n-alert v-if="!arePeriodsSynced && arePeriodsEnabled && (overtimeCount > 3 || isOvertimeInfinite)"
+		<v-alert v-if="!arePeriodsSynced && arePeriodsEnabled && (overtimeCount > 3 || isOvertimeInfinite)"
 				 type="info"
 				 class="control-alert"
 		>
 			The period slider is only capable of supporting up to 3 overtime periods.
-		</n-alert>
+		</v-alert>
 
 		<n-input-group class="clock-period-text-input">
 			<n-input v-if="isClockEnabled && !isClockSynced"
@@ -77,14 +77,14 @@
 		</n-input-group>
 
 
-		<n-alert v-if="syncedFeatures" type="info" class="control-alert">
+		<v-alert v-if="syncedFeatures" type="info" class="control-alert">
 			{{ syncedFeatures }} cannot be manually controlled while Daktronics RTD sync is enabled.
-		</n-alert>
+		</v-alert>
 	</div>
 </template>
 
 <script setup lang="ts">
-import {NButton, NInput, NInputGroup, NInputNumber, NSlider, NAlert} from "naive-ui";
+import {NButton, NInput, NInputGroup, NInputNumber, NSlider} from "naive-ui";
 import {formatPeriod, formatPeriodShorthand, parseTimeString} from "../util";
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed, ref} from "vue";

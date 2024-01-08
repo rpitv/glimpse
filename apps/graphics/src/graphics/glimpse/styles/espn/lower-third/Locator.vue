@@ -10,8 +10,8 @@
 	<div class="team2Logo">
 		<img id="team2Logo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
-	<div class="team1Name">{{replicants.teams[0].name.value}}</div>
-	<div class="team2Name">{{replicants.teams[1].name.value}}</div>
+	<div class="team1Name">{{replicants.teams[0].schoolName.value}}</div>
+	<div class="team2Name">{{replicants.teams[1].schoolName.value}}</div>
 </template>
 
 <script setup lang="ts">
