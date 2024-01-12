@@ -1,32 +1,50 @@
-FROM node:18 AS build
+FROM node:20-slim AS build
+
+# Install OpenSSL for Prisma
+RUN apt-get update -y
+RUN apt-get install -y openssl
 
 # Initialize environment
 CMD ["npm", "run", "start:prod"]
 EXPOSE 4000
 USER node
+
+# Build-time CWD is the root of the monorepo. Reference this file using "-f apps/api/Dockerfile".
 WORKDIR /usr/src/app
 
-# Copy package.json files
+# Copy monorepo package.json and package-lock.json files
 COPY --chown=node:node ./package*.json .
+COPY --chown=node:node ./LICENSE .
+
+# Copy Prisma monorepo package. This should later be changed/removed to install the published version
+COPY --chown=node:node ./packages/prisma packages/prisma
+
+# Switch to API package
+WORKDIR /usr/src/app/apps/api
+
+# Copy API package.json
+COPY --chown=node:node apps/api/package.json .
 
 # Install dependencies
 RUN npm ci
 
-# Build NestJS app
-COPY --chown=node:node . .
+# Copy source files
+COPY --chown=node:node apps/api .
+
+# Build NestJS project
 RUN npm run build
 
-# Delete build-time modules
-RUN rm -rf ./node_modules
+# Install production dependencies
+RUN npm ci --omit=dev
 
-# Install production dependencies and regenerate Prisma client
-RUN npm ci --only=production
-RUN npm run generate
+FROM node:20-slim AS production
 
-FROM node:18 AS production
+# Install OpenSSL for Prisma
+RUN apt-get update -y
+RUN apt-get install -y openssl
 
 # Initialize environment
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
 EXPOSE 4000
 USER node
 ENV NODE_ENV=production
@@ -34,6 +52,6 @@ WORKDIR /usr/src/app
 
 # Copy built NestJS app from build stage
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=build /usr/src/app/apps/api/dist ./dist
 
 

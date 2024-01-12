@@ -41,20 +41,23 @@ import { VoteModule } from "./types/vote/vote.module";
 import { VoteResponseModule } from "./types/vote_response/vote_response.module";
 import { GraphQLRuleDirective, RuleDirective } from "./casl/rule.directive";
 import { StreamModule } from "./types/stream/stream.module";
-import { ConfigModule } from "@nestjs/config";
+import {ConfigModule, ConfigService} from "@nestjs/config";
 import * as Joi from "joi";
 import { ContactSubmissionType } from "@prisma/client";
+import {KeyvAdapter} from "@apollo/utils.keyvadapter";
+import * as Keyv from "keyv";
 
 @Module({
     imports: [
         GraphQLModule.forRootAsync<ApolloDriverConfig>({
             driver: ApolloDriver,
-            imports: [CaslModule],
-            inject: [RuleDirective],
-            useFactory: async (ruleDirective: RuleDirective) => ({
+            imports: [CaslModule, ConfigModule],
+            inject: [RuleDirective, ConfigService],
+            useFactory: async (ruleDirective: RuleDirective, configService: ConfigService) => ({
                 transformSchema: (schema) => ruleDirective.createBasic(schema, "rule"),
                 autoSchemaFile: path.join(process.cwd(), "generated/schema.gql"),
                 sortSchema: true,
+                cache: new KeyvAdapter(new Keyv(configService.get("REDIS_URL"))),
                 playground: {
                     settings: {
                         "request.credentials": "include"

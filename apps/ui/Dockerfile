@@ -1,20 +1,23 @@
-FROM node:16
+FROM node:20
 CMD [ "npm", "run", "preview" ]
 EXPOSE 4000
+USER node
 
-WORKDIR /usr/src/app
+# Build-time CWD is the root of the monorepo. Reference this file using "-f apps/ui/Dockerfile".
+WORKDIR /usr/src/app/
+COPY --chown=node:node ./package*.json .
 
-COPY package.json .
-COPY package-lock.json .
+WORKDIR /usr/src/app/apps/ui
+COPY --chown=node:node apps/ui/package.json .
 RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc npm ci
 
-COPY ../.. .
+COPY --chown=node:node apps/ui .
 RUN npm run generate
 RUN npm run build
 
 FROM nginx:1.23.1-alpine
 EXPOSE 80
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY apps/ui/nginx.conf /etc/nginx/nginx.conf
 
-COPY --from=0 /usr/src/app/dist /usr/share/nginx/html
+COPY --from=0 /usr/src/app/apps/ui/dist /usr/share/nginx/html

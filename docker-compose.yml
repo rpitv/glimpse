@@ -1,22 +1,7 @@
 version: '3.9'
 services:
-  api:
-    build: apps/api
-    restart: unless-stopped
-    ports:
-      - "4000:4000"
-    env_file:
-      - apps/api/.env.docker
-    networks:
-      - glimpse_network
-    profiles:
-      - api
-    depends_on:
-      - db
-      - redis
-      - rabbitmq
 
-  api-production:
+  api:
     image: ghcr.io/rpitv/glimpse-api:latest
     restart: unless-stopped
     ports:
@@ -31,6 +16,38 @@ services:
       - db
       - redis
       - rabbitmq
+
+  ui:
+    image: ghcr.io/rpitv/glimpse-ui:latest
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    networks:
+      - glimpse_network
+    profiles:
+      - production
+    depends_on:
+      - api
+
+  video:
+    image: ghcr.io/rpitv/glimpse-video:latest
+    restart: unless-stopped
+    ports:
+      - "1936:1935"
+    networks:
+      - glimpse_network
+    profiles:
+      - production
+
+  video-control:
+    image: ghcr.io/rpitv/glimpse-video-control:latest
+    restart: unless-stopped
+    networks:
+      - glimpse_network
+    env_file:
+      - apps/video-control/.env
+    profiles:
+      - production
 
   db:
     image: postgres:14
