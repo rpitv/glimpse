@@ -41,7 +41,6 @@ process.on('unhandledRejection', error => {
 	console.error("At", moment().utcOffset("300").format("MM/DD/YYYY HH:mm:ss"), 'Unhandled promise rejection:', error);
 	process.exit();
 });
-console.log();
 
 
 client.login(process.env.TOKEN);
