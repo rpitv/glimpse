@@ -3,28 +3,40 @@
 		<div :class="'scoreboard bordered' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
 			<div class="team2-section">
 				<TeamView v-if="teamTwo.enabled.value" :team-id="1" />
-				<p v-if="announcementType === 'away'" class="announcement-section team2">
-					{{ powerPlayStatus }} {{ powerPlayClock }}
-				</p>
-				<p v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
-					{{ computedMessage(replicants.announcements.team2.value[0]).value }}
-				</p>
-				<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team2">
-					{{replicants.teams[1].shootouts.value}}
-				</p>
+				<div v-if="announcementType === 'away'" class="announcement-section team2">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
+					<p>
+						{{ computedMessage(replicants.announcements.team2.value[0]).value }}
+					</p>
+				</div>
+				<div v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team2">
+					<p>
+						{{replicants.teams[1].shootouts.value}}
+					</p>
+				</div>
 			</div>
 
 			<div class="team1-section bordered">
-				<TeamView class="" v-if="teamOne.enabled.value" :team-id="0" />
-				<p v-if="announcementType === 'home'" class="announcement-section team1">
-					{{ powerPlayStatus }} {{ powerPlayClock }}
-				</p>
-				<p v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
-					{{ computedMessage(replicants.announcements.team1.value[0]).value }}
-				</p>
-				<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
-					{{replicants.teams[0].shootouts.value}}
-				</p>
+				<TeamView v-if="teamOne.enabled.value" :team-id="0" />
+				<div v-if="announcementType === 'home'" class="announcement-section team1">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
+					<p>
+						{{ computedMessage(replicants.announcements.team1.value[0]).value }}
+					</p>
+				</div>
+				<div>
+					<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
+						{{replicants.teams[0].shootouts.value}}
+					</p>
+				</div>
 			</div>
 
 			<div class="time-section bordered">
@@ -32,15 +44,21 @@
 					{{ formattedPeriod }}
 				</p>
 				<hr>
-				<p v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
-					{{ formattedClockTime }}
-				</p>
-				<p v-if="announcementType === 'global'" class="announcement-section global">
-					{{ powerPlayStatus }} {{ powerPlayClock }}
-				</p>
-				<p v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
-					{{ computedMessage(replicants.announcements.global.value[0]).value }}
-				</p>
+				<div v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
+					<p>
+						{{ formattedClockTime }}
+					</p>
+				</div>
+				<div v-if="announcementType === 'global'" class="announcement-section global">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
+					<p>
+						{{ computedMessage(replicants.announcements.global.value[0]).value }}
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -378,33 +396,41 @@ div {
 
 .announcement-section {
 	position: absolute;
-	top: 2.4vh;
 	outline: rgb(157,154,136) 0.15vw solid;
 	font-family: 'Roboto', sans-serif;
 	font-size: 3vh;
 	height: 4vh;
 
 	&.global {
-		text-align: center;
 		background-color: rgb(241,229,76);
 		color: rgb(99,87,24);
 		width: 10.05vw;
+		top: 5.4vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	&.team1 {
+		display: flex;
+		align-items: center;
 		text-align: left;
 		padding-left: 0.5em;
 		background-color: v-bind(team1Color);
 		color: v-bind(team1TextColor);
-		width: 20.55vw;
+		width: 20.7vw;
+		top: 5.4vh;
 	}
 
 	&.team2 {
+		display: flex;
+		align-items: center;
 		text-align: left;
 		padding-left: 0.5em;
 		background-color: v-bind(team2Color);
 		color: v-bind(team2TextColor);
-		width: 20.55vw;
+		top: 5.4vh;
+		width: 20.7vw;
 	}
 }
 </style>

@@ -17,7 +17,7 @@
 			>
 				{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
 			</v-btn>
-			Display Scoreboard (Scoreboard values are updated once when the scoreboard (not lower third) is hidden)
+			Display Scoreboard (SCOREBOARD VALUES ARE UPDATED ONCE WHEN THE SCOREBOARD (NOT LOWER THIRD) IS HIDDEN. THIS INCLUDES THE PERIOD)
 		</h2>
 		<br>
 		<h2>
