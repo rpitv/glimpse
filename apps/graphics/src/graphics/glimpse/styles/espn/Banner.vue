@@ -37,6 +37,7 @@ div {
 	position: absolute;
 	font-family: Roboto, sans-serif;
 	font-size: 2.2vh;
+	--banner-width: 25.1vw;
 }
 
 .title {
@@ -46,24 +47,24 @@ div {
 .banner {
 	font-weight: 700;
 	color: #424743;
-	top: 11vh;
-	left: 23.2vw;
+	top: 11.35vh;
+	left: 23.4vw;
 	background-color: #d6d6d6;
 	height: 6vh;
-	width: 25.3vw;
+	width: var(--banner-width);
 }
 
 .bottom {
 	top: 2.5vh;
 	background-color: #eff0e6;
 	height: 3.5vh;
-	width: 25.3vw;
 	box-shadow: 0 0 0 0.3vh #b0b2ad inset;
+	width: var(--banner-width);
 }
 .upward-line {
 	background-color: #b0b2ad;
 	height: 2vh;
-	left: 12.6vw;
+	left: 12.55vw;
 	top: 4vh;
 	width: 0.3vh;
 }

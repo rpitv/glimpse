@@ -41,8 +41,9 @@ const logoBgColor = team.primaryColor;
 .team-section {
 	display: flex;
 	font-family: 'Roboto', sans-serif;
-	height: calc(100% - 0.3vw);
+	height: 100%;
 }
+
 .logo-section {
 		display: inline-flex;
 		justify-content: center;
@@ -54,7 +55,7 @@ const logoBgColor = team.primaryColor;
 		background-color: v-bind(logoBgColor);
 
 		img {
-			height: 95%;
+			height: 90%;
 		}
 	}
 
@@ -90,6 +91,6 @@ const logoBgColor = team.primaryColor;
 	background-color: rgb(240,240,240);
 	color: rgb(73,73,68);
 	font-weight: 900;
-	font-size: 2vw;
+	font-size: 2.2vw;
 }
 </style>
