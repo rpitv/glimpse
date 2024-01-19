@@ -167,5 +167,11 @@ export const replicants = {
 	slideshow: {
 		enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
 		interval: nodecg().Replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
+	},
+	http: {
+		sidearms: {
+			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""}),
+		}
+
 	}
 }

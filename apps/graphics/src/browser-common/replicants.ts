@@ -175,6 +175,11 @@ export async function loadReplicants() {
 		slideshow: {
 			enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
 			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
+		},
+		http: {
+			sidearms: {
+				url: await replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""})
+			}
 		}
 	}
 }
