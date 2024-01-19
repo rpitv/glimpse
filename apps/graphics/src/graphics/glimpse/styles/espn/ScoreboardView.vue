@@ -1,6 +1,6 @@
 <template>
-	<div class="center">
-		<div :class="'scoreboard bordered' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
+	<div :class="'center ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
+		<div class="scoreboard bordered">
 			<div class="team2-section">
 				<TeamView v-if="teamTwo.enabled.value" :team-id="1" />
 				<div v-if="announcementType === 'away'" class="announcement-section team2">
@@ -32,8 +32,8 @@
 						{{ computedMessage(replicants.announcements.team1.value[0]).value }}
 					</p>
 				</div>
-				<div>
-					<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
+				<div v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
+					<p>
 						{{replicants.teams[0].shootouts.value}}
 					</p>
 				</div>
@@ -347,10 +347,12 @@ div {
 .center {
 	display: flex;
 	justify-content: center;
+	transition: opacity 1s;
 }
 
 .hidden {
 	opacity: 0;
+	transition: 1s;
 }
 
 .bordered {
