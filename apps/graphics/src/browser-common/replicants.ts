@@ -178,7 +178,8 @@ export async function loadReplicants() {
 		},
 		http: {
 			sidearms: {
-				url: await replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""})
+				url: await replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""}),
+				body: await replicant<any>("body", `glimpse-graphics.http.sidearms`, {defaultValue: {}})
 			}
 		}
 	}

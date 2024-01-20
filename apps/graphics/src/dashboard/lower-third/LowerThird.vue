@@ -162,14 +162,12 @@
 			<ul>Timeouts Away Team {{replicants.teams[1].timeouts}}</ul>
 		</div>
 		<br />
-		<Statistics />
 	</div>
 </template>
 
 <script setup lang="ts">
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed} from "vue";
-import Statistics from "../lower-third/Statistics.vue";
 
 const replicants = await loadReplicants();
 

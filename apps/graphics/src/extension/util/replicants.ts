@@ -170,8 +170,8 @@ export const replicants = {
 	},
 	http: {
 		sidearms: {
-			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""}),
+			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+			body: nodecg().Replicant<any>("body", `glimpse-graphics.http.sidearms`, {defaultValue: {}}),
 		}
-
 	}
 }

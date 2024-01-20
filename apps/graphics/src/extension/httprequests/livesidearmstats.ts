@@ -1,8 +1,16 @@
 import { replicants } from "../util/replicants";
+import {XMLParser} from "fast-xml-parser";
 
-export async function getStats(url: string) {
-	const response = await fetch(url);
-	replicants.http.sidearms.url.value = await response.text();
-}
+const options = {
+	ignoreAttributes: false,
+	attributeNamePrefix : "",
+	attributesGroupName : ""
+};
 
-getStats("https://rpiathletics.com/services/cumestats.ashx/games?global_sport_shortname=mhockey");
+const parser = new XMLParser(options);
+const sidearms = replicants.http.sidearms;
+
+setInterval(async () => {
+	const response = await fetch(sidearms.url.value);
+	sidearms.body.value = parser.parse(await response.text());
+}, 1000);
