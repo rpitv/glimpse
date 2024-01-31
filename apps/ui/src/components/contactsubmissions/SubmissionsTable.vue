@@ -35,7 +35,7 @@
               onSave(production, data);
               list[index] = false;
             }"
-            :id="item.id"
+            :contactSubmissionId="BigInt(item.id)"
         />
         <template #trigger>
           <v-btn color="green-darken-3" class="mr-2" variant="flat" size="small" icon="eye" />

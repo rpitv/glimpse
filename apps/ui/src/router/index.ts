@@ -429,7 +429,7 @@ const router = createRouter({
               },
               children: [
                 {
-                  path: "view",
+                  path: "",
                   name: "dashboard-contact-submission-details-view",
                   component: restrictedComponent(ViewSubmissionCard, () =>
                     canViewContactSubmissionsDashboard()

@@ -35,7 +35,7 @@
       </tr>
       <tr>
         <td>Livestream</td>
-        <td>{{ production.additionalData.livestream ? '✅' : '❌'}}</td>
+        <td>{{ production.additionalData.livestreamed ? '✅' : '❌'}}</td>
       </tr>
       <tr>
         <td>Event Location</td>

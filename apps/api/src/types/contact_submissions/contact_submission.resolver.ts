@@ -149,7 +149,7 @@ export class ContactSubmissionResolver {
                 additionalData: {}
             })
         );
-        await this.handleNewSubmissionNotifications(result);
+        this.handleNewSubmissionNotifications(result);
         return result;
     }
 
@@ -193,7 +193,7 @@ export class ContactSubmissionResolver {
                 additionalData: this.generateProductionRequestAdditionalData(input)
             })
         );
-        await this.handleNewSubmissionNotifications(result);
+        this.handleNewSubmissionNotifications(result);
         return result;
     }
 
@@ -314,7 +314,7 @@ export class ContactSubmissionResolver {
         return result;
     }
 
-    private async handleNewSubmissionNotifications(submission: ContactSubmission): Promise<void> {
+    private handleNewSubmissionNotifications(submission: ContactSubmission): Promise<void> {
         // Send message to discord
         if (process.env.DISCORD_WEBHOOK) {
             console.log("Sending Discord msg")
@@ -355,11 +355,11 @@ export class ContactSubmissionResolver {
                                 },
                                 {
                                     name: "Start Time",
-                                    value: new Date(additionalData.startTime).toLocaleString()
+                                    value: new Date(additionalData.startTime).toLocaleString("en-US", { timeZone: "EST"})
                                 },
                                 {
                                     name: "End Time",
-                                    value: new Date(additionalData.endTime).toLocaleString()
+                                    value: new Date(additionalData.endTime).toLocaleString("en-US", { timeZone: "EST"})
                                 },
                                 {
                                     name: "Would you like this event livestreamed?",
@@ -411,12 +411,14 @@ export class ContactSubmissionResolver {
                     ]
                 };
             }
-            await fetch(process.env.DISCORD_WEBHOOK, {
+            fetch(process.env.DISCORD_WEBHOOK, {
                 method: "POST",
                 headers: {
                     "content-type": "application/json"
                 },
                 body: JSON.stringify(msg)
+            }).catch(() => {
+                this.logger.error(`Failed to send Discord notification for new ContactSubmission (ID ${submission.id})`);
             });
         }
     }

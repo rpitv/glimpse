@@ -1,7 +1,7 @@
 <template>
   <div class="center">
     <v-snackbar v-model="missing" color="red-darken-2">
-      One or more of your fields are missing or incorrect, please make sure everything required is filled out and the information is .
+      One or more of your fields are missing or incorrect, please make sure everything required is filled out and the information is correct.
       <template #actions>
         <v-btn icon="fa-circle-xmark" @click="missing = false" />
       </template>

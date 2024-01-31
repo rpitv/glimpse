@@ -55,13 +55,13 @@ import ProductionRequest from "@/components/contactsubmissions/ProductionRequest
 import GeneralInquiry from "@/components/contactsubmissions/GeneralInquiry.vue";
 import {ability, AbilityActions} from "@/casl";
 import {subject} from "@casl/ability";
-import {ref} from "vue";
+import {type PropType, ref} from "vue";
 
 
 const props = defineProps({
-  id: {
-    type: Number,
-    required: true
+  contactSubmissionId: {
+    type: BigInt as unknown as PropType<BigInt>,
+    required: true,
   }
 });
 
@@ -70,7 +70,7 @@ const emit = defineEmits(['save']);
 const isResolving = ref(false);
 
 const submission = useQuery(ContactSubmissionDetailsDocument, {
-  id: props.id
+  id: props.contactSubmissionId
 });
 
 
@@ -96,12 +96,12 @@ async function resolveSubmission() {
         } : null;
     if (details?.type === "GENERAL")
       await resolveGeneral.mutate({
-        id: props.id,
+        id: props.contactSubmissionId,
         resolve: true
       });
     else if (details?.type === "PRODUCTION_REQUEST")
       await resolveProduction.mutate({
-        id: props.id,
+        id: props.contactSubmissionId,
         resolve: true
       });
 

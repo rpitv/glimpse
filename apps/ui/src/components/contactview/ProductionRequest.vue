@@ -197,14 +197,14 @@ async function submitProductionReq() {
         audioSource: productionData.value.audio.exists ? productionData.value.audio.provider : null,
         body: body.value,
         email: email.value,
-        endTime: productionData.value.eventEndTime.toISOString(),
+        endTime: productionData.value.eventEndTime,
         isStudentOrganization: productionData.value.schoolOrg as unknown as boolean,
         livestreamed: productionData.value.livestreamed as unknown as boolean,
         location: productionData.value.eventLocation,
         name: name.value,
         organizationName: productionData.value.organizationName,
         phoneNumber: productionData.value.phone,
-        startTime: productionData.value.eventStartTime.toISOString(),
+        startTime: productionData.value.eventStartTime,
         subject: subject.value,
       }
     });
