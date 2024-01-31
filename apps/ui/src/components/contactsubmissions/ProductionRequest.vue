@@ -12,7 +12,7 @@
       <tr>
         <td>Phone #</td>
         <td>{{
-            production.additionalData.production?.phoneNumber?.trim().length ? production.additionalData.production.phoneNumber : 'No phone number provided'
+            production.additionalData.production?.phoneNumber ? production.additionalData.production.phoneNumber : 'No phone number provided'
           }}</td>
       </tr>
       <tr>
