@@ -314,7 +314,7 @@ export class ContactSubmissionResolver {
         return result;
     }
 
-    private handleNewSubmissionNotifications(submission: ContactSubmission): Promise<void> {
+    private handleNewSubmissionNotifications(submission: ContactSubmission) {
         // Send message to discord
         if (process.env.DISCORD_WEBHOOK) {
             console.log("Sending Discord msg")
@@ -325,7 +325,7 @@ export class ContactSubmissionResolver {
                     embeds: [
                         {
                             title: "New Production Request",
-                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}/view`,
+                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}`,
                             timestamp: submission.timestamp,
                             color: 0xff0000,
                             fields: [
