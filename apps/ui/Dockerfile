@@ -9,7 +9,7 @@ COPY --chown=node:node ./package*.json .
 
 WORKDIR /usr/src/app/apps/ui
 COPY --chown=node:node apps/ui/package.json .
-RUN --mount=type=secret,id=npmrc,dst=/root/.npmrc npm ci
+RUN --mount=type=secret,id=npmrc,dst=/home/node/.npmrc,uid=1000 npm ci
 
 COPY --chown=node:node apps/ui .
 RUN npm run generate
