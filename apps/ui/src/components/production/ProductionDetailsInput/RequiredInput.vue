@@ -2,11 +2,10 @@
   <v-text-field class="mt-1" variant="outlined" label="Production Name" density="compact"
                 required :rules="nameRules" v-model="modelValue.name"/>
   <div class="second-row">
-    <v-text-field class="mt-1 input" variant="outlined" label="Closet Location" :rules="closetLocRules" density="compact"
-                  required v-model="modelValue.closetLocation"/>
-    <v-text-field class="mt-1 input" variant="outlined" label="Event Location" :rules="eventLocRules" density="compact"
-                  required v-model="modelValue.eventLocation"
-    />
+    <v-combobox class="mt-1 input" variant="outlined" label="Closet Location" :rules="closetLocRules" density="compact"
+                  required v-model="modelValue.closetLocation" :items="closetLocations" />
+    <v-combobox class="mt-1 input" variant="outlined" label="Event Location" :rules="eventLocRules" density="compact"
+                  required v-model="modelValue.eventLocation" :items="eventLocations" />
   </div>
   <div class="center">
     <div class="date-time-container">
@@ -83,6 +82,24 @@ const eventLocRules = [
 const rules =  {
   minutes: { interval: 15 }
 }
+
+// Default options for meeting/event locations. Users can still type their own.
+const closetLocations = [
+  'East Campus Athletic Village',
+  'Houston Field House',
+  'RPI TV Closet',
+  'RPI TV Office'
+]
+const eventLocations = [
+  'Academy Hall',
+  'Chapel + Cultural Center',
+  'East Campus Athletic Village',
+  'EMPAC',
+  'Houston Field House',
+  'Playhouse',
+  'Rensselaer Union',
+  'West Hall'
+]
 
 </script>
 
