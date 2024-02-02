@@ -6,7 +6,6 @@
              :order="display.width.value >= 556 ? 1 : 2">
         <h2>Legal</h2>
         <div>
-          <p><RouterLink to="terms">Terms of Service</RouterLink></p>
           <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
           <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
         </div>
