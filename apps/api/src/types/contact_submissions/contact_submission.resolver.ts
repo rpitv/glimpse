@@ -386,7 +386,7 @@ export class ContactSubmissionResolver {
                     embeds: [
                         {
                             title: "New Contact Submission",
-                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}/view`,
+                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}`,
                             timestamp: submission.timestamp,
                             color: 0xff0000,
                             fields: [
