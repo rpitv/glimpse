@@ -57,10 +57,10 @@
     <v-combobox class="mt-4" label="Select/Type the location of the event" :items="locations" clearable
                 v-model="productionData.eventLocation" :rules="[formRules.location]" />
     <p>When will your event start? (To switch months, click on the text displaying the month and year)</p>
-    <DatePicker mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
+    <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
     <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the start time of this event.</small></p>
     <p class="mt-5">When do you anticipate your event concluding?</p>
-    <DatePicker mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
+    <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
     <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the end time of this event.</small></p>
     <p class="mt-2">Include any details that you may need or would help us.</p>
     <v-textarea class="mt-2" label="Type any additional details here" v-model="body"
