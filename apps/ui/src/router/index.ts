@@ -82,6 +82,7 @@ import CreateProductionCard from "@/components/production/CreateProductionCard.v
 import EditProductionCard from "@/components/production/EditProductionCard.vue";
 import SubmissionList from "@/components/contactsubmissions/SubmissionList.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
+import AccessibilityStatementView from "@/views/AccessibilityStatementView.vue";
 
 function restrictedComponent(
   component: Component,
@@ -205,6 +206,14 @@ const router = createRouter({
       meta: {
         layoutCssName: "wave-layout",
       },
+    },
+    {
+      path: "/accessibility",
+      name: "accessibility",
+      component: AccessibilityStatementView,
+      meta: {
+        layoutCssName: "wave-layout"
+      }
     },
     {
       path: "/dashboard",
