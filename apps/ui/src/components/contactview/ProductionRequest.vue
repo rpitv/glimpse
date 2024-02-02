@@ -1,5 +1,5 @@
 <template>
-  <h2 style="text-align: center">
+  <h2 class="text-center">
     Thank you for contacting RPI TV for the recording and/or live-streaming of your event.
     Please read through the important information below prior to completing the form.
   </h2>
@@ -25,43 +25,74 @@
         Requests from organizations external to RPI will also be billed.</p>
     </v-list-item>
   </v-list>
+  <small>* = required</small>
   <v-form class="mt-10" ref="productionRequest">
-    <v-text-field class="mt-2" label="Entery your name" v-model="name" :rules="[formRules.name]"/>
-    <v-text-field class="mt-2" label="Enter your email" type="email" v-model="email" :rules="[formRules.email]" />
-    <v-text-field class="mt-2" label="Enter your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
-    <p>What is the event name?</p>
-    <v-text-field class="mt-2" label="Enter the event name" v-model="subject" :rules="[formRules.subject]" />
-    <p>What is your organization's name?</p>
-    <v-text-field class="mt-2" label="Enter your organization's name" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
-    <p>Is your organization affiliated with RPI?</p>
-    <v-radio-group class="mt-2" v-model="productionData.schoolOrg" :rules="[formRules.affiliation]">
-      <v-radio label="Yes" :value="true" />
-      <v-radio label="No" :value="false" />
-    </v-radio-group>
-    <p>Would you like this event to be livestreamed?</p>
-    <v-radio-group class="mt-2" v-model="productionData.livestreamed" :rules="[formRules.livestream]">
-      <v-radio label="Yes" :value="true" />
-      <v-radio label="No" :value="false" />
-    </v-radio-group>
-    <p>Have you contacted Union Showtechs, another organization, or do you have your own audio equipment which you plan to use?</p>
+    <v-row>
+      <v-col cols="12" md="4">
+        <v-text-field class="mt-2" label="Your name*" v-model="name" :rules="[formRules.name]"/>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-text-field class="mt-2" label="Your email*" type="email" v-model="email" :rules="[formRules.email]" />
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-text-field class="mt-2" label="Your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col cols="12" md="6">
+        <v-text-field class="mt-2" label="Event title*" v-model="subject" :rules="[formRules.subject]" />
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-text-field class="mt-2" label="Organization name*" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <p>Is your organization affiliated with RPI?*</p>
+        <v-radio-group class="mt-2" v-model="productionData.schoolOrg" :rules="[formRules.affiliation]">
+          <v-radio label="Yes" :value="true" />
+          <v-radio label="No" :value="false" />
+        </v-radio-group>
+      </v-col>
+      <v-col>
+        <p>Would you like this event to be livestreamed?*</p>
+        <v-radio-group class="mt-2" v-model="productionData.livestreamed" :rules="[formRules.livestream]">
+          <v-radio label="Yes" :value="true" />
+          <v-radio label="No" :value="false" />
+        </v-radio-group>
+      </v-col>
+    </v-row>
+
+    <p>Have you contacted Union Showtechs, another organization, or do you have your own audio equipment which you plan to use?*</p>
     <v-radio-group v-model="productionData.audio.exists" :rules="[formRules.audio]">
       <v-radio label="Yes" :value="true" />
       <div v-if="productionData.audio.exists" class="ml-5">
-        <p class="mt-3">Who's providing the equipment? (If the provider is not listed, you can type it in the box.)</p>
+        <p class="mt-3">Who's providing the equipment? (If the provider is not listed, you can type it in the box.)*</p>
         <v-combobox class="mt-2" label="Select/Type the provider" :items="['Union Showtechs']"
               v-model="productionData.audio.provider" :rules="[formRules.provider]"/>
       </div>
       <v-radio label="No" :value="false" />
     </v-radio-group>
-    <p>Where is your event going to take place? If off campus please include the address. (If the location is not listed, you can type it in the box.)</p>
+    <p>Where is your event going to take place? If off campus please include the address. (If the location is not listed, you can type it in the box.)*</p>
     <v-combobox class="mt-4" label="Select/Type the location of the event" :items="locations" clearable
                 v-model="productionData.eventLocation" :rules="[formRules.location]" />
-    <p>When will your event start? (To switch months, click on the text displaying the month and year)</p>
-    <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
-    <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the start time of this event.</small></p>
-    <p class="mt-5">When do you anticipate your event concluding?</p>
-    <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
-    <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the end time of this event.</small></p>
+
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="12" sm="12" md="5" class="text-center">
+          <p class="mb-2 start-time-title">When will your event start?*</p>
+          <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
+          <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the start time of this event.</small></p>
+        </v-col>
+        <v-col cols="12" sm="12" md="5" class="text-center">
+          <p class="mb-2">When do you anticipate your event concluding?*</p>
+          <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
+          <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the end time of this event.</small></p>
+        </v-col>
+      </v-row>
+    </v-container>
     <p class="mt-2">Include any details that you may need or would help us.</p>
     <v-textarea class="mt-2" label="Type any additional details here" v-model="body"
           placeholder="Example 1: We plan on showing something on a projector and would like it to be shown on your stream.
@@ -214,9 +245,6 @@ async function submitProductionReq() {
   }
   loading.value = false;
 }
-
-
-
 </script>
 
 <style scoped lang="scss">
@@ -243,5 +271,13 @@ async function submitProductionReq() {
 
 .list-item {
   font-weight: 300;
+}
+
+// Specifically at 1162px, the end time title line breaks into two lines.
+// We want to push the start time box downward to match it until the break point of 960px
+.start-time-title {
+  @media(min-width: 960px) and (max-width: 1162px) {
+    margin-bottom: 35px !important;
+  }
 }
 </style>
