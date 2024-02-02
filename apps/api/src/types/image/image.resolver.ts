@@ -26,10 +26,15 @@ import { OrderPersonInput } from "../person/dto/order-person.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import * as path from "path";
+import {ConfigService} from "@nestjs/config";
 
 @Resolver(() => Image)
 export class ImageResolver {
     private logger: Logger = new Logger("ImageResolver");
+
+    constructor(private readonly configService: ConfigService) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -341,5 +346,19 @@ export class ImageResolver {
             take: Math.max(0, pagination?.take ?? 20),
             cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
         });
+    }
+
+    /**
+     * Modified resolver for the image path which converts independent filenames to their static URL
+     */
+    @ResolveField(() => String)
+    async path(
+        @Context() ctx: { req: Request },
+        @Parent() image: Image
+    ): Promise<string> {
+        if(path.parse(image.path).dir === "") {
+            return this.configService.get("LOCAL_IMAGE_URL") + image.path
+        }
+        return image.path;
     }
 }
