@@ -2,7 +2,14 @@
   <div>
     <RouterLink :to="productionUrl" class="production-card" link>
       <v-card class="production-card" variant="elevated" :hover="true" density="comfortable" ref="card">
-        <v-img :src="thumbnail" cover />
+        <v-img :src="thumbnail" cover :aspect-ratio="1.7778">
+          <template v-slot:placeholder>
+            <v-skeleton-loader type="image" />
+          </template>
+          <template v-slot:error>
+            <v-img src="/default_thumbnail_300.png" cover />
+          </template>
+        </v-img>
         <v-card-title>{{props.name}}</v-card-title>
         <v-card-text>
           <p class="production-description text-body-2">{{ props.description }}</p>
