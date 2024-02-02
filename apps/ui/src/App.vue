@@ -101,4 +101,8 @@ export default defineComponent({
   flex-direction: column;
   height: 100vh;
 }
+
+.vc-header .vc-arrow {
+  z-index: 1;
+}
 </style>
