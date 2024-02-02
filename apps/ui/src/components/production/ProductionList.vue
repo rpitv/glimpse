@@ -50,7 +50,7 @@
       loading-text="Loading productions..."
     >
       <template #item.teamNotes="{item}">
-        <v-dialog v-if="item.teamNotes.length" width="800">
+        <v-dialog v-if="item.teamNotes?.length" width="800">
           <template #activator="{ props }">
             <v-btn v-bind="props" text="View Notes" color="light-blue-lighten-1" />
           </template>
@@ -203,7 +203,7 @@ async function searchProduction(value: string, type: string) {
       filter.name.contains = value.trim();
     if (type === "ID")
       filter.id = { equals: parseInt(value) }
-  };
+  }
   await queryData.refetch({
     pagination: {
       take: take,

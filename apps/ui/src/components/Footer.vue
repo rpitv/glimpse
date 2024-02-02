@@ -32,8 +32,8 @@
             YouTube
           </a></p>
           <p><a href="https://twitter.com/rpitv">
-            <FontAwesomeIcon class="twitter-icon icon" icon="fa-brands fa-twitter" />
-            Twitter
+            <FontAwesomeIcon class="twitter-icon icon" icon="fa-brands fa-x-twitter" />
+            X (Formerly Twitter)
           </a></p>
           <p><a href="https://discord.com/invite/zr6Xy8nK6E">
             <FontAwesomeIcon class="discord-icon icon" icon="fa-brands fa-discord" />

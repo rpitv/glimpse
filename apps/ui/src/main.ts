@@ -77,7 +77,7 @@ import {
   faYoutube,
   faDiscord,
   faInstagram,
-  faTwitter,
+  faXTwitter,
   faRedditAlien,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -148,7 +148,7 @@ library.add(faGithub);
 library.add(faYoutube);
 library.add(faDiscord);
 library.add(faInstagram);
-library.add(faTwitter);
+library.add(faXTwitter);
 library.add(faRedditAlien);
 
 library.add(faAngleRight);

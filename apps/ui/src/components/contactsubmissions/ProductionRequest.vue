@@ -51,7 +51,7 @@
       </tr>
       <tr>
         <td>Additional Information</td>
-        <td>{{ production.additionalData.body?.trim().length ? production.additionalData.body : 'None' }}</td>
+        <td>{{ production.body?.trim().length ? production.additionalData.body : 'None' }}</td>
       </tr>
     </tbody>
   </v-table>

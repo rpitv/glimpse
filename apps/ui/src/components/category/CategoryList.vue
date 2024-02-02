@@ -51,13 +51,12 @@
 </template>
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   AbilitySubjects, CaseSensitivity, CategoryOrderableFields,
   DeleteCategoryDocument,
-  FindCategoriesDocument, OrderDirection, RoleOrderableFields,
+  FindCategoriesDocument, OrderDirection
 } from "@/graphql/types";
 import type { Category } from "@/graphql/types";
 import { computed, h, onMounted, ref } from "vue";
@@ -71,7 +70,6 @@ import DashboardSearch from "@/components/DashboardSearch.vue";
 
 const ability = useGlimpseAbility();
 const dialog = useDialog();
-const route = useRoute();
 const take = 20;
 
 const showCreatePopup = ref<boolean>(false);

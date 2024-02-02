@@ -13,13 +13,14 @@
       </v-expansion-panel>
     </v-expansion-panels>
   </div>
-  <v-infinite-scroll :onLoad="getMoreProductions" style="overflow-y: hidden; ">
+  <v-infinite-scroll :onLoad="getMoreProductions" style="overflow-y: hidden; " v-if="renderScroller">
     <div class="production-cards">
       <template v-for="production in productions" :key="production.id">
         <ProductionCard  class="production-card"
            :id="parseInt(production.id)" :name="production.name" :end-time="new Date(production.endTime)"
            :description="production.description?.length ? production.description : ''"
-           :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"/>
+           :start-time="new Date(production.startTime)" :thumbnail-url="production.thumbnail?.path ?? undefined"
+        />
       </template>
     </div>
     <template #loading>
@@ -38,7 +39,7 @@
 
 <script setup lang="ts">
 import {useQuery} from "@vue/apollo-composable";
-import {CategoryOrderableFields, Production} from "@/graphql/types";
+import type {CategoryOrderableFields, Production} from "@/graphql/types";
 import {
   CaseSensitivity,
   FindAllProductionsDocument,
@@ -48,7 +49,7 @@ import {
   ProductionOrderableFields
 } from "@/graphql/types";
 import ProductionCard from "@/components/ProductionCard.vue";
-import {computed, ref} from "vue";
+import {computed, ref, nextTick} from "vue";
 
 
 const take = 20;
@@ -58,6 +59,7 @@ const searchVal = ref("");
 const filterName = ref(false);
 const filterTag = ref(false);
 const filterCategory = ref(false);
+const renderScroller = ref(true);
 
 const response = useQuery(FindAllProductionsDocument, {
   order: [{
@@ -78,7 +80,7 @@ const categories = useQuery(FindCategoriesDocument, {
 
 let totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
 
-async function getMoreProductions({ done }) {
+async function getMoreProductions(load: { done: (status: 'loading' | 'error' | 'empty' | 'ok') => void })  {
   try {
     await response.refetch({
       pagination: {
@@ -87,17 +89,22 @@ async function getMoreProductions({ done }) {
       }
     });
     totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
-    if (response.result.value) {
+    if (response.result.value)
       for (const production of response.result.value.productions)
         productions.value.add(production);
-    }
+
+    // Vuetify skill issued this if block
+    if (skip.value >= productions.value.size && productions.value.size !== 0)
+      skip.value -= take;
+
     if (totalProductions <= productions.value.size)
-      done('empty');
-    else
-      done('ok');
-    skip.value = skip.value + take;
+      load.done('empty');
+    else {
+      load.done('ok');
+      skip.value = skip.value + take;
+    }
   } catch (e) {
-    done('error');
+    load.done('error');
   }
 }
 
@@ -150,6 +157,12 @@ async function search() {
       for (const production of response.result.value.productions)
         productions.value.add(production);
     }
+
+    // If you think this code will do nothing 99% of the time, you're absolutely right, but for that 1%...
+    renderScroller.value = false;
+    await nextTick();
+    renderScroller.value = true;
+
   } catch (e) {
     console.error(e);
   }
