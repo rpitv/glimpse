@@ -4,7 +4,7 @@
       <v-col :cols="display.width.value >= 556 ? 4 : 12"
              class="legal col"
              :order="display.width.value >= 556 ? 1 : 2">
-        <h2>Legal</h2>
+        <h2>Info</h2>
         <div>
           <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
           <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
