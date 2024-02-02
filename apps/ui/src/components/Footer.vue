@@ -22,7 +22,7 @@
           </a>
         </p>
         <p><RouterLink to="constitution">Constitution</RouterLink></p>
-        <p><RouterLink to="wiki">Wiki</RouterLink></p>
+        <p><a href="https://github.com/rpitv/glimpse/wiki">Wiki</a></p>
       </v-col>
       <v-col :cols="display.width.value >= 556 ? 4 : 12" class="last-col col social" :order="3">
         <h2>Social</h2>
