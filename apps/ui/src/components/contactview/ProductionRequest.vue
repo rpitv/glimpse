@@ -93,7 +93,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <p class="mt-2">Include any details that you may need or would help us.</p>
+    <p class="mt-2">Include any details that we may need or would help us.</p>
     <v-textarea class="mt-2" label="Type any additional details here" v-model="body"
           placeholder="Example 1: We plan on showing something on a projector and would like it to be shown on your stream.
 Example 2: Here's a timeline of the event for you to follow: <Insert Link Here>."
