@@ -78,6 +78,16 @@ export default defineComponent({
         },
         VDialog: {
           scrim: "black"
+        },
+        VDataTableServer: {
+          height: "500",
+          fixedHeader: true,
+          hover: true,
+          fixedFooter: true,
+          showCurrentPage: true
+        },
+        VPagination: {
+          rounded: true
         }
       }
     };

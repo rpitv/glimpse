@@ -40,8 +40,6 @@
     <v-data-table-server
       :items-per-page="take"
       :items-length="queryData.result.value ? queryData.result.value?.totalProductions : 0 "
-      :items-per-page-options="[{value: take, title: `${take}`}]"
-      :show-current-page="true" @update:page="loadProductions"
       :page="currentPage" :headers="headers"
       :items="queryData.result.value?.productions"
       no-data-text="No productions found 💀"
@@ -99,7 +97,7 @@
             <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
           </template>
         </RouterPopup>
-        <v-dialog max-width="500" scrim="black">
+        <v-dialog max-width="500">
           <template #activator="{ props }">
             <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
           </template>
@@ -117,6 +115,13 @@
             </v-card>
           </template>
         </v-dialog>
+      </template>
+      <template v-slot:bottom>
+        <v-pagination
+          v-model="currentPage"
+          :length="!!queryData.result.value?.totalProductions ? Math.ceil(queryData.result.value?.totalProductions / take) : 1"
+          @update:modelValue="loadProductions"
+        />
       </template>
     </v-data-table-server>
   </div>
@@ -253,10 +258,10 @@ async function deleteProduction(production: Partial<Production>) {
     await deleteMutation.mutate({id: parseInt(production.id)});
 
     await refresh();
-    isDeleting.value = false;
   } catch (e) {
     console.error(e);
   }
+  isDeleting.value = false;
 }
 
 /*

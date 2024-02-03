@@ -32,8 +32,7 @@
    :items-per-page="take"
    :items-length="queryData.result.value ? queryData.result.value.categoryCount : 0"
    :items-per-page-options="[{value: take, title: `${take}`}]"
-   :show-current-page="true"
-   :page="currentPage" @update:page="loadProductions"
+   :page="currentPage"
    :items="queryData.result.value?.categories"
    no-data-text="No categories found 💀"
    v-model:sort-by="order"
@@ -48,6 +47,13 @@
         Set As Category
       </VBtn>
     </template>
+    <template v-slot:bottom>
+      <v-pagination
+        v-model="currentPage"
+        :length="!!queryData.result.value?.categoryCount ? Math.ceil(queryData.result.value?.categoryCount / take) : 0"
+        @update:modelValue="loadCategories"
+      />
+    </template>
   </v-data-table-server>
 </template>
 
@@ -61,7 +67,7 @@ import {
   SearchCategoriesDocument
 } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
+import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";
 import {ability, AbilityActions} from "@/casl";
 import CreateImageCard from "@/components/image/CreateImageCard.vue";
@@ -106,7 +112,7 @@ const queryData = useQuery(SearchCategoriesDocument, {
   }
 });
 
-async function loadProductions(page: number) {
+async function loadCategories(page: number) {
   await queryData.refetch({
     pagination: {
       take: props.take,
@@ -145,6 +151,10 @@ watch(order, () => {
 async function refresh() {
   await queryData.refetch();
 }
+
+onMounted(async () => {
+  await refresh();
+});
 </script>
 
 <style scoped lang="scss">

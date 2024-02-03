@@ -29,17 +29,15 @@
     </div>
   </div>
   <v-data-table-server class="table" height="300px"
-                       :items-per-page="take"
-                       :items-length="queryData.result.value ? queryData.result.value.imageCount : 0"
-                       :items-per-page-options="[{value: take, title: `${take}`}]"
-                       :show-current-page="true"
-                       :page="currentPage" @update:page="loadProductions"
-                       :items="queryData.result.value?.images"
-                       no-data-text="No images found 💀"
-                       v-model:sort-by="order"
-                       :loading="queryData.loading.value"
-                       loading-text="Loading Images..."
-                       :headers="imageHeader"
+     :items-per-page="take"
+     :items-length="queryData.result.value ? queryData.result.value.imageCount : 0"
+     :page="currentPage"
+     :items="queryData.result.value?.images"
+     no-data-text="No images found 💀"
+     v-model:sort-by="order"
+     :loading="queryData.loading.value"
+     loading-text="Loading Images..."
+     :headers="imageHeader"
   >
     <template #item.image="{ item }">
       <a :href="item.path" target="_blank">Link</a>
@@ -54,6 +52,13 @@
             @click="emit('addImage', item.id, item.path)">
         Add Image
       </VBtn>
+    </template>
+    <template v-slot:bottom>
+      <v-pagination
+        v-model="currentPage"
+        :length="!!queryData.result.value?.imageCount ? Math.ceil(queryData.result.value?.imageCount / take) : 0"
+        @update:modelValue="loadImages"
+      />
     </template>
   </v-data-table-server>
 </template>
@@ -71,7 +76,6 @@ import {ref, watch} from "vue";
 import type {PropType} from "vue";
 import {subject} from "@casl/ability";
 import {ability, AbilityActions} from "@/casl";
-import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateImageCard from "@/components/image/CreateImageCard.vue";
 
@@ -118,7 +122,7 @@ const queryData = useQuery(SearchImagesDocument, {
   }
 });
 
-async function loadProductions(page: number) {
+async function loadImages(page: number) {
   await queryData.refetch({
     pagination: {
       take: props.take,

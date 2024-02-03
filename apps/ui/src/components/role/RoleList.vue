@@ -3,9 +3,9 @@
     <DashboardSearch document-name="Roles" @search="searchRole" />
     <div class="buttons">
       <RouterPopup
-        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Role)"
         :max-width="1100" v-model="showCreatePopup"
-        :to="{ name: 'dashboard-production-create' }"
+        :to="{ name: 'dashboard-role-create' }"
       >
         <template #default>
           <CreateRoleCard
@@ -36,21 +36,70 @@
       </v-btn>
     </div>
   </div>
-  <n-layout>
-    <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
-    <div style="overflow: auto">
-      <n-data-table
-          class="role-data-table"
-          :columns="columns"
-          :data="queryData.result.value?.roles ?? []"
-          :row-key="(row) => row.id"
-      />
-    </div>
-  </n-layout>
+  <div>
+    <v-data-table-server class="table"
+       :items-per-page="take"
+       :items-length="queryData.result.value ? queryData.result.value.roleCount : 0"
+       :page="currentPage" :headers="headers"
+       :items="queryData.result.value?.roles"
+       no-data-text="No roles found 💀"
+       v-model:sort-by="order"
+       :loading="queryData.loading.value"
+       loading-text="Loading Roles..."
+    >
+      <template #item.actions="{ index, item }">
+        <RouterPopup
+          v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Role, {
+            id: item.id,
+            name: item.name,
+            priority: item.priority
+          }))"
+          :max-width="1100" v-model="list[index]"
+          :to="{ name: 'dashboard-role-details-edit', params: {id: item.id } }"
+          @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
+        >
+          <EditRoleCard
+            @close="
+                list[index] = false
+                refresh();"
+            :roleId="BigInt(item.id)"
+            :closable="true"
+          />
+          <template #trigger>
+            <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
+          </template>
+        </RouterPopup>
+        <v-dialog max-width="500">
+          <template #activator="{ props }">
+            <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
+          </template>
+          <template #default="{ isActive }">
+            <v-card title="Delete Role">
+              <v-card-text>
+                Are you sure you want to delete the role "{{item.name}}"? This will also remove its members.
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn @click="isActive.value = false" variant="outlined" text="Cancel"/>
+                <v-btn @click="deleteRole(item)" variant="outlined"
+                       text="Delete" color="#FF5252" :disabled="isDeleting" />
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
+      </template>
+      <template v-slot:bottom>
+        <v-pagination
+          v-model="currentPage"
+          :length="!!queryData.result.value?.roleCount ? Math.ceil(queryData.result.value?.roleCount / take) : 1"
+          @update:modelValue="loadRoles"
+        />
+      </template>
+    </v-data-table-server>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   AbilitySubjects, CaseSensitivity,
@@ -58,23 +107,26 @@ import {
   FindRolesDocument, OrderDirection, RoleOrderableFields,
 } from "@/graphql/types";
 import type { Role } from "@/graphql/types";
-import { computed, h, onMounted, ref } from "vue";
+import { watch, onMounted, ref } from "vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
-import { useRoute } from "vue-router";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditRoleCard from "@/components/role/EditRoleCard.vue";
 import CreateRoleCard from "@/components/role/CreateRoleCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
 
 const ability = useGlimpseAbility();
-const dialog = useDialog();
-const route = useRoute();
-const take = 20;
-
 const showCreatePopup = ref<boolean>(false);
 const shownPopup = ref<string | null>(null);
+const list = ref<boolean[]>([]);
+const isDeleting = ref(false);
+const currentPage = ref(1);
+const order = ref<{key: string, order: string}[]>([]);
 const createdRole = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const take = 20;
+
+for (let i = 0; i < take; i++)
+  list.value[i] = false;
 
 const queryData = useQuery(FindRolesDocument, {
   pagination: {
@@ -88,177 +140,22 @@ const queryData = useQuery(FindRolesDocument, {
 });
 const deleteMutation = useMutation(DeleteRoleDocument);
 
-const columns = [
-  {
-    key: "id",
-    title: "ID",
-    render(row: Role) {
-      const rowPopupKey = `${row.id}-id`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) =>
-          (shownPopup.value = value ? rowPopupKey : null),
-      });
-      return h(
-        RouterPopup,
-        {
-          maxWidth: 900,
-          to: { name: "dashboard-role-details-edit", params: { id: row.id } },
-          modelValue: isPopupShown.value,
-          "onUpdate:modelValue": (value: boolean) =>
-            (isPopupShown.value = value),
-        },
-        {
-          default: () =>
-            h(EditRoleCard, {
-              closable: true,
-              roleId: BigInt(row.id),
-              onSave: () => {
-                isPopupShown.value = false;
-                refresh();
-              },
-              onClose: () => {
-                isPopupShown.value = false;
-              },
-            }),
-          trigger: () => row.id,
-        }
-      );
-    },
-  },
-  {
-    key: "name",
-    title: "Name",
-    render(row: Role) {
-      const rowPopupKey = `${row.id}-name`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) =>
-          (shownPopup.value = value ? rowPopupKey : null),
-      });
-      return h(
-        RouterPopup,
-        {
-          maxWidth: 900,
-          to: { name: "dashboard-role-details-edit", params: { id: row.id } },
-          modelValue: isPopupShown.value,
-          "onUpdate:modelValue": (value: boolean) =>
-            (isPopupShown.value = value),
-        },
-        {
-          default: () =>
-            h(EditRoleCard, {
-              closable: true,
-              roleId: BigInt(row.id),
-              onSave: () => {
-                isPopupShown.value = false;
-                refresh();
-              },
-              onClose: () => {
-                isPopupShown.value = false;
-              },
-            }),
-          trigger: () => row.name,
-        }
-      );
-    },
-  },
-  {
-    key: "priority",
-    title: "Priority",
-  },
-  {
-    key: "actions",
-    title: "Actions",
-    render: (row: Role) => {
-      const rowPopupKey = `${row.id}-edit`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) =>
-          (shownPopup.value = value ? rowPopupKey : null),
-      });
-      const buttons = [];
-      if (
-        ability.can(
-          AbilityActions.Update,
-          subject(AbilitySubjects.Role, { ...row })
-        )
-      ) {
-        buttons.push(
-          h(
-            RouterPopup,
-            {
-              maxWidth: 900,
-              to: {
-                name: "dashboard-role-details-edit",
-                params: { id: row.id },
-              },
-              modelValue: isPopupShown.value,
-              "onUpdate:modelValue": (value: boolean) =>
-                (isPopupShown.value = value),
-            },
-            {
-              default: () =>
-                h(EditRoleCard, {
-                  closable: true,
-                  roleId: BigInt(row.id),
-                  onSave: () => {
-                    isPopupShown.value = false;
-                    refresh();
-                  },
-                  onClose: () => {
-                    isPopupShown.value = false;
-                  },
-                }),
-              trigger: () =>
-                h(
-                  NButton,
-                  {
-                    class: "dashboard-roles-page-row-button",
-                    type: "info",
-                    secondary: true,
-                    size: "small",
-                  },
-                  () => "Edit"
-                ),
-            }
-          )
-        );
-      }
-      if (
-        ability.can(
-          AbilityActions.Delete,
-          subject(AbilitySubjects.Role, { ...row })
-        )
-      ) {
-        buttons.push(
-          h(
-            NButton,
-            {
-              class: "dashboard-roles-page-row-button",
-              type: "error",
-              secondary: true,
-              size: "small",
-              onClick: () =>
-                dialog.error({
-                  title: "Delete Role",
-                  content: `Are you sure you want to delete the role "${row.name}"? This will also remove its members.`,
-                  positiveText: "Delete Role",
-                  negativeText: "Cancel",
-                  onPositiveClick: async () => {
-                    await deleteMutation.mutate({ id: row.id });
-                    await refresh();
-                  },
-                }),
-            },
-            () => "Delete"
-          )
-        );
-      }
-      return h("div", {}, buttons);
-    },
-  },
-];
+const headers = [
+  { title: "ID", sortable: true, key: "id" },
+  { title: "Name", key: "name", sortable: true },
+  { title: "Priority", key: "priority", sortable: true},
+  { title: "Actions", key: "actions", sortable: false }
+]
+
+async function loadRoles(page: number) {
+  await queryData.refetch({
+    pagination: {
+      take: take,
+      skip: (page - 1) * take
+    }
+  });
+  currentPage.value = page;
+}
 
 interface Filter {
   name: { contains: string, mode: CaseSensitivity.Insensitive }
@@ -288,13 +185,47 @@ async function searchRole(value: string, type: string) {
   });
 }
 
-onMounted(async () => {
-  await refresh();
-});
+async function deleteRole(role: Role) {
+  try {
+    isDeleting.value = true;
+    await deleteMutation.mutate({id: parseInt(role.id)});
+    await refresh();
+  } catch (e) {
+    console.error(e);
+  }
+  isDeleting.value = false;
+}
+
+function canDelete(role: Role): boolean {
+  return ability.can(AbilityActions.Delete, subject(AbilitySubjects.Role, {
+    id: role.id,
+    name: role.name,
+    description: role.description,
+  }))
+}
 
 async function refresh() {
   await queryData.refetch();
 }
+
+watch(order, () => {
+  if (order.value.length)
+    queryData.refetch({
+      order: [{
+        // It's either asc or desc and we need to capitalize it
+        direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
+        field: order.value[0].key as RoleOrderableFields
+      }]
+    })
+  else
+    queryData.refetch({
+      order: [{direction: "Desc" as OrderDirection, field: "id" as RoleOrderableFields }]
+    })
+});
+
+onMounted(async () => {
+  await refresh();
+});
 </script>
 
 <style lang="scss">

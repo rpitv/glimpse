@@ -29,17 +29,15 @@
     </div>
   </div>
   <v-data-table-server class="table" height="300px"
-                       :items-per-page="take"
-                       :items-length="queryData.result.value ? queryData.result.value.videoCount : 0"
-                       :items-per-page-options="[{value: take, title: `${take}`}]"
-                       :show-current-page="true"
-                       :page="currentPage" @update:page="loadProductions"
-                       :items="queryData.result.value?.videos"
-                       no-data-text="No videos found 💀"
-                       v-model:sort-by="order"
-                       :loading="queryData.loading.value"
-                       loading-text="Loading Videos..."
-                       :headers="videoHeader"
+       :items-per-page="take"
+       :items-length="queryData.result.value ? queryData.result.value.videoCount : 0"
+       :page="currentPage"
+       :items="queryData.result.value?.videos"
+       no-data-text="No videos found 💀"
+       v-model:sort-by="order"
+       :loading="queryData.loading.value"
+       loading-text="Loading Videos..."
+       :headers="videoHeader"
   >
     <template #item.videoLink="{ item }">
       <a :href="item.metadata.url" target="_blank">Link</a>
@@ -50,6 +48,13 @@
           || !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionVideo, {videoId: item.id}))"
           @click="emit('addVideo', item.id, item.metadata.url)">Add Video</VBtn>
     </template>
+    <template v-slot:bottom>
+      <v-pagination
+        v-model="currentPage"
+        :length="!!queryData.result.value?.videoCount ? Math.ceil(queryData.result.value?.videoCount / take) : 0"
+        @update:modelValue="loadVideos"
+      />
+    </template>
   </v-data-table-server>
 </template>
 
@@ -57,16 +62,14 @@
 import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
   AbilitySubjects, CaseSensitivity,
-  ImageOrderableFields,
   OrderDirection,
-  SearchImagesDocument, SearchVideosDocument, VideoOrderableFields
+  SearchVideosDocument, VideoOrderableFields
 } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
+import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";
 import {ability, AbilityActions} from "@/casl";
 import {subject} from "@casl/ability";
-import CreateImageCard from "@/components/image/CreateImageCard.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
 
@@ -109,7 +112,7 @@ const queryData = useQuery(SearchVideosDocument, {
   }
 });
 
-async function loadProductions(page: number) {
+async function loadVideos(page: number) {
   await queryData.refetch({
     pagination: {
       take: props.take,
@@ -150,6 +153,10 @@ watch(order, () => {
 async function refresh() {
   await queryData.refetch();
 }
+
+onMounted(async () => {
+  await refresh();
+});
 </script>
 
 <style scoped lang="scss">

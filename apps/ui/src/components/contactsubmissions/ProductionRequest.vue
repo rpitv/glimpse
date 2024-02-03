@@ -12,7 +12,7 @@
       <tr>
         <td>Phone #</td>
         <td>{{
-            production.additionalData.production?.phoneNumber ? production.additionalData.production.phoneNumber : 'No phone number provided'
+            production.additionalData.phoneNumber ? production.additionalData.phoneNumber : 'No phone number provided'
           }}</td>
       </tr>
       <tr>
@@ -51,7 +51,7 @@
       </tr>
       <tr>
         <td>Additional Information</td>
-        <td>{{ production.body?.trim().length ? production.additionalData.body : 'None' }}</td>
+        <td>{{ !!production.body?.trim().length ? production.body : 'None' }}</td>
       </tr>
     </tbody>
   </v-table>
