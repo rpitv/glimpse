@@ -27,7 +27,7 @@
  *  argument.
  *
  * @see {@link RuleOptions}
- * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+ * @see {@link https://github.com/rpitv/glimpse/wiki/API-Authorization}
  *
  * @param context - NestJS execution context.
  * @param rule - Rule to test. If rule type is {@link RuleType.Custom}, an error will be thrown.

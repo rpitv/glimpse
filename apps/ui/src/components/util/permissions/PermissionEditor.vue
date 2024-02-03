@@ -24,7 +24,7 @@
 
         <n-alert  v-if="localPermission.inverted" :span="2" type="warning">Inverted permissions are generally not recommended, as they have different effects
           depending on the order in which permissions are applied.
-          <a href="https://github.com/rpitv/glimpse-api/wiki/CASL-Integration#inverted" target="_blank">
+          <a href="https://github.com/rpitv/glimpse/wiki/API-CASL-Integration#inverted" target="_blank">
             See the wiki for more information.
           </a>
         </n-alert>

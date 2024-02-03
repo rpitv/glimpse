@@ -266,7 +266,7 @@ export class CaslAbilityFactory {
      * @param user The user to get the permissions for, or undefined to get the permissions for a guest user.
      * @returns A {@link GlimpseAbility} object.
      * @see {@link https://casl.js.org/v6/en/guide/intro}
-     * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+     * @see {@link https://github.com/rpitv/glimpse/wiki/API-Authorization}
      */
     public async createForUser(user?: User): Promise<GlimpseAbility> {
         this.logger.debug(`Fetching rules for the current user (user ID: ${user?.id || null})`);

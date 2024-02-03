@@ -7,7 +7,7 @@
           Make sure you know what you're doing before editing permissions! You
           should read
           <a
-            href="https://github.com/rpitv/glimpse-api/wiki/CASL-Integration"
+            href="https://github.com/rpitv/glimpse/wiki/API-CASL-Integration"
             target="_blank"
           >
             the Glimpse wiki article on CASL

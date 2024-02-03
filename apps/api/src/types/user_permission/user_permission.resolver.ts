@@ -249,7 +249,6 @@ export class UserPermissionResolver {
 
     // -------------------- Special Resolvers --------------------
 
-    // TODO
     @Query(() => [PermissionUnion], {
         nullable: true,
         complexity: (options: ComplexityEstimatorArgs) => 50 + options.childComplexity

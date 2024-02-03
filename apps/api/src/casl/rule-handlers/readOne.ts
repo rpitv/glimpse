@@ -19,7 +19,7 @@
  * @todo Support toggling strict mode?
  *
  * @see {@link RuleOptions}
- * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+ * @see {@link https://github.com/rpitv/glimpse/wiki/API-Authorization}
  *
  * @typeParam T - The type of the value expected to be returned by the resolver/handler which this rule is being
  *  applied to. Currently, this must be an instance of a valid {@link AbilitySubjects} type. This requirement may

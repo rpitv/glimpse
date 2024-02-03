@@ -4,7 +4,7 @@
 # Glimpse API &middot; <!-- [![Build Status](https://img.shields.io/travis/npm/npm/latest.svg?style=flat-square)](https://travis-ci.org/npm/npm) --> [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/your/your-project/blob/master/LICENSE)
 
 This is the backend API for Glimpse, the RPI TV website. For more information about the project, including features,
-check out the [project wiki](https://github.com/rpitv/glimpse-api/wiki).
+check out the [project wiki](https://github.com/rpitv/glimpse/wiki/API).
 
 View the project in action at https://rpi.tv/.
 
@@ -45,11 +45,11 @@ npm run cli # Start the CLI
 <img src="cli-demo.gif" width="637" alt="Demo of the CLI">
 
 Alternatively, you can bootstrap the database manually. Read more on the 
-[Bootstrapping](https://github.com/rpitv/glimpse-api/wiki/Bootstrapping) article.
+[Bootstrapping](https://github.com/rpitv/glimpse/wiki/API-Bootstrapping) article.
 
 When you are done, it's highly recommended to modify your `docker-compose.yml` so that only the API service has its
 port(s) exposed to the host machine. For more information or alternative options for deployment, check out the 
-[Deployment](https://github.com/rpitv/glimpse-api/wiki/Deployment) article.
+[Deployment](https://github.com/rpitv/glimpse/wiki/API-Deployment) article.
 
 ## Developing
 

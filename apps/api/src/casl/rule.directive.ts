@@ -22,7 +22,7 @@ import { getRuleHandler, RuleDef, RuleHandler, RuleOptions } from "./rule.decora
  *  read the wiki.
  *
  * @see {@link https://github.com/rpitv/glimpse-api/tree/03f73f9db27959b07ad83028ae4521187b153ba6/src/casl}
- * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+ * @see {@link https://github.com/rpitv/glimpse/wiki/API-Authorization}
  * @see {@link https://github.com/nestjs/graphql/issues/631}
  * @see {@link Rule} for type-safe wrapper
  */

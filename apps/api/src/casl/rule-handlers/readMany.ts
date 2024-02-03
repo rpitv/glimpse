@@ -40,7 +40,7 @@
  *  happens when the user doesn't have permission to read a field only on a subset of values of the requested type.
  *
  * @see {@link RuleOptions}
- * @see {@link https://github.com/rpitv/glimpse-api/wiki/Authorization}
+ * @see {@link https://github.com/rpitv/glimpse/wiki/API-Authorization}
  *
  * @typeParam T - The type of the array of values expected to be returned by the resolver/handler which this rule
  *  is being applied to. E.g., if the resolver returns an array of {@link User| Users}, T would be {@link User}.
