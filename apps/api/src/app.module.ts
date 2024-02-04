@@ -46,6 +46,7 @@ import * as Joi from "joi";
 import { ContactSubmissionType } from "@prisma/client";
 import {KeyvAdapter} from "@apollo/utils.keyvadapter";
 import * as Keyv from "keyv";
+import {RedisModule} from "./redis/redis.module";
 
 @Module({
     imports: [
@@ -141,7 +142,8 @@ import * as Keyv from "keyv";
         VoteResponseModule,
         AuthModule,
         CaslModule,
-        PrismaModule
+        PrismaModule,
+        RedisModule
     ],
     controllers: [],
     providers: [
