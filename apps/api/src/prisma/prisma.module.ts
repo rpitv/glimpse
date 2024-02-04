@@ -7,7 +7,7 @@ import { AuditLog } from "../types/audit_log/audit_log.entity";
 
 const prismaServiceProvider = {
     provide: PrismaService,
-    useFactory: () => {
+    useFactory: async () => {
         const  logger: Logger = new Logger("PrismaServiceProvider");
 
         const prisma = new PrismaClient({ log: [
@@ -21,7 +21,7 @@ const prismaServiceProvider = {
             logger.debug(`Sent query to database.\nQuery: ${event.query}\nParameters: ${event.params}\nDuration: ${event.duration}ms`)
         })
 
-        return prisma.$extends({
+        const xprisma = prisma.$extends({
             client: {
                 async genAuditLog(entry: AuditLogEntry[] | AuditLogEntry): Promise<AuditLog[] | AuditLog> {
                     if (Array.isArray(entry)) {
@@ -41,6 +41,10 @@ const prismaServiceProvider = {
                 }
             }
         });
+
+        await xprisma.$connect();
+        logger.log("Prisma client connected")
+        return xprisma;
     }
 };
 

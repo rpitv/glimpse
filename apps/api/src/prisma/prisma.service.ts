@@ -1,4 +1,3 @@
-import { OnModuleInit } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 import { AuditLog } from "../types/audit_log/audit_log.entity";
 import { AbilitySubjects } from "../casl/casl-ability.factory";
@@ -13,13 +12,9 @@ export type AuditLogEntry = {
     oldValue?: any;
 };
 
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class PrismaService extends PrismaClient {
     constructor() {
         super();
-    }
-
-    async onModuleInit(): Promise<void> {
-        await this.$connect();
     }
 
     genAuditLog(entries: AuditLogEntry[]): Promise<AuditLog[]>;
