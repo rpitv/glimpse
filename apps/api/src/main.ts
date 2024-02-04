@@ -29,7 +29,6 @@ async function bootstrap() {
     const logger = new Logger("Main");
 
     app.set("trust proxy", configService.get<string | number | boolean>("TRUST_PROXY"));
-    console.log(configService.get("TRUST_PROXY"), typeof configService.get("TRUST_PROXY"))
 
     app.use(cookieParser());
 
