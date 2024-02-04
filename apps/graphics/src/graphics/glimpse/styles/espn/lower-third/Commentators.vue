@@ -1,14 +1,14 @@
 <template>
 	<img :src="commentators" :style="{'bottom': `${offset}vh`}">
 	<div class="commentators-container">
-		<p v-if="replicants.lowerThird.commentators.leftPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.leftPerson.value }}
+		<p v-if="replicants.lowerThird.commentators.leftPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.leftPerson.name.value }}
 		</p>
-		<p v-if="replicants.lowerThird.commentators.centerPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.centerPerson.value }}
+		<p v-if="replicants.lowerThird.commentators.centerPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.centerPerson.name.value }}
 		</p>
-		<p v-if="replicants.lowerThird.commentators.rightPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.rightPerson.value }}
+		<p v-if="replicants.lowerThird.commentators.rightPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.rightPerson.name.value }}
 		</p>
 	</div>
 </template>

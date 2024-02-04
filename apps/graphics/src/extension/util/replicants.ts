@@ -145,9 +145,18 @@ export const replicants = {
 		locator: nodecg().Replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 		commentators: {
 			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-			leftPerson: nodecg().Replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
-			centerPerson: nodecg().Replicant<string>("centerPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan"}),
-			rightPerson: nodecg().Replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+			leftPerson: {
+				name: nodecg().Replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+				description: nodecg().Replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			},
+			centerPerson: {
+				name: nodecg().Replicant<string>("centerName", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+				description: nodecg().Replicant<string>("centerDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			},
+			rightPerson: {
+				name: nodecg().Replicant<string>("rightName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+				description: nodecg().Replicant<string>("rightDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			},
 			offset: {
 				enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 				number: nodecg().Replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})

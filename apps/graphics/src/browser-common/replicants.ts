@@ -152,9 +152,18 @@ export async function loadReplicants() {
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
 				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
-				centerPerson: await replicant<string>("centerPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan"}),
-				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+				leftPerson: {
+					name: await replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+					description: await replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
+				centerPerson: {
+					name: await replicant<string>("centerName", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+					description: await replicant<string>("centerDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
+				rightPerson:{
+					name: await replicant<string>("rightName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+					description: await replicant<string>("rightDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
 				offset: {
 					enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})
