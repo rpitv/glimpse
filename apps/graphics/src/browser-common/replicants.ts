@@ -186,9 +186,13 @@ export async function loadReplicants() {
 			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
 		},
 		http: {
-			sidearms: {
-				url: await replicant<string>("url", `glimpse-graphics.http.sidearms`, {defaultValue: ""}),
-				body: await replicant<any>("body", `glimpse-graphics.http.sidearms`, {defaultValue: {}})
+			sidearms1: {
+				url: await replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+				body: await replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}})
+			},
+			sidearms2: {
+				url: await replicant<string>("url", `glimpse-graphics.http.sidearms2`, {defaultValue: "https://sidearmstats.com/rpi/mhockey/game.json?detail=full"}),
+				body: await replicant<any>("body", `glimpse-graphics.http.sidearms2`, {defaultValue: {}})
 			}
 		}
 	}
