@@ -91,7 +91,7 @@ import * as Keyv from "keyv";
                     .required()
                     .uri({ scheme: ["http", "https"] }),
                 LOCAL_IMAGE_URL: Joi.string().required().uri({ scheme: "https" }),
-                TRUST_PROXY: Joi.string().required(),
+                TRUST_PROXY: Joi.alternatives([Joi.boolean(), Joi.number().integer(), Joi.string()]).required(),
                 HTTPS: Joi.boolean().default(
                     (parent) => parent.NODE_ENV === "production" || parent.NODE_ENV === "staging"
                 ),
