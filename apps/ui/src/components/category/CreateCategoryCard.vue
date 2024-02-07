@@ -1,6 +1,6 @@
 <template>
   <n-card
-    class="create-category-card"
+    class="create-category-card scaled-card"
     :closable="closable || false"
     @close="emit('close')"
   >
@@ -20,7 +20,7 @@
       <Transition name="steps">
         <div v-if="currentStep === 1">
           <CategoryDetailsInput
-            @keypress.enter="enterKeyPressed"
+            @keydown.enter="enterKeyPressed"
             v-model:data="categoryData"
             ref="categoryDetailsInput"
           />

@@ -1,6 +1,6 @@
 <template>
   <n-card
-    class="create-image-card"
+    class="create-image-card scaled-card"
     :closable="closable || false"
     @close="emit('close')"
   >

@@ -1,6 +1,6 @@
 <template>
   <v-card title="Create Production">
-    <v-stepper :flat="true" v-model="step" :editable="editable" max-height="800">
+    <v-stepper :flat="true" v-model="step" :editable="editable">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
           <v-stepper-item value="1" title="Production Details" subtitle="Required" />
@@ -15,8 +15,8 @@
           <v-divider />
           <v-stepper-item value="6" title="Review" subtitle="Required" />
         </v-stepper-header>
-        <v-stepper-window >
-          <v-stepper-window-item value="1" >
+        <v-stepper-window style="overflow-y: scroll">
+          <v-stepper-window-item value="1">
             <v-form ref="requiredForm">
               <RequiredInput v-model="productionData" :closet-time-missing="closetTimeMissing"
                              :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />

@@ -1,5 +1,5 @@
 <template>
-  <n-card class="edit-person-card" :closable="closable" @close="close">
+  <n-card class="edit-person-card scaled-card" :closable="closable" @close="close">
     <h1>Edit Person {{ personId }}</h1>
     <div v-if="inputPerson === null || data.loading.value">
       <p>Loading...</p>

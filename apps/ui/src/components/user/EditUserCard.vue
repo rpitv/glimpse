@@ -1,6 +1,6 @@
 <template>
   <div class="card-wrapper">
-    <n-card class="card">
+    <n-card class="card scaled-card">
       <div v-if="sourceData.loading.value">Loading...</div>
       <div v-else-if="loadingError">
         {{ loadingError }}

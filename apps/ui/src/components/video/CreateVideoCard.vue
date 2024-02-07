@@ -1,6 +1,6 @@
 <template>
   <n-card
-    class="create-video-card"
+    class="create-video-card scaled-card"
     :closable="closable || false"
     @close="emit('close')"
   >

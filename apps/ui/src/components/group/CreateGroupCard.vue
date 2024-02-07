@@ -1,6 +1,6 @@
 <template>
   <n-card
-    class="create-group-card"
+    class="create-group-card scaled-card"
     :closable="closable || false"
     @close="emit('close')"
   >
