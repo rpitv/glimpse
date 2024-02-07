@@ -29,36 +29,36 @@
   <v-form class="mt-10" ref="productionRequest">
     <v-row>
       <v-col cols="12" md="4">
-        <v-text-field class="mt-2" label="Your name*" v-model="name" :rules="[formRules.name]"/>
+        <v-text-field class="mt-2" id="name" label="Your name*" v-model="name" :rules="[formRules.name]"/>
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field class="mt-2" label="Your email*" type="email" v-model="email" :rules="[formRules.email]" />
+        <v-text-field class="mt-2" id="email" label="Your email*" type="email" v-model="email" :rules="[formRules.email]" />
       </v-col>
       <v-col cols="12" md="4">
-        <v-text-field class="mt-2" label="Your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
+        <v-text-field class="mt-2" id="phone" label="Your phone number" type="tel" v-model="productionData.phone" :rules="[formRules.phone]" placeholder="888-888-8888"/>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12" md="6">
-        <v-text-field class="mt-2" label="Event title*" v-model="subject" :rules="[formRules.subject]" />
+        <v-text-field class="mt-2" id="title" label="Event title*" v-model="subject" :rules="[formRules.subject]" />
       </v-col>
       <v-col cols="12" md="6">
-        <v-text-field class="mt-2" label="Organization name*" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
+        <v-text-field class="mt-2" id="organization" label="Organization name*" v-model="productionData.organizationName" :rules="[formRules.organization]"/>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col>
         <p>Is your organization affiliated with RPI?*</p>
-        <v-radio-group class="mt-2" v-model="productionData.schoolOrg" :rules="[formRules.affiliation]">
+        <v-radio-group class="mt-2" id="affilation" v-model="productionData.schoolOrg" :rules="[formRules.affiliation]">
           <v-radio label="Yes" :value="true" />
           <v-radio label="No" :value="false" />
         </v-radio-group>
       </v-col>
       <v-col>
         <p>Would you like this event to be livestreamed?*</p>
-        <v-radio-group class="mt-2" v-model="productionData.livestreamed" :rules="[formRules.livestream]">
+        <v-radio-group class="mt-2" id="livestream" v-model="productionData.livestreamed" :rules="[formRules.livestream]">
           <v-radio label="Yes" :value="true" />
           <v-radio label="No" :value="false" />
         </v-radio-group>
@@ -66,29 +66,29 @@
     </v-row>
 
     <p>Have you contacted Union Showtechs, another organization, or do you have your own audio equipment which you plan to use?*</p>
-    <v-radio-group v-model="productionData.audio.exists" :rules="[formRules.audio]">
+    <v-radio-group id="audio" v-model="productionData.audio.exists" :rules="[formRules.audio]">
       <v-radio label="Yes" :value="true" />
       <div v-if="productionData.audio.exists" class="ml-5">
         <p class="mt-3">Who's providing the equipment? (If the provider is not listed, you can type it in the box.)*</p>
-        <v-combobox class="mt-2" label="Select/Type the provider" :items="['Union Showtechs']"
+        <v-combobox class="mt-2" id="provider" label="Select/Type the provider" :items="['Union Showtechs']"
               v-model="productionData.audio.provider" :rules="[formRules.provider]"/>
       </div>
       <v-radio label="No" :value="false" />
     </v-radio-group>
     <p>Where is your event going to take place? If off campus please include the address. (If the location is not listed, you can type it in the box.)*</p>
-    <v-combobox class="mt-4" label="Select/Type the location of the event" :items="locations" clearable
+    <v-combobox class="mt-4" id="location" label="Select/Type the location of the event" :items="locations" clearable
                 v-model="productionData.eventLocation" :rules="[formRules.location]" />
 
     <v-container>
       <v-row justify="center">
         <v-col cols="12" sm="12" md="5" class="text-center">
           <p class="mb-2 start-time-title">When will your event start?*</p>
-          <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
+          <DatePicker id="start-time" transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventStartTime" :style="startTimeMissing ? {'border-color': '#E57373'} : ''" />
           <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the start time of this event.</small></p>
         </v-col>
         <v-col cols="12" sm="12" md="5" class="text-center">
           <p class="mb-2">When do you anticipate your event concluding?*</p>
-          <DatePicker transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
+          <DatePicker id="end-time" transparent color="red" mode="dateTime" :rules="timeRules" v-model="productionData.eventEndTime" :style="endTimeMissing ? {'border-color': '#E57373'} : ''"/>
           <p class="ml-5" v-if="startTimeMissing"><small style="color: #E57373">Please input the end time of this event.</small></p>
         </v-col>
       </v-row>
@@ -103,11 +103,12 @@ Example 2: Here's a timeline of the event for you to follow: <Insert Link Here>.
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import {ref, watch} from "vue";
 import { DatePicker } from "v-calendar";
 import { VForm } from "vuetify/components";
 import { useMutation } from "@vue/apollo-composable";
 import { CreateContactSubmissionProductionRequestDocument } from "@/graphql/types";
+import { useGoTo } from "vuetify";
 
 const createProductionRequest = useMutation(CreateContactSubmissionProductionRequestDocument);
 
@@ -121,7 +122,7 @@ const subject = ref("");
 const email = ref("");
 const body = ref("");
 const productionRequest = ref<VForm>();
-
+const goTo = useGoTo();
 
 const productionData = ref({
   organizationName: "",
@@ -168,15 +169,10 @@ const formRules = {
     return "Please enter the organization you are from";
   },
   phone: (value: string) => {
-    // Phone number is optional, but we're not going to say it 😈
     if (value?.length === 0) return true;
     // Regex expression to check for a valid phone number
     if (/^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/gim.test(value)) return true;
     return "Phone number is not valid";
-  },
-  services: (value: boolean) => {
-    if (value === true || value === false) return true;
-    return "Please choose if you want to pay for our services or not.";
   },
   request: (value: string[]) => {
     if (value) return true;
@@ -218,6 +214,8 @@ async function submitProductionReq() {
   if (!productionData.value.eventStartTime) startTimeMissing.value = true;
   if (!productionData.value.eventEndTime) endTimeMissing.value = true;
   if (!validation?.valid || startTimeMissing.value || endTimeMissing.value) {
+    if (!validation?.valid)
+      goTo(`#${validation?.errors[0].id}`, { easing: "easeInOutCubic", offset: -100, duration: 500});
     emit('missing');
     return;
   }
@@ -245,6 +243,14 @@ async function submitProductionReq() {
   }
   loading.value = false;
 }
+
+watch(productionData.value, () => {
+  if (productionData.value.eventStartTime && startTimeMissing.value)
+    startTimeMissing.value = false;
+  if (productionData.value.eventEndTime && endTimeMissing.value)
+    startTimeMissing.value = false;
+})
+
 </script>
 
 <style scoped lang="scss">
