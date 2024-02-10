@@ -1,6 +1,6 @@
 <template>
   <n-card
-    class="create-person-card"
+    class="create-person-card scaled-card"
     :closable="closable || false"
     @close="emit('close')"
   >

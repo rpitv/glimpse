@@ -3,9 +3,9 @@
                 required :rules="nameRules" v-model="modelValue.name"/>
   <div class="second-row">
     <v-combobox class="mt-1 input" variant="outlined" label="Closet Location" :rules="closetLocRules" density="compact"
-                  required v-model="modelValue.closetLocation" :items="closetLocations" />
+                required v-model="modelValue.closetLocation" :items="closetLocations" />
     <v-combobox class="mt-1 input" variant="outlined" label="Event Location" :rules="eventLocRules" density="compact"
-                  required v-model="modelValue.eventLocation" :items="eventLocations" />
+                required v-model="modelValue.eventLocation" :items="eventLocations" />
   </div>
   <div class="center">
     <div class="date-time-container">

@@ -3,9 +3,9 @@
     <DashboardSearch document-name="Users" @search="searchUser" />
     <div class="buttons">
       <RouterPopup
-          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Production)"
+          v-if="ability.can(AbilityActions.Create, AbilitySubjects.User)"
           :max-width="1100" v-model="showCreatePopup"
-          :to="{ name: 'dashboard-production-create' }"
+          :to="{ name: 'dashboard-user-create' }"
       >
         <template #default>
           <CreateUserCard
@@ -37,15 +37,89 @@
       </v-btn>
     </div>
   </div>
-  <n-layout> <!-- For some reason, I'm running into accessing undefined errors when n-data-table is not a child of another NaiveUI element -->
-    <div style="overflow: auto">
-      <n-data-table class="user-data-table" :columns="columns" :data="queryData.result.value?.users ?? []" :row-key="row => row.id" />
-    </div>
-  </n-layout>
+  <div>
+    <v-data-table-server class="table"
+       :items-per-page="take"
+       :items-length="queryData.result.value ? queryData.result.value.userCount : 0"
+       :page="currentPage" :headers="headers"
+       :items="queryData.result.value?.users"
+       no-data-text="No users found 💀"
+       v-model:sort-by="order"
+       :loading="queryData.loading.value"
+       loading-text="Loading Users..."
+    >
+      <template #item.username="{index, item}">
+        <RouterPopup
+          :max-width="1100" v-model="details[index]"
+          :to="{ name: 'dashboard-user-details-edit', params: {id: item.id } }"
+          @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
+        >
+          <UserDetailsCard
+            @close="
+                details[index] = false
+                refresh();"
+            :id="BigInt(item.id)"
+            :closable="true"
+          />
+          <template #trigger>
+            {{ item.username }}
+          </template>
+        </RouterPopup>
+      </template>
+      <template #item.actions="{ index, item }">
+        <RouterPopup
+          v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.User, {
+            id: item.id,
+            name: item.name,
+            email: item.mail,
+            joined: item.joined
+          }))"
+          :max-width="1100" v-model="list[index]"
+          :to="{ name: 'dashboard-user-details-edit', params: {id: item.id } }"
+          @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
+        >
+          <EditUserCard
+            @close="
+                list[index] = false
+                refresh();"
+            :id="BigInt(item.id)"
+            :closable="true"
+          />
+          <template #trigger>
+            <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
+          </template>
+        </RouterPopup>
+        <v-dialog max-width="500">
+          <template #activator="{ props }">
+            <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
+          </template>
+          <template #default="{ isActive }">
+            <v-card title="Delete User">
+              <v-card-text>
+                Are you sure you want to delete the user "{{item.name}}"? This will also remove its members.
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn @click="isActive.value = false" variant="outlined" text="Cancel"/>
+                <v-btn @click="deleteUser(item)" variant="outlined"
+                       text="Delete" color="#FF5252" :disabled="isDeleting" />
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
+      </template>
+      <template v-slot:bottom>
+        <v-pagination
+          v-model="currentPage"
+          :length="!!queryData.result.value?.userCount ? Math.ceil(queryData.result.value?.userCount / take) : 1"
+          @update:modelValue="loadUsers"
+        />
+      </template>
+    </v-data-table-server>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { NButton, NDataTable, NLayout, useDialog } from "naive-ui";
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   AbilitySubjects, CaseSensitivity,
@@ -55,11 +129,9 @@ import {
   UserOrderableFields
 } from "@/graphql/types";
 import type { User } from "@/graphql/types";
-import { computed, h, onMounted, ref } from "vue";
-import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
+import { watch, onMounted, ref } from "vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
-import { useRoute } from "vue-router";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditUserCard from "@/components/user/EditUserCard.vue";
 import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
@@ -67,13 +139,21 @@ import DashboardSearch from "@/components/DashboardSearch.vue";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
 
 const ability = useGlimpseAbility();
-const dialog = useDialog();
-const route = useRoute();
-const take = 20;
-
 const showCreatePopup = ref<boolean>(false);
 const shownPopup = ref<string | null>(null);
+const list = ref<boolean[]>([]);
+const details = ref<boolean[]>([]);
+const isDeleting = ref(false);
+const currentPage = ref(1);
+const order = ref<{key: string, order: string}[]>([]);
 const createdUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const take = 20;
+
+for (let i = 0; i < take; i++)
+  list.value[i] = false;
+
+for (let i = 0; i < take; i++)
+  details.value[i] = false;
 
 const queryData = useQuery(FindUsersDocument, {
   pagination: {
@@ -87,140 +167,24 @@ const queryData = useQuery(FindUsersDocument, {
 });
 const deleteMutation = useMutation(DeleteUserDocument);
 
-const columns = [
-  {
-    key: "id",
-    title: "ID",
-    render(row: User) {
-      const rowPopupKey = `${row.id}-id`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
-      });
-      return h(
-        RouterPopup,
-        {
-          maxWidth: 900,
-          to: { name: "dashboard-user-details", params: { id: row.id }},
-          modelValue: isPopupShown.value,
-          'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
-        },
-        {
-          default: () => h(
-            UserDetailsCard,
-            { closable: true, id: BigInt(row.id), onSave: () => {
-                isPopupShown.value = false;
-                refresh();
-              }, onClose: () => {
-                isPopupShown.value = false;
-              } }
-          ),
-          trigger: () => row.id
-        }
-      )
+const headers = [
+  { title: "ID", sortable: true, key: "id" },
+  { title: "Username", key: "username", sortable: true },
+  { title: "Email", key: "mail", sortable: true},
+  { title: "Joined", key: "joined", value:
+      (user: User) => formattedTime(user.joined), sortable: true},
+  { title: "Actions", key: "actions", sortable: false }
+]
+
+async function loadUsers(page: number) {
+  await queryData.refetch({
+    pagination: {
+      take: take,
+      skip: (page - 1) * take
     }
-  },
-  {
-    key: "username",
-    title: "Username",
-    render(row: User) {
-      const rowPopupKey = `${row.id}-username`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
-      });
-      return h(
-        RouterPopup,
-        {
-          maxWidth: 900,
-          to: { name: "dashboard-user-details", params: { id: row.id }},
-          modelValue: isPopupShown.value,
-          'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
-        },
-        {
-          default: () => h(
-            UserDetailsCard,
-            { closable: true, id: BigInt(row.id), onSave: () => {
-                isPopupShown.value = false;
-                refresh();
-              }, onClose: () => {
-                isPopupShown.value = false;
-              } }
-          ),
-          trigger: () => row.username
-        }
-      )
-    }
-  },
-  {
-    key: "mail",
-    title: "Email",
-  },
-  {
-    key: "joined",
-    title: "Joined",
-    render(row: User) {
-      return h(RelativeTimeTooltip, { date: new Date(row.joined) });
-    }
-  },
-  {
-    key: "actions",
-    title: "Actions",
-    render: (row: User) => {
-      const rowPopupKey = `${row.id}-edit`;
-      const isPopupShown = computed<boolean>({
-        get: () => shownPopup.value === rowPopupKey,
-        set: (value: boolean) => shownPopup.value = value ? rowPopupKey : null
-      });
-      const buttons = [];
-      if (ability.can(AbilityActions.Update, subject(AbilitySubjects.User, { ...row }))) {
-        buttons.push(
-          h(
-            RouterPopup,
-            {
-              maxWidth: 900,
-              to: { name: "dashboard-user-details-edit", params: { id: row.id }},
-              modelValue: isPopupShown.value,
-              'onUpdate:modelValue': (value: boolean) => isPopupShown.value = value
-            },
-            {
-              default: () => h(
-                EditUserCard,
-                { closable: true, id: BigInt(row.id), onSave: () => {
-                    isPopupShown.value = false;
-                    refresh();
-                  }, onClose: () => {
-                    isPopupShown.value = false;
-                  } }
-              ),
-              trigger: () => h(
-                NButton,
-                { class: "dashboard-users-page-row-button", type: "info", secondary: true, size: "small" },
-                () => "Edit"
-              )
-            }
-        ));
-      }
-      if (ability.can(AbilityActions.Delete, subject(AbilitySubjects.User, { ...row }))) {
-        buttons.push(h(
-          NButton,
-          { class: "dashboard-users-page-row-button", type: "error", secondary: true, size: "small", onClick: () => dialog.error({
-              title: "Delete User",
-              content: `Are you sure you want to delete the user "${row.username}"? This will also remove their connections, such as groups, attended productions, access/audit logs, and votes.`,
-              positiveText: 'Delete User',
-              negativeText: 'Cancel',
-              onPositiveClick: async () => {
-                await deleteMutation.mutate({ id: row.id });
-                await refresh();
-              }
-            }) },
-          () => "Delete")
-        );
-      }
-      return h("div", {}, buttons);
-    }
-  }
-];
+  });
+  currentPage.value = page;
+}
 
 interface Filter {
   username: { contains: string, mode: CaseSensitivity.Insensitive }
@@ -250,13 +214,62 @@ async function searchUser(value: string, type: string) {
   });
 }
 
-onMounted(async () => {
-  await refresh();
-})
+async function deleteUser(user: User) {
+  try {
+    isDeleting.value = true;
+    await deleteMutation.mutate({id: parseInt(user.id)});
+    await refresh();
+  } catch (e) {
+    console.error(e);
+  }
+  isDeleting.value = false;
+}
+
+function canDelete(user: User): boolean {
+  return ability.can(AbilityActions.Delete, subject(AbilitySubjects.Role, {
+    id: user.id,
+    username: user.username,
+    email: user.mail,
+    joined: user.joined
+  }))
+}
+
+function formattedTime(time: string) {
+  const date = new Date(time);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short"
+  };
+  return new Intl.DateTimeFormat("en-US", options).format(date);
+}
 
 async function refresh() {
   await queryData.refetch();
 }
+
+watch(order, () => {
+  if (order.value.length)
+    queryData.refetch({
+      order: [{
+        // It's either asc or desc and we need to capitalize it
+        direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
+        field: order.value[0].key as UserOrderableFields
+      }]
+    })
+  else
+    queryData.refetch({
+      order: [{direction: "Desc" as OrderDirection, field: "id" as UserOrderableFields }]
+    })
+});
+
+onMounted(async () => {
+  await refresh();
+})
 </script>
 
 <style lang="scss">

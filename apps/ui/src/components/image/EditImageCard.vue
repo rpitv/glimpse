@@ -1,5 +1,5 @@
 <template>
-  <n-card class="edit-image-card" :closable="closable" @close="close">
+  <n-card class="edit-image-card scaled-card" :closable="closable" @close="close">
     <h1>Edit Image {{ imageId }}</h1>
     <div v-if="inputImage === null || data.loading.value">
       <p>Loading...</p>

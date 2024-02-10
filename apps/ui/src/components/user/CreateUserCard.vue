@@ -1,5 +1,5 @@
 <template>
-  <n-card class="create-user-card">
+  <n-card class="create-user-card scaled-card">
     <h1>Create User</h1>
     <div class="steps">
       <n-steps :current="currentStep">

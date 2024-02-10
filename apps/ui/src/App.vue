@@ -78,7 +78,17 @@ export default defineComponent({
         },
         VDialog: {
           scrim: "black"
-        }
+        },
+        VDataTableServer: {
+          style: "max-height: max(600px, 50vh)",
+          fixedHeader: true,
+          hover: true,
+          fixedFooter: true,
+          showCurrentPage: true
+        },
+        VPagination: {
+          rounded: true
+        },
       }
     };
   },
@@ -102,7 +112,16 @@ export default defineComponent({
   height: 100vh;
 }
 
+.scaled-card {
+  height: max(500px, 80%);
+  overflow-y: auto;
+}
+
 .vc-header .vc-arrow {
   z-index: 1;
+}
+
+.v-stepper {
+  overflow-y: auto !important;
 }
 </style>

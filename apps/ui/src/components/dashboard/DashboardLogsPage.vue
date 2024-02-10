@@ -1,43 +1,125 @@
 <template>
   <div>
-    <n-tabs type="segment" animated v-model:value="selectedTab">
-      <n-tab-pane v-if="ability.can(AbilityActions.Read, AbilitySubjects.AlertLog)" name="alert" tab="Alert Logs">
-        <div ref="alertLogTable">
-          <n-data-table :columns="alertLogColumns" :data="alertLogData" :row-key="row => row.id" :loading="tabQueries.alert.loading.value" :row-class-name="getAlertLogSeverityClass" />
-        </div>
-      </n-tab-pane>
-      <n-tab-pane v-if="ability.can(AbilityActions.Read, AbilitySubjects.AccessLog)" name="access" tab="Access Logs">
-        <div ref="accessLogTable">
-          <n-data-table :columns="accessLogColumns" :data="accessLogData" :row-key="row => row.id" :loading="tabQueries.access.loading.value" />
-        </div>
-      </n-tab-pane>
-      <n-tab-pane v-if="ability.can(AbilityActions.Read, AbilitySubjects.AuditLog)" name="audit" tab="Audit Logs">
-        <div ref="auditLogTable">
-          <n-data-table :columns="auditLogColumns" :data="auditLogData" :row-key="row => row.id" :loading="tabQueries.audit.loading.value" />
-        </div>
-      </n-tab-pane>
-    </n-tabs>
+    <v-tabs v-model="selectedTab" :align-tabs="'center'" color="primary" :grow="$vuetify.display.xs">
+      <v-tab value="alert" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AlertLog)">
+        <p class="log-tab-text">Alert Logs</p>
+      </v-tab>
+      <v-tab value="access" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AccessLog)">
+        <p class="log-tab-text">Access Logs</p>
+      </v-tab>
+      <v-tab value="audit" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AuditLog)">
+        <p class="log-tab-text">Audit Logs</p>
+      </v-tab>
+    </v-tabs>
 
+    <div>
+      <v-window v-model="selectedTab">
+        <v-window-item value="alert" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AlertLog)">
+          <v-infinite-scroll class="logs-infinite-scroller" :items="alertLogData" :onLoad="loadMore">
+            <v-table>
+              <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Message</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="item in alertLogData" :key="item.id"  :class="getAlertLogSeverityClass(item)">
+                <td style="min-width: 150px"><RelativeTimeTooltip :date="new Date(item.timestamp)" /></td>
+                <td style="min-width: 200px">{{item.message}}</td>
+              </tr>
+              </tbody>
+            </v-table>
+            <template v-slot:empty>
+              <p class="text-center">No more results</p>
+            </template>
+          </v-infinite-scroll>
+        </v-window-item>
+
+        <v-window-item value="access" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AccessLog)">
+            <v-infinite-scroll class="logs-infinite-scroller" :items="accessLogData" :onLoad="loadMore">
+              <v-table>
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Username</th>
+                    <th>Service</th>
+                    <th>IP Address</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in accessLogData" :key="item.id">
+                    <td style="min-width:150px">
+                      <RelativeTimeTooltip :date="new Date(item.timestamp)" />
+                    </td>
+                    <td style="min-width:150px">{{item.user?.username ?? "Unknown"}}</td>
+                    <td style="min-width:200px">{{item.service}}</td>
+                    <td style="min-width:150px">{{item.ip}}</td>
+                  </tr>
+                </tbody>
+              </v-table>
+              <template v-slot:empty>
+                <p class="text-center">No more results</p>
+              </template>
+            </v-infinite-scroll>
+        </v-window-item>
+
+        <v-window-item value="audit" v-if="ability.can(AbilityActions.Read, AbilitySubjects.AuditLog)">
+          <v-infinite-scroll class="logs-infinite-scroller" :items="auditLogData" :onLoad="loadMore">
+            <v-table>
+              <thead>
+              <tr>
+                <th /> <!-- Blank header for + icon, expanding full audit details -->
+                <th>Timestamp</th>
+                <th>Username</th>
+                <th>Summary</th>
+              </tr>
+              </thead>
+              <tbody>
+              <template v-for="item in auditLogData" :key="item.id">
+                <tr>
+                  <td @click="expandedAuditLogs[item.id] = !expandedAuditLogs[item.id]">
+                    <font-awesome-icon v-if="!expandedAuditLogs[item.id]" icon="fal fa-plus" />
+                    <font-awesome-icon v-else icon="fal fa-minus" />
+                  </td>
+                  <td style="min-width:150px">
+                    <RelativeTimeTooltip :date="new Date(item.timestamp)" />
+                  </td>
+                  <td style="min-width:150px">{{item.user?.username ?? "Unknown"}}</td>
+                  <td style="min-width:200px">{{ formatAuditLogSummary(item) }}</td>
+                </tr>
+                <tr v-if="expandedAuditLogs[item.id]">
+                  <td /> <!-- Skip the +/- column -->
+                  <td colspan="3" class="audit-log-details">
+                    <p v-for="detail in item.details">
+                      <Markdown>{{ detail }}</Markdown>
+                    </p>
+                  </td>
+                </tr>
+              </template>
+              </tbody>
+            </v-table>
+            <template v-slot:empty>
+              <p class="text-center">No more results</p>
+            </template>
+          </v-infinite-scroll>
+        </v-window-item>
+      </v-window>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { NTabs, NTabPane, NDataTable } from "naive-ui";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
-import {
-  AbilitySubjects,
-  FindAccessLogsDocument,
-  FindAccessLogsQuery,
-  FindAlertLogsQuery,
-  FindAuditLogsDocument, FindAuditLogsQuery
-} from "@/graphql/types";
+import type {FindAccessLogsQuery, FindAlertLogsQuery, FindAuditLogsQuery } from "@/graphql/types"
+import {AbilitySubjects, FindAccessLogsDocument, FindAuditLogsDocument } from "@/graphql/types";
 import type { AlertLog, AccessLog, AuditLog } from "@/graphql/types";
 import { FindAlertLogsDocument } from "@/graphql/types";
 import { useLazyQuery } from "@vue/apollo-composable";
 import { computed, h, ref, watch } from "vue";
 import Markdown from "@/components/util/Markdown.vue";
 import RelativeTimeTooltip from "@/components/util/RelativeTimeTooltip.vue";
-import { useScroll } from "@vueuse/core";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const ability = useGlimpseAbility();
 
@@ -70,48 +152,6 @@ watch(selectedTab, () => {
 }, { immediate: true });
 
 
-const alertLogTable = ref<typeof NDataTable | null>(null);
-const accessLogTable = ref<typeof NDataTable | null>(null);
-const auditLogTable = ref<typeof NDataTable | null>(null);
-const activeTable = computed(() => {
-  switch(selectedTab.value) {
-    case 'alert':
-      return alertLogTable.value;
-    case 'access':
-      return accessLogTable.value;
-    case 'audit':
-      return auditLogTable.value;
-  }
-});
-
-const alertLogColumns = [
-  {
-    key: 'timestamp',
-    title: 'Timestamp',
-  },
-  {
-    key: 'message',
-    title: 'Message',
-  }
-];
-const accessLogColumns = [
-  {
-    key: 'timestamp',
-    title: 'Timestamp',
-  },
-  {
-    key: 'username',
-    title: 'Username',
-  },
-  {
-    key: 'service',
-    title: 'Service',
-  },
-  {
-    key: 'ip',
-    title: 'IP Address',
-  }
-];
 const auditLogColumns = [
   {
     type: 'expand',
@@ -142,59 +182,28 @@ const auditLogColumns = [
 ];
 
 const alertLogData = computed(() => {
-  return (tabQueries.alert.result.value?.alertLogs ?? []).map((alertLog: AlertLog) => {
-    return {
-      ...alertLog,
-      timestamp: h(RelativeTimeTooltip, { date: new Date(alertLog.timestamp) })
-    }
-  })
+  return tabQueries.alert.result.value?.alertLogs ?? []
 })
 
 const accessLogData = computed(() => {
-  return (tabQueries.access.result.value?.accessLogs ?? []).map((accessLog: AccessLog) => {
-    return {
-      ...accessLog,
-      username: accessLog.user?.username,
-      timestamp: h(RelativeTimeTooltip, { date: new Date(accessLog.timestamp) })
-    }
-  })
+  return tabQueries.access.result.value?.accessLogs ?? []
 })
 
 const auditLogData = computed(() => {
-  return (tabQueries.audit.result.value?.auditLogs ?? []).map((auditLog: AuditLog) => {
-    let description = `${auditLog.action} a ${auditLog.subject}`
-    if(auditLog.identifier) {
-      description += ` (ID ${auditLog.identifier})`;
-    }
-    return {
-      ...auditLog,
-      message: auditLog.message ? `${auditLog.message} (${description})` : description,
-      username: auditLog.user?.username,
-      timestamp:h(RelativeTimeTooltip, { date: new Date(auditLog.timestamp) })
-    }
-  })
+  return tabQueries.audit.result.value?.auditLogs ?? [];
 })
 
-const loadMargins = window.innerHeight;
-const scroll = useScroll(window);
-watch([scroll.y, tabQueries.access.loading, tabQueries.alert.loading, tabQueries.audit.loading], () => {
-  // Data is already being loaded, so when the query completes, loading will be set to false, re-firing this watcher.
-  //  Then we check if the bottom of the able is still in view, and if so, load more data.
-  if(tabQueries[selectedTab.value].loading.value) {
-    return;
-  }
+const expandedAuditLogs = ref<{[key: number]: boolean}>({});
 
-  const boundingBox = activeTable.value?.getBoundingClientRect();
-  if(!boundingBox) {
-    return;
+function formatAuditLogSummary(auditLog: AuditLog): string {
+  let description = `${auditLog.action} a ${auditLog.subject}`
+  if(auditLog.identifier) {
+    description += ` (ID ${auditLog.identifier})`;
   }
-  const bottom = boundingBox.y + boundingBox.height;
-  if(bottom - loadMargins < window.innerHeight) {
-    loadMore();
-  }
-})
+  return auditLog.message ? `${auditLog.message} (${description})` : description
+}
 
-async function loadMore(): Promise<void> {
+async function loadMore({done}: { done: (status: 'ok' | 'error' | 'empty' | 'loading') => void }): Promise<void> {
   const query = tabQueries[selectedTab.value];
 
   let result: AlertLog[] | AccessLog[] | AuditLog[];
@@ -212,6 +221,7 @@ async function loadMore(): Promise<void> {
     result = response?.auditLogs;
     count = response?.auditLogCount ?? 0;
   } else {
+    done('error');
     return;
   }
 
@@ -225,9 +235,11 @@ async function loadMore(): Promise<void> {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if(!fetchMoreResult) {
+          done('empty');
           return prev;
         }
         if(selectedTab.value === 'alert') {
+          done('ok')
           return {
             ...fetchMoreResult,
             alertLogs: [
@@ -236,6 +248,7 @@ async function loadMore(): Promise<void> {
             ]
           }
         } else if(selectedTab.value === 'access') {
+          done('ok')
           return {
             ...fetchMoreResult,
             accessLogs: [
@@ -244,6 +257,7 @@ async function loadMore(): Promise<void> {
             ]
           }
         } else if(selectedTab.value === 'audit') {
+          done('ok')
           return {
             ...fetchMoreResult,
             auditLogs: [
@@ -252,10 +266,13 @@ async function loadMore(): Promise<void> {
             ]
           }
         } else {
+          done('empty')
           return prev as any;
         }
       }
     })
+  } else {
+    done('empty')
   }
 }
 
@@ -264,11 +281,18 @@ function getAlertLogSeverityClass(row: any) {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .dashboard-alert-log-severity-error td {
   background-color: #2d1212 !important;
 }
 .dashboard-alert-log-severity-warn td {
   background-color: #312a0d !important;
+}
+
+.log-tab-text {
+  text-align: center;
+}
+.audit-log-details {
+  padding: 10px 0 !important;
 }
 </style>

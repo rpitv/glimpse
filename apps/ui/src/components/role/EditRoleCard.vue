@@ -1,5 +1,5 @@
 <template>
-  <n-card class="edit-role-card" :closable="closable" @close="close">
+  <n-card class="edit-role-card scaled-card" :closable="closable" @close="close">
     <h1>Edit Role {{ roleId }}</h1>
     <div v-if="inputRole === null || data.loading.value">
       <p>Loading...</p>

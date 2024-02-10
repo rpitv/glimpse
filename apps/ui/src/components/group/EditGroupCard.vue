@@ -1,5 +1,5 @@
 <template>
-  <n-card class="edit-group-card" :closable="closable" @close="close">
+  <n-card class="edit-group-card scaled-card" :closable="closable" @close="close">
     <h1>Edit Group {{ groupId }}</h1>
     <div v-if="inputGroup === null || data.loading.value">
       <p>Loading...</p>

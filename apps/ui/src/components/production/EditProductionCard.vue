@@ -1,5 +1,5 @@
 <template>
-  <v-card :title="`Edit Production ${productionId}`" min-height="500">
+  <v-card :title="`Edit Production ${productionId}`">
     <div v-if="currentProduction.loading.value" class="flex-container" style="justify-content: center; text-align: center; align-items: center" >
       <div>
         <v-progress-circular color="error" indeterminate></v-progress-circular>

@@ -1,5 +1,5 @@
 <template>
-  <n-card class="edit-video-card" :closable="closable" @close="close">
+  <n-card class="edit-video-card scaled-card" :closable="closable" @close="close">
     <h1>Edit Video {{ videoId }}</h1>
     <div v-if="inputVideo === null || data.loading.value">
       <p>Loading...</p>

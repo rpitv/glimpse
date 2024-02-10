@@ -61,6 +61,7 @@ import {
   faVideo,
   faBallotCheck,
   faPlus,
+  faMinus,
   faSignalStream,
   faArrowsRotate,
   faBadgeSheriff,
@@ -135,6 +136,7 @@ library.add(faSignsPost);
 library.add(faVideo);
 library.add(faBallotCheck);
 library.add(faPlus);
+library.add(faMinus);
 library.add(faSignalStream);
 library.add(faArrowsRotate);
 library.add(faBadgeSheriff);

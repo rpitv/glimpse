@@ -12,7 +12,6 @@
       :items-per-page="take"
       :items-length="queryData.result.value ? queryData.result.value?.totalSubmissions : 0 "
       :items-per-page-options="[{value: take, title: `${take}`}]"
-      :show-current-page="true" @update:page="loadSubmissions"
       :page="currentPage" :headers="headers"
       :items="queryData.result.value?.contactSubmissions"
       no-data-text="No submissions found 💀"
@@ -59,6 +58,13 @@
           </v-card>
         </template>
       </v-dialog>
+    </template>
+    <template v-slot:bottom>
+      <v-pagination
+        v-model="currentPage"
+        :length="!!queryData.result.value?.totalSubmissions ? Math.ceil(queryData.result.value?.totalSubmissions / take) : 1"
+        @update:modelValue="loadSubmissions"
+      />
     </template>
   </v-data-table-server>
   <v-dialog v-if="!archived" max-width="700px" v-model="productionsModal" style="z-index: 1000">
