@@ -6,7 +6,7 @@
         <v-btn icon="fa-circle-xmark" @click="missing = false" />
       </template>
     </v-snackbar>
-    <v-card class="card" color="#1B1B1B">
+    <v-card class="card" color="#1B1B1B" style="max-width: 1200px">
       <div v-if="submissionReceived">
         <div class="mt-10" style="display: flex; justify-content: center;">
           <FontAwesomeIcon icon="fa-sharp fa-circle-check" class="icon"/>

@@ -1,8 +1,14 @@
 <template>
   <v-form class="form" ref="generalInquiry">
-    <v-text-field class="mt-2" label="Enter your full name" v-model="name" :rules="[formRules.name]"/>
-    <v-text-field class="mt-2" label="Enter the subject of your inquiry" v-model="subject" :rules="[formRules.subject]"></v-text-field>
-    <v-text-field class="mt-2" label="Enter your email" v-model="email" :rules="[formRules.email]"/>
+    <v-row>
+      <v-col cols="12" md="6">
+        <v-text-field class="mt-2" label="Your full name" v-model="name" :rules="[formRules.name]"/>
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-text-field class="mt-2" label="Your email" v-model="email" :rules="[formRules.email]"/>
+      </v-col>
+    </v-row>
+    <v-text-field class="mt-2" label="Subject of your inquiry" v-model="subject" :rules="[formRules.subject]"></v-text-field>
     <v-textarea class="mt-2" label="Type your inquiry" v-model="body" :rules="[formRules.body]"/>
     <v-btn class="mt-5 text-caption" color="green-accent-4" @click="submitGeneralInq" :disabled="loading">Submit</v-btn>
   </v-form>
