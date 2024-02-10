@@ -1,7 +1,7 @@
 {
   "name": "@rpitv/glimpse-api",
   "description": "GraphQL API for interacting with the Glimpse core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "license": "MIT",
   "repository": {
