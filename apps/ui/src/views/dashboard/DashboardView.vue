@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-view">
-      <v-layout style="min-height: 680px">
-        <v-navigation-drawer absolute expand-on-hover rail>
+      <v-layout class="dashboard-vert-height">
+        <v-navigation-drawer absolute expand-on-hover :rail="$vuetify.display.smAndDown" permanent style="z-index: 1">
           <v-list density="compact" nav>
             <v-list-item v-for="route of menuOptions.get(DashboardPageCategory.Content)"
                          :title="route.title"
@@ -26,18 +26,16 @@
           </v-list>
         </v-navigation-drawer>
 
-        <v-card class="w-100 ml-13 pa-10 pt-5">
-        <v-card-title>
-          <DashboardBreadcrumb :route="breadcrumbRoute"/>
-        </v-card-title>
-
-        <v-card-item>
-          <router-view v-slot="{ Component }">
-            <component :is="Component" />
-          </router-view>
-        </v-card-item>
-
-        </v-card>
+        <v-main scrollable>
+          <v-card class="w-100 pa-10 pt-5 dashboard-vert-height" style="overflow-x: auto;">
+            <DashboardBreadcrumb :route="breadcrumbRoute"/>
+            <router-view v-slot="{ Component }">
+              <div style="min-width: 1000px">
+              <component :is="Component" />
+              </div>
+            </router-view>
+          </v-card>
+        </v-main>
       </v-layout>
   </div>
 </template>
@@ -101,20 +99,12 @@ const breadcrumbRoute = computed(() => {
 })
 </script>
 
-<style lang="scss">
-// Hide scroll bar when transitioning between pages
-.page-content div:has(> .page-leave-active) {
-  overflow: hidden;
-}
-</style>
-
 <style scoped lang="scss">
 .dashboard-view {
   padding: 2rem;
 }
 
-.page-content {
-  padding: 2rem;
+.dashboard-vert-height {
+  min-height: max(85vh, 680px);
 }
-
 </style>

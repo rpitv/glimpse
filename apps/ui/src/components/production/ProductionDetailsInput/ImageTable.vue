@@ -100,7 +100,7 @@ const imageHeader = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", sortable: true, key: "name" },
   { title: "Preview", sortable: false, key: "image"},
-  { title: "Actions", sortable: false, key: "actions"}
+  { title: "Actions", sortable: false, key: "actions", minWidth: "150px"}
 ]
 const order = ref<{key: string, order: string}[]>([]);
 const currentPage = ref(1);

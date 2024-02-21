@@ -186,7 +186,7 @@ const headers = [
   { title: "Type", value: "type" },
   { title: "Created At", key: "timestamp", value:
         (submission: Partial<ContactSubmission>) => formattedTime(submission.timestamp)},
-  { title: "Actions", key: "actions", sortable: false }
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
 function canDelete(submission: Partial<ContactSubmission>) {

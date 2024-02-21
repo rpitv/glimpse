@@ -90,7 +90,7 @@ const emit = defineEmits(["setCategory"])
 const categoryHeader = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", sortable: true, key: "name" },
-  { title: "Actions",  sortable: false, key: "actions"}
+  { title: "Actions",  sortable: false, key: "actions", minWidth: "150px"}
 ]
 const order = ref<{key: string, order: string}[]>([]);
 const currentPage = ref(1);

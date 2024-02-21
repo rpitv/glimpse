@@ -149,7 +149,7 @@ const headers = [
   { title: "Name", key: "name", sortable: true },
   { title: "Format", key: "format", sortable: false},
   { title: "URL", key: "metadata", sortable: false },
-  { title: "Actions", key: "actions", sortable: false }
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
 async function loadVideos(page: number) {
