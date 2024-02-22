@@ -175,13 +175,13 @@ const queryData = useQuery(SearchProductionsDocument, {
 });
 
 const headers = [
-  { title: "ID", sortable: true, key: "id" },
-  { title: "Name", key: "name", sortable: true },
+  { title: "ID", sortable: true, key: "id", minWidth: "75px" },
+  { title: "Name", key: "name", sortable: true, minWidth: "150px" },
   { title: "Start Time", key: "startTime", value:
-      (production: Partial<Production>) => formattedTime(production.startTime)},
-  { title: "Notes", key: "teamNotes", sortable: false },
-  { title: "Thumbnail", key: "thumbnail", sortable: false },
-  { title: "Actions", key: "actions", sortable: false }
+      (production: Partial<Production>) => formattedTime(production.startTime), minWidth: "200px"},
+  { title: "Notes", key: "teamNotes", sortable: false, minWidth: "100px" },
+  { title: "Thumbnail", key: "thumbnail", sortable: false, minWidth: "100px" },
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
 async function loadProductions(page: number) {

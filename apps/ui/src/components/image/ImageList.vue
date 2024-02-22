@@ -152,7 +152,7 @@ const headers = [
   { title: "Name", key: "name", sortable: true },
   { title: "Description", key: "description", sortable: false},
   { title: "Path", key: "path", sortable: false },
-  { title: "Actions", key: "actions", sortable: false }
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px"  }
 ]
 
 async function loadImages(page: number) {

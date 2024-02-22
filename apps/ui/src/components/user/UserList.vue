@@ -173,7 +173,7 @@ const headers = [
   { title: "Email", key: "mail", sortable: true},
   { title: "Joined", key: "joined", value:
       (user: User) => formattedTime(user.joined), sortable: true},
-  { title: "Actions", key: "actions", sortable: false }
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
 async function loadUsers(page: number) {

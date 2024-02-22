@@ -144,7 +144,7 @@ const headers = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", key: "name", sortable: true },
   { title: "Priority", key: "priority", sortable: true},
-  { title: "Actions", key: "actions", sortable: false }
+  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
 async function loadRoles(page: number) {

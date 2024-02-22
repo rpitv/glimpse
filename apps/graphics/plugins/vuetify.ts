@@ -1,7 +1,7 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import 'vuetify/styles'
 import {createVuetify, ThemeDefinition} from 'vuetify'
-import {aliases, fa} from 'vuetify/lib/iconsets/fa';
+import {aliases, fa} from 'vuetify/iconsets/fa-svg';
 
 const glimpseTheme: ThemeDefinition = {
 	dark: true,
