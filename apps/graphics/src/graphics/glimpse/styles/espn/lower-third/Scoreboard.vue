@@ -1,6 +1,6 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
-	<div id="team1Name" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
+	<div id="team1Name" class="lower-third" :style="{'color': '#d6001c'}">
 		<p>{{replicants.teams[0].schoolName.value}}</p>
 	</div>
 	<div  id="team1Score" class="lower-third">

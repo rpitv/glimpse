@@ -54,6 +54,8 @@
 		<div>
 			<v-checkbox v-model="replicants.lowerThird.commentators.offset.enabled.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="Manually offset the commentators?" />
+			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'" 
+						label="2.5A"/>
 			<div v-if="replicants.lowerThird.commentators.offset.enabled.value">
 				<h2>Set offset value:</h2>
 				<v-slider
@@ -79,7 +81,7 @@
 			<v-row>
 				<v-col cols="4">
 					<v-text-field v-model="replicants.lowerThird.commentators.leftPerson.name.value"
-						  label="Left Person" variant="outlined" v-if="replicants.gameSettings.style.value !== 'espn'"/>
+						  label="Left Person" variant="outlined" />
 					<v-text-field v-model="replicants.lowerThird.commentators.leftPerson.description.value"
 						  label="Description" variant="outlined" v-if="replicants.gameSettings.style.value !== 'espn'"/>
 				</v-col>

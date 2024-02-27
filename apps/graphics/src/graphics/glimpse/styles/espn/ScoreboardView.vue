@@ -400,7 +400,7 @@ div {
 	position: absolute;
 	outline: rgb(157,154,136) 0.15vw solid;
 	font-family: 'Roboto', sans-serif;
-	font-size: 2.7vh;
+	font-size: 2.4vh;
 	height: 4vh;
 
 	&.global {

@@ -6,11 +6,24 @@
 		<div class="left-team-name" :style="{color: replicants.teams[1].primaryColor.value}">
 			{{ replicants.teams[1].schoolName.value }}
 		</div>
-		<div class="right-team-name" :style="{color: replicants.teams[0].primaryColor.value}">
+		<div class="right-team-name" :style="{color: '#d6001c'}">
 			{{ replicants.teams[0].schoolName.value }}
 		</div>
 		<div class="right-team-sogs"> {{ replicants.teams[0].shots.value }}</div>
 		<div class="left-team-sogs"> {{ replicants.teams[1].shots.value }}</div>
+	</div>
+	<div class="banner" :class="{show: replicants.sync.values.faceoffs.value && replicants.scoreboard.visible.value, hide: !replicants.sync.values.faceoffs.value || !replicants.scoreboard.visible.value}">
+		<div class="title">Faceoffs</div>
+		<div class="bottom"></div>
+		<div class="upward-line"></div>
+		<div class="left-team-name" :style="{color: replicants.teams[1].primaryColor.value}">
+			{{ replicants.teams[1].schoolName.value }}
+		</div>
+		<div class="right-team-name" :style="{color: '#d6001c'}">
+			{{ replicants.teams[0].schoolName.value }}
+		</div>
+		<div class="right-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[1].totals.misc.facewon }} </div>
+		<div class="left-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[0].totals.misc.facewon }}</div>
 	</div>
 </template>
 

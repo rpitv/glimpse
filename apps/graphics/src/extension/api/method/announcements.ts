@@ -29,6 +29,7 @@ export const announcement_global_param1: { [key: string]: string } = {
 	"5on3": "5 on 3",
 	"empty_net": "Empty Net",
 	"official_review": "Official Review",
+	"delayed_penalty": "Delayed Penalty",
 }
 
 export const announcement_teamSpecific_param2: { [key: string]: { name: string, time: number | null } } = {

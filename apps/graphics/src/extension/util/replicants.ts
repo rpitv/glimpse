@@ -42,7 +42,8 @@ export const replicants = {
 				yardsToGo:  nodecg().Replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 				possession:  nodecg().Replicant<boolean>("possession", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 			},
-			sogs: nodecg().Replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
+			sogs: nodecg().Replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+			faceoffs: nodecg().Replicant<boolean>("faceoffs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
 		}
 	},
 	gameSettings: {
@@ -145,6 +146,7 @@ export const replicants = {
 		locator: nodecg().Replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 		commentators: {
 			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			twoPoint5a: nodecg().Replicant<boolean>("twoPoint5a", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			leftPerson: {
 				name: nodecg().Replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
 				description: nodecg().Replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
@@ -178,13 +180,9 @@ export const replicants = {
 		interval: nodecg().Replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
 	},
 	http: {
-		sidearms1: {
+		sidearms: {
 			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
 			body: nodecg().Replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}}),
 		},
-		sidearms2: {
-			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms2`, {defaultValue: "https://sidearmstats.com/rpi/mhockey/game.json?detail=full"}),
-			body: nodecg().Replicant<any>("body", `glimpse-graphics.http.sidearms2`, {defaultValue: {}}),
-		}
 	}
 }

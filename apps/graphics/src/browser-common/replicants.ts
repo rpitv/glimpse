@@ -47,7 +47,8 @@ export async function loadReplicants() {
 					yardsToGo: await replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 					playClock: await replicant<boolean>("playClock", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 				},
-				sogs: await replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
+				sogs: await replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+				faceoffs: await replicant<boolean>("faceoffs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
 			}
 		},
 		gameSettings: {
@@ -152,6 +153,7 @@ export async function loadReplicants() {
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
 				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+				twoPoint5a: await replicant<boolean>("twoPoint5a", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 				leftPerson: {
 					name: await replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
 					description: await replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
@@ -186,14 +188,10 @@ export async function loadReplicants() {
 			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
 		},
 		http: {
-			sidearms1: {
+			sidearms: {
 				url: await replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
 				body: await replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}})
 			},
-			sidearms2: {
-				url: await replicant<string>("url", `glimpse-graphics.http.sidearms2`, {defaultValue: "https://sidearmstats.com/rpi/mhockey/game.json?detail=full"}),
-				body: await replicant<any>("body", `glimpse-graphics.http.sidearms2`, {defaultValue: {}})
-			}
 		}
 	}
 }
