@@ -4,6 +4,7 @@ module.exports = [
     require('./productions/productionEditor'),
     require('./productions/unvolunteer'),
     require('./productions/volunteer'),
+    require('./productions/ceceproductionCreator'),
     require('./setup/proCategory'),
     require('./setup/proCategorySelection'),
     require('./setup/proChannel'),
