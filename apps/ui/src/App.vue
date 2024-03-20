@@ -80,7 +80,7 @@ export default defineComponent({
           scrim: "black"
         },
         VDataTableServer: {
-          style: "max-height: max(600px, 50vh)",
+          style: "max-height: max(475px, 50vh); border-style: inset;",
           fixedHeader: true,
           hover: true,
           fixedFooter: true,
