@@ -170,6 +170,12 @@ export class CaslAbilityFactory {
                     return new Date();
                 }
 
+                if (value === "$person") {
+                    this.logger.verbose(`Replacing $person variable in conditions with user ID ${user.personId}.`);
+                    return user.personId;
+                }
+
+
                 // Replace escaped variables with their unescaped versions
                 if (value === "\\$id") {
                     return "$id";
