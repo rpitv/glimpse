@@ -355,11 +355,11 @@ export class ContactSubmissionResolver {
                                 },
                                 {
                                     name: "Start Time",
-                                    value: new Date(additionalData.startTime).toLocaleString("en-US", { timeZone: "EST"})
+                                    value: `<t:${parseInt((new Date(additionalData.startTime).getTime() / 1000).toFixed(0))}>`
                                 },
                                 {
                                     name: "End Time",
-                                    value: new Date(additionalData.endTime).toLocaleString("en-US", { timeZone: "EST"})
+                                    value: `<t:${parseInt((new Date(additionalData.endTime).getTime() / 1000).toFixed(0))}>`
                                 },
                                 {
                                     name: "Would you like this event livestreamed?",
