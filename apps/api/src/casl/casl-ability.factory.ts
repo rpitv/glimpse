@@ -189,6 +189,9 @@ export class CaslAbilityFactory {
                 if (value === "\\$now") {
                     return "$now";
                 }
+                if (value === "\\$person") {
+                    return "$person";
+                }
 
                 return value;
             });
