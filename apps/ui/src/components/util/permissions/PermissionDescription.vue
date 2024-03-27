@@ -134,6 +134,8 @@ function valueParser<T>(value: T): string {
       return "the user's ID";
     } else if(value === "$now") {
       return "the current date and time";
+    } else if(value === "$person") {
+      return "the user's own Person ID"
     }
     return "an unknown variable";
   }
