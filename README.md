@@ -14,7 +14,7 @@ Glimpse currently encompasses the following services:
 - Developer CLI
 - Livestream control and distribution service
 
-For more information about the project and each service, check out the [project wiki](https://github.com/rpitv/glimpse/wiki/API) and their 
+For more information about the project and each service, check out the [project wiki](https://github.com/rpitv/glimpse/wiki) and their 
 individual README files.
 
 View the project in action at https://rpi.tv/.
