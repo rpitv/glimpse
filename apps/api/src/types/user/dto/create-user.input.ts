@@ -15,4 +15,5 @@ export class CreateUserInput extends OmitType(User, ["id", "joined"], InputType)
     @MinLength(8)
     @IsOptional()
     password: string | null;
+    username: any;
 }

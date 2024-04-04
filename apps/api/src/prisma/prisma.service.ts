@@ -14,6 +14,8 @@ export type AuditLogEntry = {
 };
 
 export class PrismaService extends PrismaClient implements OnModuleInit {
+    user: any;
+    accessLog: any;
     constructor() {
         super();
     }
