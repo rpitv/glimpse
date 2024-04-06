@@ -25,6 +25,7 @@ export class AuthService {
     }
 
     async attemptLogin(req: Request, username: string, pass: string): Promise<User | null> {
+        username = username.toLowerCase();
         const user = await this.prisma.user.findFirst({
             where: {
                 username: username

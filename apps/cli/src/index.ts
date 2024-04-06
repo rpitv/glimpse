@@ -155,6 +155,7 @@ commands.set(["user", "u"], {
         );
         while (!username) {
             username = await rl.question(style("Username: ", Color.Bold));
+            username = username.toLowerCase()
             if (username?.length > 8) {
                 console.error(style("Username must be 8 characters or less.", Color.Red));
                 username = null;
