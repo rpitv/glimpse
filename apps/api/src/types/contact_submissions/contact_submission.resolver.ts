@@ -288,6 +288,14 @@ export class ContactSubmissionResolver {
             input.additionalData = {};
         }
 
+        // generateProductionRequestAdditionalData will create undefined properties, which we want to delete before
+        // using the spread operator.
+        Object.keys(input.additionalData).forEach(key => {
+            if(input.additionalData[key] === undefined) {
+                delete input.additionalData[key]
+            }
+        })
+
         // Combine the `additionalData` value with the current value. We don't want to overwrite the entire
         //  object if only some values have changed.
         input.additionalData = {
