@@ -80,7 +80,13 @@ function formattedTime(time: string) {
     second: "2-digit",
     timeZoneName: "short"
   };
-  return new Intl.DateTimeFormat("en-US", options).format(date);
+  let formattedTimeString = `${time}`
+  try {
+    formattedTimeString = new Intl.DateTimeFormat("en-US", options).format(date);
+  } catch (e) {
+    console.warn(`Unable to format datetime ${time}:`, e)
+  }
+  return formattedTimeString;
 }
 
 </script>
