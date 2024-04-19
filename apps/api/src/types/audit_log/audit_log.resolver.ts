@@ -131,11 +131,11 @@ export class AuditLogResolver {
             }
 
             if (auditLog.oldValue?.[key] === undefined) {
-                details.push(`Added \`${key}\` with value "${auditLog.newValue?.[key]}"`);
+                details.push(`Added \`${key}\` with value \`${JSON.stringify(auditLog.newValue?.[key])}\``);
             } else if (auditLog.newValue?.[key] === undefined) {
-                details.push(`Deleted \`${key}\`, previously "${auditLog.oldValue?.[key]}"`);
+                details.push(`Deleted \`${key}\`, previously \`${JSON.stringify(auditLog.oldValue?.[key])}\``);
             } else {
-                details.push(`Updated \`${key}\` from "${auditLog.oldValue?.[key]}" to "${auditLog.newValue?.[key]}"`);
+                details.push(`Updated \`${key}\` from \`${JSON.stringify(auditLog.oldValue?.[key])}\` to \`${JSON.stringify(auditLog.newValue?.[key])}\``);
             }
         }
 
