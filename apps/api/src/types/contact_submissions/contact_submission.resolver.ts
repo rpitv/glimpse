@@ -221,7 +221,6 @@ export class ContactSubmissionResolver {
     // --------------------------- Helpers ------------------------
 
     private async genericCreateContactSubmission(ctx: { req: Request }, input: CreateContactSubmissionInput) {
-        console.log(input);
         const errors = await validate(input, { skipMissingProperties: true });
         if (errors.length > 0) {
             const firstErrorFirstConstraint = errors[0].constraints[Object.keys(errors[0].constraints)[0]];
