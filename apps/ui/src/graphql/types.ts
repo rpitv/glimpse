@@ -49,7 +49,8 @@ export enum AbilitySubjects {
   UserPermission = 'UserPermission',
   Video = 'Video',
   Vote = 'Vote',
-  VoteResponse = 'VoteResponse'
+  VoteResponse = 'VoteResponse',
+  All = 'all',
 }
 
 export type AccessLog = {

@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <v-switch inset true-value="ID" false-value="Name" v-model="model" true-icon="fa-id-card" false-icon="fa-input-text" :ripple="false"/>
-    <v-text-field :label="`Search for ${documentName} via ${model}`" append-inner-icon="fa-magnifying-glass"
+    <v-text-field class="ml-2" :label="`Search for ${documentName} via ${model}`" append-inner-icon="fa-magnifying-glass"
             @click:append-inner="emit('search', searchVal, model)" @keydown.enter="emit('search', searchVal, model)" :type="model === 'ID' ? 'number' : 'text'"
             variant="outlined" density="compact" v-model="searchVal" style="width: 90%" />
   </div>
