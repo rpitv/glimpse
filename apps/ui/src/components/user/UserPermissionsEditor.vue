@@ -56,8 +56,7 @@ const userPermissionsQuery = useQuery(FindUserPermissionsDocument, {
     },
   },
   pagination: {
-    take: 20,
-    skip: 0,
+    take: 100,
   },
 });
 
