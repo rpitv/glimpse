@@ -50,7 +50,7 @@
           <v-stepper-window-item value="4" >
               <ImageTable :take="take" :productionImages="newProductionImages" :thumbnailId="newProductionThumbnail.id"
                           @setThumbnail="setThumbnailId"
-                          @addImage="addRole"
+                          @addImage="addImage"
               />
             <div class="flex-container mt-2" v-if="newProductionThumbnail.id">
               <h2>Thumbnail: </h2>
@@ -329,7 +329,7 @@ function setThumbnailId(imageId: number, url: string) {
   }
 }
 
-function addRole(imageId: number, url: string) {
+function addImage(imageId: number, url: string) {
   newProductionImages.value.push({
     id: imageId,
     url: url,
