@@ -1,0 +1,8 @@
+mutation UpdatePersonRole($id: BigInt!, $startTime: DateTime, $endTime: DateTime) {
+  personRole: updatePersonRole(id: $id, input: {
+    endTime: $endTime,
+    startTime: $startTime
+  }) {
+    id
+  }
+}

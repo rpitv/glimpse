@@ -1,5 +1,5 @@
-mutation CreatePersonImage($personId: BigInt!, $imageId: BigInt!) {
-  personImage: createPersonImage(input: { personId: $personId, imageId: $imageId }) {
+mutation CreatePersonImage($personId: BigInt!, $imageId: BigInt!, $priority: Int!) {
+  personImage: createPersonImage(input: { personId: $personId, imageId: $imageId, priority: $priority }) {
     id
   }
 }

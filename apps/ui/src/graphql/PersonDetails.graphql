@@ -6,10 +6,13 @@ query PersonDetails($id: BigInt!) {
     graduation
     pronouns
     roles {
+      id
       role {
         id
         name
       }
+      startTime
+      endTime
     }
     users {
       id
@@ -22,12 +25,14 @@ query PersonDetails($id: BigInt!) {
       path
     }
     images {
+      id
       image {
         id
         name
         path
         description
       }
+      priority
     }
   }
 }

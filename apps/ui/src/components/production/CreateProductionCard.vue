@@ -67,7 +67,7 @@
               <v-chip-group column>
                 <v-dialog v-for="(image, i) in productionImages" :key="image.id" width="400" scrim="black">
                   <template v-slot:activator="{ props }">
-                    <v-chip class="ml-3" closable v-bind="props"
+                    <v-chip class="ml-1" closable v-bind="props"
                             @click:close="productionImages.splice(i, 1)" >
                       Image ID: {{ image.id }}
                     </v-chip>
@@ -84,7 +84,7 @@
             <div class="flex-container mt-2" v-if="productionVideos.length" >
               <h2>Production Videos: </h2>
               <v-chip-group column>
-                <v-chip class="ml-3" v-for="(video, i) in productionVideos" closable @click="openURL(video.url)"
+                <v-chip class="ml-1" v-for="(video, i) in productionVideos" closable @click="openURL(video.url)"
                         @click:close="productionVideos.splice(i, 1)" :key="video.id">
                   Video ID: {{ video.id }}
                 </v-chip>
@@ -281,11 +281,11 @@ async function createProduction() {
         }
       });
     for (let i = 0; i < productionVideos.value.length; i++)
-      // DON'T ASK QUESTIONS, JUST TRUST ME
       await createVideoMutation.mutate({
         data: {
           videoId: productionVideos.value[i].id,
           productionId: productionId,
+          // DON'T ASK QUESTIONS, JUST TRUST ME
           priority: parseInt(productionVideos.value[i].priority.toString())
         }
       });
@@ -345,7 +345,7 @@ function openURL(url: string) {
 
 .flex-container {
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
 }
 
 .missing {

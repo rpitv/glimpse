@@ -1,376 +1,204 @@
 <template>
-  <n-card
-    class="create-person-card scaled-card"
-    :closable="closable || false"
-    @close="emit('close')"
-  >
-    <h1>Create Person</h1>
-    <div class="steps">
-      <n-steps :current="currentStep">
-        <n-step
-          v-for="step of steps"
-          :key="step.title"
-          :title="step.title"
-          :description="step.description"
-        />
-      </n-steps>
-    </div>
-
-    <div class="step">
-      <Transition name="steps">
-        <div v-if="currentStep === 1">
-          <PersonDetailsInput
-            @keypress.enter="enterKeyPressed"
-            v-model:data="personData"
-            ref="personDetailsInput"
-          />
-        </div>
-        <div v-else-if="currentStep === 2">
-          <n-grid cols="1 s:2" responsive="screen" x-gap="10">
-            <n-grid-item>
-              <h2>Profile Picture</h2>
-              <ImageSearch @select="profilePictureSelected" />
-              <div
-                v-if="personData.profilePictureId && personData.profilePicture"
-              >
-                <div class="profile-picture-remove-btn-wrapper">
-                  <n-button
-                    round
-                    secondary
-                    type="error"
-                    @click="profilePictureSelected(null)"
-                  >
-                    Remove
-                    <template #icon>
-                      <font-awesome-icon icon="fa-light fa-times" />
-                    </template>
-                  </n-button>
-                </div>
-                <img
-                  class="profile-picture centered"
-                  :src="personData.profilePicture.path"
-                  :alt="personData.profilePicture.name"
-                  :title="personData.profilePicture.description"
-                />
-              </div>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Images</h2>
-              <ImageSearch @select="imageSelected" />
-              <div v-for="image of personData.images">
-                <n-button
-                  secondary
-                  type="error"
-                  class="remove-image-btn"
-                  @click="removeImage(image)"
-                >
-                  Remove
-                  <template #icon>
-                    <font-awesome-icon icon="fa-light fa-times" />
-                  </template>
-                </n-button>
-                <img
-                  class="image"
-                  :src="image.image?.path"
-                  :alt="image.image?.name"
-                  :title="image.image?.description"
-                />
-              </div>
-            </n-grid-item>
-          </n-grid>
-        </div>
-        <div v-else-if="currentStep === 3">
-          <n-grid cols="1 s:4" responsive="screen">
-            <n-grid-item>
-              <h2>Profile Picture</h2>
-              <p
-                v-if="
-                  !personData.profilePictureId || !personData.profilePicture
-                "
-              >
-                None
-              </p>
-              <img
-                v-else
-                class="profile-picture"
-                :src="personData.profilePicture.path"
-                :alt="personData.profilePicture.name"
-                :title="personData.profilePicture.description"
-              />
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Person Details</h2>
-              <p>Name: {{ personData.name }}</p>
-              <p>Pronouns: {{ personData.pronouns || "None" }}</p>
-              <p>
-                Graduation:
-                {{
-                  personData.graduation
-                    ? moment(personData.graduation).format("MMMM Do, YYYY")
-                    : "None"
-                }}
-              </p>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Description</h2>
-              <Markdown v-if="personData.description">{{
-                personData.description
-              }}</Markdown>
-              <p v-else>None</p>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Images</h2>
-              <div v-for="image of personData.images">
-                <img
-                  class="image"
-                  :src="image.image?.path"
-                  :alt="image.image?.name"
-                  :title="image.image?.description"
-                />
-              </div>
-            </n-grid-item>
-          </n-grid>
-        </div>
-        <div v-else-if="currentStep === steps.length + 1">
-          <n-alert v-if="error" type="error">
-            {{ error }}
-          </n-alert>
-          <p v-else class="center-text-info">Creating person...</p>
-        </div>
-      </Transition>
-    </div>
-
-    <div class="actions">
-      <n-button
-        v-if="closable"
-        class="action"
-        @click="emit('close')"
-        type="error"
-        :disabled="currentStep > steps.length && !error"
-      >
-        Cancel
-      </n-button>
-      <n-button
-        tertiary
-        type="error"
-        class="action"
-        v-if="currentStep > 1"
-        @click="currentStep--"
-        :disabled="currentStep > steps.length && !error"
-      >
-        Back
-      </n-button>
-      <n-button
-        :primary="currentStep >= steps.length"
-        :tertiary="currentStep < steps.length"
-        class="action"
-        type="success"
-        @click="nextStep"
-        :disabled="!canContinue"
-      >
-        {{ currentStep >= steps.length ? "Create Person" : "Continue" }}
-      </n-button>
-    </div>
-  </n-card>
+  <v-card>
+    <v-card-title>
+      Create Person
+    </v-card-title>
+    <v-stepper v-model="step" :flat="true">
+      <template #actions="{prev, next}">
+        <v-stepper-header>
+          <v-stepper-item :value="1" title="Person Details" :editable="step > 1" :complete="step > 1"/>
+          <v-divider />
+          <v-stepper-item :value="2" title="Images" :editable="step > 1" :complete="step > 2" />
+          <v-divider />
+          <v-stepper-item :value="3" title="Roles"  :editable="step > 1" :complete="step > 3" />
+          <v-divider />
+          <v-stepper-item :value="4" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" :editable="step > 1" />
+        </v-stepper-header>
+        <v-stepper-window>
+          <v-stepper-window-item :value="1">
+            <PersonDetails :personData="personData" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="2">
+            <ImageTable :take="take" :images="images" :profileId="profile.id"
+              @setProfile="setProfileId"
+              @addImage="addImage"
+            />
+            <ImageRow :images="images" :profile="profile" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="3">
+            <RoleTable :roles="roles" :take="take" @addRole="addRole"/>
+            <RolesRow :roles="roles" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="4">
+            <div class="review">
+              <ReviewTable :images="images" :roles="roles" :profilePic="profile" :personData="personData" />
+              <PriorityEditor :images="images"/>
+            </div>
+          </v-stepper-window-item>
+        </v-stepper-window>
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 4 ? 'CREATE' : 'NEXT'"
+                   :disabled="checkDisable" />
+      </template>
+    </v-stepper>
+    <v-snackbar v-model="snackbar" :timeout="3000">{{ error }}</v-snackbar>
+  </v-card>
 </template>
 
 <script setup lang="ts">
-import {
-  NCard,
-  NSteps,
-  NStep,
-  NButton,
-  NGrid,
-  NGridItem,
-  NAlert,
-} from "naive-ui";
 import { computed, ref } from "vue";
-import type { Image, Person, PersonImage } from "@/graphql/types";
+import type { Person } from "@/graphql/types";
 import { useMutation } from "@vue/apollo-composable";
 import {
   CreatePersonDocument,
   CreatePersonImageDocument,
+  CreatePersonRoleDocument
 } from "@/graphql/types";
-import { useRouter } from "vue-router";
-import PersonDetailsInput from "@/components/person/PersonDetailsInput.vue";
-import moment from "moment";
-import Markdown from "@/components/util/Markdown.vue";
-import ImageSearch from "@/components/image/ImageSelect.vue";
+import ImageTable from "@/components/person/PersonDetailsInput/ImageTable.vue";
+import RoleTable from "@/components/person/PersonDetailsInput/RoleTable.vue";
+import ReviewTable from "@/components/person/PersonDetailsInput/ReviewTable.vue";
+import PersonDetails from "@/components/person/PersonDetailsInput/PersonDetails.vue";
+import ImageRow from "@/components/person/PersonDetailsInput/ImageRow.vue";
+import RolesRow from "@/components/person/PersonDetailsInput/RolesRow.vue";
+import PriorityEditor from "@/components/person/PersonDetailsInput/PriorityEditor.vue";
 
-const personDetailsInput = ref<PersonDetailsInput | null>(null);
 const personData = ref<Partial<Person>>({
   name: "",
   description: "",
   pronouns: null,
   graduation: null,
-  profilePictureId: null,
-  profilePicture: null,
-  images: [],
 });
 
-const router = useRouter();
 const createPersonMutation = useMutation(CreatePersonDocument);
 const createPersonImageMutation = useMutation(CreatePersonImageDocument);
+const createPersonRoleMutation = useMutation(CreatePersonRoleDocument);
 
-const props = defineProps({
+defineProps({
   closable: {
     type: Boolean,
     default: false,
   },
 });
 
-const emit = defineEmits(["close", "save"]);
+interface urlInterface {
+  id: number | null,
+  url: string,
+  priority: 0
+}
 
-const steps = [
-  {
-    title: "Person Details",
-    description: "Enter the Person's primary details",
-  },
-  {
-    title: "Images",
-    description: "Select images to display on this person's profile",
-  },
-  {
-    title: "Review",
-    description:
-      "Review the data to be submitted and make sure there are no mistakes",
-  },
-];
+interface roleInterface {
+  id: number | null,
+  name: string,
+  startDate?: Date,
+  endDate?: Date
+}
 
-const currentStep = ref(1);
+const emit = defineEmits(["save"]);
+
+const take = 20;
+const step = ref(1);
+const loading = ref(false);
 const error = ref<string | null>(null);
-
-const canContinue = computed<boolean>(() => {
-  if (currentStep.value === 1) {
-    return personDetailsInput.value?.isValid;
-  }
-  return currentStep.value <= steps.length;
+const snackbar = ref(false);
+const images = ref<urlInterface[]>([]);
+const roles = ref<roleInterface[]>([]);
+const profile = ref<urlInterface>({
+  id: null,
+  url: '',
+  priority: 0
 });
 
-function enterKeyPressed() {
-  if (canContinue.value) {
-    nextStep();
+function addImage(imageId: number, url: string) {
+  images.value.push({
+    id: imageId,
+    url: url,
+    priority: 0
+  });
+}
+
+function addRole(roleId: number, name: string) {
+  roles.value.push({
+    id: roleId,
+    name: name,
+  });
+}
+
+function setProfileId(imageId: number, url: string) {
+  profile.value = {
+    id: imageId,
+    url: url,
+    priority: 0
   }
 }
 
-function profilePictureSelected(
-  image: Pick<Image, "id" | "name" | "description" | "path"> | null
-) {
-  personData.value.profilePicture = image;
-  personData.value.profilePictureId = image?.id || null;
-}
-
-function imageSelected(
-  image: Pick<Image, "id" | "name" | "description" | "path">
-) {
-  if (!personData.value.images) {
-    personData.value.images = [];
-  }
-  if (personData.value.images.find((i) => i.image?.id === image.id)) {
+async function validate(next: () => void) {
+  if (step.value < 4) {
+    next();
     return;
   }
-  personData.value.images.push({ image });
-}
+  let createdPerson;
+  loading.value = true;
+  try {
+    createdPerson = await createPersonMutation.mutate({
+      data: {
+        name: personData.value.name,
+        description: personData.value.description,
+        pronouns: personData.value.pronouns,
+        graduation: personData.value.graduation,
+        profilePictureId: profile.value.id
+      },
+    });
 
-function removeImage(image: PersonImage) {
-  const index =
-    personData.value.images?.findIndex(
-      (i) => i.image?.id === image.image?.id
-    ) ?? -1;
-  if (index >= 0) {
-    personData.value.images?.splice(index, 1);
-  }
-}
-
-async function nextStep() {
-  currentStep.value++;
-
-  if (currentStep.value >= steps.length + 1) {
-    let createdPerson;
-    try {
-      createdPerson = await createPersonMutation.mutate({
-        data: {
-          name: personData.value.name,
-          description: personData.value.description,
-          pronouns: personData.value.pronouns,
-          graduation: personData.value.graduation,
-          profilePictureId: personData.value.profilePictureId,
-        },
-      });
-
-      if (!createdPerson?.data?.person) {
-        error.value = "Failed to create person";
-        return;
-      }
-
-      if (personData.value.images) {
-        for (const image of personData.value.images) {
-          await createPersonImageMutation.mutate({
-            personId: createdPerson.data.person.id,
-            imageId: image.image?.id,
-          });
-        }
-      }
-    } catch (e) {
-      console.error(e);
+    if (!createdPerson?.data?.person) {
       error.value = "Failed to create person";
       return;
     }
 
-    emit("save", createdPerson?.data?.person.id);
+    for (const image of images.value) {
+      await createPersonImageMutation.mutate({
+        personId: createdPerson.data.person.id,
+        imageId: image.id,
+        priority: image.priority
+      });
+    }
+
+    for (const role of roles.value) {
+      await createPersonRoleMutation.mutate({
+        personId: createdPerson.data.person.id,
+        roleId: role.id,
+        startTime: role.startDate,
+        endTime: role.endDate
+      });
+    }
+  } catch (e) {
+    loading.value = false;
+    error.value = "Failed to create person";
+    snackbar.value = true;
+    console.error(e);
+    return;
   }
+  loading.value = false;
+  emit("save", createdPerson?.data?.person.id);
 }
+
+const checkDisable = computed(() => {
+  if (loading.value)
+    return true;
+  if (step.value === 1 && !personData.value.name?.trim())
+    return true;
+  if (step.value === 1)
+    return "prev";
+  return false;
+});
+
 </script>
 
 <style scoped lang="scss">
-@media (max-width: 1100px) {
-  .steps {
-    display: none;
-  }
-}
-
-.center-text-info {
-  font-size: 1.5em;
-  text-align: center;
-}
-
-.step {
-  margin-top: 3em;
-}
-
-.actions {
-  margin-top: 2rem;
+.review {
   display: flex;
-  justify-content: right;
-  .action {
-    margin-left: 0.5em;
+  justify-content: space-between;
+  >div {
+    width: 100%;
   }
 }
 
-.profile-picture {
-  border-radius: 50%;
-  margin-top: 1em;
-  width: 50%;
-  aspect-ratio: 1;
-  object-fit: cover;
-
-  &.centered {
-    margin-left: 25%;
-  }
-}
-
-.profile-picture-remove-btn-wrapper {
-  margin-top: 1em;
-  display: flex;
-  justify-content: center;
-}
-
-.image {
-  margin-top: 0.5em;
-  width: 100%;
-}
-.remove-image-btn {
-  margin-top: 1em;
-  width: 100%;
-}
 </style>
