@@ -6,11 +6,24 @@
 		<div class="left-team-name" :style="{color: replicants.teams[1].primaryColor.value}">
 			{{ replicants.teams[1].schoolName.value }}
 		</div>
-		<div class="right-team-name" :style="{color: replicants.teams[0].primaryColor.value}">
+		<div class="right-team-name" :style="{color: '#d6001c'}">
 			{{ replicants.teams[0].schoolName.value }}
 		</div>
 		<div class="right-team-sogs"> {{ replicants.teams[0].shots.value }}</div>
 		<div class="left-team-sogs"> {{ replicants.teams[1].shots.value }}</div>
+	</div>
+	<div class="banner" :class="{show: replicants.sync.values.faceoffs.value && replicants.scoreboard.visible.value, hide: !replicants.sync.values.faceoffs.value || !replicants.scoreboard.visible.value}">
+		<div class="title">Faceoffs</div>
+		<div class="bottom"></div>
+		<div class="upward-line"></div>
+		<div class="left-team-name" :style="{color: replicants.teams[1].primaryColor.value}">
+			{{ replicants.teams[1].schoolName.value }}
+		</div>
+		<div class="right-team-name" :style="{color: '#d6001c'}">
+			{{ replicants.teams[0].schoolName.value }}
+		</div>
+		<div class="right-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[1].totals.misc.facewon }} </div>
+		<div class="left-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[0].totals.misc.facewon }}</div>
 	</div>
 </template>
 
@@ -37,6 +50,7 @@ div {
 	position: absolute;
 	font-family: Roboto, sans-serif;
 	font-size: 2.2vh;
+	--banner-width: 25.1vw;
 }
 
 .title {
@@ -46,24 +60,24 @@ div {
 .banner {
 	font-weight: 700;
 	color: #424743;
-	top: 11vh;
-	left: 23.2vw;
+	top: 11.35vh;
+	left: 23.4vw;
 	background-color: #d6d6d6;
 	height: 6vh;
-	width: 25.3vw;
+	width: var(--banner-width);
 }
 
 .bottom {
 	top: 2.5vh;
 	background-color: #eff0e6;
 	height: 3.5vh;
-	width: 25.3vw;
 	box-shadow: 0 0 0 0.3vh #b0b2ad inset;
+	width: var(--banner-width);
 }
 .upward-line {
 	background-color: #b0b2ad;
 	height: 2vh;
-	left: 12.6vw;
+	left: 12.55vw;
 	top: 4vh;
 	width: 0.3vh;
 }

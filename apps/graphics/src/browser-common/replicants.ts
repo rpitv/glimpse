@@ -47,7 +47,8 @@ export async function loadReplicants() {
 					yardsToGo: await replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 					playClock: await replicant<boolean>("playClock", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 				},
-				sogs: await replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
+				sogs: await replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
+				faceoffs: await replicant<boolean>("faceoffs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
 			}
 		},
 		gameSettings: {
@@ -152,9 +153,19 @@ export async function loadReplicants() {
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
 				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-				leftPerson: await replicant<string>("leftPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
-				centerPerson: await replicant<string>("centerPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan"}),
-				rightPerson: await replicant<string>("rightPerson", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+				twoPoint5a: await replicant<boolean>("twoPoint5a", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
+				leftPerson: {
+					name: await replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
+					description: await replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
+				centerPerson: {
+					name: await replicant<string>("centerName", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+					description: await replicant<string>("centerDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
+				rightPerson:{
+					name: await replicant<string>("rightName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
+					description: await replicant<string>("rightDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+				},
 				offset: {
 					enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})
@@ -175,6 +186,12 @@ export async function loadReplicants() {
 		slideshow: {
 			enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
 			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
+		},
+		http: {
+			sidearms: {
+				url: await replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+				body: await replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}})
+			},
 		}
 	}
 }

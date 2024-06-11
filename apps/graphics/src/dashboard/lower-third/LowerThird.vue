@@ -17,7 +17,7 @@
 			>
 				{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
 			</v-btn>
-			Display Scoreboard (Scoreboard values are updated once when the scoreboard (not lower third) is hidden)
+			Display Scoreboard (SCOREBOARD VALUES ARE UPDATED ONCE WHEN THE SCOREBOARD (NOT LOWER THIRD) IS HIDDEN. THIS INCLUDES THE PERIOD)
 		</h2>
 		<br>
 		<h2>
@@ -51,9 +51,11 @@
 							  v-model="replicants.lowerThird.school2Logo.value"/>
 			</v-col>
 		</v-row>
-		<div v-if="replicants.gameSettings.style.value === 'espn'">
-			<v-checkbox v-model="replicants.lowerThird.commentators.offset.enabled.value"
+		<div>
+			<v-checkbox v-model="replicants.lowerThird.commentators.offset.enabled.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="Manually offset the commentators?" />
+			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'" 
+						label="2.5A"/>
 			<div v-if="replicants.lowerThird.commentators.offset.enabled.value">
 				<h2>Set offset value:</h2>
 				<v-slider
@@ -78,16 +80,22 @@
 			<br>
 			<v-row>
 				<v-col cols="4">
-					<v-text-field v-model="replicants.lowerThird.commentators.leftPerson.value"
-						  label="Left Person" variant="outlined"/>
+					<v-text-field v-model="replicants.lowerThird.commentators.leftPerson.name.value"
+						  label="Left Person" variant="outlined" />
+					<v-text-field v-model="replicants.lowerThird.commentators.leftPerson.description.value"
+						  label="Description" variant="outlined" v-if="replicants.gameSettings.style.value !== 'espn'"/>
 				</v-col>
 				<v-col cols="4">
-					<v-text-field v-model="replicants.lowerThird.commentators.centerPerson.value"
+					<v-text-field v-model="replicants.lowerThird.commentators.centerPerson.name.value"
 						  label="Center Person" variant="outlined"/>
+					<v-text-field v-model="replicants.lowerThird.commentators.centerPerson.description.value"
+								  label="Description" variant="outlined" v-if="replicants.gameSettings.style.value !== 'espn'"/>
 				</v-col>
 				<v-col cols="4">
-					<v-text-field v-model="replicants.lowerThird.commentators.rightPerson.value"
+					<v-text-field v-model="replicants.lowerThird.commentators.rightPerson.name.value"
 						  label="Right Person" variant="outlined"/>
+					<v-text-field v-model="replicants.lowerThird.commentators.rightPerson.description.value"
+								  label="Description" variant="outlined" v-if="replicants.gameSettings.style.value !== 'espn'"/>
 				</v-col>
 			</v-row>
 		</div>
@@ -161,6 +169,7 @@
 			<ul>Timeouts Home Team {{replicants.teams[0].timeouts}}</ul>
 			<ul>Timeouts Away Team {{replicants.teams[1].timeouts}}</ul>
 		</div>
+		<br />
 	</div>
 </template>
 

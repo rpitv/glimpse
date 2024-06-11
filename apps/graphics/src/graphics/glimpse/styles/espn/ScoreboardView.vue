@@ -1,45 +1,65 @@
 <template>
-	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
-		<div class="team2-section">
-			<TeamView class="bordered" v-if="teamTwo.enabled.value" :team-id="1" style="height: 90%" />
-			<p v-if="announcementType === 'away'" class="announcement-section team2">
-				{{ powerPlayStatus }} {{ powerPlayClock }}
-			</p>
-			<p v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
-				{{ computedMessage(replicants.announcements.team2.value[0]).value }}
-			</p>
-			<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team2">
-				{{replicants.teams[1].shootouts.value}}
-			</p>
-		</div>
+	<div :class="'center ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
+		<div class="scoreboard bordered">
+			<div class="team2-section">
+				<TeamView v-if="teamTwo.enabled.value" :team-id="1" />
+				<div v-if="announcementType === 'away'" class="announcement-section team2">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.team2.value.length > 0" class="announcement-section team2">
+					<p>
+						{{ computedMessage(replicants.announcements.team2.value[0]).value }}
+					</p>
+				</div>
+				<div v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team2">
+					<p>
+						{{replicants.teams[1].shootouts.value}}
+					</p>
+				</div>
+			</div>
 
-		<div class="team1-section">
-			<TeamView class="bordered no-left-border" v-if="teamOne.enabled.value" :team-id="0" style="height: 90%" />
-			<p v-if="announcementType === 'home'" class="announcement-section team1">
-				{{ powerPlayStatus }} {{ powerPlayClock }}
-			</p>
-			<p v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
-				{{ computedMessage(replicants.announcements.team1.value[0]).value }}
-			</p>
-			<p v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
-				{{replicants.teams[0].shootouts.value}}
-			</p>
-		</div>
+			<div class="team1-section bordered">
+				<TeamView v-if="teamOne.enabled.value" :team-id="0" />
+				<div v-if="announcementType === 'home'" class="announcement-section team1">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.team1.value.length > 0" class="announcement-section team1">
+					<p>
+						{{ computedMessage(replicants.announcements.team1.value[0]).value }}
+					</p>
+				</div>
+				<div v-if="replicants.gameSettings.showShootouts.value" class="announcement-section team1">
+					<p>
+						{{replicants.teams[0].shootouts.value}}
+					</p>
+				</div>
+			</div>
 
-		<div class="bordered no-left-border time-section">
-			<p v-if="replicants.gameSettings.periods.enabled.value"  class="period-section">
-				{{ formattedPeriod }}
-			</p>
-			<hr>
-			<p v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
-				{{ formattedClockTime }}
-			</p>
-			<p v-if="announcementType === 'global'" class="announcement-section global">
-				{{ powerPlayStatus }} {{ powerPlayClock }}
-			</p>
-			<p v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
-				{{ computedMessage(replicants.announcements.global.value[0]).value }}
-			</p>
+			<div class="time-section bordered">
+				<p v-if="replicants.gameSettings.periods.enabled.value" class="period-section">
+					{{ formattedPeriod }}
+				</p>
+				<hr>
+				<div v-if="replicants.gameSettings.clock.enabled.value" class="clock-section">
+					<p>
+						{{ formattedClockTime }}
+					</p>
+				</div>
+				<div v-if="announcementType === 'global'" class="announcement-section global">
+					<p>
+						{{ powerPlayStatus }} {{ powerPlayClock }}
+					</p>
+				</div>
+				<div v-if="replicants.announcements.global.value.length > 0" class="announcement-section global">
+					<p>
+						{{ computedMessage(replicants.announcements.global.value[0]).value }}
+					</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -320,27 +340,31 @@ const powerPlayClock = computed(() => {
 </script>
 
 <style scoped lang="scss">
+div {
+	--scoreboard-height: 4.5vh;
+}
+
+.center {
+	display: flex;
+	justify-content: center;
+	transition: opacity 1s;
+}
+
 .hidden {
 	opacity: 0;
+	transition: 1s;
 }
 
 .bordered {
-	border: rgb(157,154,136) 0.15vw solid;
-
-	&.no-left-border {
-		border-left: none;
-	}
+	outline: rgb(157,154,136) 0.15vw solid;
 }
 
 .scoreboard {
 	display: flex;
 	justify-content: center;
-
-	position: relative;
-	top: 5vh;
-
-	max-height: 4.2vh;
-
+	position: absolute;
+	top: 6.1vh;
+	height: var(--scoreboard-height);
 	transition: opacity 1s;
 }
 
@@ -362,45 +386,53 @@ const powerPlayClock = computed(() => {
 	}
 
 	.period-section {
-		font-size: 1.4vw;
+		font-size: 1.5vw;
 		width: 4.1vw;
 	}
 	.clock-section {
-		font-size: 1.4vw;
+		font-size: 1.5vw;
 		width: 5.9vw;
 	}
+	height: var(--scoreboard-height);
 }
 
 .announcement-section {
 	position: absolute;
-	top: 2.5vh;
-	border: rgb(157,154,136) 0.15vw solid;
+	outline: rgb(157,154,136) 0.15vw solid;
 	font-family: 'Roboto', sans-serif;
-	font-size: 1.4vw;
+	font-size: 2.4vh;
+	height: 4vh;
 
 	&.global {
-		text-align: center;
 		background-color: rgb(241,229,76);
 		color: rgb(99,87,24);
-		width: calc(10.1vw);
-		transform: translateX(-0.15vw);
+		width: 10.05vw;
+		top: 5.4vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	&.team1 {
+		display: flex;
+		align-items: center;
 		text-align: left;
-		padding-left: 1em;
+		padding-left: 0.5em;
 		background-color: v-bind(team1Color);
 		color: v-bind(team1TextColor);
-		width: calc(21.5vw - 1em);
+		width: 20.7vw;
+		top: 5.4vh;
 	}
 
 	&.team2 {
+		display: flex;
+		align-items: center;
 		text-align: left;
-		padding-left: 1em;
+		padding-left: 0.5em;
 		background-color: v-bind(team2Color);
 		color: v-bind(team2TextColor);
-		width: calc(21.5vw - 1em);
-		transform: translateX(-0.075vw);
+		top: 5.4vh;
+		width: 20.7vw;
 	}
 }
 </style>

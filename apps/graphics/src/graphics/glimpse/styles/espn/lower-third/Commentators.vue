@@ -1,14 +1,27 @@
 <template>
 	<img :src="commentators" :style="{'bottom': `${offset}vh`}">
-	<div class="commentators-container">
-		<p v-if="replicants.lowerThird.commentators.leftPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.leftPerson.value }}
+	<div class="commentators-container" v-if="!replicants.lowerThird.commentators.twoPoint5a.value">
+		<p v-if="replicants.lowerThird.commentators.leftPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.leftPerson.name.value }}
 		</p>
-		<p v-if="replicants.lowerThird.commentators.centerPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.centerPerson.value }}
+		<p v-if="replicants.lowerThird.commentators.centerPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.centerPerson.name.value }}
 		</p>
-		<p v-if="replicants.lowerThird.commentators.rightPerson.value" :style="{'bottom': `${offset}vh`}">
-			{{ replicants.lowerThird.commentators.rightPerson.value }}
+		<p v-if="replicants.lowerThird.commentators.rightPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.rightPerson.name.value }}
+		</p>
+	</div>
+	<div class="commentators-2point5A-pt1" v-if="replicants.lowerThird.commentators.twoPoint5a.value">
+		<p v-if="replicants.lowerThird.commentators.leftPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.leftPerson.name.value }}
+		</p>
+		<p v-if="replicants.lowerThird.commentators.centerPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.centerPerson.name.value }}
+		</p>
+	</div>
+	<div class="commentators-2point5A-pt2" v-if="replicants.lowerThird.commentators.twoPoint5a.value">
+		<p v-if="replicants.lowerThird.commentators.rightPerson.name.value" :style="{'bottom': `${offset}vh`}">
+			{{ replicants.lowerThird.commentators.rightPerson.name.value }}
 		</p>
 	</div>
 </template>
@@ -53,6 +66,27 @@ img {
 	bottom: 20vh;
 	width: 72vw;
 	height: 5vh;
+	display: flex;
+	justify-content: space-around;
+	font-size: 3.5vh;
+}
+
+.commentators-2point5A-pt1 {
+	position: absolute;
+	left: 14vw;
+	width: 35vw;
+	height: 5vh;
+	bottom: 20vh;
+	display: flex;
+	justify-content: space-around;
+	font-size: 3.5vh;
+}
+.commentators-2point5A-pt2 {
+	position: absolute;
+	left: 64vw;
+	width: 22vw;
+	height: 5vh;
+	bottom: 20vh;
 	display: flex;
 	justify-content: space-around;
 	font-size: 3.5vh;

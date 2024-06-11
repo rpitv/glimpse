@@ -1,13 +1,13 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
-	<div id="team1Name" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
-		{{replicants.teams[0].schoolName.value}}
+	<div id="team1Name" class="lower-third" :style="{'color': '#d6001c'}">
+		<p>{{replicants.teams[0].schoolName.value}}</p>
 	</div>
 	<div  id="team1Score" class="lower-third">
 		{{team0Score}}
 	</div>
 	<div id="team2Name" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
-		{{replicants.teams[1].schoolName.value}}
+		<p>{{replicants.teams[1].schoolName.value}}</p>
 	</div>
 	<div id="team2Score" class="lower-third">
 		{{team1Score}}
@@ -125,10 +125,15 @@ img {
 	text-align: center;
 }
 #team1Name {
+	left: 30.8vw;
 	font-size: 3.47vh;
-	width: 76vw;
-	bottom: 16.67vh;
-	height: 3.47vh;
+	width: 14.4vw;
+	bottom: 15vh;
+	height: 6vh;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
 }
 #team1Score {
 	font-size: 5.7vh;
@@ -137,10 +142,15 @@ img {
 	height: 5.7vh;
 }
 #team2Name {
+	left: 54.7vw;
 	font-size: 3.47vh;
-	width: 123.54vw;
-	bottom: 16.67vh;
-	height: 3.47vh;
+	width: 14.4vw;
+	bottom: 15vh;
+	height: 6vh;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
 }
 #team2Score {
 	font-size: 5.7vh;

@@ -8,6 +8,9 @@
 	<div :class="{show: replicants.lowerThird.scoreboard.value, hide: !replicants.lowerThird.scoreboard.value}">
 		<Scoreboard/>
 	</div>
+	<div :class="{show: replicants.lowerThird.commentators.show.value, hide: !replicants.lowerThird.commentators.show.value}">
+		<Commentators />
+	</div>
 	<div :class="{show: replicants.lowerThird.bug.value, hide: !replicants.lowerThird.bug.value}">
 		<Bug />
 	</div>
@@ -19,6 +22,7 @@ import Locator from "./lower-third/Locator.vue";
 import Scoreboard from "./lower-third/Scoreboard.vue";
 import EndGraphics from "./lower-third/EndGraphics.vue";
 import Bug from "./lower-third/Bug.vue";
+import Commentators from "./lower-third/Commentators.vue";
 
 const replicants = await loadReplicants();
 </script>

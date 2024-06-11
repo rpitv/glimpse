@@ -32,15 +32,9 @@ const props = defineProps({
 	}
 });
 
-const emit = defineEmits({
-	addVal(value: string, team: number) {
-		return true;
-	}
-})
+const emit = defineEmits(["addVal"])
 
 function addValue(value: string) {
-	// First we'll check
-
 	emit('addVal', value, props.teamIndex);
 }
 

@@ -28,6 +28,10 @@
 						v-model:checked="replicants.sync.values.sogs.value">
 				Show SOGS (SOGS will only be shown whilst the scoreboard is up)
 			</n-checkbox>
+			<n-checkbox size="large"
+						v-model:checked="replicants.sync.values.faceoffs.value">
+				Show Faceoffs
+			</n-checkbox>
 		</n-grid-item>
 	</n-grid>
 </div>

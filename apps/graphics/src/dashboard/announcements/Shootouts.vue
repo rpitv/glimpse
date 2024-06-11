@@ -86,7 +86,7 @@ function addVal(value: string, team: number) {
 		team1Index.value++;
 	}
 	else if (team === 1) {
-		teamShootout[team1Index.value] = value;
+		teamShootout[team2Index.value] = value;
 		replicants.teams[team].shootouts.value = teamShootout.join('');
 		team2Index.value++;
 	}
