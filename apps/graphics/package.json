@@ -63,7 +63,7 @@
     "vue-tsc": "^0.39.5"
   },
   "nodecg": {
-    "compatibleRange": "^1.9.0",
+    "compatibleRange": "^2.2.1",
     "dashboardPanels": [
       {
         "name": "game-settings",
