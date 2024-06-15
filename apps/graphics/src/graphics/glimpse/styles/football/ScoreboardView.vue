@@ -4,8 +4,8 @@
 			<div class="rpitv">
 				<img :src="rpitvBug" class="logo">
 			</div>
-			<TeamView class="team" :team-id="0"/>
-			<TeamView class="team" :team-id="1" />
+			<TeamView class="team" :team-id="1"/>
+			<TeamView class="team" :team-id="0" />
 			<div class="clock-period">
 				<div class="period">
 					{{ formattedPeriod.toUpperCase() }}
