@@ -5,10 +5,10 @@
 	<div id="team0SecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
 	<div id="team0PrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
 	<div class="team1Logo">
-		<img id="team1Logo" :src="replicants.lowerThird.school1Logo.value">
+		<img id="team1Logo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
 	<div class="team2Logo">
-		<img id="team2Logo" :src="replicants.lowerThird.school0Logo.value">
+		<img id="team2Logo" :src="replicants.lowerThird.school1Logo.value">
 	</div>
 	<div class="team1Name">{{replicants.teams[1].schoolName.value}}</div>
 	<div class="team0Name">{{replicants.teams[0].schoolName.value}}</div>

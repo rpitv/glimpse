@@ -31,7 +31,7 @@
 			<br>
 			<br>
 			<v-select
-				v-if="replicants.gameSettings.style.value === 'rpitv-style7'"
+				v-if="replicants.gameSettings.style.value !== 'espn'"
 				label="Location for the locator"
 				:items="['ECAV Stadium', 'Houston Field House']"
 				v-model="replicants.lowerThird.location"
@@ -43,12 +43,12 @@
 		<v-row>
 			<v-col cols="6">
 				<v-text-field label="Home/Left Team Logo (Only input trusted URLS)" variant="outlined"
-					  v-model="replicants.lowerThird.school0Logo.value"
+					  v-model="replicants.lowerThird.school1Logo.value"
 				/>
 			</v-col>
 			<v-col cols="6">
 				<v-text-field label="Away/Right Team Logo (Only input trusted URLS)" variant="outlined"
-							  v-model="replicants.lowerThird.school1Logo.value"/>
+							  v-model="replicants.lowerThird.school2Logo.value"/>
 			</v-col>
 		</v-row>
 		<div>
