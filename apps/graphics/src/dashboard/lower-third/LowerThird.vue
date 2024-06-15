@@ -43,18 +43,18 @@
 		<v-row>
 			<v-col cols="6">
 				<v-text-field label="Home/Left Team Logo (Only input trusted URLS)" variant="outlined"
-					  v-model="replicants.lowerThird.school1Logo.value"
+					  v-model="replicants.lowerThird.school0Logo.value"
 				/>
 			</v-col>
 			<v-col cols="6">
 				<v-text-field label="Away/Right Team Logo (Only input trusted URLS)" variant="outlined"
-							  v-model="replicants.lowerThird.school2Logo.value"/>
+							  v-model="replicants.lowerThird.school1Logo.value"/>
 			</v-col>
 		</v-row>
 		<div>
 			<v-checkbox v-model="replicants.lowerThird.commentators.offset.enabled.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="Manually offset the commentators?" />
-			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'" 
+			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="2.5A"/>
 			<div v-if="replicants.lowerThird.commentators.offset.enabled.value">
 				<h2>Set offset value:</h2>

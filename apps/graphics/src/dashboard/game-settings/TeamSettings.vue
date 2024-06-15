@@ -161,7 +161,7 @@ const syncTimeouts = replicants.sync.values.teams[props.id].timeouts;
 
 const availableSchools = ref();
 
-const lowerThirdSchool = (props.id === 0) ? replicants.lowerThird.school1Logo : replicants.lowerThird.school2Logo;
+const lowerThirdSchool = (props.id === 0) ? replicants.lowerThird.school0Logo : replicants.lowerThird.school1Logo;
 
 async function saveSchool() {
 	if (!availableSchools.value || !teamAbbr.value || !teamSchoolName.value ||
