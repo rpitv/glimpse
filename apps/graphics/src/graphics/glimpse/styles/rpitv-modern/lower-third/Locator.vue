@@ -79,10 +79,19 @@ img {
 #leftTeam {
 	position: absolute;
 	text-align: center;
-	bottom: 16.2vh;
-	width: 87.3vw;
-	left: 0;
-	font-size: 2.4vh;
+	font-size: 2.2vh;
+
+	left: 39.1vw;
+	bottom: 15.7vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #leftLogo {
@@ -97,10 +106,19 @@ img {
 #rightTeam {
 	position: absolute;
 	text-align: center;
-	bottom: 16.2vh;
-	width: 112.6vw;
-	left: 0;
-	font-size: 2.4vh;
+	font-size: 2.2vh;
+
+	left: 51.7vw;
+	bottom: 15.7vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #rightLogo {

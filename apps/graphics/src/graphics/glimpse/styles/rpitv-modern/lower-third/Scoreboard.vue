@@ -117,7 +117,7 @@ watch(replicants.lowerThird.scoreboard, (newValue, oldValue) => {
 
 div {
 	font-family: 'Rubik', sans-serif;
-
+	color: white;
 }
 
 img {
@@ -178,22 +178,38 @@ img {
 
 #leftTeam {
 	position: absolute;
-	left: 0;
-	bottom: 17vh;
-	width: 67.3vw;
-	font-size: 2.5vh;
 	text-align: center;
-	color: white;
+	font-size: 2.1vh;
+
+	left: 29vw;
+	bottom: 16.3vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #rightTeam {
 	position: absolute;
-	left: 0;
-	bottom: 17vh;
-	width: 132.8vw;
-	font-size: 2.5vh;
 	text-align: center;
-	color: white;
+	font-size: 2.2vh;
+
+	left: 61.8vw;
+	bottom: 16.3vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #leftScore {
@@ -203,7 +219,6 @@ img {
 	width: 89.3vw;
 	font-size: 11vh;
 	text-align: center;
-	color: white;
 }
 
 #rightScore {
@@ -213,7 +228,6 @@ img {
 	width: 110.1vw;
 	font-size: 11vh;
 	text-align: center;
-	color: white;
 }
 
 #periodText {
@@ -223,6 +237,5 @@ img {
 	width: 100vw;
 	font-size: 2.2vh;
 	text-align: center;
-	color: white;
 }
 </style>

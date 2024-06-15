@@ -1,6 +1,6 @@
 <template>
 	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
-		<TeamView v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" side="left" :background-width="requiredWidth" />
+		<TeamView v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="1" side="left" :background-width="requiredWidth" />
 		<div class="diamond">
 			<svg viewBox='0 0 100 100' preserveAspectRatio='none'>
 				<path d='M0,50 L50,0 100,50 50,100 0,50z' />
@@ -10,7 +10,7 @@
 			</div>
 			<div v-if="replicants.gameSettings.periods.enabled.value"  class="period">{{ formattedPeriod }}</div>
 		</div>
-		<TeamView v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="1" side="right" :background-width="requiredWidth" />
+		<TeamView v-if="teamTwo.enabled.value" ref="teamTwoElem" :team-id="0" side="right" :background-width="requiredWidth" />
 	</div>
 </template>
 
