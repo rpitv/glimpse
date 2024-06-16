@@ -1,5 +1,5 @@
 <template>
-	<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
+	<div class="scoreboard">
 		<TeamView v-if="teamOne.enabled.value" ref="teamOneElem" :team-id="0" side="left" :background-width="requiredWidth" />
 		<div class="diamond">
 			<svg viewBox='0 0 100 100' preserveAspectRatio='none'>
@@ -83,9 +83,6 @@ const requiredWidth = computed<number>(() => {
 </script>
 
 <style scoped lang="scss">
-.hidden {
-	opacity: 0;
-}
 .scoreboard {
 	position: relative;
 	top: 2em;

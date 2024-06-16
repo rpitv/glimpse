@@ -1,6 +1,6 @@
 <template>
 	<div class="scoreboard-container">
-		<div :class="'scoreboard ' + (replicants.scoreboard.visible.value ? 'show' : 'hidden')">
+		<div class="scoreboard">
 			<div class="rpitv">
 				<img :src="rpitvBug" class="logo">
 			</div>

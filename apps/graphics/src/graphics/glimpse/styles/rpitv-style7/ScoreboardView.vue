@@ -1,61 +1,59 @@
 <template>
-	<div :class="replicants.scoreboard.visible.value ? 'show' : 'hide'">
-		<div class="scoreboard">
-			<div class="game-info">
-				<div class="logo game-info-child">
-					<img id="logoImg" :src="rpitvLogo">
-				</div>
-				<div class="clock game-info-child">
-					{{ formattedClockTime }}
-				</div>
-				<div class="period game-info-child">
-					{{ formattedPeriod }}
-				</div>
+	<div class="scoreboard">
+		<div class="game-info">
+			<div class="logo game-info-child">
+				<img id="logoImg" :src="rpitvLogo">
 			</div>
-			<div class="teams">
-				<TeamView :teamId="1" class="team-view-1" />
-				<TeamView :teamId="0" class="team-view-2" />
+			<div class="clock game-info-child">
+				{{ formattedClockTime }}
 			</div>
-			<div class="animation">
-				<div class="animation-text text1">
+			<div class="period game-info-child">
+				{{ formattedPeriod }}
+			</div>
+		</div>
+		<div class="teams">
+			<TeamView :teamId="1" class="team-view-1" />
+			<TeamView :teamId="0" class="team-view-2" />
+		</div>
+		<div class="animation">
+			<div class="animation-text text1">
 
-				</div>
-				<div class="animation-text text2">
-					{{ scorer.toUpperCase() }}
-				</div>
+			</div>
+			<div class="animation-text text2">
+				{{ scorer.toUpperCase() }}
 			</div>
 		</div>
-		<div class="global-announcements">
-			<p v-if="replicants.announcements.global.value.length > 0">
-				{{ computedMessage(replicants.announcements.global.value[0]).value }}
-			</p>
+	</div>
+	<div class="global-announcements">
+		<p v-if="replicants.announcements.global.value.length > 0">
+			{{ computedMessage(replicants.announcements.global.value[0]).value }}
+		</p>
 
-			<p v-else-if="announcementType === 'global'">
-				{{ powerPlayStatus }} {{ powerPlayClock }}
-			</p>
-		</div>
-		<div class="team-announcements team2">
-			<p v-if="replicants.announcements.team2.value.length > 0">
-				{{ computedMessage(replicants.announcements.team2.value[0]).value}}
-			</p>
-			<p v-else-if="announcementType === 'away'">
-				{{ powerPlayStatus }} {{ powerPlayClock }}
-			</p>
-			<p v-else-if="replicants.gameSettings.showShootouts.value">
-				{{replicants.teams[1].shootouts.value}}
-			</p>
-		</div>
-		<div class="team-announcements team1">
-			<p v-if="replicants.announcements.team1.value.length > 0">
-				{{ computedMessage(replicants.announcements.team1.value[0]).value}}
-			</p>
-			<p v-else-if="announcementType === 'home'">
+		<p v-else-if="announcementType === 'global'">
 			{{ powerPlayStatus }} {{ powerPlayClock }}
 		</p>
-			<p v-else-if="replicants.gameSettings.showShootouts.value">
-				{{replicants.teams[0].shootouts.value}}
-			</p>
-		</div>
+	</div>
+	<div class="team-announcements team2">
+		<p v-if="replicants.announcements.team2.value.length > 0">
+			{{ computedMessage(replicants.announcements.team2.value[0]).value}}
+		</p>
+		<p v-else-if="announcementType === 'away'">
+			{{ powerPlayStatus }} {{ powerPlayClock }}
+		</p>
+		<p v-else-if="replicants.gameSettings.showShootouts.value">
+			{{replicants.teams[1].shootouts.value}}
+		</p>
+	</div>
+	<div class="team-announcements team1">
+		<p v-if="replicants.announcements.team1.value.length > 0">
+			{{ computedMessage(replicants.announcements.team1.value[0]).value}}
+		</p>
+		<p v-else-if="announcementType === 'home'">
+		{{ powerPlayStatus }} {{ powerPlayClock }}
+	</p>
+		<p v-else-if="replicants.gameSettings.showShootouts.value">
+			{{replicants.teams[0].shootouts.value}}
+		</p>
 	</div>
 </template>
 

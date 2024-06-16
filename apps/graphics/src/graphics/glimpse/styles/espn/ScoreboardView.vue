@@ -1,5 +1,5 @@
 <template>
-	<div :class="'center ' + (replicants.scoreboard.visible.value ? '' : 'hidden')">
+	<div :class="'center'">
 		<div class="scoreboard bordered">
 			<div class="team2-section">
 				<TeamView v-if="teamTwo.enabled.value" :team-id="1" />
@@ -348,11 +348,6 @@ div {
 	display: flex;
 	justify-content: center;
 	transition: opacity 1s;
-}
-
-.hidden {
-	opacity: 0;
-	transition: 1s;
 }
 
 .bordered {

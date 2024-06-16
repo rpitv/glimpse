@@ -1,5 +1,20 @@
 <template>
 	<div>
+		<v-table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Preview</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Test</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</v-table>
+
 		<h2>
 			<v-btn @click="showBug"
 				   :color="replicants.lowerThird.bug.value ? 'red' : 'green'"
@@ -54,7 +69,7 @@
 		<div>
 			<v-checkbox v-model="replicants.lowerThird.commentators.offset.enabled.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="Manually offset the commentators?" />
-			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'" 
+			<v-checkbox v-model="replicants.lowerThird.commentators.twoPoint5a.value" v-if="replicants.gameSettings.style.value === 'espn'"
 						label="2.5A"/>
 			<div v-if="replicants.lowerThird.commentators.offset.enabled.value">
 				<h2>Set offset value:</h2>
@@ -176,6 +191,7 @@
 <script setup lang="ts">
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed} from "vue";
+import ImageView from "../../graphics/glimpse/styles/espn/ImageView.vue";
 
 const replicants = await loadReplicants();
 

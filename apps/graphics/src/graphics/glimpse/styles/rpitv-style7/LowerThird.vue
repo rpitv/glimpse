@@ -22,10 +22,10 @@
 <script setup lang="ts">
 import {loadReplicants} from "../../../../browser-common/replicants";
 import Locator from "./lower-third/Locator.vue";
-import Scoreboard from "../rpitv-modern/lower-third/Scoreboard.vue";
-import EndGraphics from "../rpitv-modern/lower-third/EndGraphics.vue";
-import Bug from "../rpitv-modern/lower-third/Bug.vue";
-import Commentators from "../rpitv-modern/lower-third/Commentators.vue";
+import Scoreboard from "../rpitv/Scoreboard.vue";
+import EndGraphics from "../rpitv/EndGraphics.vue";
+import Bug from "../rpitv/Bug.vue";
+import Commentators from "../rpitv/Commentators.vue";
 
 const replicants = await loadReplicants();
 </script>
