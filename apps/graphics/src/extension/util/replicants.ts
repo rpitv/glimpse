@@ -1,5 +1,6 @@
 import {get as nodecg} from './nodecg';
 import {Announcement} from "./Announcement";
+import {replicant} from "../../browser-common/replicant";
 
 export const replicants = {
 	sync: {
@@ -175,6 +176,7 @@ export const replicants = {
 		},
 		bug: nodecg().Replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 		showCopyright: nodecg().Replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+		showProduced: nodecg().Replicant<boolean>("showProduced", `glimpse-graphics.images.lowerThird`, {defaultValue: false})
 	},
 	slideshow: {
 		enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),

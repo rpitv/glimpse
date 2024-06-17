@@ -182,6 +182,7 @@ export async function loadReplicants() {
 			},
 			bug: await replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 			showCopyright: await replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			showProduced: await replicant<boolean>("showProduced", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			location: await replicant<"Houston Field House" | "ECAV Stadium">("location", `glimpse-graphics.images.lowerThird`, {defaultValue: "ECAV Stadium"}),
 		},
 		slideshow: {

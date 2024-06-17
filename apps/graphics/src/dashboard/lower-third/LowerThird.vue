@@ -107,6 +107,15 @@
 				</v-col>
 			</v-row>
 		</div>
+		<h2 v-if="replicants.gameSettings.style.value === 'espn'">
+			<v-btn @click="replicants.lowerThird.showProduced.value = !replicants.lowerThird.showProduced.value"
+				   :color="replicants.lowerThird.showProduced.value ? 'red' : 'green'"
+				   class="text-none"
+			>
+				{{ replicants.lowerThird.showProduced.value ? "Hide" : "Show" }}
+			</v-btn>
+			Display Produced
+		</h2>
 		<h2>
 			<v-btn @click="replicants.lowerThird.showCopyright.value = !replicants.lowerThird.showCopyright.value"
 				   :color="replicants.lowerThird.showCopyright.value ? 'red' : 'green'"
