@@ -24,7 +24,7 @@ const replicants = await loadReplicants()
 
 const team0Score = ref<number>(replicants.teams[0].score.value);
 const team1Score = ref<number>(replicants.teams[1].score.value);
-const period = ref<string>();
+const period = replicants.lowerThird.scoreboardDescription;
 
 
 function periodTextHockey() {
