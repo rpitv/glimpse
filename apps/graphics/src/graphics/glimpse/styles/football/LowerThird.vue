@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import {loadReplicants} from "../../../../browser-common/replicants";
-import Locator from "../rpitv-style7/lower-third/Locator.vue";
+import Locator from "../rpitv-modern/lower-third/Locator.vue";
 import Scoreboard from "./lower-third/Scoreboard.vue";
 import EndGraphics from "../rpitv-modern/lower-third/EndGraphics.vue";
 import Bug from "../rpitv-modern/lower-third/Bug.vue";

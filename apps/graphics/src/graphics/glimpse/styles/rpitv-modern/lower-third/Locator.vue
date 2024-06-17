@@ -1,15 +1,21 @@
 <template>
 	<img :src="Locator">
-	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
-	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="leftFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="rightFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
 	<div id="leftLogo" class="logo">
-		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
-	</div>
-	<div id="rightLogo" class="logo">
 		<img :src="replicants.lowerThird.school2Logo.value" :alt="replicants.teams[1].name.value">
 	</div>
-	<div id="leftTeam">{{replicants.teams[0].schoolName.value}}</div>
-	<div id="rightTeam">{{replicants.teams[1].schoolName.value}}</div>
+	<div id="rightLogo" class="logo">
+		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
+	</div>
+	<div id="leftTeam">{{ replicants.teams[1].schoolName.value }}</div>
+	<div id="rightTeam">{{ replicants.teams[0].schoolName.value }}</div>
+
+	<div id="containerLocation">
+		<div id="center">
+			{{ replicants.lowerThird.location.value }}
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -18,15 +24,15 @@ import {loadReplicants} from "../../../../../browser-common/replicants";
 
 const replicants = await loadReplicants()
 
-// background color of the gray in use rgb(133,133,133);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
-@font-face{
+@font-face {
 	font-family: "Rubik";
 	src: url('../../../../../assets/rpitv-modern/Rubik.ttf');
 }
+
 div {
 	font-family: 'Rubik', sans-serif;
 	color: white;
@@ -70,13 +76,22 @@ img {
 	max-height: 12.3vh;
 }
 
-#leftTeam{
+#leftTeam {
 	position: absolute;
 	text-align: center;
-	bottom: 16.2vh;
-	width: 87.3vw;
-	left: 0;
-	font-size: 2.4vh;
+	font-size: 2.2vh;
+
+	left: 39.1vw;
+	bottom: 15.7vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #leftLogo {
@@ -91,10 +106,19 @@ img {
 #rightTeam {
 	position: absolute;
 	text-align: center;
-	bottom: 16.2vh;
-	width: 112.6vw;
-	left: 0;
-	font-size: 2.4vh;
+	font-size: 2.2vh;
+
+	left: 51.7vw;
+	bottom: 15.7vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #rightLogo {
@@ -104,5 +128,23 @@ img {
 
 #rightLogo > img {
 	position: relative;
+}
+
+#containerLocation {
+	display: flex;
+	justify-content: center;
+
+	#center {
+		font-family: "Rubik", sans-serif;
+		position: absolute;
+		width: 19vw;
+		top: 100vh;
+		text-align: center;
+		font-size: 2.6vh;
+		font-weight: bold;
+		transform: translateY(-13.7vh);
+		background-color: black;
+		color: #ee3124;
+	}
 }
 </style>

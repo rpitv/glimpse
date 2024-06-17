@@ -1,17 +1,17 @@
 <template>
 	<img :src="Scoreboard">
-	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
-	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="leftFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="rightFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
 	<div class="logo" id="leftLogo">
-		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
-	</div>
-	<div class="logo" id="rightLogo">
 		<img :src="replicants.lowerThird.school2Logo.value" :alt="replicants.teams[1].name.value">
 	</div>
-	<div id="leftTeam"> {{ replicants.teams[0].name.value }}</div>
-	<div id="rightTeam"> {{ replicants.teams[1].name.value }}</div>
-	<div id="leftScore"> {{ team0Score }}</div>
-	<div id="rightScore"> {{ team1Score }}</div>
+	<div class="logo" id="rightLogo">
+		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
+	</div>
+	<div id="leftTeam"> {{ replicants.teams[1].name.value }}</div>
+	<div id="rightTeam"> {{ replicants.teams[0].name.value }}</div>
+	<div id="leftScore"> {{ team1Score }}</div>
+	<div id="rightScore"> {{ team0Score }}</div>
 	<div id="periodText"> {{ period }}</div>
 </template>
 

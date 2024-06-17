@@ -1,17 +1,17 @@
 <template>
 	<img :src="Scoreboard">
-	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
-	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="leftFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
+	<div id="rightFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
 	<div class="logo" id="leftLogo">
-		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
-	</div>
-	<div class="logo" id="rightLogo">
 		<img :src="replicants.lowerThird.school2Logo.value" :alt="replicants.teams[1].name.value">
 	</div>
-	<div id="leftTeam"> {{ replicants.teams[0].name.value }}</div>
-	<div id="rightTeam"> {{ replicants.teams[1].name.value }}</div>
-	<div id="leftScore"> {{ team0Score }}</div>
-	<div id="rightScore"> {{ team1Score }}</div>
+	<div class="logo" id="rightLogo">
+		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
+	</div>
+	<div id="leftTeam"> {{ replicants.teams[1].name.value }}</div>
+	<div id="rightTeam"> {{ replicants.teams[0].name.value }}</div>
+	<div id="leftScore"> {{ team1Score }}</div>
+	<div id="rightScore"> {{ team0Score }}</div>
 	<div id="periodText"> {{ period }}</div>
 </template>
 
@@ -24,7 +24,7 @@ const replicants = await loadReplicants()
 
 const team0Score = ref<number>(replicants.teams[0].score.value);
 const team1Score = ref<number>(replicants.teams[1].score.value);
-const period = ref<string>();
+const period = replicants.lowerThird.scoreboardDescription;
 
 
 function periodTextHockey() {
@@ -117,7 +117,7 @@ watch(replicants.lowerThird.scoreboard, (newValue, oldValue) => {
 
 div {
 	font-family: 'Rubik', sans-serif;
-
+	color: white;
 }
 
 img {
@@ -178,22 +178,38 @@ img {
 
 #leftTeam {
 	position: absolute;
-	left: 0;
-	bottom: 17vh;
-	width: 67.3vw;
-	font-size: 2.5vh;
 	text-align: center;
-	color: white;
+	font-size: 2.1vh;
+
+	left: 29vw;
+	bottom: 16.3vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #rightTeam {
 	position: absolute;
-	left: 0;
-	bottom: 17vh;
-	width: 132.8vw;
-	font-size: 2.5vh;
 	text-align: center;
-	color: white;
+	font-size: 2.2vh;
+
+	left: 61.8vw;
+	bottom: 16.3vh;
+	width: 9.2vw;
+	height: 4.8vh;
+	word-wrap: anywhere;
+
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+	line-height: 0.8;
 }
 
 #leftScore {
@@ -203,7 +219,6 @@ img {
 	width: 89.3vw;
 	font-size: 11vh;
 	text-align: center;
-	color: white;
 }
 
 #rightScore {
@@ -213,7 +228,6 @@ img {
 	width: 110.1vw;
 	font-size: 11vh;
 	text-align: center;
-	color: white;
 }
 
 #periodText {
@@ -223,6 +237,5 @@ img {
 	width: 100vw;
 	font-size: 2.2vh;
 	text-align: center;
-	color: white;
 }
 </style>
