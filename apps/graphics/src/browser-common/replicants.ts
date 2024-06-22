@@ -1,6 +1,5 @@
 import {replicant} from "./replicant";
 import {Announcement} from "../common/Announcement";
-import {get as nodecg} from "../extension/util/nodecg";
 
 export async function loadReplicants() {
 	return {
@@ -57,7 +56,7 @@ export async function loadReplicants() {
 				key: await replicant<string>("key", `glimpse-graphics.game-settings.api`, {defaultValue: 'CHANGE_ME_API_KEY'}),
 				forceReload: await replicant<boolean>("forceReload", "glimpse-graphics.game-settings.api", {defaultValue: false}),
 			},
-			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-classic' | 'rpitv-style7' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
+			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-style7' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
 			clock: {
 				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
 			},

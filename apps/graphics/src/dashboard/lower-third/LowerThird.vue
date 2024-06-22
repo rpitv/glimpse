@@ -1,5 +1,20 @@
 <template>
 	<div>
+		<v-table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Preview</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Test</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</v-table>
+
 		<h2>
 			<v-btn @click="showBug"
 				   :color="replicants.lowerThird.bug.value ? 'red' : 'green'"
@@ -193,6 +208,7 @@
 <script setup lang="ts">
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed, ref, watch} from "vue";
+import ImageView from "../../graphics/glimpse/styles/espn/ImageView.vue";
 
 const replicants = await loadReplicants();
 const lowerThirdScoreboardDescription = ref<string>("");
