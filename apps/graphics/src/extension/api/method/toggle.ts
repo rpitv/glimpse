@@ -31,6 +31,7 @@ export const endpointsToggle: { [key: string]: Replicant<boolean> } = {
 	"commentators": replicants.lowerThird.commentators.show,
 	"2.5a": replicants.lowerThird.commentators.twoPoint5a,
 	"copyright": replicants.lowerThird.showCopyright,
+	"showProduced": replicants.lowerThird.showProduced,
 	"end-credits": replicants.lowerThird.endGraphics.show,
 	"lt-locator": replicants.lowerThird.locator,
 	"lt-scoreboard": replicants.lowerThird.scoreboard,

@@ -1,19 +1,34 @@
 <template>
-	<div id="container">
+	<div class="container">
+		{{ computedDate }}
+		&emsp;|&emsp;
+		{{ computedTime }}
+		&emsp;|&emsp;
+		{{ awayTeam.schoolName.value }}
+		{{ awayTeam.score }}
+		&emsp;|&emsp;
+		{{ homeTeam.schoolName.value }}
+		{{ homeTeam.score }}
+		&emsp;|&emsp;
+		Period {{ period }}
+		&emsp;|&emsp;
 		{{ formattedClockTime }}
-		<div class="box" id="box1">native css</div>
-		<div class="box" id="box2">gsap 1</div>
-		<div class="box" id="box3">gsap 2</div>
+		&emsp;|&emsp;
+		{{ shotClock }}
 	</div>
 </template>
 
 <script setup lang="ts">
 import {computed, onMounted, ref} from "vue";
 import {loadReplicants} from "../../browser-common/replicants";
-import gsap from "gsap";
 
 const replicants = await loadReplicants();
 const clock = replicants.scoreboard.clock;
+const period = replicants.scoreboard.period;
+const awayTeam = replicants.teams[1];
+const homeTeam = replicants.teams[0];
+const shotClock = replicants.scoreboard.playClock;
+
 
 const formattedClockTime = computed<string>(() => {
 	let minutes = Math.floor(clock.time.value / 60000).toString();
@@ -24,33 +39,21 @@ const formattedClockTime = computed<string>(() => {
 	return `${minutes}:${seconds}.${millis}`;
 });
 
+const date = computed<string>(() => {
+	const d = new Date();
+	return `${d.getMonth() + 1}-${d.getDate()}-${d.getFullYear()}`
+});
 
-setTimeout(() => {
-	gsap.to("#box3", {
-		duration: 0.5,
-		y: 100,
-		x: 100,
-		rotation: 360,
-		rotationY: -360,
-		repeat: -1,
-		yoyo: true,
-		ease: "none"
-	})
+const computedDate = ref<string>(new Date().toDateString());
+const computedTime = ref<string>(new Date().toLocaleTimeString());
 
-	const t = gsap.timeline({repeat: -1, yoyo: true})
-	t.to("#box2", {
-		// ease: "none",
-		// rotate: 0,
-		// y: 0,
-		// rotateY: 0,
-	})
-	t.to("#box2", {
-		ease: "none",
-		rotate: 0,
-		y: 100,
-		rotateY: -360
-	}, "<")
-}, 1000);
+// updates the clock values on display
+setInterval(() => {
+	const d = new Date();
+	computedDate.value = d.toDateString();
+	computedTime.value = d.toLocaleTimeString();
+}, 250);
+
 
 </script>
 
@@ -59,59 +62,17 @@ setTimeout(() => {
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500;700;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;700;900&display=swap');
 
-</style>
-
-<style lang="scss">
-body {
-	text-align: center;
-	align-items: center;
+.container {
 	font-weight: bold;
-	font-family: monospace;
-	width: 100vw;
-	height: 100vh;
+	font-family: SansSerif, serif;
+	position: absolute;
+	padding-top: 0.7%;
+	height: 5%;
+	bottom: 0;
+	width: 100%;
+	background-color: black;
+	color: white;
+	text-align: center;
 }
 
-.box {
-	width: 20vh;
-	height: 20vh;
-	border-radius: 50%;
-	background: linear-gradient(
-			90deg,
-			rgba(255, 0, 0, 1) 0%,
-			rgba(255, 154, 0, 1) 10%,
-			rgba(208, 222, 33, 1) 20%,
-			rgba(79, 220, 74, 1) 30%,
-			rgba(63, 218, 216, 1) 40%,
-			rgba(47, 201, 226, 1) 50%,
-			rgba(28, 127, 238, 1) 60%,
-			rgba(95, 21, 242, 1) 70%,
-			rgba(186, 12, 248, 1) 80%,
-			rgba(251, 7, 217, 1) 90%,
-			rgba(255, 0, 0, 1) 100%
-	);
-}
-
-#box1 {
-	margin-top: 15vh;
-	margin-left: 25vw;
-	padding-top: 5vh;
-	animation: CIRCLE 1s infinite linear;
-}
-
-@keyframes CIRCLE {
-	0% {
-		transform: rotate(0deg)
-		translateY(100px) rotate(0deg);
-	}
-
-	100% {
-		transform: rotate(360deg)
-		translateY(100px) rotate(-360deg);
-	}
-}
-
-#box3 {
-	margin-left: 35vw;
-	padding-left: 75vw;
-}
 </style>

@@ -96,7 +96,12 @@ const sportsPresetList = ref([
 	}
 ]);
 
-
+// auto reloads all pages associate with graphics when the style switches
+watch(replicants.gameSettings.style, (n, o) => {
+	// @ts-ignore
+	window.socket.emit("graphic:requestBundleRefresh", "graphics");
+	// Notice: If the bundle gets renamed, change the second parameter of emit to the bundle name
+});
 </script>
 
 <style scoped lang="scss">

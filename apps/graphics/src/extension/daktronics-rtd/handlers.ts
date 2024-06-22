@@ -1,7 +1,6 @@
 import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
 import {announcementTimersTick} from "../scoreboard-clock";
-import * as repl from "repl";
 
 export function mainClockHandler(value: string): void {
 	logger.trace({value}, 'mainClockHandler called');

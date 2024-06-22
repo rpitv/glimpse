@@ -32,9 +32,19 @@
 			>
 				{{ replicants.lowerThird.scoreboard.value ? "Hide" : "Show" }}
 			</v-btn>
-			Display Scoreboard (SCOREBOARD VALUES ARE UPDATED ONCE WHEN THE SCOREBOARD (NOT LOWER THIRD) IS HIDDEN. THIS INCLUDES THE PERIOD)
+			Display Scoreboard
 		</h2>
-		<br>
+		<div style="display: flex;" class="mt-10">
+			<v-combobox label="Lower Third - Scoreboard Description"
+						density="comfortable"
+						:items="scoreboardDescriptions"
+						item-title="name"
+						v-model="lowerThirdScoreboardDescription" variant="outlined"
+			/>
+			<v-btn @click="replicants.lowerThird.scoreboardDescription.value = lowerThirdScoreboardDescription">
+				Update
+			</v-btn>
+		</div>
 		<h2>
 			<v-btn @click="replicants.lowerThird.locator.value = !replicants.lowerThird.locator.value"
 				   :color="replicants.lowerThird.locator.value ? 'red' : 'green'"
@@ -46,15 +56,13 @@
 			<br>
 			<br>
 			<v-select
-				v-if="replicants.gameSettings.style.value === 'rpitv-style7'"
+				v-if="replicants.gameSettings.style.value !== 'espn'"
 				label="Location for the locator"
 				:items="['ECAV Stadium', 'Houston Field House']"
 				v-model="replicants.lowerThird.location"
 				variant="outlined"
 			></v-select>
-
 		</h2>
-		<br>
 		<v-row>
 			<v-col cols="6">
 				<v-text-field label="Home/Left Team Logo (Only input trusted URLS)" variant="outlined"
@@ -114,6 +122,15 @@
 				</v-col>
 			</v-row>
 		</div>
+		<h2 v-if="replicants.gameSettings.style.value === 'espn'">
+			<v-btn @click="replicants.lowerThird.showProduced.value = !replicants.lowerThird.showProduced.value"
+				   :color="replicants.lowerThird.showProduced.value ? 'red' : 'green'"
+				   class="text-none"
+			>
+				{{ replicants.lowerThird.showProduced.value ? "Hide" : "Show" }}
+			</v-btn>
+			Display Produced
+		</h2>
 		<h2>
 			<v-btn @click="replicants.lowerThird.showCopyright.value = !replicants.lowerThird.showCopyright.value"
 				   :color="replicants.lowerThird.showCopyright.value ? 'red' : 'green'"
@@ -124,7 +141,7 @@
 			Display Copyright
 		</h2>
 		<div v-if="replicants.gameSettings.style.value !== 'espn'">
-				<h2>
+			<h2>
 				<v-btn
 					@click="replicants.lowerThird.endGraphics.show.value = !replicants.lowerThird.endGraphics.show.value"
 					:color="replicants.lowerThird.endGraphics.disabled.value ? 'warning' : (replicants.lowerThird.endGraphics.show.value ? 'red' : 'green')"
@@ -190,10 +207,30 @@
 
 <script setup lang="ts">
 import {loadReplicants} from "../../browser-common/replicants";
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 import ImageView from "../../graphics/glimpse/styles/espn/ImageView.vue";
 
 const replicants = await loadReplicants();
+const lowerThirdScoreboardDescription = ref<string>("");
+const scoreboardDescriptions = ref<string[]>([
+	"Halftime",
+	"End of 1st",
+	"1st Intermission",
+	"End of 2nd",
+	"2nd Intermission",
+	"End of 3rd",
+	"3rd Intermission",
+	"End of 4th",
+	"4th Intermission",
+	"End of Reg.",
+	"Overtime",
+	"End 1st OT",
+	"End 2nd OT",
+	"End of OT",
+	"Final OT",
+	"Final SO",
+	"Final",
+]);
 
 const availableCreditsOptions = computed<{ title: string, value: string }[]>(() => {
 	return [
@@ -207,6 +244,10 @@ function showBug() {
 		replicants.scoreboard.visible.value = false;
 	replicants.lowerThird.bug.value = !replicants.lowerThird.bug.value
 }
+
+watch(replicants.lowerThird.scoreboardDescription, (newValue, oldValue) => {
+	lowerThirdScoreboardDescription.value = newValue;
+});
 </script>
 
 <style scoped>

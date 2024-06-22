@@ -149,6 +149,7 @@ export async function loadReplicants() {
 			school1Logo: await replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/RPI_Engineers.svg/1200px-RPI_Engineers.svg.png"}),
 			school2Logo: await replicant<string>("school2Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
 			scoreboard: await replicant<boolean>("scoreboard", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			scoreboardDescription: await replicant<string>("scoreboardDescription", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
 			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			commentators: {
 				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
@@ -180,6 +181,7 @@ export async function loadReplicants() {
 			},
 			bug: await replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 			showCopyright: await replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			showProduced: await replicant<boolean>("showProduced", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			location: await replicant<"Houston Field House" | "ECAV Stadium">("location", `glimpse-graphics.images.lowerThird`, {defaultValue: "ECAV Stadium"}),
 		},
 		slideshow: {
