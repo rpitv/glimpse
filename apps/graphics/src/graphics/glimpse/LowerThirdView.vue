@@ -1,19 +1,15 @@
 <template>
-	<div :class="{show: replicants.lowerThird.scoreboard.value, hide: !replicants.lowerThird.scoreboard.value}">
-		<ESPNScoreboard v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
-		<RPITVScoreboard v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
+	<div :class="{show: replicants.lowerThird.commentators.show.value, hide: !replicants.lowerThird.commentators.show.value}">
+		<ESPNCommentators v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1"/>
+		<RPITVCommentators v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1"/>
 	</div>
 	<div :class="{show: replicants.lowerThird.locator.value, hide: !replicants.lowerThird.locator.value}">
 		<ESPNLocator v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 		<RPITVLocator v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 	</div>
-	<div :class="{show: replicants.lowerThird.commentators.show.value, hide: !replicants.lowerThird.commentators.show.value}">
-		<ESPNCommentators v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1"/>
-		<RPITVCommentators v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1"/>
-	</div>
-	<div :class="{show: replicants.lowerThird.showCopyright.value, hide: !replicants.lowerThird.showCopyright.value}">
-		<ESPNCopyright v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
-		<RPITVCopyright v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1"/>
+	<div :class="{show: replicants.lowerThird.scoreboard.value, hide: !replicants.lowerThird.scoreboard.value}">
+		<ESPNScoreboard v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
+		<RPITVScoreboard v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 	</div>
 </template>
 

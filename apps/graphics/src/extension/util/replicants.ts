@@ -1,6 +1,5 @@
 import {get as nodecg} from './nodecg';
 import {Announcement} from "./Announcement";
-import {replicant} from "../../browser-common/replicant";
 
 export const replicants = {
 	sync: {

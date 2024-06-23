@@ -55,3 +55,4 @@ cert
 # Package-level licenses (used in publishing)
 apps/*/LICENSE
 packages/*/LICENSE
+apps/graphics/src/dashboard/firebase.ts

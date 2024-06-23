@@ -2,17 +2,14 @@
 	<div>
 		<SlideshowView />
 		<ImageView />
-		<BugView />
 		<LowerThirdView />
-		<CopyrightView />
 		<ScoreboardView />
+	  <CopyrightView />
 		<div v-if="replicants.gameSettings.style.value === 'espn'">
-			<ESPNCopyright />
 			<ESPNProduced />
-			<ESPNScoreboardView />
-			<ESPNLowerThird />
 			<ESPNBanner />
 		</div>
+	  <BugView />
 	</div>
 </template>
 
@@ -21,7 +18,6 @@ import {loadReplicants} from "../../browser-common/replicants";
 import SlideshowView from "./SlideshowView.vue";
 import ImageView from "./ImageView.vue";
 
-import ESPNCopyright from "./styles/espn/lower-third/Copyright.vue";
 import ESPNProduced from "./styles/espn/lower-third/Produced.vue";
 import ESPNScoreboardView from "./styles/espn/ScoreboardView.vue";
 import ESPNLowerThird from "./styles/espn/LowerThird.vue"
