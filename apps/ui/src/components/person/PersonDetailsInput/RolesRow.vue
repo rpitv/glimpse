@@ -1,12 +1,12 @@
 <template>
   <div class="flex mt-2" v-if="roles.length">
     <h2>Roles: </h2>
-    <v-chip-group column>
+    <div class="chip-group">
       <v-dialog v-for="(role, i) in roles" :key="role.id" >
         <template #activator="{ props }">
           <v-chip class="ml-1" closable v-bind="props"
                   @click:close="roles.splice(i, 1)" >
-            Role ID: {{ role.id }}
+            <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Role ID: {{ role.id }}
           </v-chip>
         </template>
         <template #default>
@@ -20,8 +20,9 @@
           </div>
         </template>
       </v-dialog>
-    </v-chip-group>
+    </div>
   </div>
+  <footer v-if="roles.length">Note: Click on the chip(s) to edit the start and end times</footer>
 </template>
 
 <script setup lang="ts">
@@ -51,6 +52,13 @@ interface roleInterface {
 .dialog-card {
   display: flex;
   justify-content: center;
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
 }
 
 </style>

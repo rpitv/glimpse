@@ -11,7 +11,6 @@
           <CreateProductionCard
             closable
             @save="(id: number) => {
-              showCreatePopup = false;
               refresh();
               createdProduction = { id: id, show: true };
             }"
@@ -88,9 +87,11 @@
           @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null }"
         >
           <EditProductionCard
-            @save="
+            @save="(id: number) => {
                 list[index] = false;
-                refresh();"
+                refresh();
+                editedProduction = { id: id, show: true };
+            }"
             :productionId="BigInt(item.id)"
           />
           <template #trigger>
@@ -102,15 +103,15 @@
             <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
           </template>
           <template #default="{ isActive }">
-            <v-card title="Delete Production">
+            <v-card :title="`Deleting Production ${item.id}`">
               <v-card-text>
                 Are you sure you want to delete the production "{{item.name}}"? This will also remove its members.
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
-                <v-btn @click="isActive.value = false" variant="outlined" text="Cancel"/>
+                <v-btn @click="isActive.value = false" variant="outlined" text="CANCEL"/>
                 <v-btn @click="deleteProduction(item)" variant="outlined"
-                       text="Delete" color="#FF5252" :disabled="isDeleting" />
+                       text="DELETE" color="#FF5252" :disabled="isDeleting" />
               </v-card-actions>
             </v-card>
           </template>
@@ -124,10 +125,17 @@
         />
       </template>
     </v-data-table-server>
+    <v-snackbar v-model="editedProduction.show" color="green-darken-1" class="text-center">
+      <p>Edited Production {{ editedProduction.id }}</p>
+      <template #actions>
+        <v-btn @click="editedProduction.show = false" icon="fa-circle-xmark"/>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
+
 import {AbilityActions, useGlimpseAbility} from "@/casl";
 import {
   AbilitySubjects,
@@ -137,7 +145,7 @@ import {
   DeleteProductionTagDocument,
   DeleteProductionVideoDocument, OrderDirection, ProductionOrderableFields, CaseSensitivity,
 } from "@/graphql/types";
-import type { Production } from "@/graphql/types"
+import type {Production} from "@/graphql/types"
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateProductionCard from "@/components/production/CreateProductionCard.vue";
 import {onMounted, ref, watch} from "vue";
@@ -152,8 +160,9 @@ const shownPopup = ref<string | null>(null);
 const list = ref<boolean[]>([]);
 const isDeleting = ref(false);
 const currentPage = ref(1);
-const order = ref<{key: string, order: string}[]>([]);
-const createdProduction = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const order = ref<{ key: string, order: string }[]>([]);
+const createdProduction = ref<{ id: number, show: boolean }>({id: 0, show: false});
+const editedProduction = ref<{ id: number, show: boolean}>({id: 0, show: false});
 const take = 20;
 
 for (let i = 0; i < take; i++)
@@ -175,13 +184,15 @@ const queryData = useQuery(SearchProductionsDocument, {
 });
 
 const headers = [
-  { title: "ID", sortable: true, key: "id", minWidth: "75px" },
-  { title: "Name", key: "name", sortable: true, minWidth: "150px" },
-  { title: "Start Time", key: "startTime", value:
-      (production: Partial<Production>) => formattedTime(production.startTime), minWidth: "200px"},
-  { title: "Notes", key: "teamNotes", sortable: false, minWidth: "100px" },
-  { title: "Thumbnail", key: "thumbnail", sortable: false, minWidth: "100px" },
-  { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
+  {title: "ID", sortable: true, key: "id", minWidth: "75px"},
+  {title: "Name", key: "name", sortable: true, minWidth: "150px"},
+  {
+    title: "Start Time", key: "startTime", value:
+      (production: Partial<Production>) => formattedTime(production.startTime), minWidth: "200px"
+  },
+  {title: "Notes", key: "teamNotes", sortable: false, minWidth: "100px"},
+  {title: "Thumbnail", key: "thumbnail", sortable: false, minWidth: "100px"},
+  {title: "Actions", key: "actions", sortable: false, minWidth: "150px"}
 ]
 
 async function loadProductions(page: number) {
@@ -201,13 +212,13 @@ interface Filter {
 
 async function searchProduction(value: string, type: string) {
   let filter: Filter = {
-    name: { contains: '', mode: CaseSensitivity.Insensitive }
+    name: {contains: '', mode: CaseSensitivity.Insensitive}
   };
   if (value) {
     if (type === "Name")
       filter.name.contains = value.trim();
     if (type === "ID")
-      filter.id = { equals: parseInt(value) }
+      filter.id = {equals: parseInt(value)}
   }
   await queryData.refetch({
     pagination: {
@@ -320,7 +331,7 @@ watch(order, () => {
     })
   else
     queryData.refetch({
-      order: [{direction: "Desc" as OrderDirection, field: "id" as ProductionOrderableFields }]
+      order: [{direction: "Desc" as OrderDirection, field: "id" as ProductionOrderableFields}]
     })
 });
 

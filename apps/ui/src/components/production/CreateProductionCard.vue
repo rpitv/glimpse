@@ -3,29 +3,31 @@
     <v-stepper :flat="true" v-model="step" :editable="editable">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
-          <v-stepper-item value="1" title="Production Details" subtitle="Required" />
+          <v-stepper-item :value="1" title="Details" :complete="step > 1" />
           <v-divider />
-          <v-stepper-item value="2" title="Additional Information" subtitle="Optional"/>
+          <v-stepper-item :value="2" title="More Information"  :complete="step > 2"/>
           <v-divider />
-          <v-stepper-item value="3" title="Set Category" subtitle="Optional" />
+          <v-stepper-item :value="3" title="Set Category" :complete="step > 3" />
           <v-divider />
-          <v-stepper-item value="4" title="Attach Images" subtitle="Optional"/>
+          <v-stepper-item :value="4" title="Attach Images" :complete="step > 4" />
           <v-divider />
-          <v-stepper-item value="5" title="Attach Videos" subtitle="Optional" />
+          <v-stepper-item :value="5" title="Attach Videos" :complete="step > 5" />
           <v-divider />
-          <v-stepper-item value="6" title="Review" subtitle="Required" />
+          <v-stepper-item :value="6" title="Credit People" :complete="step > 6" />
+          <v-divider />
+          <v-stepper-item :value="7" title="Review" />
         </v-stepper-header>
-        <v-stepper-window style="overflow-y: scroll">
-          <v-stepper-window-item value="1">
+        <v-stepper-window>
+          <v-stepper-window-item :value="1">
             <v-form ref="requiredForm">
               <RequiredInput v-model="productionData" :closet-time-missing="closetTimeMissing"
                              :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
             </v-form>
           </v-stepper-window-item>
-          <v-stepper-window-item value="2" >
+          <v-stepper-window-item :value="2" >
             <OptionalInput v-model="productionData" :tags="productionTags" @update:tags="(value: string[]) => productionTags = value" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="3">
+          <v-stepper-window-item :value="3">
             <CategoryTable :take="take" :productionCategory="productionCategory"
                @setCategory="
                (category: any) => productionCategory = {
@@ -33,77 +35,36 @@
                   name: category.name
                 }"
             />
-            <div class="flex-container mt-2" v-if="productionCategory.id">
-              <h2>Chosen Category: </h2>
-              <v-chip-group column>
-                <v-chip class="ml-3" closable
-                        @click:close="productionCategory = { id: '', name: ''}" >
-                  Category ID: {{ productionCategory.id }}
-                </v-chip>
-              </v-chip-group>
-            </div>
+            <CategoryRow :productionCategory="productionCategory" @close="productionCategory = { id: 0, name: ''}" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="4" >
+          <v-stepper-window-item :value="4" >
             <ImageTable :take="take" :productionImages="productionImages" :thumbnailId="productionThumbnail.id"
               @setThumbnail="setThumbnailId"
               @addImage="addImage"
             />
-            <div class="flex-container mt-2" v-if="productionThumbnail.id">
-              <h2>Thumbnail: </h2>
-              <v-dialog width="400" scrim="black">
-                <template v-slot:activator="{ props }" >
-                  <v-chip v-bind="props" class="ml-3" closable
-                          @click:close="() => { productionThumbnail.url = ''; productionThumbnail.id = ''}">
-                    Image ID: {{ productionThumbnail.id }}
-                  </v-chip>
-                </template>
-                <template v-slot:default>
-                  <img :src="productionThumbnail.url">
-                </template>
-              </v-dialog>
-            </div>
-            <div class="flex-container mt-2" v-if="productionImages.length">
-              <h2>Production Images: </h2>
-              <v-chip-group column>
-                <v-dialog v-for="(image, i) in productionImages" :key="image.id" width="400" scrim="black">
-                  <template v-slot:activator="{ props }">
-                    <v-chip class="ml-1" closable v-bind="props"
-                            @click:close="productionImages.splice(i, 1)" >
-                      Image ID: {{ image.id }}
-                    </v-chip>
-                  </template>
-                  <template v-slot:default>
-                    <img :src="image.url">
-                  </template>
-                </v-dialog>
-              </v-chip-group>
-            </div>
+            <ImageRow :productionThumbnail="productionThumbnail" :productionImages="productionImages" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="5">
+          <v-stepper-window-item :value="5">
             <VideoTable :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
-            <div class="flex-container mt-2" v-if="productionVideos.length" >
-              <h2>Production Videos: </h2>
-              <v-chip-group column>
-                <v-chip class="ml-1" v-for="(video, i) in productionVideos" closable @click="openURL(video.url)"
-                        @click:close="productionVideos.splice(i, 1)" :key="video.id">
-                  Video ID: {{ video.id }}
-                </v-chip>
-              </v-chip-group>
-            </div>
+            <VideoRow :productionVideos="productionVideos" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="6">
+          <v-stepper-window-item :value="6">
+            <PeopleTable :take="take" :people="creditPeople" @addPerson="addPerson"/>
+            <PeopleRow :creditPeople="creditPeople" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="7">
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
             <div style="display: grid; grid-template-columns: 1fr 1fr">
               <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionCategory" :thumbnail="productionThumbnail"
-                         :images="productionImages" :videos="productionVideos" />
-              <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0"
-                      :productionVideos="productionVideos" :productionImages="productionImages" />
+                         :images="productionImages" :videos="productionVideos" :credits="creditPeople" />
+              <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0 || creditPeople.length > 0"
+                      :productionVideos="productionVideos" :productionImages="productionImages" :creditPeople="creditPeople" />
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
-        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" :next-text="step >= 6 ? 'Create' : 'Next'"
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 7 ? 'CREATE' : 'NEXT'"
                            :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
         </v-stepper-actions>
       </template>
@@ -116,7 +77,7 @@ import {watch, ref, computed} from "vue";
 import type {PropType} from "vue";
 import {
   CreateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
-  CreateProductionVideoDocument
+  CreateProductionVideoDocument, CreateCreditDocument
 } from "@/graphql/types";
 import type { Production } from "@/graphql/types";
 import {useMutation} from "@vue/apollo-composable";
@@ -127,11 +88,17 @@ import ImageTable from "@/components/production/ProductionDetailsInput/ImageTabl
 import VideoTable from "@/components/production/ProductionDetailsInput/VideoTable.vue";
 import PriorityEditor from "@/components/production/ProductionDetailsInput/PriorityEditor.vue";
 import ReviewTable from "@/components/production/ProductionDetailsInput/ReviewTable.vue";
+import PeopleTable from "@/components/production/ProductionDetailsInput/PeopleTable.vue";
+import PeopleRow from "@/components/production/ProductionDetailsInput/PeopleRow.vue";
+import VideoRow from "@/components/production/ProductionDetailsInput/VideoRow.vue";
+import ImageRow from "@/components/production/ProductionDetailsInput/ImageRow.vue";
+import CategoryRow from "@/components/production/ProductionDetailsInput/CategoryRow.vue";
 
 const createProductionMutation = useMutation(CreateProductionDocument);
 const createTagsMutation = useMutation(CreateProductionTagDocument);
 const createImageMutation = useMutation(CreateProductionImageDocument);
 const createVideoMutation = useMutation(CreateProductionVideoDocument);
+const createCreditMutation = useMutation(CreateCreditDocument);
 
 const take = 20;
 const requiredForm = ref();
@@ -158,22 +125,30 @@ const productionData = ref<Partial<Production>>({
 });
 
 interface urlInterface {
-  id: number | null,
+  id: number,
   url: string,
   priority: number,
 }
 
-const step = ref(0);
+interface Credit {
+  personId: number,
+  name: string,
+  title?: string,
+  priority?: number
+}
+
+const step = ref(1);
 let firstTime = true;
 const loading = ref(false);
 const closetTimeMissing = ref(false);
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
 const productionTags = ref<string[]>([]);
-const productionCategory = ref({id: '', name: ''});
-const productionThumbnail = ref<urlInterface>({id: null, url: '', priority: 0});
+const productionCategory = ref({id: 0, name: ''});
+const productionThumbnail = ref<urlInterface>({id: 0, url: '', priority: 0});
 const productionImages = ref<urlInterface[]>([]);
 const productionVideos = ref<urlInterface[]>([]);
+const creditPeople = ref<Credit[]>([]);
 
 const editable = computed(() => {
   return !(!productionData.value.name || !productionData.value.closetLocation || !productionData.value.eventLocation ||
@@ -221,7 +196,7 @@ watch((productionData.value), () => {
 async function validate(next: any) {
   const validation = await requiredForm.value.validate();
   loading.value = false;
-  if (step.value >= 6) {
+  if (step.value >= 7) {
     loading.value = true;
     await createProduction();
     return;
@@ -289,6 +264,15 @@ async function createProduction() {
           priority: parseInt(productionVideos.value[i].priority.toString())
         }
       });
+    for (const person of creditPeople.value)
+      await createCreditMutation.mutate({
+        data: {
+          personId: person.personId,
+          productionId: productionId,
+          priority: person.priority,
+          title: person.title
+        }
+      })
   } catch (e) {
     console.error(e);
     error.value = "Failed to create production";
@@ -322,8 +306,12 @@ function addVideo(videoId: number, url: string) {
   });
 }
 
-function openURL(url: string) {
-  window.open(url.replace("embed/", "watch?v="), '_blank', 'noreferrer')
+function addPerson(personId: number, name: string) {
+  creditPeople.value.push({
+    personId: personId,
+    name: name,
+    priority: 0
+  });
 }
 
 </script>
@@ -341,11 +329,6 @@ function openURL(url: string) {
 
 .button-action {
   font-size: 10px;
-}
-
-.flex-container {
-  display: flex;
-  align-items: center;
 }
 
 .missing {

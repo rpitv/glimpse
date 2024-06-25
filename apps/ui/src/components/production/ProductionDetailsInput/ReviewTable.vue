@@ -49,16 +49,9 @@
         <tr>
           <td>Category</td>
           <td>
-            <v-hover v-if="category.id" v-slot:default="{ isHovering, props }">
-              <div v-bind="props">
-                <v-chip v-if="isHovering">
-                  Category Name: {{ category.name }}
-                </v-chip>
-                <v-chip v-else class="ml-1">
-                  Category ID: {{ category.id }}
-                </v-chip>
-              </div>
-            </v-hover>
+            <v-chip v-tooltip="category.name" v-if="category.id" class="ml-1">
+              Category ID: {{ category.id }}
+            </v-chip>
             <p v-else>No category provided</p>
           </td>
         </tr>
@@ -67,7 +60,7 @@
           <td>
             <v-dialog width="400" scrim="black" v-if="thumbnail.id">
               <template v-slot:activator="{ props }" >
-                <v-chip v-bind="props">
+                <v-chip v-tooltip="'Click to view image'" v-bind="props">
                   Image ID: {{ thumbnail.id }}
                 </v-chip>
               </template>
@@ -84,7 +77,7 @@
             <v-chip-group column v-if="images.length">
               <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
                 <template v-slot:activator="{ props }">
-                  <v-chip v-bind="props" >
+                  <v-chip v-tooltip="'Click to view image'" v-bind="props" >
                     Image ID: {{ image.id }}
                   </v-chip>
                 </template>
@@ -99,12 +92,23 @@
         <tr>
           <td>Video(s)</td>
           <td>
-            <v-chip-group v-if="videos.length > 0">
-              <v-chip v-for="video in videos" :key="video.id" @click="openURL(video.url)">
+            <v-chip-group column v-if="videos.length > 0">
+              <v-chip v-tooltip="'Click to open video link'" v-for="video in videos" :key="video.id" @click="openURL(video.url)">
                 Video ID: {{ video.id }}
               </v-chip>
             </v-chip-group>
             <p v-else class="ml-1">No videos provided.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>Credit(s)</td>
+          <td>
+            <v-chip-group column v-if="credits.length > 0">
+              <v-chip v-for="credit in credits" :key="credit.personId" v-tooltip="`${credit.name} ${credit.title?.trim() ? `as ${credit.title}` : '' }`" >
+                Credit ID: {{ credit.personId }}
+              </v-chip>
+            </v-chip-group>
+            <p v-else class="ml-1">No credits provided.</p>
           </td>
         </tr>
       </tbody>
@@ -118,7 +122,7 @@ import type {PropType} from "vue";
 import type {Production} from "@/graphql/types";
 
 interface urlInterface {
-  id: string,
+  id: number,
   url: string,
   priority: number,
 }
@@ -129,7 +133,7 @@ const props = defineProps({
     required: true
   },
   category: {
-    type: Object as PropType<{id: '', name: ''}>,
+    type: Object as PropType<{id: number, name: string}>,
     required: true
   },
   thumbnail: {
@@ -146,6 +150,10 @@ const props = defineProps({
   },
   videos: {
     type: Object as PropType<urlInterface[]>,
+    required: true
+  },
+  credits: {
+    type: Object as PropType<{personId: number, name: string, title?: string, priority?: number}[]>,
     required: true
   }
 });
@@ -173,6 +181,5 @@ function formattedTime(time: string) {
 .table {
   border-style: solid;
   border-color:  #a9aeb3;
-  border-radius: 5px;
 }
 </style>

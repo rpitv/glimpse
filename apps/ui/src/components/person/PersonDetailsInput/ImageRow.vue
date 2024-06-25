@@ -3,7 +3,7 @@
     <h2>Profile Picture: </h2>
     <v-dialog width="400" >
       <template v-slot:activator="{ props }" >
-        <v-chip v-bind="props" class="ml-1" closable
+        <v-chip v-tooltip="'Click to view image'" v-bind="props" class="ml-1" closable
                 @click:close="() => { profile.url = ''; profile.id = null}">
           Image ID: {{ profile.id }}
         </v-chip>
@@ -15,10 +15,10 @@
   </div>
   <div class="flex-container mt-2" v-if="images.length">
     <h2>Images: </h2>
-    <v-chip-group column>
+    <div class="chip-group">
       <v-dialog v-for="(image, i) in images" :key="image.id" width="400" >
-        <template v-slot:activator="{ props }">
-          <v-chip class="ml-1" closable v-bind="props"
+        <template #activator="{ props }">
+          <v-chip v-tooltip="'Click to view image'" class="ml-1" closable v-bind="props"
                   @click:close="images.splice(i, 1)" >
             Image ID: {{ image.id }}
           </v-chip>
@@ -27,7 +27,7 @@
           <img :src="image.url">
         </template>
       </v-dialog>
-    </v-chip-group>
+    </div>
   </div>
 </template>
 
@@ -56,6 +56,12 @@ interface urlInterface {
 <style scoped lang="scss">
 .flex-container {
   display: flex;
+  align-items: center;
+}
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
 }
 </style>

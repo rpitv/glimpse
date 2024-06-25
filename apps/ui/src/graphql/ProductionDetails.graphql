@@ -12,10 +12,12 @@ query ProductionDetails($id: BigInt!) {
 		closetTime
 		credits {
 			id
-			person {
-				id
-				name
-			}
+      person {
+        id
+        name
+      }
+      priority
+      title
 		}
 		description
 		discordChannel

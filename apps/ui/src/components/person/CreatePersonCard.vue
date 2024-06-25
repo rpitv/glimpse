@@ -72,13 +72,6 @@ const createPersonMutation = useMutation(CreatePersonDocument);
 const createPersonImageMutation = useMutation(CreatePersonImageDocument);
 const createPersonRoleMutation = useMutation(CreatePersonRoleDocument);
 
-defineProps({
-  closable: {
-    type: Boolean,
-    default: false,
-  },
-});
-
 interface urlInterface {
   id: number | null,
   url: string,

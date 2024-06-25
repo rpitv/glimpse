@@ -85,7 +85,7 @@ const props = defineProps({
     required: true
   },
   productionImages: {
-    type: Object as PropType<Array<{id: string, url: string, priority: number}>>,
+    type: Object as PropType<Array<{id: number, url: string, priority: number}>>,
     required: true
   },
   thumbnailId: {
