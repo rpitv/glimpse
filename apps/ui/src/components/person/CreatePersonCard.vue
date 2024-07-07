@@ -27,7 +27,7 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <RoleTable :roles="roles" :take="take" @addRole="addRole"/>
-            <RolesRow :roles="roles" />
+            <RoleRow :roles="roles" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <div class="review">
@@ -36,7 +36,7 @@
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
-        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 4 ? 'CREATE' : 'NEXT'"
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 5 ? 'CREATE' : 'NEXT'"
                    :disabled="checkDisable" />
       </template>
     </v-stepper>
@@ -58,7 +58,7 @@ import RoleTable from "@/components/person/PersonDetailsInput/RoleTable.vue";
 import ReviewTable from "@/components/person/PersonDetailsInput/ReviewTable.vue";
 import PersonDetails from "@/components/person/PersonDetailsInput/PersonDetails.vue";
 import ImageRow from "@/components/person/PersonDetailsInput/ImageRow.vue";
-import RolesRow from "@/components/person/PersonDetailsInput/RolesRow.vue";
+import RoleRow from "@/components/person/PersonDetailsInput/RoleRow.vue";
 import PriorityEditor from "@/components/person/PersonDetailsInput/PriorityEditor.vue";
 
 const personData = ref<Partial<Person>>({
@@ -72,14 +72,14 @@ const createPersonMutation = useMutation(CreatePersonDocument);
 const createPersonImageMutation = useMutation(CreatePersonImageDocument);
 const createPersonRoleMutation = useMutation(CreatePersonRoleDocument);
 
-interface urlInterface {
-  id: number | null,
+interface UrlInterface {
+  id: number,
   url: string,
   priority: 0
 }
 
-interface roleInterface {
-  id: number | null,
+interface RoleInterface {
+  id: number,
   name: string,
   startDate?: Date,
   endDate?: Date
@@ -92,10 +92,10 @@ const step = ref(1);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const snackbar = ref(false);
-const images = ref<urlInterface[]>([]);
-const roles = ref<roleInterface[]>([]);
-const profile = ref<urlInterface>({
-  id: null,
+const images = ref<UrlInterface[]>([]);
+const roles = ref<RoleInterface[]>([]);
+const profile = ref<UrlInterface>({
+  id: 0,
   url: '',
   priority: 0
 });

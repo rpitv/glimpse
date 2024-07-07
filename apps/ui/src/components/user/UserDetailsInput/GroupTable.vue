@@ -1,18 +1,18 @@
 <template>
   <div class="top-bar">
-    <DashboardSearch document-name="Images" @search="refetchImage"/>
+    <DashboardSearch document-name="Groups" @search="refetchImage"/>
     <div class="buttons">
       <RouterPopup
-        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Group)"
         :max-width="1100" v-model="showCreatePopup"
-        :to="{ name: 'dashboard-image-create' }"
+        :to="{ name: 'dashboard-group-create' }"
       >
-        <CreateImageCard
+        <CreateGroupCard
           closable
           @save="
-                refresh();
-                showCreatePopup = false;
-              "
+            refresh();
+            showCreatePopup = false;
+          "
           @close="showCreatePopup = false"
         />
         <template #trigger>
@@ -30,33 +30,28 @@
   </div>
   <v-data-table-server class="table" height="300px"
      :items-per-page="take"
-     :items-length="queryData.result.value ? queryData.result.value.imageCount : 0"
+     :items-length="queryData.result.value ? queryData.result.value.groupCount : 0"
      :page="currentPage"
-     :items="queryData.result.value?.images"
-     no-data-text="No images found 💀"
+     :items="queryData.result.value?.groups"
+     no-data-text="No groups found 💀"
      v-model:sort-by="order"
      :loading="queryData.loading.value"
-     loading-text="Loading Images..."
-     :headers="imageHeader"
+     loading-text="Loading Groups..."
+     :headers="groupHeader"
   >
-    <template #item.image="{ item }">
-      <a :href="item.path" target="_blank">Link</a>
-    </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none mr-2" :disabled="profileId === item.id"
-            @click="emit('setProfile', item.id, item.path)" color="blue">Set As Profile Picture</VBtn>
       <VBtn variant="outlined" class="text-none"
-            :disabled="images.findIndex(
-            (ele) => ele.id === item.id && ele.url === item.path) !== -1 ||
-            !ability.can(AbilityActions.Create, subject(AbilitySubjects.Image, {imageId: item.id}))"
-            @click="emit('addImage', item.id, item.path)">
-        Add Image
+            :disabled="groups.findIndex(
+            (ele) => ele.id === item.id) !== -1 ||
+            !ability.can(AbilityActions.Create, subject(AbilitySubjects.Group, {groupId: item.id}))"
+            @click="emit('addGroup', item.id, item.name)">
+        Add Group
       </VBtn>
     </template>
     <template v-slot:bottom>
       <v-pagination
         v-model="currentPage"
-        :length="!!queryData.result.value?.imageCount ? Math.ceil(queryData.result.value?.imageCount / take) : 0"
+        :length="!!queryData.result.value?.groupCount ? Math.ceil(queryData.result.value?.groupCount / take) : 0"
         @update:modelValue="loadImages"
       />
     </template>
@@ -66,40 +61,37 @@
 <script setup lang="ts">
 import DashboardSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects, CaseSensitivity,
-  ImageOrderableFields,
+  AbilitySubjects,
+  CaseSensitivity,
+  GroupOrderableFields,
   OrderDirection,
-  SearchImagesDocument
+  FindGroupsDocument
 } from "@/graphql/types";
+import type { Group } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch} from "vue";
 import type {PropType} from "vue";
 import {subject} from "@casl/ability";
 import {ability, AbilityActions} from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
-import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
 
 const props = defineProps({
   take: {
     type: Number,
     required: true
   },
-  images: {
-    type: Object as PropType<Array<{id: number | null, url: string}>>,
+  groups: {
+    type: Object as PropType<Partial<Group>[]>,
     required: true
   },
-  profileId: {
-    type: null,
-    required: true
-  }
 });
 
-const emit = defineEmits(["setProfile", "addImage"]);
+const emit = defineEmits(["addGroup"]);
 
-const imageHeader = [
+const groupHeader = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", sortable: true, key: "name" },
-  { title: "Preview", sortable: false, key: "image"},
   { title: "Actions", sortable: false, key: "actions", minWidth: "150px"}
 ]
 const order = ref<{key: string, order: string}[]>([]);
@@ -111,11 +103,11 @@ interface Options {
   id?: { equals: number }
 }
 
-const queryData = useQuery(SearchImagesDocument, {
+const queryData = useQuery(FindGroupsDocument, {
   pagination: { take: props.take },
   order: [{
     direction: "Desc" as OrderDirection,
-    field: "id" as ImageOrderableFields
+    field: "id" as GroupOrderableFields
   }],
   filter: {
     name: { contains: '', mode: CaseSensitivity.Insensitive }
@@ -141,7 +133,7 @@ async function refetchImage(filter: string, type: string) {
   console.log(options);
   await queryData.refetch({
     filter: options,
-    order: [{ direction: "Desc" as OrderDirection, field: "id" as ImageOrderableFields }]
+    order: [{ direction: "Desc" as OrderDirection, field: "id" as GroupOrderableFields }]
   });
 }
 
@@ -150,12 +142,12 @@ watch(order, () => {
     queryData.refetch({
       order: [{
         direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
-        field: order.value[0].key as ImageOrderableFields
+        field: order.value[0].key as GroupOrderableFields
       }]
     })
   else
     queryData.refetch({
-      order: [{direction: "Desc" as OrderDirection, field: "id" as ImageOrderableFields }]
+      order: [{direction: "Desc" as OrderDirection, field: "id" as GroupOrderableFields }]
     })
 });
 

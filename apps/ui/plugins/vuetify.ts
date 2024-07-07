@@ -20,6 +20,10 @@ export const vuetify = createVuetify({
       class: "text-none",
       variant: "outlined"
     },
+    VChip: {
+      variant: "outlined",
+      label: true
+    },
     VCombobox: {
       variant: "outlined"
     },

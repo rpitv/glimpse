@@ -1,7 +1,7 @@
 <template>
   <v-row class="mt-2">
     <v-col cols="4">
-      <v-text-field density="compact" variant="outlined" label="Name*" v-model="personData.name" />
+      <v-text-field density="compact" variant="outlined" label="Name *" v-model="personData.name" />
     </v-col>
     <v-col cols="4">
       <v-combobox :items="['he/him', 'she/her', 'they/them']" density="compact" variant="outlined" label="Pronouns" v-model="personData.pronouns" />

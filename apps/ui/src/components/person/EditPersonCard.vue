@@ -34,7 +34,7 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <RoleTable :roles="newRoles" :take="take" @addRole="addRole" />
-            <RolesRow :roles="newRoles" />
+            <RoleRow :roles="newRoles" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <div class="review">
@@ -69,7 +69,7 @@ import { ref, computed, onMounted } from "vue";
 import ImageTable from "@/components/person/PersonDetailsInput/ImageTable.vue";
 import PersonDetails from "@/components/person/PersonDetailsInput/PersonDetails.vue";
 import ImageRow from "@/components/person/PersonDetailsInput/ImageRow.vue";
-import RolesRow from "@/components/person/PersonDetailsInput/RolesRow.vue";
+import RoleRow from "@/components/person/PersonDetailsInput/RoleRow.vue";
 import RoleTable from "@/components/person/PersonDetailsInput/RoleTable.vue";
 import ReviewTable from "@/components/person/PersonDetailsInput/ReviewTable.vue";
 import PriorityEditor from "@/components/person/PersonDetailsInput/PriorityEditor.vue";
