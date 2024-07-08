@@ -35,8 +35,8 @@
           <v-stepper-window-item :value="3">
             <PermissionsEditor
               :save-required="false"
-              :count="newPermissionsToAdd.length"
-              v-model:permissions="newPermissionsToAdd"
+              :count="newPermissions.length"
+              v-model:permissions="newPermissions"
               :creator="true"
             />
           </v-stepper-window-item>
@@ -45,7 +45,7 @@
             <PeopleRow :person="person"/>
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
-            <ReviewTable :person="person" :permissionsToAdd="newPermissionsToAdd" :groups="newGroups" :userData="userData" />
+            <ReviewTable :person="person" :permissionsToAdd="newPermissions" :groups="newGroups" :userData="userData" />
           </v-stepper-window-item>
         </v-stepper-window>
         <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 5 ? 'EDIT' : 'NEXT'"
@@ -62,7 +62,10 @@ import type { PropType } from "vue";
 import UserDetails from "@/components/user/UserDetailsInput/UserDetails.vue";
 import {
   CreateUserGroupDocument,
-   DeleteUserGroupDocument,
+  DeleteUserGroupDocument,
+  CreateUserPermissionDocument,
+  UpdateUserPermissionDocument,
+  DeleteUserPermissionDocument,
   UpdateUserDocument,
   UserDetailsDocument,
 } from "@/graphql/types";
@@ -90,8 +93,8 @@ const snackbar = ref(false);
 const userData = ref<Partial<User>>({});
 const oldGroups = ref<Partial<UserGroup>[]>([]);
 const newGroups = ref<Partial<Group>[]>([]);
-const oldPermissionsToAdd = ref<UserPermission[]>([]);
-const newPermissionsToAdd = ref<UserPermission[]>([]);
+const oldPermissions = ref<UserPermission[]>([]);
+const newPermissions = ref<UserPermission[]>([]);
 const person = ref<Partial<Person>>({});
 const requiredForm = ref();
 const emit = defineEmits(["save"]);
@@ -100,6 +103,10 @@ const sourceData = useQuery(UserDetailsDocument, { id: props.id });
 const updateUserMutation = useMutation(UpdateUserDocument);
 const createUserGroupMutation = useMutation(CreateUserGroupDocument);
 const deleteUserGroupMutation = useMutation(DeleteUserGroupDocument);
+const createUserPermissionMutation = useMutation(CreateUserPermissionDocument);
+const deleteUserPermissionMutation = useMutation(DeleteUserPermissionDocument);
+const updateUserPermissionMutation = useMutation(UpdateUserPermissionDocument);
+
 
 sourceData.onResult((result) => {
   if (result.loading) return;
@@ -107,6 +114,8 @@ sourceData.onResult((result) => {
 
   oldGroups.value = [];
   newGroups.value = [];
+  oldPermissions.value = [];
+  newPermissions.value = [];
 
   userData.value = {
     username: user?.username,
@@ -125,8 +134,8 @@ sourceData.onResult((result) => {
   const permissions = user?.permissions;
   if (permissions)
     for (let i = 0; i < permissions.length; i++) {
-      oldPermissionsToAdd.value[i] = permissions[i];
-      newPermissionsToAdd.value[i] = permissions[i];
+      oldPermissions.value[i] = permissions[i];
+      newPermissions.value[i] = permissions[i];
     }
 
 
@@ -165,7 +174,6 @@ async function validate(next: () => void) {
           userId: props.id,
           groupId: group.id,
         });
-
         if (!createdUserGroup?.data?.userGroup) {
           error.value = "Failed to add user to group";
           return;
@@ -186,6 +194,67 @@ async function validate(next: () => void) {
       } catch (e) {
         console.error(e);
         error.value = `Failed to remove user from the group "${group.group?.name} (ID ${group.id})"`;
+        return;
+      }
+    }
+
+
+    const permissionsToCreate = newPermissions.value.filter((newPermission) => !newPermission.id);
+    const permissionsToUpdate = newPermissions.value.filter((newPermission) => !oldPermissions.value.some((oldPermission) => JSON.stringify(oldPermission) === JSON.stringify(newPermission) || !newPermission.id));
+    const permissionsToDelete = oldPermissions.value.filter((oldPermission) => !newPermissions.value.some((newPermission) => oldPermission.id === newPermission.id));
+
+    console.log("Old Permissions: ", oldPermissions.value);
+    console.log("New Permissions: ", newPermissions.value);
+    console.log("Permissions To Create: ", permissionsToCreate);
+    console.log("Permissions To Update: ", permissionsToUpdate);
+    console.log("Permissions To Delete: ", permissionsToDelete);
+
+    for (let permission of permissionsToCreate) {
+      try {
+        permission.userId = props.id;
+        const createdUserPermission = await createUserPermissionMutation.mutate({
+          input: permission
+        });
+        if (!createdUserPermission?.data?.permission) {
+          error.value = "Failed to add permission to user";
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+        error.value = `Failed to add permissions to the user`;
+        return;
+      }
+    }
+
+    for (const permission of permissionsToUpdate) {
+      try {
+        await updateUserPermissionMutation.mutate({
+          id: permission.id,
+          input: {
+            userId: permission.userId,
+            action: permission.action,
+            conditions: permission.conditions,
+            fields: permission.fields,
+            inverted: permission.inverted,
+            reason: permission.reason,
+            subject: permission.subject
+          }
+        });
+      } catch (e) {
+        console.error(e);
+        error.value = `Failed to update permission ${permission.id}`;
+        return;
+      }
+    }
+
+    for (const permission of permissionsToDelete) {
+      try {
+        await deleteUserPermissionMutation.mutate({
+          id: permission.id
+        });
+      } catch (e) {
+        console.error(e);
+        error.value = `Failed to delete permission ${permission.id}`;
         return;
       }
     }
