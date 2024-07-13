@@ -11,15 +11,16 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
+import type { Category } from "@/graphql/types";
+
+const emit = defineEmits(["close"]);
 
 defineProps({
   productionCategory: {
-    type: Object as PropType<{id: number, name: string}>,
+    type: Object as PropType<Category>,
     required: true
   }
 });
-
-const emit = defineEmits(['close']);
 </script>
 
 <style scoped lang="scss">

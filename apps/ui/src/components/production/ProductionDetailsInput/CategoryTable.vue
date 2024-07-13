@@ -43,7 +43,7 @@
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
             :disabled="(productionCategory.id === item.id)"
-            @click="emit('setCategory', { id: item.id, name: item.name as string})">
+            @click="emit('setCategory', item)">
         Set As Category
       </VBtn>
     </template>
@@ -66,10 +66,11 @@ import {
   OrderDirection,
   SearchCategoriesDocument
 } from "@/graphql/types";
-import {useQuery} from "@vue/apollo-composable";
-import {ref, watch, onMounted} from "vue";
-import type {PropType} from "vue";
-import {ability, AbilityActions} from "@/casl";
+import type { Category } from "@/graphql/types";
+import { useQuery } from "@vue/apollo-composable";
+import { ref, watch, onMounted } from "vue";
+import type { PropType } from "vue";
+import { ability, AbilityActions } from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
 
@@ -79,7 +80,7 @@ const props = defineProps({
     required: true
   },
   productionCategory: {
-    type: Object as PropType<{id: number, name: string}>,
+    type: Object as PropType<Category>,
     required: true
   }
 });

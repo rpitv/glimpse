@@ -13,6 +13,7 @@
             @save="(id: number) => {
               refresh();
               createdProduction = { id: id, show: true };
+              showCreatePopup = false;
             }"
           />
         </template>

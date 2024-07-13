@@ -26,11 +26,11 @@
               <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
                 <template #activator="{ props }">
                   <v-chip v-bind="props" >
-                    Image ID: {{ image.id }}
+                    Image ID: {{ image.imageId }}
                   </v-chip>
                 </template>
                 <template #default>
-                  <img :src="image.url">
+                  <img :src="image.image?.path" :alt="image.image?.name">
                 </template>
               </v-dialog>
             </v-chip-group>
@@ -41,24 +41,24 @@
           <td>Role(s)</td>
           <td>
             <v-chip-group v-if="roles.length > 0" column>
-              <v-dialog v-for="role in roles" :key="role.id" max-width="500">
+              <v-dialog v-for="role in roles" :key="role.roleId" max-width="500">
                 <template #activator="{ props }">
                   <v-chip v-bind="props">
-                    {{ role.name }}
+                    {{ role.role?.name }}
                   </v-chip>
                 </template>
                 <template #default>
-                    <v-card :title="`Start and End Dates as ${role.name}`">
+                    <v-card :title="`Start and End Dates as ${role.role?.name}`">
                       <v-card-text>
                         <v-table>
                           <tbody>
                             <tr>
                               <td>Role Start Date</td>
-                              <td>{{ role.startDate ? formattedDate(role.startDate.toString()) : "No date provided." }}</td>
+                              <td>{{ role.startTime ? formattedDate(role.startTime.toString()) : "No date provided." }}</td>
                             </tr>
                             <tr>
                               <td>Role End Date</td>
-                              <td>{{ role.endDate ? formattedDate(role.endDate.toString()) : "No date provided." }}</td>
+                              <td>{{ role.endTime ? formattedDate(role.endTime.toString()) : "No date provided." }}</td>
                             </tr>
                           </tbody>
                         </v-table>
@@ -76,37 +76,24 @@
 </template>
 
 <script setup lang="ts">
-import type {PropType} from "vue";
-import type {Person} from "@/graphql/types";
+import type { PropType } from "vue";
+import type { Person, Image, PersonRole, PersonImage } from "@/graphql/types";
 
-interface urlInterface {
-  id: number | null,
-  url: string,
-  priority?: number
-}
-
-interface roleInterface {
-  id: number | null,
-  name: string,
-  startDate?: Date,
-  endDate?: Date
-}
-
-const props = defineProps({
+defineProps({
   personData: {
     type: Object as PropType<Partial<Person>>,
     required: true
   },
   profilePic: {
-    type: Object as PropType<urlInterface>,
+    type: Object as PropType<Image>,
     required: true
   },
   roles: {
-    type: Object as PropType<roleInterface[]>,
+    type: Object as PropType<PersonRole[]>,
     required: true
   },
   images: {
-    type: Object as PropType<urlInterface[]>,
+    type: Object as PropType<PersonImage[]>,
     required: true
   }
 });

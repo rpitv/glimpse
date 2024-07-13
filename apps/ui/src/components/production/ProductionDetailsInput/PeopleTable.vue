@@ -43,7 +43,7 @@
           :disabled="people.findIndex(
           (ele) => ele.personId === item.id) !== -1 ||
           !ability.can(AbilityActions.Create, subject(AbilitySubjects.Credit, {imageId: item.id}))"
-          @click="emit('addPerson', item.id, item.name as string)">
+          @click="emit('addPerson', item)">
         Add Person
       </VBtn>
     </template>
@@ -66,6 +66,7 @@ import {
   OrderDirection,
   FindPeopleDocument, CaseSensitivity
 } from "@/graphql/types";
+import type { Credit } from "@/graphql/types";
 import { useQuery } from "@vue/apollo-composable";
 import {subject} from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
@@ -79,7 +80,7 @@ const props = defineProps({
     required: true,
   },
   people: {
-    type: Object as PropType<{personId: number, name: string, title?: string, priority?: number}[]>,
+    type: Object as PropType<Credit[]>,
     required: true
   }
 });

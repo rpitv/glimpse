@@ -47,9 +47,9 @@
             @click="emit('setProfile', item.id, item.path)" color="blue">Set As Profile Picture</VBtn>
       <VBtn variant="outlined" class="text-none"
             :disabled="images.findIndex(
-            (ele) => ele.id === item.id && ele.url === item.path) !== -1 ||
+            (ele) => ele.id === item.id && ele.image?.id === item.path) !== -1 ||
             !ability.can(AbilityActions.Create, subject(AbilitySubjects.Image, {imageId: item.id}))"
-            @click="emit('addImage', item.id, item.path)">
+            @click="emit('addImage', item)">
         Add Image
       </VBtn>
     </template>
@@ -66,16 +66,18 @@
 <script setup lang="ts">
 import DashboardSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects, CaseSensitivity,
+  AbilitySubjects,
+  CaseSensitivity,
   ImageOrderableFields,
   OrderDirection,
   SearchImagesDocument
 } from "@/graphql/types";
-import {useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
-import type {PropType} from "vue";
-import {subject} from "@casl/ability";
-import {ability, AbilityActions} from "@/casl";
+import type { PersonImage } from "@/graphql/types";
+import { useQuery } from "@vue/apollo-composable";
+import { ref, watch } from "vue";
+import type { PropType } from "vue";
+import { subject } from "@casl/ability";
+import { ability, AbilityActions } from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateImageCard from "@/components/image/CreateImageCard.vue";
 
@@ -85,7 +87,7 @@ const props = defineProps({
     required: true
   },
   images: {
-    type: Object as PropType<Array<{id: number | null, url: string}>>,
+    type: Object as PropType<PersonImage[]>,
     required: true
   },
   profileId: {

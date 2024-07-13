@@ -24,6 +24,9 @@ export const vuetify = createVuetify({
       variant: "outlined",
       label: true
     },
+    VChipGroup: {
+      variant: "outlined",
+    },
     VCombobox: {
       variant: "outlined"
     },

@@ -31,8 +31,8 @@
           <td>Tags</td>
           <td>
             <v-chip-group v-if="tags.length > 0">
-              <v-chip class="ml-1" v-for="tag in tags" :key="tag">
-                {{ tag }}
+              <v-chip class="ml-1" v-for="tag in tags" :key="tag.tag">
+                {{ tag.tag }}
               </v-chip>
             </v-chip-group>
             <p v-else class="ml-1">No tags provided</p>
@@ -65,7 +65,7 @@
                 </v-chip>
               </template>
               <template v-slot:default>
-                <img :src="thumbnail.url">
+                <img :src="thumbnail.path" :alt="thumbnail.name">
               </template>
             </v-dialog>
             <p v-else>No thumbnail provided</p>
@@ -75,14 +75,14 @@
           <td>Image(s)</td>
           <td>
             <v-chip-group column v-if="images.length">
-              <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
+              <v-dialog v-for="image in images" :key="image.imageId" width="400" scrim="black">
                 <template v-slot:activator="{ props }">
                   <v-chip v-tooltip="'Click to view image'" v-bind="props" >
-                    Image ID: {{ image.id }}
+                    Image ID: {{ image.imageId }}
                   </v-chip>
                 </template>
                 <template v-slot:default>
-                  <img :src="image.url">
+                  <img :src="image.image?.path" :alt="image.image?.name">
                 </template>
               </v-dialog>
             </v-chip-group>
@@ -93,8 +93,8 @@
           <td>Video(s)</td>
           <td>
             <v-chip-group column v-if="videos.length > 0">
-              <v-chip v-tooltip="'Click to open video link'" v-for="video in videos" :key="video.id" @click="openURL(video.url)">
-                Video ID: {{ video.id }}
+              <v-chip v-tooltip="'Click to open video link'" v-for="video in videos" :key="video.videoId" @click="openURL(video.video?.metadata.url)">
+                Video ID: {{ video.videoId }}
               </v-chip>
             </v-chip-group>
             <p v-else class="ml-1">No videos provided.</p>
@@ -104,8 +104,8 @@
           <td>Credit(s)</td>
           <td>
             <v-chip-group column v-if="credits.length > 0">
-              <v-chip v-for="credit in credits" :key="credit.personId" v-tooltip="`${credit.name} ${credit.title?.trim() ? `as ${credit.title}` : '' }`" >
-                Credit ID: {{ credit.personId }}
+              <v-chip v-for="credit in credits" :key="credit.personId" v-tooltip="`${credit.person?.name} ${credit.title?.trim() ? `as ${credit.title}` : '' }`" >
+                Person ID: {{ credit.personId }}
               </v-chip>
             </v-chip-group>
             <p v-else class="ml-1">No credits provided.</p>
@@ -118,42 +118,36 @@
 
 <script setup lang="ts">
 
-import type {PropType} from "vue";
-import type {Production} from "@/graphql/types";
+import type { PropType } from "vue";
+import type { Category, Credit, Image, Production, ProductionImage, ProductionTag, ProductionVideo } from "@/graphql/types";
 
-interface urlInterface {
-  id: number,
-  url: string,
-  priority: number,
-}
-
-const props = defineProps({
+defineProps({
   productionData: {
     type: Object as PropType<Partial<Production>>,
     required: true
   },
   category: {
-    type: Object as PropType<{id: number, name: string}>,
+    type: Object as PropType<Category>,
     required: true
   },
   thumbnail: {
-    type: Object as PropType<urlInterface>,
+    type: Object as PropType<Image>,
     required: true
   },
   tags: {
-    type: Object as PropType<string[]>,
+    type: Object as PropType<ProductionTag[]>,
     required: true
   },
   images: {
-    type: Object as PropType<urlInterface[]>,
+    type: Object as PropType<ProductionImage[]>,
     required: true
   },
   videos: {
-    type: Object as PropType<urlInterface[]>,
+    type: Object as PropType<ProductionVideo[]>,
     required: true
   },
   credits: {
-    type: Object as PropType<{personId: number, name: string, title?: string, priority?: number}[]>,
+    type: Object as PropType<Credit[]>,
     required: true
   }
 });

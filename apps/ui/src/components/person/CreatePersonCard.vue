@@ -3,20 +3,22 @@
     <v-card-title>
       Create Person
     </v-card-title>
-    <v-stepper v-model="step" :flat="true">
+    <v-stepper v-model="step" :flat="true" :editable="validation" >
       <template #actions="{prev, next}">
         <v-stepper-header>
-          <v-stepper-item :value="1" title="Person Details" :editable="step > 1" :complete="step > 1"/>
+          <v-stepper-item :value="1" title="Person Details" :editable="true" :complete="step > 1"/>
           <v-divider />
-          <v-stepper-item :value="2" title="Images" :editable="step > 1" :complete="step > 2" />
+          <v-stepper-item :value="2" title="Images"  :complete="step > 2" />
           <v-divider />
-          <v-stepper-item :value="3" title="Roles"  :editable="step > 1" :complete="step > 3" />
+          <v-stepper-item :value="3" title="Roles" :complete="step > 3" />
           <v-divider />
-          <v-stepper-item :value="4" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" :editable="step > 1" />
+          <v-stepper-item :value="4" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" />
         </v-stepper-header>
         <v-stepper-window>
           <v-stepper-window-item :value="1">
-            <PersonDetails :personData="personData" />
+            <v-form ref="requiredForm">
+              <PersonDetails :personData="personData" />
+            </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2">
             <ImageTable :take="take" :images="images" :profileId="profile.id"
@@ -45,14 +47,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import type { Person } from "@/graphql/types";
+import { computed, ref, watch } from "vue";
 import { useMutation } from "@vue/apollo-composable";
 import {
   CreatePersonDocument,
   CreatePersonImageDocument,
   CreatePersonRoleDocument
 } from "@/graphql/types";
+import type { Image, Person, PersonImage, PersonRole, Role } from "@/graphql/types";
 import ImageTable from "@/components/person/PersonDetailsInput/ImageTable.vue";
 import RoleTable from "@/components/person/PersonDetailsInput/RoleTable.vue";
 import ReviewTable from "@/components/person/PersonDetailsInput/ReviewTable.vue";
@@ -72,19 +74,6 @@ const createPersonMutation = useMutation(CreatePersonDocument);
 const createPersonImageMutation = useMutation(CreatePersonImageDocument);
 const createPersonRoleMutation = useMutation(CreatePersonRoleDocument);
 
-interface UrlInterface {
-  id: number,
-  url: string,
-  priority: 0
-}
-
-interface RoleInterface {
-  id: number,
-  name: string,
-  startDate?: Date,
-  endDate?: Date
-}
-
 const emit = defineEmits(["save"]);
 
 const take = 20;
@@ -92,35 +81,28 @@ const step = ref(1);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const snackbar = ref(false);
-const images = ref<UrlInterface[]>([]);
-const roles = ref<RoleInterface[]>([]);
-const profile = ref<UrlInterface>({
-  id: 0,
-  url: '',
-  priority: 0
-});
+const requiredForm = ref();
+const validation = ref(false);
+const images = ref<PersonImage[]>([]);
+const roles = ref<PersonRole[]>([]);
+const profile = ref<Image>({id: null});
 
-function addImage(imageId: number, url: string) {
+function addImage(image: Image) {
   images.value.push({
-    id: imageId,
-    url: url,
-    priority: 0
+    imageId: image.id,
+    image: image
   });
 }
 
-function addRole(roleId: number, name: string) {
+function addRole(role: Role) {
   roles.value.push({
-    id: roleId,
-    name: name,
+    roleId: role.id,
+    role: role
   });
 }
 
-function setProfileId(imageId: number, url: string) {
-  profile.value = {
-    id: imageId,
-    url: url,
-    priority: 0
-  }
+function setProfileId(image: Image) {
+  profile.value = image;
 }
 
 async function validate(next: () => void) {
@@ -150,16 +132,16 @@ async function validate(next: () => void) {
       await createPersonImageMutation.mutate({
         personId: createdPerson.data.person.id,
         imageId: image.id,
-        priority: image.priority
+        priority: image.priority as number
       });
     }
 
     for (const role of roles.value) {
       await createPersonRoleMutation.mutate({
         personId: createdPerson.data.person.id,
-        roleId: role.id,
-        startTime: role.startDate,
-        endTime: role.endDate
+        roleId: role.roleId,
+        startTime: role.startTime,
+        endTime: role.endTime
       });
     }
   } catch (e) {
@@ -183,13 +165,20 @@ const checkDisable = computed(() => {
   return false;
 });
 
+watch(personData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid;
+  }
+}, {deep: true});
+
 </script>
 
 <style scoped lang="scss">
 .review {
   display: flex;
   justify-content: space-between;
-  >div {
+  > div {
     width: 100%;
   }
 }

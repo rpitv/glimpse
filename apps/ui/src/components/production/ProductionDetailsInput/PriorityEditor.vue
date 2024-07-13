@@ -13,10 +13,10 @@
         <td>
           <v-dialog width="400">
             <template #activator="{ props }">
-              <v-chip v-bind="props" v-tooltip="'Click to view image'">Image ID: {{ image.id }}</v-chip>
+              <v-chip v-bind="props" v-tooltip="'Click to view image'">Image ID: {{ image.image?.id }}</v-chip>
             </template>
             <template #default>
-              <img :src="image.url">
+              <img :src="image.image?.path" :alt="image.image?.name">
             </template>
           </v-dialog>
         </td>
@@ -26,14 +26,14 @@
         </td>
       </tr>
       <tr v-for="video in productionVideos" :key="video.id">
-        <td><v-chip @click="openURL(video.url)" v-tooltip="'Click to open video link'">Video ID: {{ video.id }}</v-chip></td>
+        <td><v-chip @click="openURL(video.video?.metadata.url)" v-tooltip="'Click to open video link'">Video ID: {{ video.id }}</v-chip></td>
         <td>
           <v-number-input class="mt-3" v-model="video.priority"
               :inset="true" density="compact" />
         </td>
       </tr>
       <tr v-for="credit in creditPeople" :key="credit.personId">
-        <td><v-chip v-tooltip="credit.name">Credit ID: {{ credit.personId }}</v-chip></td>
+        <td><v-chip v-tooltip="credit.person?.name">Credit ID: {{ credit.personId }}</v-chip></td>
         <td>
           <v-number-input class="mt-3" v-model="credit.priority"
               :inset="true" density="compact" />
@@ -46,18 +46,19 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
+import type { Credit, ProductionImage, ProductionVideo } from "@/graphql/types";
 
 defineProps({
   productionImages: {
-    type: Object as PropType<Array<{id: number, url: string, priority: number}>>,
+    type: Object as PropType<ProductionImage[]>,
     required: true,
   },
   productionVideos: {
-    type: Object as PropType<Array<{id: number, url: string, priority: number}>>,
+    type: Object as PropType<ProductionVideo[]>,
     required: true,
   },
   creditPeople: {
-    type: Object as PropType<{personId: number, name: string, title?: string, priority?: number}[]>,
+    type: Object as PropType<Credit[]>,
     required: true
   }
 });

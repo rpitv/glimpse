@@ -18,6 +18,7 @@ query ProductionDetails($id: BigInt!) {
       }
       priority
       title
+      personId
 		}
 		description
 		discordChannel
@@ -45,6 +46,7 @@ query ProductionDetails($id: BigInt!) {
 		tags {
 			id
 			tag
+      productionId
 		}
 		teamNotes
 		thumbnail {
@@ -62,6 +64,7 @@ query ProductionDetails($id: BigInt!) {
 				name
 				metadata
 			}
+      videoId
 		}
 	}
 }

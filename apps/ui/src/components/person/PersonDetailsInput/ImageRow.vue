@@ -4,12 +4,12 @@
     <v-dialog width="400" >
       <template v-slot:activator="{ props }" >
         <v-chip v-tooltip="'Click to view image'" v-bind="props" class="ml-1" closable
-                @click:close="() => { profile.url = ''; profile.id = null}">
+                @click:close="() => { profile.id = null }">
           Image ID: {{ profile.id }}
         </v-chip>
       </template>
       <template v-slot:default>
-        <img :src="profile.url">
+        <img :src="profile.path" :alt="profile.name" >
       </template>
     </v-dialog>
   </div>
@@ -20,11 +20,11 @@
         <template #activator="{ props }">
           <v-chip v-tooltip="'Click to view image'" class="ml-1" closable v-bind="props"
                   @click:close="images.splice(i, 1)" >
-            Image ID: {{ image.id }}
+            Image ID: {{ image.image?.id }}
           </v-chip>
         </template>
         <template v-slot:default>
-          <img :src="image.url">
+          <img :src="image.image?.path" :alt="image.image?.name">
         </template>
       </v-dialog>
     </div>
@@ -33,23 +33,18 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
+import type { Image, PersonImage } from "@/graphql/types";
 
 defineProps({
   profile: {
-    type: Object as PropType<urlInterface>,
+    type: Object as PropType<Image>,
     required: true
   },
   images: {
-    type: Object as PropType<urlInterface[]>,
+    type: Object as PropType<PersonImage[]>,
     required: true
   }
 })
-
-interface urlInterface {
-  id: number | null,
-  url: string,
-  priority?: number
-}
 
 </script>
 

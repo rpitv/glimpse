@@ -45,7 +45,7 @@
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
           :disabled="roles.findIndex(
-          (ele) => ele.id === item.id && ele.name === item.name) !== -1 ||
+          (ele) => ele.role?.id === item.id && ele.role?.name === item.name) !== -1 ||
           !ability.can(AbilityActions.Create, subject(AbilitySubjects.Role, {roleId: item.id}))"
           @click="emit('addRole', item.id, item.name)">
         Add Role
@@ -64,11 +64,13 @@
 <script setup lang="ts">
 import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects, CaseSensitivity,
+  AbilitySubjects,
+  CaseSensitivity,
   RoleOrderableFields,
   OrderDirection,
-  SearchRolesDocument
+  SearchRolesDocument,
 } from "@/graphql/types";
+import type { PersonRole } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch} from "vue";
 import type {PropType} from "vue";
@@ -83,7 +85,7 @@ const props = defineProps({
     required: true
   },
   roles: {
-    type: Object as PropType<Array<{id: number | null, name: string, startTime: Date, endTime: Date}>>,
+    type: Object as PropType<PersonRole[]>,
     required: true
   },
 });

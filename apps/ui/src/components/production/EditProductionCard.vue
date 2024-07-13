@@ -6,7 +6,7 @@
         <h2 class="mb-10">Loading</h2>
       </div>
     </div>
-    <v-stepper v-else :flat="true" v-model="step" :editable="editable">
+    <v-stepper v-else :flat="true" v-model="step" :editable="validation">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
           <v-stepper-item :value="1" title="Details" :complete="step > 1" />
@@ -31,7 +31,7 @@
             </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2" >
-            <OptionalInput v-model="productionData" :tags="newProductionTags" @update:tags="(value: string[]) => newProductionTags = value" />
+            <OptionalInput v-model="productionData" v-model:tags="newProductionTags" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <CategoryTable :take="take" :productionCategory="newProductionCategory"
@@ -39,14 +39,14 @@
                 id: category.id,
                 name: category.name
               }"/>
-            <CategoryRow :productionCategory="newProductionCategory" @close="newProductionCategory = { id: 0, name: ''}" />
+            <CategoryRow :productionCategory="newProductionCategory" @close="newProductionCategory = { id: null }" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
-              <ImageTable :take="take" :productionImages="newProductionImages" :thumbnailId="newProductionThumbnail.id"
-                          @setThumbnail="setThumbnailId"
-                          @addImage="addImage"
+              <ImageTable :take="take" :productionImages="newProductionImages" :thumbnail="newProductionThumbnail"
+                @setThumbnail="setThumbnail"
+                @addImage="addImage"
               />
-            <ImageRow :productionThumbnail="newProductionThumbnail" :productionImages="newProductionImages" />
+            <ImageRow :productionThumbnail="newProductionThumbnail" :productionImages="newProductionImages" @close="newProductionThumbnail = { id: null }" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <VideoTable :productionVideos="newProductionVideos" :take="take" @addVideo="addVideo" />
@@ -54,7 +54,27 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">
             <PeopleTable :take="take" :people="newCreditPeople" @addPerson="addPerson"/>
-            <PeopleRow :creditPeople="newCreditPeople" />
+            <div class="flex-container mt-2" v-if="newCreditPeople.length" >
+              <h2>People: </h2>
+              <div class="chip-group">
+                <v-dialog v-for="(person, i) in newCreditPeople" :key="person.personId" >
+                  <template #activator="{ props }">
+                    <v-chip class="ml-1"  closable v-tooltip="person.person?.name" v-bind="props"
+                            @click:close="newCreditPeople.splice(i, 1)" :key="person.personId">
+                      <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Person ID: {{ person.personId }}
+                    </v-chip>
+                  </template>
+                  <div class="dialog-card">
+                    <v-card :title="`Title for ${person.person?.name} (Optional)`" min-width="350" >
+                      <v-card-text>
+                        <v-combobox :items="titles" v-model.trim="newCreditPeople[i].title" label="Title" clearable />
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                </v-dialog>
+              </div>
+            </div>
+            <footer v-if="newCreditPeople.length">Note: Click on the chip(s) to give people titles</footer>
           </v-stepper-window-item>
           <v-stepper-window-item :value="7">
             <v-alert v-if="error" color="red">
@@ -77,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import {watch, ref, computed, onMounted} from "vue";
+import { watch, ref, onMounted } from "vue";
 import type { PropType } from "vue";
 import {
   UpdateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
@@ -85,7 +105,17 @@ import {
   DeleteProductionTagDocument, DeleteProductionVideoDocument, UpdateProductionImageDocument,
   UpdateProductionVideoDocument, CreateCreditDocument, UpdateCreditDocument, DeleteCreditDocument,
 } from "@/graphql/types";
-import type { Production } from "@/graphql/types";
+import type {
+  Category,
+  Credit,
+  Image,
+  Person,
+  Production,
+  ProductionImage,
+  ProductionTag,
+  ProductionVideo,
+  Video
+} from "@/graphql/types";
 import {useMutation, useQuery} from "@vue/apollo-composable";
 import RequiredInput from "@/components/production/ProductionDetailsInput/RequiredInput.vue";
 import OptionalInput from "@/components/production/ProductionDetailsInput/OptionalInput.vue";
@@ -127,47 +157,29 @@ const currentProduction = useQuery(ProductionDetailsDocument, {
 const requiredForm = ref();
 const error = ref<string | null>(null);
 const emit = defineEmits(["save"]);
+const titles = ["Cameraman", "Director", "Graphics Operator", "Producer"];
 
 const productionData = ref<Partial<Production>>({});
-
-interface urlInterface {
-  prodId?: string
-  id: number,
-  url: string,
-  priority: number,
-}
-
-interface Credit {
-  creditId?: number,
-  personId: number,
-  name: string,
-  title?: string,
-  priority?: number
-}
 
 const step = ref(0);
 const loading = ref(false);
 const closetTimeMissing = ref(false);
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
+const validation = ref(false);
 const take = 20;
-const oldProductionTags = ref<{id: string, tag: string}[]>([]);
-const newProductionTags = ref<string[]>([]);
-const oldProductionCategory = ref<{id: number, name: string}>({id: 0, name: ''});
-const newProductionCategory = ref<{id: number, name: string}>({id: 0, name: ''});
-const oldProductionThumbnail = ref<urlInterface>({id: 0, url: '', priority: 0});
-const newProductionThumbnail = ref<urlInterface>({id: 0, url: '', priority: 0});
-const oldProductionImages = ref<urlInterface[]>([]);
-const newProductionImages = ref<urlInterface[]>([]);
-const oldProductionVideos = ref<urlInterface[]>([]);
-const newProductionVideos = ref<urlInterface[]>([]);
+const oldProductionTags = ref<ProductionTag[]>([]);
+const newProductionTags = ref<ProductionTag[]>([]);
+const oldProductionCategory = ref<Category>({id: null});
+const newProductionCategory = ref<Category>({id: null});
+const oldProductionThumbnail = ref<Image>({id: null});
+const newProductionThumbnail = ref<Image>({id: null});
+const oldProductionImages = ref<ProductionImage[]>([]);
+const newProductionImages = ref<ProductionImage[]>([]);
+const oldProductionVideos = ref<ProductionVideo[]>([]);
+const newProductionVideos = ref<ProductionVideo[]>([]);
 const oldCreditPeople = ref<Credit[]>([]);
 const newCreditPeople = ref<Credit[]>([]);
-
-const editable = computed(() => {
-  return !(!productionData.value.name || !productionData.value.closetLocation || !productionData.value.eventLocation ||
-    !productionData.value.closetTime || !productionData.value.startTime || !productionData.value.endTime);
-})
 
 currentProduction.onResult((result) => {
   if (result.loading) return;
@@ -187,107 +199,57 @@ currentProduction.onResult((result) => {
     teamNotes: production?.teamNotes,
   }
   if (production?.thumbnail) {
-    oldProductionThumbnail.value = {
-      id: production?.thumbnail?.id,
-      url: production?.thumbnail?.path as string,
-      priority: 0
-    }
-    newProductionThumbnail.value = {
-      id: production?.thumbnail?.id,
-      url: production?.thumbnail?.path as string,
-      priority: 0
-    }
+    oldProductionThumbnail.value = production?.thumbnail;
+    newProductionThumbnail.value = production?.thumbnail;
   }
 
   const tags = production?.tags;
   if (tags) {
     for (let i = 0; i < tags.length; i++) {
-      oldProductionTags.value[i] = {
-        tag: tags[i].tag as string,
-        id: tags[i].id
-      }
-      newProductionTags.value[i] = tags[i].tag as string;
+      oldProductionTags.value[i] = tags[i];
+      newProductionTags.value[i] = tags[i];
     }
   }
 
   const category = production?.category;
 
   if (category) {
-    oldProductionCategory.value = {
-      id: category.id,
-      name: category.name as string
-    }
-    newProductionCategory.value = {
-      id: category.id,
-      name: category.name as string
-    }
+    oldProductionCategory.value = category;
+    newProductionCategory.value = category;
   }
 
   const images = production?.images;
   if (images) {
     for (let i = 0; i < images?.length; i++) {
-      oldProductionImages.value[i] = {
-        id: images[i].imageId,
-        url: images[i].image?.path as string,
-        priority: images[i].priority as number,
-        prodId: images[i].id
-      }
-      newProductionImages.value[i] = {
-        id: images[i].imageId,
-        url: images[i].image?.path as string,
-        priority: images[i].priority as number,
-        prodId: images[i].id
-      }
+      oldProductionImages.value[i] = images[i];
+      newProductionImages.value[i] = images[i];
     }
   }
   const videos = production?.videos;
   if (videos) {
     for (let i = 0; i < videos.length; i++) {
-      oldProductionVideos.value[i] = {
-        id: videos[i].video?.id,
-        url: videos[i].video?.metadata.url,
-        priority: videos[i].priority as number,
-        prodId: videos[i].id
-      }
-      newProductionVideos.value[i] = {
-        id: videos[i].video?.id,
-        url: videos[i].video?.metadata.url,
-        priority: videos[i].priority as number,
-        prodId: videos[i].id
-      }
+      oldProductionVideos.value[i] = videos[i];
+      newProductionVideos.value[i] = videos[i];
     }
   }
 
   const credits = production?.credits;
   if (credits) {
     for (let i = 0; i < credits.length; i++) {
-      oldCreditPeople.value[i] = {
-        creditId: credits[i].id,
-        personId: credits[i].person?.id,
-        name: credits[i].person?.name as string,
-        title: credits[i].title as string,
-        priority: credits[i].priority as number
-      }
-      newCreditPeople.value[i] = {
-        creditId: credits[i].id,
-        personId: credits[i].person?.id,
-        name: credits[i].person?.name as string,
-        title: credits[i].title as string,
-        priority: credits[i].priority as number
-      }
+      oldCreditPeople.value[i] = credits[i];
+      newCreditPeople.value[i] = credits[i];
     }
   }
 })
 
 async function validate(next: any) {
-  const validation = await requiredForm.value.validate();
   if (step.value >= 7) {
     loading.value = true;
     await editProduction();
     loading.value = false;
     return;
   }
-  if (validation.valid && productionData.value.closetTime && productionData.value.startTime && productionData.value.endTime)
+  if (validation.value)
     next();
   if (!productionData.value.closetTime)
     closetTimeMissing.value = true;
@@ -298,41 +260,36 @@ async function validate(next: any) {
 
 }
 
-function setThumbnailId(imageId: number, url: string) {
-  newProductionThumbnail.value = {
-    id: imageId,
-    url: url,
-    priority: 0
-  }
+function setThumbnail(image: Image) {
+  newProductionThumbnail.value = image;
 }
 
-function addImage(imageId: number, url: string) {
+function addImage(image: Image) {
   newProductionImages.value.push({
-    id: imageId,
-    url: url,
-    priority: 0
+    id: image.id,
+    image: image
   });
 }
 
-function addVideo(videoId: number, url: string) {
+function addVideo(video: Video) {
   newProductionVideos.value.push({
-    id: videoId,
-    url: url,
-    priority: 0
+    id: video.id,
+    video: video
   });
 }
 
-function addPerson(personId: number, name: string) {
+function addPerson(person: Person) {
   newCreditPeople.value.push({
-    personId: personId,
-    name: name,
-    priority: 0
+    person: person,
+    personId: person.id,
   });
 }
 
+function assignTitle(title: string, index: number) {
+  newCreditPeople.value[index].title = title;
+}
 async function editProduction() {
   try {
-    // We'll be comparing each individual value since the api is slower than the client.
     if (newProductionCategory.value.id !== oldProductionCategory.value.id)
       productionData.value.categoryId = newProductionCategory.value.id;
     if (newProductionThumbnail.value.id !== oldProductionThumbnail.value.id)
@@ -350,7 +307,7 @@ async function editProduction() {
       await createTagMutation.mutate({
         data: {
           productionId: props.productionId,
-          tag: tag
+          tag: tag.tag
         }
       })
     for (const tag of tagsToDelete)
@@ -359,27 +316,27 @@ async function editProduction() {
       })
 
 
-    const imgsToCreate = newProductionImages.value.filter((newImg) => !oldProductionImages.value.some((oldImg) => oldImg.id === newImg.id));
-    const imgsToDelete = oldProductionImages.value.filter((oldImg) => !newProductionImages.value.some((newImg) => oldImg.id === newImg.id));
+    const imgsToCreate = newProductionImages.value.filter((newImg) => !oldProductionImages.value.some((oldImg) => oldImg.image?.id === newImg.image?.id));
+    const imgsToDelete = oldProductionImages.value.filter((oldImg) => !newProductionImages.value.some((newImg) => oldImg.image?.id === newImg.image?.id));
     const imgsToUpdate = newProductionImages.value.filter((newImg) => !imgsToCreate.includes(newImg)).filter((newImg) => !imgsToDelete.includes(newImg));
 
     for (const image of imgsToCreate)
       await createImageMutation.mutate({
         data: {
-          imageId: image.id,
+          imageId: image.imageId,
           productionId: props.productionId,
-          priority: parseInt(image.priority.toString())
+          priority: image.priority || 0
         }
       })
     for (const image of imgsToDelete)
       await deleteImageMutation.mutate({
-        id: image.prodId
+        id: image.productionId
       })
     for (const image of imgsToUpdate)
       await updateImageMutation.mutate({
-        id: image.prodId,
+        id: image.productionId,
         data: {
-          priority: parseInt(image.priority.toString())
+          priority: parseInt(image.priority?.toString() as string)
         }
       });
     const vidsToCreate = newProductionVideos.value.filter((newVid) => !oldProductionVideos.value.some((oldVid) => oldVid.id === newVid.id));
@@ -389,20 +346,20 @@ async function editProduction() {
     for (const video of vidsToCreate)
       await createVideoMutation.mutate({
         data: {
-          videoId: video.id,
+          videoId: video.videoId,
           productionId: props.productionId,
-          priority: parseInt(video.priority.toString())
+          priority: video.priority || 0
         }
       })
     for (const video of vidsToDelete)
       await deleteVideoMutation.mutate({
-        id: video.prodId
+        id: video.productionId
       })
     for (const video of vidsToUpdate)
       await updateVideoMutation.mutate({
-        id: video.prodId,
+        id: video.productionId,
         data: {
-          priority: parseInt(video.priority.toString())
+          priority: parseInt(video.priority?.toString() as string)
         }
       })
 
@@ -421,11 +378,11 @@ async function editProduction() {
       });
     for (const credit of creditsToDelete)
       await deleteCreditMutation.mutate({
-        id: credit.creditId
+        id: credit.id
       });
     for (const credit of creditsToUpdate)
       await updateCreditMutation.mutate({
-        id: credit.creditId,
+        id: credit.id,
         data: {
           priority: credit.priority,
           title: credit.title,
@@ -439,6 +396,14 @@ async function editProduction() {
   }
   emit("save", props.productionId);
 }
+
+watch(productionData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid && !!productionData.value.closetLocation && !!productionData.value.closetLocation && !!productionData.value.eventLocation &&
+      !!productionData.value.closetTime && !!productionData.value.startTime && !!productionData.value.endTime;
+  }
+}, {deep: true});
 
 onMounted(() => {
   currentProduction.refetch();

@@ -43,10 +43,10 @@
       <a :href="item.metadata.url" target="_blank">Link</a>
     </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none ml-3"
-          :disabled="(productionVideos.findIndex((ele) => ele.id === item.id && ele.url === item.metadata.url) !== -1)
+      <VBtn variant="outlined" class="text-none"
+          :disabled="(productionVideos.findIndex((ele) => ele.videoId === item.id && ele.video?.metadata.url === item.metadata.url) !== -1)
           || !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionVideo, {videoId: item.id}))"
-          @click="emit('addVideo', item.id, item.metadata.url)">Add Video</VBtn>
+          @click="emit('addVideo', item)">Add Video</VBtn>
     </template>
     <template v-slot:bottom>
       <v-pagination
@@ -65,6 +65,7 @@ import {
   OrderDirection,
   SearchVideosDocument, VideoOrderableFields
 } from "@/graphql/types";
+import type { ProductionVideo } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";
@@ -79,7 +80,7 @@ const props = defineProps({
     required: true
   },
   productionVideos: {
-    type: Object as PropType<Array<{id: number, url: string, priority: number}>>,
+    type: Object as PropType<ProductionVideo[]>,
     required: true
   }
 });

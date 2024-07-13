@@ -9,18 +9,18 @@
         <h2>Loading</h2>
       </div>
     </div>
-    <v-stepper v-model="step" :flat="true" v-else>
+    <v-stepper v-model="step" :flat="true" v-else :editable="validation">
       <template #actions="{prev, next}">
         <v-stepper-header>
-          <v-stepper-item :value="1" title="User Details" :editable="step > 1" :complete="step > 1"/>
+          <v-stepper-item :value="1" title="User Details" :editable="true" :complete="step > 1"/>
           <v-divider />
-          <v-stepper-item :value="2" title="Groups" :editable="step > 1" :complete="step > 2" />
+          <v-stepper-item :value="2" title="Groups"  :complete="step > 2" />
           <v-divider />
-          <v-stepper-item :value="3" title="Permissions"  :editable="step > 1" :complete="step > 3" />
+          <v-stepper-item :value="3" title="Permissions"  :complete="step > 3" />
           <v-divider />
-          <v-stepper-item :value="4" title="Person" :editable="step > 1" :complete="step > 4" />
+          <v-stepper-item :value="4" title="Person" :complete="step > 4" />
           <v-divider />
-          <v-stepper-item :value="5" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" :editable="step > 1" />
+          <v-stepper-item :value="5" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" />
         </v-stepper-header>
         <v-stepper-window>
           <v-stepper-window-item :value="1">
@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import type { PropType } from "vue";
 import UserDetails from "@/components/user/UserDetailsInput/UserDetails.vue";
 import {
@@ -97,6 +97,7 @@ const oldPermissions = ref<UserPermission[]>([]);
 const newPermissions = ref<UserPermission[]>([]);
 const person = ref<Partial<Person>>({});
 const requiredForm = ref();
+const validation = ref(false);
 const emit = defineEmits(["save"]);
 
 const sourceData = useQuery(UserDetailsDocument, { id: props.id });
@@ -145,10 +146,9 @@ sourceData.onResult((result) => {
 })
 
 async function validate(next: () => void) {
-  const validation = await requiredForm.value.validate();
   loading.value = false;
   if (step.value < 5) {
-    if (validation.valid)
+    if (validation.value)
       next();
     return;
   }
@@ -203,11 +203,6 @@ async function validate(next: () => void) {
     const permissionsToUpdate = newPermissions.value.filter((newPermission) => !oldPermissions.value.some((oldPermission) => JSON.stringify(oldPermission) === JSON.stringify(newPermission) || !newPermission.id));
     const permissionsToDelete = oldPermissions.value.filter((oldPermission) => !newPermissions.value.some((newPermission) => oldPermission.id === newPermission.id));
 
-    console.log("Old Permissions: ", oldPermissions.value);
-    console.log("New Permissions: ", newPermissions.value);
-    console.log("Permissions To Create: ", permissionsToCreate);
-    console.log("Permissions To Update: ", permissionsToUpdate);
-    console.log("Permissions To Delete: ", permissionsToDelete);
 
     for (let permission of permissionsToCreate) {
       try {
@@ -292,9 +287,16 @@ const checkDisable = computed(() => {
   return false;
 });
 
+watch(userData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid;
+  }
+}, {deep: true});
+
 onMounted(() => {
   sourceData.refetch();
-})
+});
 </script>
 
 <style scoped lang="scss">

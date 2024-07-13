@@ -3,18 +3,18 @@
     <v-card-title>
       Create User
     </v-card-title>
-    <v-stepper v-model="step" :flat="true">
+    <v-stepper v-model="step" :flat="true" :editable="validation">
       <template #actions="{prev, next}">
         <v-stepper-header>
-          <v-stepper-item :value="1" title="User Details" :editable="step > 1" :complete="step > 1"/>
+          <v-stepper-item :value="1" title="User Details" :editable="true" :complete="step > 1"/>
           <v-divider />
-          <v-stepper-item :value="2" title="Groups" :editable="step > 1" :complete="step > 2" />
+          <v-stepper-item :value="2" title="Groups" :complete="step > 2" />
           <v-divider />
-          <v-stepper-item :value="3" title="Permissions"  :editable="step > 1" :complete="step > 3" />
+          <v-stepper-item :value="3" title="Permissions"  :complete="step > 3" />
           <v-divider />
-          <v-stepper-item :value="4" title="Person" :editable="step > 1" :complete="step > 4" />
+          <v-stepper-item :value="4" title="Person" :complete="step > 4" />
           <v-divider />
-          <v-stepper-item :value="5" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" :editable="step > 1" />
+          <v-stepper-item :value="5" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" />
         </v-stepper-header>
         <v-stepper-window>
           <v-stepper-window-item :value="1">
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import UserDetails from "@/components/user/UserDetailsInput/UserDetails.vue";
 import {CreateUserDocument, CreateUserGroupDocument, CreateUserPermissionDocument} from "@/graphql/types";
 import type { Group, Person, User, UserPermission} from "@/graphql/types";
@@ -73,18 +73,17 @@ const groups = ref<Partial<Group>[]>([]);
 const permissionsToAdd = ref<UserPermission[]>([]);
 const person = ref<Partial<Person>>({});
 const requiredForm = ref();
+const validation = ref(false);
 const emit = defineEmits(["save"]);
 
 const createUserMutation = useMutation(CreateUserDocument);
 const createUserGroupMutation = useMutation(CreateUserGroupDocument);
 const createUserPermissionMutation = useMutation(CreateUserPermissionDocument);
 
-
 async function validate(next: () => void) {
-  const validation = await requiredForm.value.validate();
   loading.value = false;
   if (step.value < 5) {
-    if (validation.valid)
+    if (validation.value)
       next();
     return;
   }
@@ -133,7 +132,6 @@ async function validate(next: () => void) {
         }
       } catch (e) {
         console.error(e);
-        console.log(permission);
         error.value = "Failed to grant permission to user";
         return;
       }
@@ -162,6 +160,13 @@ function attachPerson(id: number, name: string) {
     name: name
   };
 }
+
+watch(userData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid;
+  }
+}, {deep: true});
 
 const checkDisable = computed(() => {
   if (loading.value)

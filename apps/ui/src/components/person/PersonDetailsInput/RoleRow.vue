@@ -6,15 +6,15 @@
         <template #activator="{ props }">
           <v-chip class="ml-1" closable v-bind="props"
                   @click:close="roles.splice(i, 1)" >
-            <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Role ID: {{ role.id }}
+            <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Role ID: {{ role.role?.id }}
           </v-chip>
         </template>
         <template #default>
           <div class="dialog-card">
-            <v-card :title="`Start and End Dates as ${role.name} (Optional)`" min-width="350" >
+            <v-card :title="`Start and End Dates as ${role.role?.name} (Optional)`" min-width="350" >
               <v-card-text>
-                <v-date-input v-model="role.startDate" label="Start Date" clearable />
-                <v-date-input v-model="role.endDate" label="End Date" clearable  />
+                <v-date-input v-model="role.startTime" label="Start Date" clearable />
+                <v-date-input v-model="role.endTime" label="End Date" clearable  />
               </v-card-text>
             </v-card>
           </div>
@@ -27,20 +27,14 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
+import type { PersonRole } from "@/graphql/types";
 
 defineProps({
   roles: {
-    type: Object as PropType<roleInterface[]>,
+    type: Object as PropType<PersonRole[]>,
     required: true
   }
 });
-
-interface roleInterface {
-  id: number | null,
-  name: string,
-  startDate?: Date,
-  endDate?: Date
-}
 
 </script>
 
