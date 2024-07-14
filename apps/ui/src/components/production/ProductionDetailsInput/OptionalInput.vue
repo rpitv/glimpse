@@ -10,10 +10,10 @@
 import { ability, AbilityActions } from "@/casl";
 import { AbilitySubjects } from "@/graphql/types";
 import type { Production, ProductionTag } from "@/graphql/types";
-import { watch, ref } from "vue";
+import { onMounted, ref, watch, } from "vue";
 import type { PropType } from "vue";
 
-defineProps({
+const props = defineProps({
   modelValue: {
     type: Object as PropType<Partial<Production>>,
     required: true
@@ -23,6 +23,7 @@ defineProps({
     required: true
   }
 });
+
 
 const emit = defineEmits(["update:modelValue", "update:tags"]);
 
@@ -34,6 +35,12 @@ watch(value, () => {
     newTags.push({tag: val});
   }
   emit("update:tags", newTags);
+})
+
+onMounted(() => {
+  for (const tag of props.tags) {
+    value.value.push(tag.tag as string);
+  }
 })
 
 </script>

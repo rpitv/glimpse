@@ -42,7 +42,7 @@
   >
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
-            :disabled="(productionCategory.id === item.id)"
+            :disabled="(productionCategory?.id === item.id)"
             @click="emit('setCategory', item)">
         Set As Category
       </VBtn>
@@ -84,6 +84,7 @@ const props = defineProps({
     required: true
   }
 });
+
 
 const emit = defineEmits(["setCategory"])
 

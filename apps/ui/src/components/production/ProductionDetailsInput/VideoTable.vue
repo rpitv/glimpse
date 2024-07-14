@@ -44,9 +44,10 @@
     </template>
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
-          :disabled="(productionVideos.findIndex((ele) => ele.videoId === item.id && ele.video?.metadata.url === item.metadata.url) !== -1)
+          :disabled="(productionVideos.findIndex((ele) => ele.videoId === item.id) !== -1)
           || !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionVideo, {videoId: item.id}))"
           @click="emit('addVideo', item)">Add Video</VBtn>
+
     </template>
     <template v-slot:bottom>
       <v-pagination
@@ -61,16 +62,18 @@
 <script setup lang="ts">
 import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects, CaseSensitivity,
+  AbilitySubjects,
+  CaseSensitivity,
   OrderDirection,
-  SearchVideosDocument, VideoOrderableFields
+  SearchVideosDocument,
+  VideoOrderableFields
 } from "@/graphql/types";
 import type { ProductionVideo } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";
-import {ability, AbilityActions} from "@/casl";
-import {subject} from "@casl/ability";
+import { ability, AbilityActions } from "@/casl";
+import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateVideoCard from "@/components/video/CreateVideoCard.vue";
 

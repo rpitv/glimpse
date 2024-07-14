@@ -34,19 +34,16 @@
             <OptionalInput v-model="productionData" v-model:tags="newProductionTags" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
-            <CategoryTable :take="take" :productionCategory="newProductionCategory"
-              @setCategory="(category: any) => newProductionCategory = {
-                id: category.id,
-                name: category.name
-              }"/>
-            <CategoryRow :productionCategory="newProductionCategory" @close="newProductionCategory = { id: null }" />
+            <CategoryTable :take="take" :productionCategory="productionData.category as Category"
+              @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"/>
+            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category = {}" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
-              <ImageTable :take="take" :productionImages="newProductionImages" :thumbnail="newProductionThumbnail"
+              <ImageTable :take="take" :productionImages="newProductionImages" :thumbnail="productionData.thumbnail as Image"
                 @setThumbnail="setThumbnail"
                 @addImage="addImage"
               />
-            <ImageRow :productionThumbnail="newProductionThumbnail" :productionImages="newProductionImages" @close="newProductionThumbnail = { id: null }" />
+            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="newProductionImages" @close="productionData.thumbnail = {}" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <VideoTable :productionVideos="newProductionVideos" :take="take" @addVideo="addVideo" />
@@ -54,35 +51,15 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">
             <PeopleTable :take="take" :people="newCreditPeople" @addPerson="addPerson"/>
-            <div class="flex-container mt-2" v-if="newCreditPeople.length" >
-              <h2>People: </h2>
-              <div class="chip-group">
-                <v-dialog v-for="(person, i) in newCreditPeople" :key="person.personId" >
-                  <template #activator="{ props }">
-                    <v-chip class="ml-1"  closable v-tooltip="person.person?.name" v-bind="props"
-                            @click:close="newCreditPeople.splice(i, 1)" :key="person.personId">
-                      <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Person ID: {{ person.personId }}
-                    </v-chip>
-                  </template>
-                  <div class="dialog-card">
-                    <v-card :title="`Title for ${person.person?.name} (Optional)`" min-width="350" >
-                      <v-card-text>
-                        <v-combobox :items="titles" v-model.trim="newCreditPeople[i].title" label="Title" clearable />
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </v-dialog>
-              </div>
-            </div>
-            <footer v-if="newCreditPeople.length">Note: Click on the chip(s) to give people titles</footer>
+            <PeopleRow :creditPeople="newCreditPeople" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="7">
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
             <div style="display: grid; grid-template-columns: 1fr 1fr">
-              <ReviewTable :productionData="productionData" :tags="newProductionTags" :category="newProductionCategory" :thumbnail="newProductionThumbnail"
-                           :images="newProductionImages" :videos="newProductionVideos" :credits="newCreditPeople" />
+              <ReviewTable :productionData="productionData" :tags="newProductionTags" :category="productionData.category as Category"
+                   :thumbnail="productionData.thumbnail as Image" :images="newProductionImages" :videos="newProductionVideos" :credits="newCreditPeople" />
               <PriorityEditor v-if="newProductionVideos.length > 0 || newProductionImages.length > 0 || newCreditPeople.length > 0"
                               :productionVideos="newProductionVideos" :productionImages="newProductionImages" :creditPeople="newCreditPeople" />
             </div>
@@ -157,7 +134,6 @@ const currentProduction = useQuery(ProductionDetailsDocument, {
 const requiredForm = ref();
 const error = ref<string | null>(null);
 const emit = defineEmits(["save"]);
-const titles = ["Cameraman", "Director", "Graphics Operator", "Producer"];
 
 const productionData = ref<Partial<Production>>({});
 
@@ -170,10 +146,6 @@ const validation = ref(false);
 const take = 20;
 const oldProductionTags = ref<ProductionTag[]>([]);
 const newProductionTags = ref<ProductionTag[]>([]);
-const oldProductionCategory = ref<Category>({id: null});
-const newProductionCategory = ref<Category>({id: null});
-const oldProductionThumbnail = ref<Image>({id: null});
-const newProductionThumbnail = ref<Image>({id: null});
 const oldProductionImages = ref<ProductionImage[]>([]);
 const newProductionImages = ref<ProductionImage[]>([]);
 const oldProductionVideos = ref<ProductionVideo[]>([]);
@@ -188,48 +160,40 @@ currentProduction.onResult((result) => {
   newCreditPeople.value = [];
 
   productionData.value = {
-    name: production?.name,
+    category: JSON.parse(JSON.stringify(production?.category)) ?? {},
     categoryId: production?.categoryId,
     closetLocation: production?.closetLocation,
-    eventLocation: production?.eventLocation,
     closetTime: production?.closetTime,
-    startTime: production?.startTime,
-    endTime: production?.endTime,
     description: production?.description,
+    endTime: production?.endTime,
+    eventLocation: production?.eventLocation,
+    name: production?.name,
+    startTime: production?.startTime,
     teamNotes: production?.teamNotes,
-  }
-  if (production?.thumbnail) {
-    oldProductionThumbnail.value = production?.thumbnail;
-    newProductionThumbnail.value = production?.thumbnail;
+    thumbnail: JSON.parse(JSON.stringify(production?.thumbnail)) ?? {},
+    thumbnailId: production?.thumbnailId
   }
 
   const tags = production?.tags;
   if (tags) {
     for (let i = 0; i < tags.length; i++) {
       oldProductionTags.value[i] = tags[i];
-      newProductionTags.value[i] = tags[i];
+      newProductionTags.value[i] = JSON.parse(JSON.stringify(tags[i]));
     }
-  }
-
-  const category = production?.category;
-
-  if (category) {
-    oldProductionCategory.value = category;
-    newProductionCategory.value = category;
   }
 
   const images = production?.images;
   if (images) {
     for (let i = 0; i < images?.length; i++) {
       oldProductionImages.value[i] = images[i];
-      newProductionImages.value[i] = images[i];
+      newProductionImages.value[i] = JSON.parse(JSON.stringify(images[i]));
     }
   }
   const videos = production?.videos;
   if (videos) {
     for (let i = 0; i < videos.length; i++) {
       oldProductionVideos.value[i] = videos[i];
-      newProductionVideos.value[i] = videos[i];
+      newProductionVideos.value[i] = JSON.parse(JSON.stringify(videos[i]));
     }
   }
 
@@ -237,7 +201,8 @@ currentProduction.onResult((result) => {
   if (credits) {
     for (let i = 0; i < credits.length; i++) {
       oldCreditPeople.value[i] = credits[i];
-      newCreditPeople.value[i] = credits[i];
+      // The data we are copying is readonly (i think) so we'll perform a deep copy
+      newCreditPeople.value[i] = JSON.parse(JSON.stringify(credits[i]));
     }
   }
 })
@@ -261,20 +226,23 @@ async function validate(next: any) {
 }
 
 function setThumbnail(image: Image) {
-  newProductionThumbnail.value = image;
+  productionData.value.thumbnail = image;
+  productionData.value.thumbnailId = image.id;
 }
 
 function addImage(image: Image) {
   newProductionImages.value.push({
-    id: image.id,
-    image: image
+    image: image,
+    imageId: image.id,
+    priority: 0
   });
 }
 
 function addVideo(video: Video) {
   newProductionVideos.value.push({
-    id: video.id,
-    video: video
+    video: video,
+    videoId: video.id,
+    priority: 0
   });
 }
 
@@ -282,26 +250,31 @@ function addPerson(person: Person) {
   newCreditPeople.value.push({
     person: person,
     personId: person.id,
+    priority: 0
   });
 }
 
-function assignTitle(title: string, index: number) {
-  newCreditPeople.value[index].title = title;
-}
 async function editProduction() {
   try {
-    if (newProductionCategory.value.id !== oldProductionCategory.value.id)
-      productionData.value.categoryId = newProductionCategory.value.id;
-    if (newProductionThumbnail.value.id !== oldProductionThumbnail.value.id)
-      productionData.value.thumbnailId = newProductionThumbnail.value.id ?? null;
 
     await updateProductionMutation.mutate({
-      data: productionData.value,
+      data: {
+        categoryId: productionData.value.categoryId,
+        closetLocation: productionData.value.closetLocation,
+        closetTime: productionData.value.closetTime,
+        description: productionData.value.description,
+        endTime: productionData.value.endTime,
+        eventLocation: productionData.value.eventLocation,
+        name: productionData.value.name,
+        startTime: productionData.value.startTime,
+        teamNotes: productionData.value.teamNotes,
+        thumbnailId: productionData.value.thumbnailId
+      },
       id: props.productionId
     });
 
-    const tagsToCreate = newProductionTags.value.filter((newTag) => !oldProductionTags.value.some((oldTag) => oldTag.tag === newTag));
-    const tagsToDelete = oldProductionTags.value.filter((oldTag) => !newProductionTags.value.some((newTag) => oldTag.tag === newTag));
+    const tagsToCreate = newProductionTags.value.filter((newTag) => !oldProductionTags.value.some((oldTag) => oldTag.tag === newTag.tag));
+    const tagsToDelete = oldProductionTags.value.filter((oldTag) => !newProductionTags.value.some((newTag) => oldTag.tag === newTag.tag));
 
     for (const tag of tagsToCreate)
       await createTagMutation.mutate({
@@ -330,11 +303,11 @@ async function editProduction() {
       })
     for (const image of imgsToDelete)
       await deleteImageMutation.mutate({
-        id: image.productionId
+        id: image.id
       })
     for (const image of imgsToUpdate)
       await updateImageMutation.mutate({
-        id: image.productionId,
+        id: image.id,
         data: {
           priority: parseInt(image.priority?.toString() as string)
         }
@@ -353,11 +326,11 @@ async function editProduction() {
       })
     for (const video of vidsToDelete)
       await deleteVideoMutation.mutate({
-        id: video.productionId
+        id: video.id
       })
     for (const video of vidsToUpdate)
       await updateVideoMutation.mutate({
-        id: video.productionId,
+        id: video.id,
         data: {
           priority: parseInt(video.priority?.toString() as string)
         }

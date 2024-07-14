@@ -31,11 +31,11 @@
           <td>Tags</td>
           <td>
             <v-chip-group v-if="tags.length > 0">
-              <v-chip class="ml-1" v-for="tag in tags" :key="tag.tag">
+              <v-chip v-for="tag in tags" :key="tag.tag">
                 {{ tag.tag }}
               </v-chip>
             </v-chip-group>
-            <p v-else class="ml-1">No tags provided</p>
+            <p v-else>No tags provided</p>
           </td>
         </tr>
         <tr>
@@ -49,7 +49,7 @@
         <tr>
           <td>Category</td>
           <td>
-            <v-chip v-tooltip="category.name" v-if="category.id" class="ml-1">
+            <v-chip v-tooltip="category.name" v-if="category.id">
               Category ID: {{ category.id }}
             </v-chip>
             <p v-else>No category provided</p>
@@ -97,7 +97,7 @@
                 Video ID: {{ video.videoId }}
               </v-chip>
             </v-chip-group>
-            <p v-else class="ml-1">No videos provided.</p>
+            <p v-else>No videos provided.</p>
           </td>
         </tr>
         <tr>
@@ -108,7 +108,7 @@
                 Person ID: {{ credit.personId }}
               </v-chip>
             </v-chip-group>
-            <p v-else class="ml-1">No credits provided.</p>
+            <p v-else>No credits provided.</p>
           </td>
         </tr>
       </tbody>

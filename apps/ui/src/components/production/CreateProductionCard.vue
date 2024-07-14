@@ -28,19 +28,17 @@
             <OptionalInput v-model="productionData"  v-model:tags="productionTags" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
-            <CategoryTable :take="take" :productionCategory="productionCategory"
-               @setCategory="
-                  (category: Category) => productionCategory = category
-              "
+            <CategoryTable :take="take" :productionCategory="productionData.category as Category"
+               @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"
             />
-            <CategoryRow :productionCategory="productionCategory" @close="productionCategory = { id: null }" />
+            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category.id = null" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
-            <ImageTable :take="take" :productionImages="productionImages" :thumbnail="productionThumbnail"
+            <ImageTable :take="take" :productionImages="productionImages" :thumbnail="productionData.thumbnail as Image"
               @setThumbnail="setThumbnail"
               @addImage="addImage"
             />
-            <ImageRow :productionThumbnail="productionThumbnail" :productionImages="productionImages" @close="productionThumbnail = { id: null }" />
+            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages" @close="productionData.thumbnailId = null" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <VideoTable :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
@@ -48,34 +46,14 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">
             <PeopleTable :take="take" :people="creditPeople" @addPerson="addPerson"/>
-            <div class="flex-container mt-2" v-if="creditPeople.length" >
-              <h2>People: </h2>
-              <div class="chip-group">
-                <v-dialog v-for="(person, i) in creditPeople" :key="person.personId" >
-                  <template #activator="{ props }">
-                    <v-chip class="ml-1"  closable v-tooltip="person.person?.name" v-bind="props"
-                            @click:close="creditPeople.splice(i, 1)" :key="person.personId">
-                      <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Person ID: {{ person.personId }}
-                    </v-chip>
-                  </template>
-                  <div class="dialog-card">
-                    <v-card :title="`Title for ${person.person?.name} (Optional)`" min-width="350" >
-                      <v-card-text>
-                        <v-combobox :items="titles" @update:modelValue="(val: string) => assignTitle(val, i)" label="Title" clearable />
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </v-dialog>
-              </div>
-            </div>
-            <footer v-if="creditPeople.length">Note: Click on the chip(s) to give people titles</footer>
+            <PeopleRow :creditPeople="creditPeople" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="7">
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
             <div style="display: grid; grid-template-columns: 1fr 1fr">
-              <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionCategory" :thumbnail="productionThumbnail"
+              <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionData.category as Category" :thumbnail="productionData.thumbnail as Image"
                          :images="productionImages" :videos="productionVideos" :credits="creditPeople" />
               <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0 || creditPeople.length > 0"
                       :productionVideos="productionVideos" :productionImages="productionImages" :creditPeople="creditPeople" />
@@ -131,7 +109,6 @@ const createCreditMutation = useMutation(CreateCreditDocument);
 const take = 20;
 const requiredForm = ref();
 const error = ref<string | null>(null);
-const titles = ["Cameraman", "Director", "Graphics Operator", "Producer"];
 
 const emit = defineEmits(["save"]);
 
@@ -143,14 +120,18 @@ const props = defineProps({
 })
 
 const productionData = ref<Partial<Production>>({
-  name: "",
+  category: {},
+  categoryId: null,
   closetLocation: "",
   eventLocation: "",
   closetTime: "",
+  name: "",
   startTime: "",
   endTime: "",
   description: "",
   teamNotes: "",
+  thumbnail: {},
+  thumbnailId: null,
 });
 
 const step = ref(1);
@@ -161,11 +142,9 @@ const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
 const validation = ref(false);
 const productionTags = ref<ProductionTag[]>([]);
-const productionCategory = ref<Category>({ id: null });
-const productionThumbnail = ref<Image>({ id: null });
 const productionImages = ref<ProductionImage[]>([]);
 const productionVideos = ref<ProductionVideo[]>([]);
-const creditPeople = ref<Credit[]>([]);
+const creditPeople = ref<Partial<Credit>[]>([]);
 
 if (props.data) {
   const startTime = new Date(props.data.startTime);
@@ -227,20 +206,17 @@ async function createProduction() {
   let createdProduction;
   try {
     let production: Partial<Production> = {
-      name: productionData.value.name,
+      categoryId: productionData.value.categoryId ?? null,
       closetLocation: productionData.value.closetLocation,
-      eventLocation: productionData.value.eventLocation,
       closetTime: new Date(productionData.value.closetTime).toISOString(),
-      startTime: new Date(productionData.value.startTime).toISOString(),
-      endTime: new Date(productionData.value.endTime).toISOString(),
       description: productionData.value.description,
+      endTime: new Date(productionData.value.endTime).toISOString(),
+      eventLocation: productionData.value.eventLocation,
+      name: productionData.value.name,
+      startTime: new Date(productionData.value.startTime).toISOString(),
       teamNotes: productionData.value.teamNotes,
+      thumbnailId: productionData.value.thumbnailId ?? null,
     }
-    if (productionThumbnail.value.id)
-      production.thumbnailId = productionThumbnail.value.id;
-
-    if (productionCategory.value.id)
-      production.categoryId = productionCategory.value.id;
 
     createdProduction = await createProductionMutation.mutate({
       data: production
@@ -259,7 +235,6 @@ async function createProduction() {
       });
 
     for (const productionImage of productionImages.value) {
-      console.log(productionImage);
       await createImageMutation.mutate({
         data: {
           imageId: productionImage.imageId,
@@ -295,7 +270,8 @@ async function createProduction() {
 }
 
 function setThumbnail(image: Image) {
-  productionThumbnail.value = image;
+  productionData.value.thumbnail = image;
+  productionData.value.thumbnailId = image.id;
 }
 
 function addImage(image: Image) {
@@ -322,9 +298,6 @@ function addPerson(person: Person) {
   });
 }
 
-function assignTitle(title: string, index: number) {
-  creditPeople.value[index].title = title;
-}
 
 watch(productionData, async () => {
   if (requiredForm.value) {

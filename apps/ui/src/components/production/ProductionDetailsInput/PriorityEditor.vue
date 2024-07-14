@@ -13,7 +13,7 @@
         <td>
           <v-dialog width="400">
             <template #activator="{ props }">
-              <v-chip v-bind="props" v-tooltip="'Click to view image'">Image ID: {{ image.image?.id }}</v-chip>
+              <v-chip v-bind="props" v-tooltip="'Click to view image'">Image ID: {{ image.imageId }}</v-chip>
             </template>
             <template #default>
               <img :src="image.image?.path" :alt="image.image?.name">
@@ -26,7 +26,7 @@
         </td>
       </tr>
       <tr v-for="video in productionVideos" :key="video.id">
-        <td><v-chip @click="openURL(video.video?.metadata.url)" v-tooltip="'Click to open video link'">Video ID: {{ video.id }}</v-chip></td>
+        <td><v-chip @click="openURL(video.video?.metadata.url)" v-tooltip="'Click to open video link'">Video ID: {{ video.videoId }}</v-chip></td>
         <td>
           <v-number-input class="mt-3" v-model="video.priority"
               :inset="true" density="compact" />
