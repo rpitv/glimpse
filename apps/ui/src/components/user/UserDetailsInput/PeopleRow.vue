@@ -29,11 +29,6 @@ defineProps({
   align-items: center;
 }
 
-.dialog-card {
-  display: flex;
-  justify-content: center;
-}
-
 .chip-group {
   display: flex;
   flex-wrap: wrap;

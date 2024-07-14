@@ -114,8 +114,4 @@ function formattedDate(time: string) {
   border-style: solid;
   border-color:  #a9aeb3;
 }
-
-.dialog-card {
-  width: 400px;
-}
 </style>

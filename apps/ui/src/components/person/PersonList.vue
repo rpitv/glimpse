@@ -47,6 +47,9 @@
      :loading="queryData.loading.value"
      loading-text="Loading People..."
     >
+      <template #item.description="{ item }">
+        {{ item.description?.length ? item.description : "No description provided." }}
+      </template>
       <template #item.actions="{ index, item }">
         <RouterPopup
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Person, {

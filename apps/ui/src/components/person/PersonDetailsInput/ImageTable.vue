@@ -43,11 +43,11 @@
       <a :href="item.path" target="_blank">Link</a>
     </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none mr-2" :disabled="profileId === item.id"
-            @click="emit('setProfile', item.id, item.path)" color="blue">Set As Profile Picture</VBtn>
+      <VBtn variant="outlined" class="text-none mr-2" :disabled="profile.id === item.id"
+            @click="emit('setProfile', item)" color="blue">Set As Profile Picture</VBtn>
       <VBtn variant="outlined" class="text-none"
             :disabled="images.findIndex(
-            (ele) => ele.id === item.id && ele.image?.id === item.path) !== -1 ||
+            (ele) => ele.imageId === item.id) !== -1 ||
             !ability.can(AbilityActions.Create, subject(AbilitySubjects.Image, {imageId: item.id}))"
             @click="emit('addImage', item)">
         Add Image
@@ -72,7 +72,7 @@ import {
   OrderDirection,
   SearchImagesDocument
 } from "@/graphql/types";
-import type { PersonImage } from "@/graphql/types";
+import type { PersonImage, Image } from "@/graphql/types";
 import { useQuery } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
 import type { PropType } from "vue";
@@ -90,8 +90,8 @@ const props = defineProps({
     type: Object as PropType<PersonImage[]>,
     required: true
   },
-  profileId: {
-    type: null,
+  profile: {
+    type: Object as PropType<Image>,
     required: true
   }
 });

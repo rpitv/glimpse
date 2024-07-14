@@ -21,11 +21,11 @@
             </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2">
-            <ImageTable :take="take" :images="images" :profileId="profile.id"
-              @setProfile="setProfileId"
+            <ImageTable :take="take" :images="images" :profile="personData.profilePicture as Image"
+              @setProfile="setProfile"
               @addImage="addImage"
             />
-            <ImageRow :images="images" :profile="profile" />
+            <ImageRow :images="images" :profile="personData.profilePicture as Image" @close="personData.profilePicture = {}" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <RoleTable :roles="roles" :take="take" @addRole="addRole"/>
@@ -33,12 +33,12 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <div class="review">
-              <ReviewTable :images="images" :roles="roles" :profilePic="profile" :personData="personData" />
+              <ReviewTable :images="images" :roles="roles" :profilePic="personData.profilePicture as Image" :personData="personData" />
               <PriorityEditor :images="images"/>
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
-        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 5 ? 'CREATE' : 'NEXT'"
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 4 ? 'CREATE' : 'NEXT'"
                    :disabled="checkDisable" />
       </template>
     </v-stepper>
@@ -68,6 +68,8 @@ const personData = ref<Partial<Person>>({
   description: "",
   pronouns: null,
   graduation: null,
+  profilePicture: {},
+  profilePictureId: null,
 });
 
 const createPersonMutation = useMutation(CreatePersonDocument);
@@ -85,12 +87,17 @@ const requiredForm = ref();
 const validation = ref(false);
 const images = ref<PersonImage[]>([]);
 const roles = ref<PersonRole[]>([]);
-const profile = ref<Image>({id: null});
+
+function setProfile(profile: Image) {
+  personData.value.profilePicture = profile;
+  personData.value.profilePictureId = profile.id;
+}
 
 function addImage(image: Image) {
   images.value.push({
     imageId: image.id,
-    image: image
+    image: image,
+    priority: 0
   });
 }
 
@@ -99,10 +106,6 @@ function addRole(role: Role) {
     roleId: role.id,
     role: role
   });
-}
-
-function setProfileId(image: Image) {
-  profile.value = image;
 }
 
 async function validate(next: () => void) {
@@ -119,7 +122,7 @@ async function validate(next: () => void) {
         description: personData.value.description,
         pronouns: personData.value.pronouns,
         graduation: personData.value.graduation,
-        profilePictureId: profile.value.id
+        profilePictureId: personData.value.profilePictureId
       },
     });
 
@@ -131,7 +134,7 @@ async function validate(next: () => void) {
     for (const image of images.value) {
       await createPersonImageMutation.mutate({
         personId: createdPerson.data.person.id,
-        imageId: image.id,
+        imageId: image.imageId,
         priority: image.priority as number
       });
     }

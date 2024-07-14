@@ -40,14 +40,14 @@
      :headers="roleHeader"
   >
     <template #item.description="{ item }">
-      {{ item.description?.trim().length ? item : "No description" }}
+      {{ item.description?.trim().length ? item.description : "No description" }}
     </template>
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
           :disabled="roles.findIndex(
-          (ele) => ele.role?.id === item.id && ele.role?.name === item.name) !== -1 ||
+          (ele) => ele.roleId === item.id) !== -1 ||
           !ability.can(AbilityActions.Create, subject(AbilitySubjects.Role, {roleId: item.id}))"
-          @click="emit('addRole', item.id, item.name)">
+          @click="emit('addRole', item)">
         Add Role
       </VBtn>
     </template>

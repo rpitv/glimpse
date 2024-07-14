@@ -4,7 +4,7 @@
     <v-dialog width="400" >
       <template v-slot:activator="{ props }" >
         <v-chip v-tooltip="'Click to view image'" v-bind="props" class="ml-1" closable
-                @click:close="() => { profile.id = null }">
+                @click:close="emit('close')">
           Image ID: {{ profile.id }}
         </v-chip>
       </template>
@@ -20,7 +20,7 @@
         <template #activator="{ props }">
           <v-chip v-tooltip="'Click to view image'" class="ml-1" closable v-bind="props"
                   @click:close="images.splice(i, 1)" >
-            Image ID: {{ image.image?.id }}
+            Image ID: {{ image.imageId }}
           </v-chip>
         </template>
         <template v-slot:default>
@@ -34,6 +34,8 @@
 <script setup lang="ts">
 import type { PropType } from "vue";
 import type { Image, PersonImage } from "@/graphql/types";
+
+const emit = defineEmits(["close"]);
 
 defineProps({
   profile: {

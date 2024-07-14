@@ -6,13 +6,16 @@ query PersonDetails($id: BigInt!) {
     graduation
     pronouns
     roles {
+      endTime
       id
       role {
         id
         name
+        description
+        priority
       }
+      roleId
       startTime
-      endTime
     }
     users {
       id

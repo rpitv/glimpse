@@ -27,11 +27,11 @@
             </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2">
-            <ImageTable :take="take" :images="newImages" :profileId="profile.id"
+            <ImageTable :take="take" :images="newImages" :profile="personData.profilePicture as Image"
                 @setProfile="setProfileId"
                 @addImage="addImage"
             />
-            <ImageRow :images="newImages" :profile="profile" />
+            <ImageRow :images="newImages" :profile="personData.profilePicture as Image" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <RoleTable :roles="newRoles" :take="take" @addRole="addRole" />
@@ -39,7 +39,7 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <div class="review">
-              <ReviewTable :images="newImages" :roles="newRoles" :profilePic="profile" :personData="personData" />
+              <ReviewTable :images="newImages" :roles="newRoles" :profilePic="personData.profilePicture as Image" :personData="personData" />
               <PriorityEditor :images="newImages"/>
             </div>
           </v-stepper-window-item>
@@ -101,15 +101,16 @@ const deletePersonRole = useMutation(DeletePersonRoleDocument);
 const updatePersonRole = useMutation(UpdatePersonRoleDocument);
 
 const personData = ref<Partial<Person>>({
-  name: "",
   description: "",
-  pronouns: null,
   graduation: null,
+  name: "",
+  profilePicture: {},
+  profilePictureId: null,
+  pronouns: null,
 });
 
 const oldImages = ref<PersonImage[]>([]);
 const newImages = ref<PersonImage[]>([]);
-const profile = ref<Image>({id: null});
 const oldRoles = ref<PersonRole[]>([]);
 const newRoles = ref<PersonRole[]>([]);
 
@@ -121,30 +122,33 @@ data.onResult((result) => {
     description: person?.description,
     pronouns: person?.pronouns,
     graduation: person?.graduation,
+    profilePicture: JSON.parse(JSON.stringify(person?.profilePicture)) ?? {},
+    profilePictureId: person?.profilePicture?.id
   };
-  profile.value = person?.profilePicture;
-  oldImages.value = person?.images;
-  newImages.value = person?.images;
-  oldRoles.value = person?.roles;
-  newRoles.value = person?.roles;
+  oldImages.value = person?.images as PersonImage[];
+  newImages.value = JSON.parse(JSON.stringify(person?.images)) as PersonImage[];
+  oldRoles.value = person?.roles as PersonRole[];
+  newRoles.value = JSON.parse(JSON.stringify(person?.roles)) as PersonRole[];
 });
 
 function addImage(image: Image) {
   newImages.value.push({
     imageId: image.id,
-    image: image
+    image: image,
+    priority: 0
   });
 }
 
 function addRole(role: Role) {
   newRoles.value.push({
     role: role,
-    roleId: role.id
+    roleId: role.id,
   });
 }
 
 function setProfileId(image: Image) {
-  profile.value = image
+  personData.value.profilePicture = image;
+  personData.value.profilePictureId = image.id;
 }
 
 async function validate(next: () => void) {
@@ -172,7 +176,7 @@ async function validate(next: () => void) {
     }
 
     for (const newImage of newImages.value) {
-      const matchingImage = oldImages.value.find((oldImage) => oldImage.id === newImage.id);
+      const matchingImage = oldImages.value.find((oldImage) => oldImage.imageId === newImage.imageId);
       if (matchingImage) {
         if (matchingImage.priority !== newImage.priority) {
           updatePersonImage.mutate({
@@ -182,7 +186,7 @@ async function validate(next: () => void) {
         }
       } else {
         createPersonImage.mutate({
-          imageId: newImage.id,
+          imageId: newImage.imageId,
           personId: props.personId,
           priority: newImage.priority ?? 0
         });
@@ -190,7 +194,7 @@ async function validate(next: () => void) {
     }
 
     for (const oldImage of oldImages.value) {
-      const matchingImage = newImages.value.find((newImage) => newImage.id === oldImage.id);
+      const matchingImage = newImages.value.find((newImage) => newImage.imageId === oldImage.imageId);
       if (!matchingImage)
         deletePersonImage.mutate({
           id: oldImage.id,
@@ -198,7 +202,7 @@ async function validate(next: () => void) {
     }
 
     for (const newRole of newRoles.value) {
-      const matchingRole = oldRoles.value.find((oldRole) => oldRole.id === oldRole.id);
+      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === oldRole.roleId);
       if (matchingRole) {
         if (matchingRole.endTime !== newRole.endTime || matchingRole.startTime !== newRole.startTime) {
           updatePersonRole.mutate({
@@ -209,7 +213,7 @@ async function validate(next: () => void) {
         }
       } else {
         createPersonRole.mutate({
-          roleId: newRole.id,
+          roleId: newRole.roleId,
           personId: props.personId,
           startTime: newRole.startTime,
           endTime: newRole.endTime
@@ -218,7 +222,7 @@ async function validate(next: () => void) {
     }
 
     for (const oldRole of oldRoles.value) {
-      const matchingRole = newRoles.value.find((newRole) => newRole.id === oldRole.id);
+      const matchingRole = newRoles.value.find((newRole) => newRole.roleId === oldRole.roleId);
       if (!matchingRole) {
         deletePersonRole.mutate({
           id: oldRole.id

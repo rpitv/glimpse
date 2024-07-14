@@ -190,7 +190,6 @@ async function validate(next: () => void) {
         await deleteUserGroupMutation.mutate({
           id: group.id,
         });
-
       } catch (e) {
         console.error(e);
         error.value = `Failed to remove user from the group "${group.group?.name} (ID ${group.id})"`;

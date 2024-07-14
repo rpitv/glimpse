@@ -2,7 +2,7 @@
   <div class="flex mt-2" v-if="roles.length">
     <h2>Roles: </h2>
     <div class="chip-group">
-      <v-dialog v-for="(role, i) in roles" :key="role.id" >
+      <v-dialog v-for="(role, i) in roles" :key="role.id" max-width="500">
         <template #activator="{ props }">
           <v-chip class="ml-1" closable v-bind="props"
                   @click:close="roles.splice(i, 1)" >
@@ -10,14 +10,12 @@
           </v-chip>
         </template>
         <template #default>
-          <div class="dialog-card">
-            <v-card :title="`Start and End Dates as ${role.role?.name} (Optional)`" min-width="350" >
-              <v-card-text>
-                <v-date-input v-model="role.startTime" label="Start Date" clearable />
-                <v-date-input v-model="role.endTime" label="End Date" clearable  />
-              </v-card-text>
-            </v-card>
-          </div>
+          <v-card :title="`Start and End Dates as ${role.role?.name} (Optional)`" min-width="350" >
+            <v-card-text>
+              <v-date-input v-model="role.startTime" label="Start Date" clearable />
+              <v-date-input v-model="role.endTime" label="End Date" clearable  />
+            </v-card-text>
+          </v-card>
         </template>
       </v-dialog>
     </div>
@@ -41,11 +39,6 @@ defineProps({
 <style scoped lang="scss">
 .flex {
   display: flex;
-}
-
-.dialog-card {
-  display: flex;
-  justify-content: center;
 }
 
 .chip-group {
