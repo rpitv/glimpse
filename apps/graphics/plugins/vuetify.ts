@@ -1,14 +1,7 @@
 import '@fortawesome/fontawesome-free/css/all.css'
 import 'vuetify/styles'
-import {createVuetify, ThemeDefinition} from 'vuetify'
+import {createVuetify} from 'vuetify'
 import {aliases, fa} from 'vuetify/iconsets/fa-svg';
-
-const glimpseTheme: ThemeDefinition = {
-	dark: true,
-	colors: {
-		background: "#2f3a4f"
-	}
-}
 
 export default createVuetify({
 	icons: {
@@ -18,5 +11,11 @@ export default createVuetify({
 	},
 	theme: {
 		defaultTheme: 'dark'
+	},
+	defaults: {
+		VSwitch: {
+			inset: true,
+			color: "primary"
+		}
 	}
 })

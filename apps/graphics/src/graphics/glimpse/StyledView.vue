@@ -2,31 +2,33 @@
 	<div>
 		<SlideshowView />
 		<ImageView />
-		<LowerThirdView />
 		<ScoreboardView />
 	  <CopyrightView />
+		<CommentatorsView />
 		<div v-if="replicants.gameSettings.style.value === 'espn'">
 			<ESPNProduced />
 			<ESPNBanner />
 		</div>
+		<LocatorView />
+		<LowerThirdScoreboardView />
 	  <BugView />
 	</div>
 </template>
 
 <script setup lang="ts">
 import {loadReplicants} from "../../browser-common/replicants";
+import {watch} from "vue";
 import SlideshowView from "./SlideshowView.vue";
 import ImageView from "./ImageView.vue";
-
 import ESPNProduced from "./styles/espn/lower-third/Produced.vue";
-import ESPNScoreboardView from "./styles/espn/ScoreboardView.vue";
-import ESPNLowerThird from "./styles/espn/LowerThird.vue"
 import ESPNBanner from "./styles/espn/Banner.vue";
-import {watch} from "vue";
-import BugView from "../glimpse/BugView.vue";
-import LowerThirdView from "../glimpse/LowerThirdView.vue";
-import CopyrightView from "../glimpse/CopyrightView.vue";
-import ScoreboardView from "../glimpse/ScoreboardView.vue";
+import BugView from "./BugView.vue";
+import CommentatorsView from "./CommentatorsView.vue";
+import CopyrightView from "./CopyrightView.vue";
+import LocatorView from "./LocatorView.vue";
+import LowerThirdScoreboardView from "./LowerThirdScoreboardView.vue";
+import ScoreboardView from "./ScoreboardView.vue";
+
 
 const replicants = await loadReplicants();
 
@@ -36,6 +38,8 @@ watch(replicants.gameSettings.api.forceReload, (newV, oldV) => {
 		location.reload();
 	}
 });
+
+
 </script>
 
 <style scoped lang="scss">

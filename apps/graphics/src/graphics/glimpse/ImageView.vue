@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-
 import {replicant} from "../../browser-common/replicant";
 
 const images = await replicant('assets:images');

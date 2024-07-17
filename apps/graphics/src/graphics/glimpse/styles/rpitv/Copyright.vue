@@ -8,7 +8,7 @@
 			</div>
 		</div>
 
-		<div :class="{show: showCopyright, hide: !showCopyright, 'center-copyright': true}">
+		<div class="center-copyright">
 			<span class="background">© RPI TV ALL RIGHTS RESERVED</span>
 		</div>
 	</div>

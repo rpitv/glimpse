@@ -1,17 +1,17 @@
 <template>
 	<img :src="Locator">
-	<div id="team1SecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
-	<div id="team1PrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
-	<div id="team0SecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
-	<div id="team0PrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
-	<div class="team1Logo">
-		<img id="team1Logo" :src="replicants.lowerThird.school2Logo.value">
+	<div id="leftTeamSecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
+	<div id="leftTeamPrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
+	<div id="rightTeamSecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
+	<div id="rightTeamPrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
+	<div class="left-team-logo">
+		<img id="leftTeamLogo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
-	<div class="team2Logo">
-		<img id="team2Logo" :src="replicants.lowerThird.school1Logo.value">
+	<div class="right-team-logo">
+		<img id="rightTeamLogo" :src="replicants.lowerThird.school1Logo.value">
 	</div>
-	<div class="team1Name">{{replicants.teams[1].schoolName.value}}</div>
-	<div class="team0Name">{{replicants.teams[0].schoolName.value}}</div>
+	<div class="leftTeamName">{{replicants.teams[1].schoolName.value}}</div>
+	<div class="rightTeamName">{{replicants.teams[0].schoolName.value}}</div>
 </template>
 
 <script setup lang="ts">
@@ -37,59 +37,61 @@ img {
 	width: 100vw;
 	height: 100vh;
 }
-#team1SecondaryColor {
+#leftTeamSecondaryColor {
 	left: 29.5vw;
 	bottom: 22.1vh;
 	width: 2.7vw;
 	height: 9.6vh;
 }
-#team1PrimaryColor {
+#leftTeamPrimaryColor {
 	left: 32.4vw;
 	bottom: 22.1vh;
 	width: 11.8vw;
 	height: 9.6vh;
 }
-#team0SecondaryColor {
+#rightTeamSecondaryColor {
 	left: 67.6vw;
 	width: 2.7vw;
 	bottom: 22.1vh;
 	height: 9.6vh;
 }
-#team0PrimaryColor {
+#rightTeamPrimaryColor {
 	left: 55.6vw;
 	bottom: 22.1vh;
 	width: 11.9vw;
 	height: 9.6vh;
 }
-.team1Logo {
-	left: 0;
-	bottom: 22.4vh;
-	width: 76.67vw;
+.left-team-logo {
+	left: 32.4vw;
+	bottom: 22.1vh;
+	width: 11.8vw;
+	height: 9.6vh;
 	display: flex;
 	justify-content: center;
 }
-#team1Logo {
+#leftTeamLogo {
 	position: relative;
 	height: auto;
 	width: auto;
 	max-width: 11.9vw;
-	max-height: 9vh;
+	max-height: 9.5vh;
 }
-.team2Logo {
-	left: 0;
-	bottom: 22.4vh;
-	width: 123vw;
+.right-team-logo {
+	left: 55.6vw;
+	bottom: 22.1vh;
+	width: 11.9vw;
+	height: 9.6vh;
 	display: flex;
 	justify-content: center;
 }
-#team2Logo {
+#rightTeamLogo {
 	position: relative;
 	height: auto;
 	width: auto;
 	max-width: 11.9vw;
-	max-height: 9vh;
+	max-height: 9.5vh;
 }
-.team1Name {
+.leftTeamName {
 	color: rgba(63,63,63);
 	left: 30.84vw; /* 592px / 1920px * 100 */
 	top: 79.26vh; /* 856px / 1080px * 100 */
@@ -103,7 +105,7 @@ img {
 	align-content: center;
 	flex-wrap: wrap;
 }
-.team0Name {
+.rightTeamName {
 	color: rgba(63,63,63);
 	left: 54.78vw; /* 1052px / 1920px * 100 */
 	top: 79.26vh; /* 856px / 1080px * 100 */

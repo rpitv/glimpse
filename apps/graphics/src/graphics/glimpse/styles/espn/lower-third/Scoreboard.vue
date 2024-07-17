@@ -1,29 +1,29 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
-	<div id="team1Name" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
+	<div id="leftTeamName" class="lower-third" :style="{'color': replicants.teams[1].primaryColor.value}">
 		<p>{{replicants.teams[1].schoolName.value}}</p>
 	</div>
-	<div  id="team1Score" class="lower-third">
-		{{team1Score}}
+	<div id="leftTeamScore" class="lower-third">
+		{{ leftTeamScore }}
 	</div>
-	<div id="team2Name" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
+	<div id="rightTeamName" class="lower-third" :style="{'color': replicants.teams[0].primaryColor.value}">
 		<p>{{replicants.teams[0].schoolName.value}}</p>
 	</div>
-	<div id="team2Score" class="lower-third">
-		{{team0Score}}
+	<div id="rightTeamScore" class="lower-third">
+		{{ rightTeamScore }}
 	</div>
 	<div id="gamePeriod" class="lower-third">
 		{{period}}
 	</div>
-	<div class="colors" id="team1PrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
-	<div class="colors" id="team1SecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
-	<div class="colors" id="team2PrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
-	<div class="colors" id="team2SecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
-	<div class="team1Logo">
-		<img id="team1Logo" :src="replicants.lowerThird.school2Logo.value">
+	<div class="colors" id="leftTeamPrimaryColor" :style="{'background-color': replicants.teams[1].primaryColor.value}"></div>
+	<div class="colors" id="leftTeamSecondaryColor" :style="{'background-color': replicants.teams[1].secondaryColor.value}"></div>
+	<div class="colors" id="rightTeamPrimaryColor" :style="{'background-color': replicants.teams[0].primaryColor.value}"></div>
+	<div class="colors" id="rightTeamSecondaryColor" :style="{'background-color': replicants.teams[0].secondaryColor.value}"></div>
+	<div class="left-team-logo">
+		<img id="leftTeamLogo" :src="replicants.lowerThird.school2Logo.value">
 	</div>
-	<div class="team2Logo">
-		<img id="team2Logo" :src="replicants.lowerThird.school1Logo.value">
+	<div class="right-team-logo">
+		<img id="rightTeamLogo" :src="replicants.lowerThird.school1Logo.value">
 	</div>
 </template>
 
@@ -34,14 +34,14 @@ import scoreboard from "../../../../../assets/espn/Scoreboard.png";
 
 const replicants = await loadReplicants();
 
-const team0Score = ref<number>(replicants.teams[0].score.value);
-const team1Score = ref<number>(replicants.teams[1].score.value);
+const rightTeamScore = ref<number>(replicants.teams[0].score.value);
+const leftTeamScore = ref<number>(replicants.teams[1].score.value);
 const period = replicants.lowerThird.scoreboardDescription;
 
 watch(replicants.scoreboard.visible, (newValue, oldValue) => {
 	if (oldValue) {
-		team0Score.value = replicants.teams[0].score.value;
-		team1Score.value = replicants.teams[1].score.value;
+		rightTeamScore.value = replicants.teams[0].score.value;
+		leftTeamScore.value = replicants.teams[1].score.value;
 		// Periods
 		if (replicants.scoreboard.period.value === 1)
 			period.value = "End of 1st";
@@ -125,7 +125,7 @@ img {
 	left: 0;
 	text-align: center;
 }
-#team1Name {
+#leftTeamName {
 	left: 30.84vw; /* 592px / 1920px * 100 */
 	top: 79.26vh; /* 856px / 1080px * 100 */
 	width: 14vw; /* 270px / 1920px * 100 */
@@ -138,13 +138,14 @@ img {
 	align-content: center;
 	flex-wrap: wrap;
 }
-#team1Score {
-	font-size: 5.7vh;
-	width: 84.5vw;
+#leftTeamScore {
+	left: 39.1vw;
 	bottom: 23.7vh;
+	font-size: 5.7vh;
+	width: 6.2vw;
 	height: 5.7vh;
 }
-#team2Name {
+#rightTeamName {
 	left: 54.78vw; /* 1052px / 1920px * 100 */
 	top: 79.26vh; /* 856px / 1080px * 100 */
 	width: 14vw; /* 270px / 1920px * 100 */
@@ -157,15 +158,17 @@ img {
 	align-content: center;
 	flex-wrap: wrap;
 }
-#team2Score {
-	font-size: 5.7vh;
-	width: 115.15vw;
+#rightTeamScore {
+	left: 54.5vw;
 	bottom: 23.7vh;
+	font-size: 5.7vh;
+	width: 6.2vw;
 	height: 5.7vh;
 }
 #gamePeriod {
+	left: 44.5vw;
 	font-size: 2.36vh;
-	width: 99.8vw;
+	width: 11vw;
 	bottom: 12.75vh;
 	height: 2.36vh;
 	color: white;
@@ -174,39 +177,39 @@ img {
 	height: 9.6vh;
 	bottom: 21.8vh;
 }
-#team1SecondaryColor {
+#leftTeamSecondaryColor {
 	left: 28.6vw;
 	width: 1.84vw;
 }
-#team1PrimaryColor {
+#leftTeamPrimaryColor {
 	left: 30.7vw;
 	width: 8vw;
 }
-#team2SecondaryColor {
+#rightTeamSecondaryColor {
 	left: 69.3vw;
 	width: 1.93vw;
 }
-#team2PrimaryColor {
+#rightTeamPrimaryColor {
 	left: 61.1vw;
 	width: 8.1vw;
 }
-.team1Logo {
-	left: 0;
-	top: 0;
-	width: 69.4vw;
-	height: 147vh;
+.left-team-logo {
+	left: 30.7vw;
+	bottom: 21.8vh;
+	width: 8vw;
+	height: 9.6vh;
 	display: flex;
 	justify-content: center;
 }
-.team2Logo{
-	left: 0;
-	top: 0;
-	width: 130vw;
-	height: 147vh;
+.right-team-logo{
+	left: 61.1vw;
+	bottom: 21.8vh;
+	width: 8.1vw;
+	height: 9.6vh;
 	display: flex;
 	justify-content: center;
 }
-#team1Logo {
+#leftTeamLogo {
 	position: relative;
 	margin: auto;
 	max-width: 8vw;
@@ -214,7 +217,7 @@ img {
 	height: auto;
 	width: auto;
 }
-#team2Logo {
+#rightTeamLogo {
 	position: relative;
 	margin: auto;
 	max-width: 8vw;
