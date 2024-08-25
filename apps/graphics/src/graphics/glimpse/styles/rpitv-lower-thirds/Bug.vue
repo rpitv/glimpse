@@ -3,8 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import bug from "../../../../assets/espn/espnBug.png";
-import { computed, CSSProperties } from "vue";
+import bug from "../../../../assets/rpitv-modern/rpitvBug.png";
+import { computed, type CSSProperties } from "vue";
 import { loadReplicants } from "../../../../browser-common/replicants"
 
 const replicants = await loadReplicants();
@@ -15,11 +15,10 @@ const bugStyle = computed((): CSSProperties => {
 		height: "100vh",
 		left: replicantBug.offsetX.value + "vw",
 		position: "absolute",
-		bottom: replicantBug.offsetY.value - 1 + "vh",
+		bottom: replicantBug.offsetY.value + "vh",
 		width: "100vw",
 	}
 });
-
 </script>
 
 <style scoped>

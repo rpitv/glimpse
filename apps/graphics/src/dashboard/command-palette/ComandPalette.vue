@@ -44,8 +44,8 @@ const palette = ref<HTMLElement|null>(null);
 const isScoreboardShown = replicants.scoreboard.visible;
 
 function showScoreboard() {
-	if (replicants.gameSettings.style.value === "football" && replicants.lowerThird.bug.value)
-		replicants.lowerThird.bug.value = false;
+	if (replicants.gameSettings.style.value === "football" && replicants.lowerThird.bug.show.value)
+		replicants.lowerThird.bug.show.value = false;
 	isScoreboardShown.value = !isScoreboardShown.value;
 }
 

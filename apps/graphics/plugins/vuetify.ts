@@ -1,21 +1,56 @@
-import '@fortawesome/fontawesome-free/css/all.css'
-import 'vuetify/styles'
-import {createVuetify} from 'vuetify'
-import {aliases, fa} from 'vuetify/iconsets/fa-svg';
+import 'vuetify/styles';
+import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+import { createVuetify } from 'vuetify';
+import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
 export default createVuetify({
+	components: {
+		VNumberInput
+	},
 	icons: {
-		defaultSet: 'fa',
+		defaultSet: 'mdi',
 		aliases,
-		sets: { fa }
+		sets: {
+			mdi,
+		},
 	},
 	theme: {
 		defaultTheme: 'dark'
 	},
 	defaults: {
+		VBtn: {
+			variant: "outlined",
+			class: "text-none",
+		},
+		VChip: {
+			label: true,
+			variant: "outlined",
+		},
+		VColorPicker: {
+			hideInputs: true,
+			modes: ["hex", "rgb"],
+		},
+		VCombobox: {
+			variant: "outlined",
+		},
+		VExpansionPanels: {
+			style: {
+				width: "400px",
+			},
+			variant: "accordion"
+		},
+		VNumberInput: {
+			variant: "outlined",
+			step: 0.5
+		},
 		VSwitch: {
 			inset: true,
-			color: "primary"
+			color: "primary",
+		},
+		VTextField: {
+			clearable: true,
+			variant: "outlined"
 		}
 	}
 })

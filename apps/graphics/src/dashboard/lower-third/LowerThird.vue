@@ -5,34 +5,40 @@
 			<tr>
 				<th>Name</th>
 				<th>Preview</th>
+				<th>Editor</th>
 				<th>Action</th>
 			</tr>
 			</thead>
 			<tbody>
 			<tr>
-				<td>Bug</td>
+				<td><h2>Bug</h2></td>
 				<td><iframe :src="previewLocation + '?bug'" /></td>
-				<td><v-switch v-model="replicants.lowerThird.bug.value" /></td>
+				<td><BugEditor /></td>
+				<td><v-switch v-model="replicants.lowerThird.bug.show.value" /></td>
 			</tr>
-			<tr>
-				<td>Commentators</td>
+			<tr v-if="replicants.gameSettings.style.value === 'espn'">
+				<td><h2>Commentators</h2></td>
 				<td><iframe :src="previewLocation + '?commentators'" /></td>
+				<td><CommentatorsEditor /></td>
 				<td><v-switch v-model="replicants.lowerThird.commentators.show.value" /></td>
 			</tr>
 			<tr>
-				<td>Copyright</td>
+				<td><h2>Copyright</h2></td>
 				<td><iframe :src="previewLocation + '?copyright'" /></td>
-				<v-switch v-model="replicants.lowerThird.showCopyright.value" />
+				<td><CopyrightEditor /></td>
+				<td><v-switch v-model="replicants.lowerThird.copyright.show.value" /></td>
 			</tr>
 			<tr>
-				<td>Locator</td>
+				<td><h2>Locator</h2></td>
 				<td><iframe :src="previewLocation + '?locator'" /></td>
-				<v-switch v-model="replicants.lowerThird.locator.value" />
+				<td><LocatorEditor /></td>
+				<td><v-switch v-model="replicants.lowerThird.locator.show.value" /></td>
 			</tr>
 			<tr>
-				<td>Lower Third Scoreboard</td>
+				<td><h2>Lower Third Scoreboard</h2></td>
 				<td><iframe :src="previewLocation + '?lowerThirdScoreboard'" /></td>
-				<v-switch v-model="replicants.lowerThird.scoreboard.value" />
+				<td><ScoreboardEditor /></td>
+				<td><v-switch v-model="replicants.lowerThird.scoreboard.show.value" /></td>
 			</tr>
 			</tbody>
 		</v-table>
@@ -41,60 +47,23 @@
 </template>
 
 <script setup lang="ts">
-import {loadReplicants} from "../../browser-common/replicants";
-import {computed, ref, watch} from "vue";
+import { loadReplicants } from "../../browser-common/replicants";
+import { computed, ref } from "vue";
+import BugEditor from "./Editors/BugEditor.vue";
+import CommentatorsEditor from "./Editors/CommentatorsEditor.vue";
+import CopyrightEditor from "./Editors/CopyrightEditor.vue";
+import LocatorEditor from "./Editors/LocatorEditor.vue";
+import ScoreboardEditor from "./Editors/ScoreboardEditor.vue";
 
 const replicants = await loadReplicants();
-const lowerThirdScoreboardDescription = ref<string>("");
-const scoreboardDescriptions = ref<string[]>([
-	"Halftime",
-	"End of 1st",
-	"1st Intermission",
-	"End of 2nd",
-	"2nd Intermission",
-	"End of 3rd",
-	"3rd Intermission",
-	"End of 4th",
-	"4th Intermission",
-	"End of Reg.",
-	"Overtime",
-	"End 1st OT",
-	"End 2nd OT",
-	"End of OT",
-	"Final OT",
-	"Final SO",
-	"Final",
-]);
-
-
 const previewLocation = `/bundles/graphics/graphics/preview.html`;
-
-const availableCreditsOptions = computed<{ title: string, value: string }[]>(() => {
-	return [
-		{title: "Box", value: "box"},
-		{title: "Scroll", value: "scroll"}
-	]
-});
-
-function showBug() {
-	if (replicants.gameSettings.style.value === "football" && replicants.scoreboard.visible.value)
-		replicants.scoreboard.visible.value = false;
-	replicants.lowerThird.bug.value = !replicants.lowerThird.bug.value
-}
-
-watch(replicants.lowerThird.scoreboardDescription, (newValue, oldValue) => {
-	lowerThirdScoreboardDescription.value = newValue;
-});
 </script>
 
 <style scoped lang="scss">
-.mt-10 {
-	margin-top: 10px;
-}
-
 iframe {
 	border: none;
 	aspect-ratio: 16/9;
-	width: 100%;
+	width: 550px;
+	background-color: white;
 }
 </style>

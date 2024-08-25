@@ -5,6 +5,7 @@
 		<ScoreboardView />
 	  <CopyrightView />
 		<CommentatorsView />
+		<CreditsView />
 		<div v-if="replicants.gameSettings.style.value === 'espn'">
 			<ESPNProduced />
 			<ESPNBanner />
@@ -16,17 +17,18 @@
 </template>
 
 <script setup lang="ts">
-import {loadReplicants} from "../../browser-common/replicants";
-import {watch} from "vue";
+import { loadReplicants } from "../../browser-common/replicants";
+import { watch } from "vue";
 import SlideshowView from "./SlideshowView.vue";
 import ImageView from "./ImageView.vue";
 import ESPNProduced from "./styles/espn/lower-third/Produced.vue";
 import ESPNBanner from "./styles/espn/Banner.vue";
-import BugView from "./BugView.vue";
-import CommentatorsView from "./CommentatorsView.vue";
-import CopyrightView from "./CopyrightView.vue";
-import LocatorView from "./LocatorView.vue";
-import LowerThirdScoreboardView from "./LowerThirdScoreboardView.vue";
+import BugView from "./LowerThirdViews/BugView.vue";
+import CommentatorsView from "./LowerThirdViews/CommentatorsView.vue";
+import CopyrightView from "./LowerThirdViews/CopyrightView.vue";
+import CreditsView from "./FullscreenViews/CreditView.vue";
+import LocatorView from "./LowerThirdViews/LocatorView.vue";
+import LowerThirdScoreboardView from "./LowerThirdViews/LowerThirdScoreboardView.vue";
 import ScoreboardView from "./ScoreboardView.vue";
 
 

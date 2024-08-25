@@ -1,7 +1,7 @@
 <template>
 <div>
 	<n-checkbox class="ml-10" v-model:checked="showPenalties"
-				v-if="replicants.gameSettings.style.value === 'espn' || replicants.gameSettings.style.value === 'rpitv-style7'">
+				v-if="replicants.gameSettings.style.value !== 'football'">
 		Show Penalties
 	</n-checkbox>
 	<n-grid :cols="2" :x-gap="10" :y-gap="10">
@@ -17,7 +17,7 @@
 			<h2>Global</h2>
 			<AnnouncementsSection v-model:announcements="globalMessages" :global-announcements="true"/>
 		</n-grid-item>
-		<n-grid-item v-if="(replicants.gameSettings.style.value === 'espn' || replicants.gameSettings.style.value === 'rpitv-style7') &&
+		<n-grid-item v-if="(replicants.gameSettings.style.value !== 'football') &&
 		 replicants.gameSettings.periods.shootouts.value">
 			<h2>Shootouts</h2>
 			<Shootouts/>

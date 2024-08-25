@@ -22,8 +22,8 @@
 		<div class="right-team-name" :style="{color: '#d6001c'}">
 			{{ replicants.teams[0].schoolName.value }}
 		</div>
-		<div class="right-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[1].totals.misc.facewon }} </div>
-		<div class="left-team-sogs">{{ replicants.http.sidearms.body.value.hkgame.team[0].totals.misc.facewon }}</div>
+		<div class="right-team-sogs">{{ replicants.http.sidearms.body.value.hkgame?.team[1].totals.misc.facewon }} </div>
+		<div class="left-team-sogs">{{ replicants.http.sidearms.body.value.hkgame?.team[0].totals.misc.facewon }}</div>
 	</div>
 </template>
 

@@ -44,16 +44,8 @@ const styles = ref([
 		value: 'espn'
 	},
 	{
-		label: 'RPI TV (Modern)',
-		value: 'rpitv-modern'
-	},
-	{
-		label: 'RPI TV (Classic)',
-		value: 'rpitv-classic'
-	},
-	{
-		label: 'RPI TV (Style 7)',
-		value: 'rpitv-style7'
+		label: 'RPI TV',
+		value: 'rpitv'
 	},
 	{
 		label: 'Football',

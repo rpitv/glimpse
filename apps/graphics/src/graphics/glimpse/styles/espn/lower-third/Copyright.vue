@@ -1,15 +1,56 @@
 <template>
-	<div>
-		<img id="ESPNCopyrightImg" :src="ESPN_Copyright">
-		<span id="ESPNCopyrightText">© {{ new Date().getFullYear() }} ESPN, Inc. All Rights Reserved. ESPN.</span>
+	<div :style="copyrightContainer">
+		<img :style="copyrightImage" :src="ESPN_Copyright">
+		<div :style="copyrightTextContainer">
+			<p :style="copyrightText" id="ESPNCopyrightText">
+				{{ replicantCopyright.text.value || (`${new Date().getFullYear()} ESPN, Inc. All Rights Reserved. ESPN.`) }}
+			</p>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import ESPN_Copyright from "../../../../../assets/espn/ESPN_Copyright.png"
-import {loadReplicants} from "../../../../../browser-common/replicants";
+import { loadReplicants } from "../../../../../browser-common/replicants";
+import type { CSSProperties } from "vue";
+import { computed } from "vue";
 
 const replicants = await loadReplicants();
+const replicantCopyright = replicants.lowerThird.copyright;
+
+const copyrightContainer = computed((): CSSProperties => {
+	return {
+		left: replicantCopyright.offsetX.value + "vw",
+		bottom: replicantCopyright.offsetY.value + "vh",
+		position: "absolute",
+		height: "100vh",
+		width: "100vw"
+	}
+});
+const copyrightImage = computed((): CSSProperties => {
+	return {
+		height: "100vh",
+		width: "100vw"
+	}
+});
+const copyrightTextContainer = computed((): CSSProperties => {
+	return {
+		alignItems: "center",
+		bottom: "6.2vh",
+		display: "flex",
+		height: "7.9vh",
+		left: "7.3vw",
+		position: "absolute",
+		width: "41.4vw",
+	}
+})
+const copyrightText = computed((): CSSProperties => {
+	return {
+		color: replicantCopyright.textColor.value,
+		fontSize: replicantCopyright.textSize.value + 3.3 + "vh",
+	}
+});
+
 </script>
 
 <style scoped lang="scss">
@@ -19,22 +60,7 @@ const replicants = await loadReplicants();
 	src: url('../../../../../assets/espn/Swiss721Bold.ttf')
 }
 
-#ESPNCopyrightImg {
-	position: absolute;
-	top: 0;
-	left: 0;
-
-	width: 100vw;
-	height: 100vh;
-
-	transition: opacity 1s;
-}
-
 #ESPNCopyrightText {
 	font-family: "swiss721_bold";
-	position: absolute;
-	font-size: 3.3vh;
-	bottom: 8vh;
-	left: 7.3vw;
 }
 </style>

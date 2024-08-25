@@ -2,8 +2,8 @@
 	<div id="container" :class="{
 			show: replicants.lowerThird.showProduced.value,
 			hide: !replicants.lowerThird.showProduced.value,
-			translateUp: replicants.lowerThird.showCopyright.value,
-			translateNone: !replicants.lowerThird.showCopyright.value
+			translateUp: replicants.lowerThird.copyright.show.value,
+			translateNone: !replicants.lowerThird.copyright.show.value
 		}">
 		<img id="ESPNCopyrightImg" :src="ESPN_Copyright">
 		<img id="logo" :src="RPITV_LOGO">

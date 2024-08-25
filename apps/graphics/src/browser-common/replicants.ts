@@ -1,5 +1,6 @@
-import {replicant} from "./replicant";
-import {Announcement} from "../common/Announcement";
+import { replicant } from "./replicant";
+import { Announcement } from "../common/Announcement";
+import { Credit } from "../common/Credit";
 
 export async function loadReplicants() {
 	return {
@@ -56,7 +57,7 @@ export async function loadReplicants() {
 				key: await replicant<string>("key", `glimpse-graphics.game-settings.api`, {defaultValue: 'CHANGE_ME_API_KEY'}),
 				forceReload: await replicant<boolean>("forceReload", "glimpse-graphics.game-settings.api", {defaultValue: false}),
 			},
-			style: await replicant<'espn' | 'rpitv-modern' | 'rpitv-style7' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv-modern'}),
+			style: await replicant<'espn' | 'rpitv' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv'}),
 			clock: {
 				enabled: await replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
 			},
@@ -145,31 +146,112 @@ export async function loadReplicants() {
 			team1: await replicant<Announcement[]>("team1", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 			team2: await replicant<Announcement[]>("team2", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 		},
+		fullscreen: {
+			credits: {
+				credit: await replicant<Credit[]>("credit", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: []}),
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: false}),
+			}
+		},
 		lowerThird: {
-			school1Logo: await replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/RPI_Engineers.svg/1200px-RPI_Engineers.svg.png"}),
-			school2Logo: await replicant<string>("school2Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-			scoreboard: await replicant<boolean>("scoreboard", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-			scoreboardDescription: await replicant<string>("scoreboardDescription", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-			locator: await replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+			bug: {
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: true}),
+				offsetX: await replicant<number>("offsetX", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: 0}),
+				offsetY: await replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: 0}),
+			},
 			commentators: {
-				show: await replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-				twoPoint5a: await replicant<boolean>("twoPoint5a", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
 				leftPerson: {
-					name: await replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
-					description: await replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "Dan Fridgen"}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
+					description: await replicant<string>("description", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
+					descriptionColor: await replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
+					descriptionSize: await replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
 				},
 				centerPerson: {
-					name: await replicant<string>("centerName", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-					description: await replicant<string>("centerDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentatorsCenterPerson`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
+					description: await replicant<string>("centerDesc", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: ""}),
+					descriptionColor: await replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: ""}),
+					descriptionSize: await replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
 				},
 				rightPerson:{
-					name: await replicant<string>("rightName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
-					description: await replicant<string>("rightDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""})
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "Dan Bahl"}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
+					description: await replicant<string>("rightDesc", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
+					descriptionColor: await replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
+					descriptionSize: await replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
 				},
-				offset: {
-					enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-					number: await replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})
-				}
+				offsetY: await replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.commentators`, {defaultValue: 0}),
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.commentators`, {defaultValue: false}),
+			},
+			copyright: {
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: false}),
+				offsetX: await replicant<number>("offsetX", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+				offsetY: await replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+				text: await replicant<string>("text", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: ""}),
+				textColor: await replicant<string>("textColor", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: "#000000"}),
+				textSize: await replicant<number>("textSize", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+			},
+			locator: {
+				leftTeam: {
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nanmeSize", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`,{defaultValue: 0}),
+					logo: await replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+					logoSize: await replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: 100}),
+					primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+					secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+				},
+				rightTeam: {
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`,{defaultValue: 0}),
+					logo: await replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+					logoSize: await replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: 100}),
+					primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+					secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+				},
+				location: {
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: ""}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: 0}),
+				},
+				show: await replicant<boolean>("show", `glimpse-grpahics.graphics.lowerThird.locator`, {defaultValue: false})
+			},
+			scoreboard: {
+				description: {
+					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: 0}),
+					fontColor: await replicant<string>("fontColor", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: "#000000"}),
+					text: await replicant<string>("text", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: ""}),
+					timer: await replicant<boolean>("timer", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: false}),
+				},
+				leftTeam: {
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`,{defaultValue: 0}),
+					logo: await replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+					logoSize: await replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 100}),
+					primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+					score: await replicant<number>("score", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 0}),
+					scoreColor: await replicant<string>("scoreColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+					scoreSize: await replicant<number>("scoreSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 0}),
+					secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+				},
+				rightTeam: {
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: "#000000"}),
+					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`,{defaultValue: 0}),
+					logo: await replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+					logoSize: await replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 100}),
+					primaryColor: await replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+					score: await replicant<number>("score", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 0}),
+					scoreColor: await replicant<string>("scoreColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+					scoreSize: await replicant<number>("scoreSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 0}),
+					secondaryColor: await replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+				},
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.scoreboard`, {defaultValue: false}),
 			},
 			endGraphics: {
 				disabled: await replicant<boolean>("disabled", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
@@ -179,20 +261,18 @@ export async function loadReplicants() {
 				length: await replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30}),
 				type: await replicant<'scroll' | 'box'>("type", `glimpse-graphics.images.endGraphics`, {defaultValue: 'box'}),
 			},
-			bug: await replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
-			showCopyright: await replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-			showProduced: await replicant<boolean>("showProduced", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-			location: await replicant<"Houston Field House" | "ECAV Stadium">("location", `glimpse-graphics.images.lowerThird`, {defaultValue: "ECAV Stadium"}),
+			showProduced: await replicant<boolean>("showProduced", `glimpse-graphics.graphics.lowerThird`, {defaultValue: false}),
 		},
 		slideshow: {
-			enabled: await replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
-			interval: await replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
+			enabled: await replicant<boolean>("enabled", `glimpse-graphics.graphics.slideshow`, {defaultValue: false}),
+			interval: await replicant<number>("interval", `glimpse-graphics.graphics.slideshow`, {defaultValue: 5})
 		},
 		http: {
 			sidearms: {
-				url: await replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
-				body: await replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}})
+				url: await replicant<string>("url", `glimpse-graphics.graphics.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+				body: await replicant<any>("body", `glimpse-graphics.graphics.sidearms1`, {defaultValue: {}})
 			},
 		}
 	}
 }
+
