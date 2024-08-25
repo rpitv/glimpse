@@ -1,0 +1,87 @@
+{
+  "name": "news",
+  "version": "2.0.0",
+  "description": "Template for NodeCG bundles that use Vue.js and TypeScript.",
+  "license": "MIT",
+  "author": "rpitv",
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "run-s clean build:*",
+    "build:browser": "vite build",
+    "build:extension": "tsc -b tsconfig.extension.json",
+    "clean": "trash node_modules/.cache && trash shared/dist && trash dashboard && trash graphics && trash extension",
+    "dev": "run-p watch:* start-dev",
+    "schema-types": "nodecg schema-types",
+    "start": "node ../..",
+    "start-dev": "npx nodemon ../..",
+    "watch": "run-p watch:*",
+    "watch:browser": "vite",
+    "watch:extension": "tsc -b tsconfig.extension.json -w"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "gsap": "^3.12.5",
+    "module-alias": "^2.2.2",
+    "vite-plugin-vuetify": "^2.0.3",
+    "vuetify": "^3.6.14"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@nodecg/types": "^2.1.12",
+    "@types/node": "^18.14.6",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "nodecg-cli": "^8.6.0",
+    "nodecg-types": "^1.9.0",
+    "nodecg-vue-composable": "^1.1.0",
+    "npm-run-all": "^4.1.5",
+    "trash-cli": "^5.0.0",
+    "typescript": "^4.9.5",
+    "vite": "^5.3.5",
+    "vite-plugin-checker": "^0.5.6",
+    "vite-plugin-nodecg": "^2.0.0-rc2",
+    "vue": "^3.2.47",
+    "vue-eslint-parser": "^9.1.0",
+    "vue-tsc": "^1.2.1"
+  },
+  "nodecg": {
+    "compatibleRange": "^2.2.1",
+    "assetCategories": [
+      {
+        "name": "images",
+        "title": "Images",
+        "allowedTypes": [
+          "jpg",
+          "jpeg",
+          "gif",
+          "png"
+        ]
+      }
+    ],
+    "dashboardPanels": [
+      {
+        "name": "images",
+        "title": "Images",
+        "file": "image.html",
+        "width": "10"
+      },
+      {
+        "name": "weather",
+        "title": "Weather",
+        "file": "weather.html",
+        "fullbleed": true
+      }
+    ],
+    "graphics": [
+      {
+        "file": "news.html",
+        "width": 1920,
+        "height": 1080
+      },
+      {
+        "file": "preview.html",
+        "width": 1920,
+        "height": 1080
+      }
+    ]
+  }
+}
