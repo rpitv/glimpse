@@ -39,6 +39,7 @@ export const endpointsToggle: { [key: string]: Replicant<boolean> } = {
 	"faceoffs": replicants.sync.values.faceoffs,
 	"team_1_enable": replicants.teams[0].enabled,
 	"team_2_enable": replicants.teams[1].enabled,
+	"clock": replicants.scoreboard.clock.isRunning,
 }
 
 /**

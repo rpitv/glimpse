@@ -55,11 +55,13 @@ const leftTeamName = computed((): CSSProperties => {return {
 	color: replicantLocator.leftTeam.nameColor.value || "black",
 	fontSize: replicantLocator.leftTeam.nameSize.value + 1.7 + "vw",
 	position: "relative",
+	textAlign: "center"
 }});
 const rightTeamName = computed((): CSSProperties => {return {
 	color: replicantLocator.rightTeam.nameColor.value || "black",
 	fontSize: replicantLocator.rightTeam.nameSize.value + 1.7 + "vw",
 	position: "relative",
+	textAlign: "center"
 }});
 const location = computed((): CSSProperties => {
 	return {
