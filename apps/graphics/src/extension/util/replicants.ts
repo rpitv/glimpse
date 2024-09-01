@@ -1,10 +1,14 @@
 import {get as nodecg} from './nodecg';
+import { Credit } from "./Credit";
 import {Announcement} from "./Announcement";
 
 export const replicants = {
 	sync: {
-		availablePorts: nodecg().Replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {defaultValue: [], persistent: false}),
-		selectedPort: nodecg().Replicant<string|null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
+		availablePorts: nodecg().Replicant<string[]>("availablePorts", "glimpse-graphics.sync-settings", {
+			defaultValue: [],
+			persistent: false
+		}),
+		selectedPort: nodecg().Replicant<string | null>("selectedPort", "glimpse-graphics.sync-settings", {defaultValue: null}),
 		selectedSport: nodecg().Replicant<string>("selectedSport", "glimpse-graphics.sync-settings", {defaultValue: 'Hockey/Lacrosse'}),
 		status: nodecg().Replicant<{ connected: boolean, bitrate: number, error: boolean, errorMsg: string }>("status", "glimpse-graphics.sync-settings", {
 			defaultValue: {
@@ -24,7 +28,7 @@ export const replicants = {
 					abbreviation: nodecg().Replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
 					shots: nodecg().Replicant<boolean>("shots", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
 					timeouts: nodecg().Replicant<boolean>("timeouts", "glimpse-graphics.sync-settings.values.team1", {defaultValue: false}),
-				},{
+				}, {
 					score: nodecg().Replicant<boolean>("score", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
 					name: nodecg().Replicant<boolean>("name", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
 					abbreviation: nodecg().Replicant<boolean>("abbreviation", "glimpse-graphics.sync-settings.values.team2", {defaultValue: false}),
@@ -37,10 +41,10 @@ export const replicants = {
 				outsStrikesBalls: nodecg().Replicant<boolean>("outsStrikesBall", "glimpse-graphics.sync-settings.values.baseball", {defaultValue: false}),
 			},
 			football: {
+				downs: nodecg().Replicant<boolean>("downs", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+				possession: nodecg().Replicant<boolean>("possession", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
+				yardsToGo: nodecg().Replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 				playClock: nodecg().Replicant<boolean>("playClock", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
-				downs:  nodecg().Replicant<boolean>("downs", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
-				yardsToGo:  nodecg().Replicant<boolean>("yardsToGo", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
-				possession:  nodecg().Replicant<boolean>("possession", "glimpse-graphics.sync-settings.values.football", {defaultValue: false}),
 			},
 			sogs: nodecg().Replicant<boolean>("sogs", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
 			faceoffs: nodecg().Replicant<boolean>("faceoffs", "glimpse-graphics.sync-settings.values", {defaultValue: false})
@@ -52,7 +56,7 @@ export const replicants = {
 			key: nodecg().Replicant<string>("key", `glimpse-graphics.game-settings.api`, {defaultValue: 'CHANGE_ME_API_KEY'}),
 			forceReload: nodecg().Replicant<boolean>("forceReload", "glimpse-graphics.game-settings.api", {defaultValue: false}),
 		},
-		style: nodecg().Replicant<'espn' | 'rpitv-modern' | 'rpitv-style7' | 'football'>('style', "glimpse-graphics.game-settings.style", {defaultValue: 'rpitv-modern'}),
+		style: nodecg().Replicant<'espn' | 'rpitv' | 'football'>('style', 'glimpse-graphics.game-settings.style', {defaultValue: 'rpitv'}),
 		clock: {
 			enabled: nodecg().Replicant<boolean>("enabled", "glimpse-graphics.game-settings.clock", {defaultValue: true}),
 		},
@@ -61,12 +65,13 @@ export const replicants = {
 			count: nodecg().Replicant<number>('count', 'glimpse-graphics.game-settings.periods', {defaultValue: 3}),
 			length: nodecg().Replicant<number>('length', 'glimpse-graphics.game-settings.periods', {defaultValue: 1200_000}),
 			overtime: {
-				enabled: nodecg().Replicant<boolean>('enabled', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: false}),
 				count: nodecg().Replicant<number>('count', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: 0}),
+				isInfinite: nodecg().Replicant<boolean>('isInfinite', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: false}),
 				length: nodecg().Replicant<number>('length', 'glimpse-graphics.game-settings.periods.overtime', {defaultValue: 300_000}),
 			},
 			shootouts: nodecg().Replicant<boolean>('shootouts', 'glimpse-graphics.game-settings.periods', {defaultValue: false}),
 		},
+		showShootouts: nodecg().Replicant<boolean>("showShootouts", 'glimpse-graphics.game-settings',{defaultValue: false}),
 		baseball: {
 			bases: nodecg().Replicant<boolean>("bases", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
 			bottomTop: nodecg().Replicant<boolean>("bottomTop", "glimpse-graphics.game-settings.baseball", {defaultValue: false}),
@@ -83,15 +88,17 @@ export const replicants = {
 		visible: nodecg().Replicant<boolean>('visible', 'glimpse-graphics.scoreboard', {defaultValue: true}),
 		clock: {
 			time: nodecg().Replicant<number>('time', 'glimpse-graphics.scoreboard.clock', {defaultValue: 1200_000}),
-			isRunning: nodecg().Replicant<boolean>('isRunning', 'glimpse-graphics.scoreboard.clock', {defaultValue: false, persistent: false}),
+			isRunning: nodecg().Replicant<boolean>('isRunning', 'glimpse-graphics.scoreboard.clock', {
+				defaultValue: false,
+				persistent: false
+			}),
 		},
 		period: nodecg().Replicant<number>('period', 'glimpse-graphics.scoreboard', {defaultValue: 1}),
 		playClock: nodecg().Replicant<number>('playClock', 'glimpse-graphics.playClock', {defaultValue: 0}),
 		down: nodecg().Replicant<number>('down', 'glimpse-graphics.down', {defaultValue: 1}),
 		yardsToGo: nodecg().Replicant<string>('yardsToGo', 'glimpse-graphics.yardsToGo', {defaultValue: ""}),
 		possession: nodecg().Replicant<string>('possession', 'glimpse-graphics.possession', {defaultValue: ''}),
-		penalty:  nodecg().Replicant<boolean>("penalty", "glimpse-graphics.penalty", {defaultValue: true}),
-
+		penalty: nodecg().Replicant<boolean>("penalty", "glimpse-graphics.penalty", {defaultValue: true}),
 	},
 	teams: [
 		{
@@ -112,7 +119,6 @@ export const replicants = {
 			player2PenaltyClock: nodecg().Replicant<string>("player2PenaltyClock", `glimpse-graphics.game-settings.team0`, {defaultValue: ""}),
 			timeouts: nodecg().Replicant<number>("timeouts", `glimpse-graphics.game-settings.team0`, {defaultValue: 0}),
 			shootouts: nodecg().Replicant<string>("shootouts", `glimpse-graphics.game-settings.team0`, {defaultValue: ""})
-
 		},
 		{
 			enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.game-settings.team1`, {defaultValue: true}),
@@ -139,31 +145,112 @@ export const replicants = {
 		team1: nodecg().Replicant<Announcement[]>("team1", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 		team2: nodecg().Replicant<Announcement[]>("team2", `glimpse-graphics.game-settings.announcements`, {defaultValue: []}),
 	},
+	fullscreen: {
+		credits: {
+			credit: nodecg().Replicant<Credit[]>("credit", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: []}),
+			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: false}),
+		}
+	},
 	lowerThird: {
-		school1Logo: nodecg().Replicant<string>("school1Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/RPI_Engineers.svg/1200px-RPI_Engineers.svg.png"}),
-		school2Logo: nodecg().Replicant<string>("school2Logo", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-		scoreboard: nodecg().Replicant<boolean>("scoreboard", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-		scoreboardDescription: nodecg().Replicant<string>("scoreboardDescription", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-		locator: nodecg().Replicant<boolean>("locator", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
+		bug: {
+			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: true}),
+			offsetX: nodecg().Replicant<number>("offsetX", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: 0}),
+			offsetY: nodecg().Replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.bug`, {defaultValue: 0}),
+		},
 		commentators: {
-			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-			twoPoint5a: nodecg().Replicant<boolean>("twoPoint5a", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
 			leftPerson: {
-				name: nodecg().Replicant<string>("leftName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Fridgen"}),
-				description: nodecg().Replicant<string>("leftDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "Dan Fridgen"}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
+				description: nodecg().Replicant<string>("description", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
+				descriptionColor: nodecg().Replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
+				descriptionSize: nodecg().Replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
 			},
 			centerPerson: {
-				name: nodecg().Replicant<string>("centerName", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
-				description: nodecg().Replicant<string>("centerDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentatorsCenterPerson`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
+				description: nodecg().Replicant<string>("centerDesc", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: ""}),
+				descriptionColor: nodecg().Replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: ""}),
+				descriptionSize: nodecg().Replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
 			},
-			rightPerson: {
-				name: nodecg().Replicant<string>("rightName", `glimpse-graphics.images.lowerThird`, {defaultValue: "Dan Bahl"}),
-				description: nodecg().Replicant<string>("rightDesc", `glimpse-graphics.images.lowerThird`, {defaultValue: ""}),
+			rightPerson:{
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "Dan Bahl"}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
+				description: nodecg().Replicant<string>("rightDesc", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
+				descriptionColor: nodecg().Replicant<string>("descriptionColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
+				descriptionSize: nodecg().Replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
 			},
-			offset: {
-				enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-				number: nodecg().Replicant<number>("number", `glimpse-graphics.images.lowerThird`, {defaultValue: 36})
-			}
+			offsetY: nodecg().Replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.commentators`, {defaultValue: 0}),
+			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.commentators`, {defaultValue: false}),
+		},
+		copyright: {
+			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: false}),
+			offsetX: nodecg().Replicant<number>("offsetX", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+			offsetY: nodecg().Replicant<number>("offsetY", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+			text: nodecg().Replicant<string>("text", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: ""}),
+			textColor: nodecg().Replicant<string>("textColor", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: "#000000"}),
+			textSize: nodecg().Replicant<number>("textSize", `glimpse-graphics.graphics.lowerThird.copyright`, {defaultValue: 0}),
+		},
+		locator: {
+			leftTeam: {
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nanmeSize", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`,{defaultValue: 0}),
+				logo: nodecg().Replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+				logoSize: nodecg().Replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: 100}),
+				primaryColor: nodecg().Replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+				secondaryColor: nodecg().Replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.locator.leftTeam`, {defaultValue: ""}),
+			},
+			rightTeam: {
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`,{defaultValue: 0}),
+				logo: nodecg().Replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+				logoSize: nodecg().Replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: 100}),
+				primaryColor: nodecg().Replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+				secondaryColor: nodecg().Replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.locator.rightTeam`, {defaultValue: ""}),
+			},
+			location: {
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: ""}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.locator.location`, {defaultValue: 0}),
+			},
+			show: nodecg().Replicant<boolean>("show", `glimpse-grpahics.graphics.lowerThird.locator`, {defaultValue: false})
+		},
+		scoreboard: {
+			description: {
+				fontSize: nodecg().Replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: 0}),
+				fontColor: nodecg().Replicant<string>("fontColor", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: "#000000"}),
+				text: nodecg().Replicant<string>("text", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: ""}),
+				timer: nodecg().Replicant<boolean>("timer", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: false}),
+			},
+			leftTeam: {
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`,{defaultValue: 0}),
+				logo: nodecg().Replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+				logoSize: nodecg().Replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 100}),
+				primaryColor: nodecg().Replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+				score: nodecg().Replicant<number>("score", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 0}),
+				scoreColor: nodecg().Replicant<string>("scoreColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+				scoreSize: nodecg().Replicant<number>("scoreSize", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: 0}),
+				secondaryColor: nodecg().Replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.leftTeam`, {defaultValue: ""}),
+			},
+			rightTeam: {
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: "#000000"}),
+				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`,{defaultValue: 0}),
+				logo: nodecg().Replicant<string>("logo", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+				logoSize: nodecg().Replicant<number>("logoSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 100}),
+				primaryColor: nodecg().Replicant<string>("primaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+				score: nodecg().Replicant<number>("score", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 0}),
+				scoreColor: nodecg().Replicant<string>("scoreColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+				scoreSize: nodecg().Replicant<number>("scoreSize", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: 0}),
+				secondaryColor: nodecg().Replicant<string>("secondaryColor", `glimpse-graphics.graphics.lowerThird.scoreboard.rightTeam`, {defaultValue: ""}),
+			},
+			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.scoreboard`, {defaultValue: false}),
 		},
 		endGraphics: {
 			disabled: nodecg().Replicant<boolean>("disabled", `glimpse-graphics.images.endGraphics`, {defaultValue: false}),
@@ -171,20 +258,18 @@ export const replicants = {
 			title: nodecg().Replicant<string>("title", `glimpse-graphics.images.endGraphics`, {defaultValue: "RPI TV Crew"}),
 			message: nodecg().Replicant<string>("message", `glimpse-graphics.images.endGraphics`, {defaultValue: "Director\nProducer\nReplay Operator\nCamera Operator"}),
 			length: nodecg().Replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30}),
-			type: nodecg().Replicant<'scroll' | 'box'>("type", `glimpse-graphics.images.endGraphics`, {defaultValue: 'box'})
+			type: nodecg().Replicant<'scroll' | 'box'>("type", `glimpse-graphics.images.endGraphics`, {defaultValue: 'box'}),
 		},
-		bug: nodecg().Replicant<boolean>("bug", `glimpse-graphics.images.lowerThird`, {defaultValue: true}),
-		showCopyright: nodecg().Replicant<boolean>("showCopyright", `glimpse-graphics.images.lowerThird`, {defaultValue: false}),
-		showProduced: nodecg().Replicant<boolean>("showProduced", `glimpse-graphics.images.lowerThird`, {defaultValue: false})
+		showProduced: nodecg().Replicant<boolean>("showProduced", `glimpse-graphics.graphics.lowerThird`, {defaultValue: false}),
 	},
 	slideshow: {
-		enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.images.slideshow`, {defaultValue: false}),
-		interval: nodecg().Replicant<number>("interval", `glimpse-graphics.images.slideshow`, {defaultValue: 5})
+		enabled: nodecg().Replicant<boolean>("enabled", `glimpse-graphics.graphics.slideshow`, {defaultValue: false}),
+		interval: nodecg().Replicant<number>("interval", `glimpse-graphics.graphics.slideshow`, {defaultValue: 5})
 	},
 	http: {
 		sidearms: {
-			url: nodecg().Replicant<string>("url", `glimpse-graphics.http.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
-			body: nodecg().Replicant<any>("body", `glimpse-graphics.http.sidearms1`, {defaultValue: {}}),
+			url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+			body: nodecg().Replicant<any>("body", `glimpse-graphics.graphics.sidearms1`, {defaultValue: {}})
 		},
 	}
 }

@@ -27,14 +27,13 @@ export function forceReload(req: Request, res: Response) {
 }
 
 export const endpointsToggle: { [key: string]: Replicant<boolean> } = {
-	"bug": replicants.lowerThird.bug,
+	"bug": replicants.lowerThird.bug.show,
 	"commentators": replicants.lowerThird.commentators.show,
-	"2.5a": replicants.lowerThird.commentators.twoPoint5a,
-	"copyright": replicants.lowerThird.showCopyright,
+	"copyright": replicants.lowerThird.copyright.show,
 	"showProduced": replicants.lowerThird.showProduced,
 	"end-credits": replicants.lowerThird.endGraphics.show,
-	"lt-locator": replicants.lowerThird.locator,
-	"lt-scoreboard": replicants.lowerThird.scoreboard,
+	"lt-locator": replicants.lowerThird.locator.show,
+	"lt-scoreboard": replicants.lowerThird.scoreboard.show,
 	"main-scoreboard": replicants.scoreboard.visible,
 	"sogs": replicants.sync.values.sogs,
 	"faceoffs": replicants.sync.values.faceoffs,

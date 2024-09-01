@@ -1,3 +1,5 @@
+import type { Ref } from "vue";
+
 export type Sync = {
     availablePorts: string[]
     selectedPort: string | null
@@ -107,58 +109,58 @@ export type Team = {
 export type Fullscreen = {
     credits: {
         credit: {
-            people: string[];
-            peopleColor: string;
-            peopleSize: number;
-            title: string;
-            titleColor: string;
-            titleSize: number;
+            people: Ref<string[]>;
+            peopleColor: Ref<string>;
+            peopleSize: Ref<number>;
+            title: Ref<string>;
+            titleColor: Ref<string>;
+            titleSize: Ref<number>;
         }[]
-        show: boolean
+        show: Ref<boolean>
     }
 }
 
 export type LowerThird = {
     bug: {
-        show: boolean
-        offsetX: number
-        offsetY: number
+        show: Ref<boolean>
+        offsetX:  Ref<number>
+        offsetY: Ref<number>
     }
     commentators: {
         leftPerson: CommentatorPerson
         centerPerson: CommentatorPerson
         rightPerson: CommentatorPerson
-        offsetY: number
-        show: boolean
+        offsetY: Ref<number>
+        show: Ref<boolean>
     }
     copyright: {
-        show: boolean
-        offsetX: number
-        offsetY: number
-        text: string
-        textColor: string
-        textSize: number
+        show: Ref<boolean>
+        offsetX: Ref<number>
+        offsetY: Ref<number>
+        text:  Ref<string>
+        textColor: Ref<string>
+        textSize: Ref<number>
     }
     locator: {
         leftTeam: LocatorTeam
         rightTeam: LocatorTeam
         location: {
-            name: string
-            nameColor: string
-            nameSize: number
+            name: Ref<string>
+            nameColor: Ref<string>
+            nameSize: Ref<number>
         }
-        show: boolean
+        show: Ref<boolean>
     }
     scoreboard: {
         description: {
-            fontSize: number
-            fontColor: string
-            text: string
-            timer: boolean
+            fontSize: Ref<number>
+            fontColor: Ref<string>
+            text: Ref<string>
+            timer: Ref<boolean>
         }
         leftTeam: LowerThirdScoreboardTeam
         rightTeam: LowerThirdScoreboardTeam
-        show: boolean
+        show: Ref<boolean>
     }
     endGraphics: any
     showProduced: any
@@ -172,33 +174,33 @@ export type Http = {
 }
 
 type CommentatorPerson = {
-    name: string
-    nameColor: string
-    nameSize: number
-    description: string
-    descriptionColor: string
-    descriptionSize: number
+    name: Ref<string>
+    nameColor: Ref<string>
+    nameSize: Ref<number>
+    description: Ref<string>
+    descriptionColor: Ref<string>
+    descriptionSize: Ref<number>
 }
 
 type LocatorTeam = {
-    name: string
-    nameColor: string
-    nameSize: number
-    logo: string
-    logoSize: number
-    primaryColor: string
-    secondaryColor: string
+    name: Ref<string>
+    nameColor: Ref<string>
+    nameSize: Ref<number>
+    logo: Ref<string>
+    logoSize: Ref<number>
+    primaryColor: Ref<string>
+    secondaryColor: Ref<string>
 }
 
 type LowerThirdScoreboardTeam = {
-    name: string
-    nameColor: string
-    nameSize: number
-    logo: string
-    logoSize: number
-    primaryColor: string
-    score: number
-    scoreColor: string
-    scoreSize: number
-    secondaryColor: string
+    name: Ref<string>
+    nameColor: Ref<string>
+    nameSize: Ref<number>
+    logo: Ref<string>
+    logoSize: Ref<number>
+    primaryColor: Ref<string>
+    score: Ref<number>
+    scoreColor: Ref<string>
+    scoreSize: Ref<number>
+    secondaryColor: Ref<string>
 }
