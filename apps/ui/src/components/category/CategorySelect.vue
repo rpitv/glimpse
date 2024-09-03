@@ -22,7 +22,7 @@ import {
   CaseSensitivity,
   FilterCategoryInput,
   Category,
-  SearchCategoriesDocument, OrderDirection, CategoryOrderableFields,
+  SearchCategoriesDocument, OrderDirection, PersonOrderableFields,
 } from "@/graphql/types";
 
 const emit = defineEmits(["select"]);
@@ -70,7 +70,7 @@ const categorySearchResults = useQuery(
   () => ({
     filter: searchFilter.value,
     order: [{
-      field: "id" as CategoryOrderableFields,
+      field: "id" as PersonOrderableFields,
       direction: "Desc" as OrderDirection
     }]
   }),

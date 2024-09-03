@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
-  AbilitySubjects, CaseSensitivity, CategoryOrderableFields,
+  AbilitySubjects, CaseSensitivity, PersonOrderableFields,
   DeleteCategoryDocument, FindCategoriesDocument, OrderDirection,
 } from "@/graphql/types";
 import type { Category } from "@/graphql/types";
@@ -137,7 +137,7 @@ const queryData = useQuery(FindCategoriesDocument, {
   },
   order: [{
     direction: "Asc" as OrderDirection,
-    field: "id" as CategoryOrderableFields,
+    field: "id" as PersonOrderableFields,
   }]
 });
 const deleteMutation = useMutation(DeleteCategoryDocument);
@@ -182,7 +182,7 @@ async function searchCategory(value: string, type: string) {
     filter,
     order: [{
       direction: "Asc" as OrderDirection,
-      field: "id" as CategoryOrderableFields,
+      field: "id" as PersonOrderableFields,
     }]
   });
 }
@@ -216,12 +216,12 @@ watch(order, () => {
       order: [{
         // It's either asc or desc and we need to capitalize it
         direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
-        field: order.value[0].key as CategoryOrderableFields
+        field: order.value[0].key as PersonOrderableFields
       }]
     })
   else
     queryData.refetch({
-      order: [{direction: "Desc" as OrderDirection, field: "id" as CategoryOrderableFields }]
+      order: [{direction: "Desc" as OrderDirection, field: "id" as PersonOrderableFields }]
     })
 });
 

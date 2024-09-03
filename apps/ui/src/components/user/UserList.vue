@@ -9,7 +9,6 @@
       >
         <template #default>
           <CreateUserCard
-              closable
               @save="(id: number) => {
                 showCreatePopup = false;
                 refresh();
@@ -70,7 +69,7 @@
         <RouterPopup
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.User, {
             id: item.id,
-            name: item.name,
+            username: item.username,
             email: item.mail,
             joined: item.joined
           }))"
@@ -79,11 +78,14 @@
           @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
         >
           <EditUserCard
-            @close="
-                list[index] = false
-                refresh();"
+            @save="(id: number) => {
+                showCreatePopup = false;
+                list[index] = false;
+                editedUser = { id: id, show: true};
+                refresh();
+              }
+            "
             :id="BigInt(item.id)"
-            :closable="true"
           />
           <template #trigger>
             <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
@@ -96,7 +98,7 @@
           <template #default="{ isActive }">
             <v-card title="Delete User">
               <v-card-text>
-                Are you sure you want to delete the user "{{item.name}}"? This will also remove its members.
+                Are you sure you want to delete the user "{{item.username}}"? This will also remove its members.
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
@@ -116,6 +118,12 @@
         />
       </template>
     </v-data-table-server>
+    <v-snackbar v-model="editedUser.show" color="green-darken-1" class="text-center">
+      <p>Edited User {{ editedUser.id }}</p>
+      <template #actions>
+        <v-btn @click="editedUser.show = false" icon="fa-circle-xmark"/>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -147,6 +155,7 @@ const isDeleting = ref(false);
 const currentPage = ref(1);
 const order = ref<{key: string, order: string}[]>([]);
 const createdUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const editedUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
 const take = 20;
 
 for (let i = 0; i < take; i++)

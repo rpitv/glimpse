@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import {useQuery} from "@vue/apollo-composable";
-import type {CategoryOrderableFields, Production} from "@/graphql/types";
+import type {PersonOrderableFields, Production} from "@/graphql/types";
 import {
   CaseSensitivity,
   FindAllProductionsDocument,
@@ -74,7 +74,7 @@ const categories = useQuery(FindCategoriesDocument, {
   filter: {},
   order: [{
     direction: "Asc" as OrderDirection,
-    field: "id" as CategoryOrderableFields,
+    field: "id" as PersonOrderableFields,
   }]
 });
 

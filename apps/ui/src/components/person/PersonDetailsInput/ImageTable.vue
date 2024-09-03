@@ -1,31 +1,31 @@
 <template>
   <div class="top-bar">
-    <ProductionSearch document-name="Images" @search="refetchImage"/>
+    <DashboardSearch document-name="Images" @search="refetchImage"/>
     <div class="buttons">
-        <RouterPopup
-          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
-          :max-width="1100" v-model="showCreatePopup"
-          :to="{ name: 'dashboard-image-create' }"
-        >
-            <CreateImageCard
-              closable
-              @save="
+      <RouterPopup
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
+        :max-width="1100" v-model="showCreatePopup"
+        :to="{ name: 'dashboard-image-create' }"
+      >
+        <CreateImageCard
+          closable
+          @save="
                 refresh();
                 showCreatePopup = false;
               "
-              @close="showCreatePopup = false"
-            />
-            <template #trigger>
-              <v-btn class="top-button text-none" variant="outlined" rounded color="green"
-                prepend-icon="fa-light fa-plus">
-                Create
-              </v-btn>
-            </template>
-        </RouterPopup>
-        <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
-               rounded class="text-none top-button">
-            Refresh
-        </v-btn>
+          @close="showCreatePopup = false"
+        />
+        <template #trigger>
+          <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+                 prepend-icon="fa-light fa-plus">
+            Create
+          </v-btn>
+        </template>
+      </RouterPopup>
+      <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+             rounded class="text-none top-button">
+        Refresh
+      </v-btn>
     </div>
   </div>
   <v-data-table-server class="table" height="300px"
@@ -43,13 +43,13 @@
       <a :href="item.path" target="_blank">Link</a>
     </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none mr-2" :disabled="thumbnail.id === item.id"
-            @click="emit('setThumbnail', item)" color="blue">Set As Thumbnail</VBtn>
+      <VBtn variant="outlined" class="text-none mr-2" :disabled="profile.id === item.id"
+            @click="emit('setProfile', item)" color="blue">Set As Profile Picture</VBtn>
       <VBtn variant="outlined" class="text-none"
-            :disabled="productionImages.findIndex(
-            (ele) => ele.imageId === item.id && ele.image?.path === item.path) !== -1 ||
-            !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionImage, {imageId: item.id}))"
-            @click="emit('addImage', item, item.id)">
+            :disabled="images.findIndex(
+            (ele) => ele.imageId === item.id) !== -1 ||
+            !ability.can(AbilityActions.Create, subject(AbilitySubjects.Image, {imageId: item.id}))"
+            @click="emit('addImage', item)">
         Add Image
       </VBtn>
     </template>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import ProductionSearch from "@/components/DashboardSearch.vue";
+import DashboardSearch from "@/components/DashboardSearch.vue";
 import {
   AbilitySubjects,
   CaseSensitivity,
@@ -72,12 +72,12 @@ import {
   OrderDirection,
   SearchImagesDocument
 } from "@/graphql/types";
-import type { ProductionImage, Image } from "@/graphql/types";
-import {useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
-import type {PropType} from "vue";
-import {subject} from "@casl/ability";
-import {ability, AbilityActions} from "@/casl";
+import type { PersonImage, Image } from "@/graphql/types";
+import { useQuery } from "@vue/apollo-composable";
+import { ref, watch } from "vue";
+import type { PropType } from "vue";
+import { subject } from "@casl/ability";
+import { ability, AbilityActions } from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateImageCard from "@/components/image/CreateImageCard.vue";
 
@@ -86,17 +86,17 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  productionImages: {
-    type: Object as PropType<ProductionImage[]>,
+  images: {
+    type: Object as PropType<PersonImage[]>,
     required: true
   },
-  thumbnail: {
+  profile: {
     type: Object as PropType<Image>,
     required: true
   }
 });
 
-const emit = defineEmits(["setThumbnail", "addImage"]);
+const emit = defineEmits(["setProfile", "addImage"]);
 
 const imageHeader = [
   { title: "ID", sortable: true, key: "id" },

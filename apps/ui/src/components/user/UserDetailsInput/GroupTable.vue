@@ -1,62 +1,57 @@
 <template>
   <div class="top-bar">
-    <ProductionSearch document-name="Images" @search="refetchImage"/>
+    <DashboardSearch document-name="Groups" @search="refetchImage"/>
     <div class="buttons">
-        <RouterPopup
-          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
-          :max-width="1100" v-model="showCreatePopup"
-          :to="{ name: 'dashboard-image-create' }"
-        >
-            <CreateImageCard
-              closable
-              @save="
-                refresh();
-                showCreatePopup = false;
-              "
-              @close="showCreatePopup = false"
-            />
-            <template #trigger>
-              <v-btn class="top-button text-none" variant="outlined" rounded color="green"
-                prepend-icon="fa-light fa-plus">
-                Create
-              </v-btn>
-            </template>
-        </RouterPopup>
-        <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
-               rounded class="text-none top-button">
-            Refresh
-        </v-btn>
+      <RouterPopup
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Group)"
+        :max-width="1100" v-model="showCreatePopup"
+        :to="{ name: 'dashboard-group-create' }"
+      >
+        <CreateGroupCard
+          closable
+          @save="
+            refresh();
+            showCreatePopup = false;
+          "
+          @close="showCreatePopup = false"
+        />
+        <template #trigger>
+          <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+                 prepend-icon="fa-light fa-plus">
+            Create
+          </v-btn>
+        </template>
+      </RouterPopup>
+      <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+             rounded class="text-none top-button">
+        Refresh
+      </v-btn>
     </div>
   </div>
   <v-data-table-server class="table" height="300px"
      :items-per-page="take"
-     :items-length="queryData.result.value ? queryData.result.value.imageCount : 0"
+     :items-length="queryData.result.value ? queryData.result.value.groupCount : 0"
      :page="currentPage"
-     :items="queryData.result.value?.images"
-     no-data-text="No images found 💀"
+     :items="queryData.result.value?.groups"
+     no-data-text="No groups found 💀"
      v-model:sort-by="order"
      :loading="queryData.loading.value"
-     loading-text="Loading Images..."
-     :headers="imageHeader"
+     loading-text="Loading Groups..."
+     :headers="groupHeader"
   >
-    <template #item.image="{ item }">
-      <a :href="item.path" target="_blank">Link</a>
-    </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none mr-2" :disabled="thumbnail.id === item.id"
-            @click="emit('setThumbnail', item)" color="blue">Set As Thumbnail</VBtn>
       <VBtn variant="outlined" class="text-none"
-            :disabled="productionImages.findIndex(
-            (ele) => ele.imageId === item.id && ele.image?.path === item.path) !== -1 ||
-            !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionImage, {imageId: item.id}))"
-            @click="emit('addImage', item, item.id)">
-        Add Image
+            :disabled="groups.findIndex(
+            (ele) => ele.id === item.id) !== -1 ||
+            !ability.can(AbilityActions.Create, subject(AbilitySubjects.Group, {groupId: item.id}))"
+            @click="emit('addGroup', item.id, item.name)">
+        Add Group
       </VBtn>
     </template>
     <template v-slot:bottom>
       <v-pagination
         v-model="currentPage"
-        :length="!!queryData.result.value?.imageCount ? Math.ceil(queryData.result.value?.imageCount / take) : 0"
+        :length="!!queryData.result.value?.groupCount ? Math.ceil(queryData.result.value?.groupCount / take) : 0"
         @update:modelValue="loadImages"
       />
     </template>
@@ -64,44 +59,39 @@
 </template>
 
 <script setup lang="ts">
-import ProductionSearch from "@/components/DashboardSearch.vue";
+import DashboardSearch from "@/components/DashboardSearch.vue";
 import {
   AbilitySubjects,
   CaseSensitivity,
-  ImageOrderableFields,
+  GroupOrderableFields,
   OrderDirection,
-  SearchImagesDocument
+  FindGroupsDocument
 } from "@/graphql/types";
-import type { ProductionImage, Image } from "@/graphql/types";
+import type { Group } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch} from "vue";
 import type {PropType} from "vue";
 import {subject} from "@casl/ability";
 import {ability, AbilityActions} from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
-import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
 
 const props = defineProps({
   take: {
     type: Number,
     required: true
   },
-  productionImages: {
-    type: Object as PropType<ProductionImage[]>,
+  groups: {
+    type: Object as PropType<Partial<Group>[]>,
     required: true
   },
-  thumbnail: {
-    type: Object as PropType<Image>,
-    required: true
-  }
 });
 
-const emit = defineEmits(["setThumbnail", "addImage"]);
+const emit = defineEmits(["addGroup"]);
 
-const imageHeader = [
+const groupHeader = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", sortable: true, key: "name" },
-  { title: "Preview", sortable: false, key: "image"},
   { title: "Actions", sortable: false, key: "actions", minWidth: "150px"}
 ]
 const order = ref<{key: string, order: string}[]>([]);
@@ -113,11 +103,11 @@ interface Options {
   id?: { equals: number }
 }
 
-const queryData = useQuery(SearchImagesDocument, {
+const queryData = useQuery(FindGroupsDocument, {
   pagination: { take: props.take },
   order: [{
     direction: "Desc" as OrderDirection,
-    field: "id" as ImageOrderableFields
+    field: "id" as GroupOrderableFields
   }],
   filter: {
     name: { contains: '', mode: CaseSensitivity.Insensitive }
@@ -143,7 +133,7 @@ async function refetchImage(filter: string, type: string) {
   console.log(options);
   await queryData.refetch({
     filter: options,
-    order: [{ direction: "Desc" as OrderDirection, field: "id" as ImageOrderableFields }]
+    order: [{ direction: "Desc" as OrderDirection, field: "id" as GroupOrderableFields }]
   });
 }
 
@@ -152,12 +142,12 @@ watch(order, () => {
     queryData.refetch({
       order: [{
         direction: order.value[0].order.charAt(0).toUpperCase() + order.value[0].order.slice(1) as OrderDirection,
-        field: order.value[0].key as ImageOrderableFields
+        field: order.value[0].key as GroupOrderableFields
       }]
     })
   else
     queryData.refetch({
-      order: [{direction: "Desc" as OrderDirection, field: "id" as ImageOrderableFields }]
+      order: [{direction: "Desc" as OrderDirection, field: "id" as GroupOrderableFields }]
     })
 });
 

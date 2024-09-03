@@ -19,7 +19,7 @@ import { AutoCompleteOption, NAutoComplete } from "naive-ui";
 import { computed, PropType, ref } from "vue";
 import { useQuery } from "@vue/apollo-composable";
 import {
-  CaseSensitivity, CategoryOrderableFields,
+  CaseSensitivity, PersonOrderableFields,
   FilterImageInput,
   Image, ImageOrderableFields, OrderDirection,
   SearchImagesDocument,

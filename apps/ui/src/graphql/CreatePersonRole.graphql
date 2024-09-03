@@ -1,0 +1,5 @@
+mutation CreatePersonRole($roleId: BigInt!, $personId: BigInt!, $startTime: DateTime, $endTime: DateTime) {
+  createPersonRole(input: {roleId: $roleId, personId: $personId, startTime: $startTime, endTime: $endTime}) {
+    id
+  }
+}

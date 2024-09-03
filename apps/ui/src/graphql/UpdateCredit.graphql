@@ -1,0 +1,5 @@
+mutation UpdateCredit($id: BigInt!, $data: UpdateCreditInput!) {
+  updateCredit(id: $id, input: $data) {
+    id
+  }
+}
