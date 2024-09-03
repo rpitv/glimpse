@@ -83,6 +83,7 @@ import EditProductionCard from "@/components/production/EditProductionCard.vue";
 import SubmissionList from "@/components/contactsubmissions/SubmissionList.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 import AccessibilityStatementView from "@/views/AccessibilityStatementView.vue";
+import DashboardEditProductionPage from "@/components/dashboard/DashboardEditProductionPage.vue";
 
 function restrictedComponent(
   component: Component,
@@ -814,14 +815,14 @@ const router = createRouter({
           children: [
             {
               path: "",
-              name: "dashboard-production-list",
+              name: "dashboard-productions-list",
               component: restrictedComponent(ProductionList, () =>
                 canViewProductionsDashboard()
               ),
               meta: {
                 breadcrumb: () => [
                   { route: {name: "dashboard"}, name: "Dashboard"},
-                  { route: {name: "dashboard-production-list"}, name: "Productions"}
+                  { route: {name: "dashboard-productions-list"}, name: "Productions"}
                 ],
               },
             },
@@ -832,7 +833,7 @@ const router = createRouter({
                 h(CreateProductionCard, {
                   onSave: (id: string) =>
                     router.push({
-                      name: "dashboard-production-list",
+                      name: "dashboard-productions-list",
                       params: { id },
                     }),
                 }), () => canViewProductionsDashboard()
@@ -840,7 +841,7 @@ const router = createRouter({
               meta: {
                 breadcrumb: () => [
                    { route: { name: "dashboard" }, name: "Dashboard"},
-                   { route: { name: "dashboard-production-list" }, name: "Productions" },
+                   { route: { name: "dashboard-productions-list" }, name: "Productions" },
                    {
                      route: { name: "dashboard-production-create" },
                      name: "Create",
@@ -857,7 +858,7 @@ const router = createRouter({
               meta: {
                 breadcrumb: (route: RouteLocationNormalizedLoaded) => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
-                  { route: { name: "dashboard-production-list" }, name: "Productions" },
+                  { route: { name: "dashboard-productions-list" }, name: "Productions" },
                   {
                     route: { name: "dashboard-production-details" },
                     name: `Production ${route.params.id}`,
@@ -868,7 +869,7 @@ const router = createRouter({
                 {
                   path: "",
                   name: "dashboard-production-details",
-                  component: restrictedComponent(EditProductionCard, () =>
+                  component: restrictedComponent(DashboardEditProductionPage, () =>
                     canViewProductionsDashboard()
                   ),
                   meta: {
@@ -888,9 +889,18 @@ const router = createRouter({
                 {
                   path: "edit",
                   name: "dashboard-production-details-edit",
-                  component: restrictedComponent(EditProductionCard, () =>
+                  component: restrictedComponent(h(DashboardEditProductionPage, {
+                    onSave: () => {
+                      router.push({
+                        name: "dashboard-productions-list",
+                      })
+                    }
+                  }), () =>
                     canViewProductionsDashboard()
                   ),
+                  props: (route) => ({
+                    productionId: BigInt(route.params.id.toString()),
+                  }),
                   meta: {
                     breadcrumb: (route: RouteLocationNormalizedLoaded) => [
                       { route: { name: "dashboard" }, name: "Dashboard" },
@@ -1137,7 +1147,13 @@ const router = createRouter({
                 {
                   path: "edit",
                   name: "dashboard-user-details-edit",
-                  component: restrictedComponent(DashboardEditUserPage, () =>
+                  component: restrictedComponent(h(DashboardEditUserPage, {
+                    onSave: () => {
+                      router.push({
+                        name: "dashboard-users-list"
+                      })
+                    }
+                  }), () =>
                     canViewUsersDashboard()
                   ),
                   meta: {

@@ -9,7 +9,6 @@
       >
         <template #default>
           <CreatePersonCard
-              closable
               @save="(id: number) => {
               showCreatePopup = false;
               refresh();
@@ -122,8 +121,8 @@ import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditPersonCard from "@/components/person/EditPersonCard.vue";
-import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
+import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 
 const ability = useGlimpseAbility();
 const showCreatePopup = ref<boolean>(false);

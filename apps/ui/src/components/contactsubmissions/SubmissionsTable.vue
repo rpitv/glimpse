@@ -183,6 +183,7 @@ const headers = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", key: "name", sortable: false },
   { title: "Email Address", value: "email" },
+  { title: "Subject", value: "subject" },
   { title: "Type", value: "type" },
   { title: "Created At", key: "timestamp", value:
         (submission: Partial<ContactSubmission>) => formattedTime(submission.timestamp)},
