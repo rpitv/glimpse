@@ -1,0 +1,5 @@
+mutation UpdatePersonImage($id: BigInt!, $priority: Int!) {
+  personImage: updatePersonImage(id: $id, input: {priority: $priority}) {
+    id
+  }
+}

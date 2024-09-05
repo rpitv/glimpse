@@ -11,6 +11,7 @@ query UserDetails($id: BigInt!) {
     }
     groups {
       id
+      groupId
       group {
         id
         name
@@ -19,6 +20,16 @@ query UserDetails($id: BigInt!) {
     }
     accessLogs(pagination: { take: 1 }, order: [{ field: timestamp, direction: Desc}]) {
       timestamp
+    }
+    permissions {
+      id
+      action
+      fields
+      subject
+      conditions
+      reason
+      inverted
+      userId
     }
   }
 }

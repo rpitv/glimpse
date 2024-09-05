@@ -160,6 +160,14 @@ export class CaslAbilityFactory {
                     return user.id;
                 }
 
+                if (value === "$person") {
+                    if (!user) {
+                        throw new Error("Cannot replace $person variable in conditions because no user is logged in.");
+                    }
+                    this.logger.verbose(`Replacing $person variable in conditions with person ID ${user.personId}.`);
+                    return user.personId;
+                }
+
                 if (value === "$groups") {
                     this.logger.verbose(`Replacing $groups variable in conditions with user group IDs ${groupIds}.`);
                     return groupIds;
@@ -170,6 +178,7 @@ export class CaslAbilityFactory {
                     return new Date();
                 }
 
+
                 // Replace escaped variables with their unescaped versions
                 if (value === "\\$id") {
                     return "$id";
@@ -179,6 +188,9 @@ export class CaslAbilityFactory {
                 }
                 if (value === "\\$now") {
                     return "$now";
+                }
+                if (value === "\\$person") {
+                    return "$person";
                 }
 
                 return value;

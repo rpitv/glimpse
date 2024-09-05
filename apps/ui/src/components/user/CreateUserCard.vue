@@ -1,226 +1,104 @@
 <template>
-  <n-card class="create-user-card scaled-card">
-    <h1>Create User</h1>
-    <div class="steps">
-      <n-steps :current="currentStep">
-        <n-step
-          v-for="step of steps"
-          :key="step.title"
-          :title="step.title"
-          :description="step.description"
-        />
-      </n-steps>
-    </div>
-
-    <div class="step">
-      <Transition name="steps">
-        <div v-if="currentStep === 1">
-          <UserDetailsInput
-            @keypress.enter="enterKeyPressed"
-            v-model:data="userData"
-            ref="userDetailsInput"
-          />
-        </div>
-        <div v-else-if="currentStep === 2">
-          <n-tag
-            class="group-tag"
-            v-for="group of groupsToAdd"
-            closable
-            @close="removeGroup(group)"
-            >{{ group.name }} (ID {{ group.id }})</n-tag
-          >
-          <GroupSearch @select="addGroup" :disabled-groups="groupsToAdd" />
-        </div>
-        <div v-else-if="currentStep === 3">
-          <PermissionsEditor
-            :save-required="false"
-            :count="permissionsToAdd.length"
-            v-model:permissions="permissionsToAdd"
-            :creator="true"
-          />
-        </div>
-        <div v-else-if="currentStep === 4">
-          <p class="center-text-info">Coming Soon</p>
-        </div>
-        <div v-else-if="currentStep === 5">
-          <n-grid cols="1 s:2 m:4" responsive="screen">
-            <n-grid-item>
-              <h2>User Details</h2>
-              <p>Username: {{ userData.username }}</p>
-              <p>Email: {{ userData.mail }}</p>
-              <p>Discord ID: {{ userData.discord ?? "None" }}</p>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Groups</h2>
-              <p>{{ groupsToAdd.length }} groups</p>
-              <ul>
-                <li v-for="group of groupsToAdd" :key="group.id">
-                  {{ group.name }} (ID {{ group.id }})
-                </li>
-              </ul>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Permissions</h2>
-              <p>{{ permissionsToAdd.length }} permissions</p>
-              <n-button @click="currentStep = 3">View</n-button>
-            </n-grid-item>
-            <n-grid-item>
-              <h2>Profile</h2>
-              <p>Coming Soon</p>
-            </n-grid-item>
-          </n-grid>
-        </div>
-        <div v-else-if="currentStep === steps.length + 1">
-          <n-alert v-if="error" type="error">
-            {{ error }}
-          </n-alert>
-          <p v-else class="center-text-info">Creating user...</p>
-        </div>
-      </Transition>
-    </div>
-
-    <div class="actions">
-      <n-button
-        v-if="closable"
-        class="action"
-        @click="emit('close')"
-        type="error"
-        :disabled="currentStep > steps.length && !error"
-      >
-        Cancel
-      </n-button>
-      <n-button
-        tertiary
-        type="error"
-        class="action"
-        v-if="currentStep > 1"
-        @click="currentStep--"
-        :disabled="currentStep > steps.length && !error"
-      >
-        Back
-      </n-button>
-      <n-button
-        :primary="currentStep >= steps.length"
-        :tertiary="currentStep < steps.length"
-        class="action"
-        type="success"
-        @click="nextStep"
-        :disabled="!canContinue"
-      >
-        {{ currentStep >= steps.length ? "Create User" : "Continue" }}
-      </n-button>
-    </div>
-  </n-card>
+  <v-card>
+    <v-card-title>
+      Create User
+    </v-card-title>
+    <v-stepper v-model="step" :flat="true" :editable="validation">
+      <template #actions="{prev, next}">
+        <v-stepper-header>
+          <v-stepper-item :value="1" title="User Details" :editable="true" :complete="step > 1"/>
+          <v-divider />
+          <v-stepper-item :value="2" title="Groups" :complete="step > 2" />
+          <v-divider />
+          <v-stepper-item :value="3" title="Permissions"  :complete="step > 3" />
+          <v-divider />
+          <v-stepper-item :value="4" title="Person" :complete="step > 4" />
+          <v-divider />
+          <v-stepper-item :value="5" title="Review" subtitle="Review the data to be submitted and make sure there are no mistakes" />
+        </v-stepper-header>
+        <v-stepper-window>
+          <v-stepper-window-item :value="1">
+            <v-form ref="requiredForm">
+              <UserDetails :userData="userData" />
+            </v-form>
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="2">
+            <GroupTable :groups="groups" :take="take" @addGroup="addGroup" />
+            <GroupRow :groups="groups" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="3">
+            <PermissionsEditor
+              :save-required="false"
+              :count="permissionsToAdd.length"
+              v-model:permissions="permissionsToAdd"
+              :creator="true"
+            />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="4">
+            <PeopleTable :person="person" :take="take" @attachPerson="attachPerson"/>
+            <PeopleRow @close="person = {}" :person="person"/>
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="5">
+            <ReviewTable :person="person" :permissionsToAdd="permissionsToAdd" :groups="groups" :userData="userData" />
+          </v-stepper-window-item>
+        </v-stepper-window>
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 5 ? 'CREATE' : 'NEXT'"
+                           :disabled="checkDisable" />
+      </template>
+    </v-stepper>
+    <v-snackbar v-model="snackbar" :timeout="3000">{{ error }}</v-snackbar>
+  </v-card>
 </template>
 
 <script setup lang="ts">
-import {
-  NCard,
-  NSteps,
-  NStep,
-  NButton,
-  NTag,
-  NGrid,
-  NGridItem,
-  NAlert,
-} from "naive-ui";
-import { computed, ref } from "vue";
-import GroupSearch from "@/components/group/GroupSelect.vue";
-import type { Group, User, UserPermission } from "@/graphql/types";
-import UserDetailsInput from "@/components/user/UserDetailsInput.vue";
+import { ref, computed, watch } from "vue";
+import UserDetails from "@/components/user/UserDetailsInput/UserDetails.vue";
+import {CreateUserDocument, CreateUserGroupDocument, CreateUserPermissionDocument} from "@/graphql/types";
+import type { Group, Person, User, UserPermission} from "@/graphql/types";
 import { useMutation } from "@vue/apollo-composable";
-import {
-  CreateUserDocument,
-  CreateUserGroupDocument,
-  CreateUserPermissionDocument,
-} from "@/graphql/types";
-import { useRouter } from "vue-router";
+import GroupTable from "@/components/user/UserDetailsInput/GroupTable.vue";
+import GroupRow from "@/components/user/UserDetailsInput/GroupRow.vue";
 import PermissionsEditor from "@/components/util/permissions/PermissionsEditor.vue";
+import PeopleRow from "@/components/user/UserDetailsInput/PeopleRow.vue";
+import PeopleTable from "@/components/user/UserDetailsInput/PeopleTable.vue";
+import ReviewTable from "@/components/user/UserDetailsInput/ReviewTable.vue";
 
-const router = useRouter();
+const take = 20;
+const step = ref(1);
+const loading = ref(false);
+const error = ref<string | null>(null);
+const snackbar = ref(false);
+const userData = ref<Partial<User>>({});
+const groups = ref<Partial<Group>[]>([]);
+const permissionsToAdd = ref<UserPermission[]>([]);
+const person = ref<Partial<Person>>({});
+const requiredForm = ref();
+const validation = ref(false);
+const emit = defineEmits(["save"]);
+
 const createUserMutation = useMutation(CreateUserDocument);
 const createUserGroupMutation = useMutation(CreateUserGroupDocument);
 const createUserPermissionMutation = useMutation(CreateUserPermissionDocument);
 
-const props = defineProps({
-  closable: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits(["close", "save"]);
-
-const steps = [
-  {
-    title: "User Details",
-    description: "Enter the User's primary details",
-  },
-  {
-    title: "Groups",
-    description: "Add the User to Groups",
-  },
-  {
-    title: "Permissions",
-    description: "Assign custom permissions exclusively for this user",
-  },
-  {
-    title: "Profile",
-    description: "Attach a Person to the User for their profile",
-  },
-  {
-    title: "Review",
-    description:
-      "Review the data to be submitted and make sure there are no mistakes",
-  },
-];
-
-const currentStep = ref(1);
-const error = ref<string | null>(null);
-
-const userData = ref<Partial<User>>({});
-const userDetailsInput = ref<UserDetailsInput | null>(null);
-const groupsToAdd = ref<Pick<Group, "name" | "id">[]>([]);
-const permissionsToAdd = ref<UserPermission[]>([]);
-
-const canContinue = computed<boolean>(() => {
-  if (currentStep.value === 1) {
-    return userDetailsInput.value?.isValid;
+async function validate(next: () => void) {
+  loading.value = false;
+  if (step.value < 5) {
+    if (validation.value)
+      next();
+    return;
   }
-  return currentStep.value <= steps.length;
-});
 
-function enterKeyPressed() {
-  if (canContinue.value) {
-    nextStep();
-  }
-}
-
-async function nextStep() {
-  currentStep.value++;
-
-  if (currentStep.value >= steps.length + 1) {
-    let createdUser;
-    try {
-      createdUser = await createUserMutation.mutate({
-        data: {
-          username: userData.value.username,
-          mail: userData.value.mail,
-          discord: userData.value.discord,
-        },
-      });
-
-      if (!createdUser?.data?.user) {
-        error.value = "Failed to create user";
-        return;
+  let createdUser;
+  try {
+    createdUser = await createUserMutation.mutate({
+      data: {
+        username: userData.value.username,
+        mail: userData.value.mail,
+        discord: userData.value.discord,
+        personId: person.value.id ?? null
       }
-    } catch (e) {
-      console.error(e);
-      error.value = "Failed to create user";
-      return;
-    }
-
-    for (const group of groupsToAdd.value) {
+    });
+    for (const group of groups.value) {
       try {
         const createdUserGroup = await createUserGroupMutation.mutate({
           userId: createdUser?.data?.user.id,
@@ -237,7 +115,6 @@ async function nextStep() {
         return;
       }
     }
-
     for (const permission of permissionsToAdd.value) {
       try {
         const createdUserPermission = await createUserPermissionMutation.mutate(
@@ -255,52 +132,51 @@ async function nextStep() {
         }
       } catch (e) {
         console.error(e);
-        console.log(permission);
         error.value = "Failed to grant permission to user";
         return;
       }
     }
 
     emit("save", createdUser?.data?.user.id);
+  } catch (e) {
+    loading.value = false;
+    error.value = "Failed to create user";
+    snackbar.value = true;
+    console.error(e);
+    return;
   }
 }
 
-function addGroup(group: Group) {
-  groupsToAdd.value.push(group);
+function addGroup(id: number, name: string) {
+  groups.value.push({
+    id: id,
+    name: name
+  });
 }
 
-function removeGroup(group: Pick<Group, "name" | "id">) {
-  groupsToAdd.value = groupsToAdd.value.filter((g) => g.id !== group.id);
+function attachPerson(id: number, name: string) {
+  person.value = {
+    id: id,
+    name: name
+  };
 }
+
+watch(userData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid;
+  }
+}, {deep: true});
+
+const checkDisable = computed(() => {
+  if (loading.value)
+    return true;
+  if (step.value === 1)
+    return "prev";
+  return false;
+});
 </script>
 
 <style scoped lang="scss">
-@media (max-width: 1100px) {
-  .steps {
-    display: none;
-  }
-}
 
-.center-text-info {
-  font-size: 1.5em;
-  text-align: center;
-}
-
-.step {
-  margin-top: 3em;
-}
-
-.group-tag {
-  margin-bottom: 1em;
-  margin-right: 1em;
-}
-
-.actions {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: right;
-  .action {
-    margin-left: 0.5em;
-  }
-}
 </style>

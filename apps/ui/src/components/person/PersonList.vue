@@ -9,7 +9,6 @@
       >
         <template #default>
           <CreatePersonCard
-              closable
               @save="(id: number) => {
               showCreatePopup = false;
               refresh();
@@ -47,23 +46,27 @@
      :loading="queryData.loading.value"
      loading-text="Loading People..."
     >
+      <template #item.description="{ item }">
+        {{ item.description?.length ? item.description : "No description provided." }}
+      </template>
       <template #item.actions="{ index, item }">
         <RouterPopup
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Person, {
             id: item.id,
             name: item.name,
-            priority: item.priority
           }))"
           :max-width="1100" v-model="list[index]"
           :to="{ name: 'dashboard-person-details-edit', params: {id: item.id } }"
           @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
         >
           <EditPersonCard
-            @close="
-                list[index] = false
-                refresh();"
+            @save="(id) => {
+                list[index] = false;
+                refresh();
+                editedPerson = { id: id, show: true };
+              }
+            "
             :personId="BigInt(item.id)"
-            :closable="true"
           />
           <template #trigger>
             <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
@@ -96,6 +99,12 @@
         />
       </template>
     </v-data-table-server>
+    <v-snackbar v-model="editedPerson.show" color="green-darken-1" class="text-center">
+      <p>Edited Person {{ editedPerson.id }}</p>
+      <template #actions>
+        <v-btn @click="editedPerson.show = false" icon="fa-circle-xmark"/>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -112,8 +121,8 @@ import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditPersonCard from "@/components/person/EditPersonCard.vue";
-import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
+import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
 
 const ability = useGlimpseAbility();
 const showCreatePopup = ref<boolean>(false);
@@ -122,7 +131,8 @@ const list = ref<boolean[]>([]);
 const isDeleting = ref(false);
 const currentPage = ref(1);
 const order = ref<{key: string, order: string}[]>([]);
-const createdPerson = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const createdPerson = ref({ id: 0, show: false });
+const editedPerson = ref({ id: 0, show: false });
 const take = 20;
 
 for (let i = 0; i < take; i++)
@@ -229,7 +239,7 @@ onMounted(async () => {
 </script>
 
 <style lang="scss">
-.dashboard-people-page-row-button {
+.dashboard-role-page-row-button {
   margin-right: 0.5rem;
 }
 </style>

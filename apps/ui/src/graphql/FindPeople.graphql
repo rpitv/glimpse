@@ -3,6 +3,7 @@ query FindPeople($pagination: PaginationInput, $filter: FilterPersonInput, $orde
   people: findManyPerson(pagination: $pagination, order: $order, filter: $filter) {
     id
     name
+    description
     graduation
     pronouns
     profilePicture {

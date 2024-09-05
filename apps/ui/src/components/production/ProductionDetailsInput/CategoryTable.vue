@@ -1,33 +1,33 @@
 <template>
-    <div class="top-bar">
-      <ProductionSearch document-name="Categories" @search="refetchCategory"/>
-      <div class="buttons">
-        <RouterPopup
-          v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
-          :max-width="1100" v-model="showCreatePopup"
-          :to="{ name: 'dashboard-category-create' }"
-        >
-          <CreateCategoryCard
-            closable
-            @save="
-              refresh();
-              showCreatePopup = false;
-            "
-            @close="showCreatePopup = false"
-          />
-          <template #trigger>
-            <v-btn class="top-button text-none" variant="outlined" rounded color="green"
-              prepend-icon="fa-light fa-plus">
-              Create
-            </v-btn>
-          </template>
-        </RouterPopup>
-        <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
-           rounded class="text-none top-button">
-            Refresh
-        </v-btn>
-      </div>
+  <div class="top-bar">
+    <DashboardSearch document-name="Categories" @search="refetchCategory"/>
+    <div class="buttons">
+      <RouterPopup
+        v-if="ability.can(AbilityActions.Create, AbilitySubjects.Image)"
+        :max-width="1100" v-model="showCreatePopup"
+        :to="{ name: 'dashboard-category-create' }"
+      >
+        <CreateCategoryCard
+          closable
+          @save="
+            refresh();
+            showCreatePopup = false;
+          "
+          @close="showCreatePopup = false"
+        />
+        <template #trigger>
+          <v-btn class="top-button text-none" variant="outlined" rounded color="green"
+            prepend-icon="fa-light fa-plus">
+            Create
+          </v-btn>
+        </template>
+      </RouterPopup>
+      <v-btn @click="refresh()" prepend-icon="fa-light fa-arrows-rotate" variant="outlined"
+         rounded class="text-none top-button">
+          Refresh
+      </v-btn>
     </div>
+  </div>
   <v-data-table-server class="table" height="300px"
    :items-per-page="take"
    :items-length="queryData.result.value ? queryData.result.value.categoryCount : 0"
@@ -42,8 +42,8 @@
   >
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
-            :disabled="(productionCategory.id === item.id)"
-            @click="emit('setCategory', { id: item.id, name: item.name as string})">
+            :disabled="(productionCategory?.id === item.id)"
+            @click="emit('setCategory', item)">
         Set As Category
       </VBtn>
     </template>
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import ProductionSearch from "@/components/DashboardSearch.vue";
+import DashboardSearch from "@/components/DashboardSearch.vue";
 import {
   AbilitySubjects,
   CaseSensitivity,
@@ -66,11 +66,11 @@ import {
   OrderDirection,
   SearchCategoriesDocument
 } from "@/graphql/types";
-import {useQuery} from "@vue/apollo-composable";
-import {ref, watch, onMounted} from "vue";
-import type {PropType} from "vue";
-import {ability, AbilityActions} from "@/casl";
-import CreateImageCard from "@/components/image/CreateImageCard.vue";
+import type { Category } from "@/graphql/types";
+import { useQuery } from "@vue/apollo-composable";
+import { ref, watch, onMounted } from "vue";
+import type { PropType } from "vue";
+import { ability, AbilityActions } from "@/casl";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreateCategoryCard from "@/components/category/CreateCategoryCard.vue";
 
@@ -80,10 +80,11 @@ const props = defineProps({
     required: true
   },
   productionCategory: {
-    type: Object as PropType<{id: string, name: string}>,
+    type: Object as PropType<Category>,
     required: true
   }
 });
+
 
 const emit = defineEmits(["setCategory"])
 
@@ -146,7 +147,7 @@ watch(order, () => {
     queryData.refetch({
       order: [{direction: "Desc" as OrderDirection, field: "id" as CategoryOrderableFields }]
     })
-})
+});
 
 async function refresh() {
   await queryData.refetch();

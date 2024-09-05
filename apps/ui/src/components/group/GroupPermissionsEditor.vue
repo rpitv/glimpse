@@ -56,9 +56,8 @@ const groupPermissionsQuery = useQuery(FindGroupPermissionsDocument, {
     },
   },
   pagination: {
-    take: 20,
-    skip: 0,
-  },
+    take: 100
+  }
 });
 
 const createPermissionMutation = useMutation(CreateGroupPermissionDocument);

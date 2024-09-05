@@ -12,10 +12,13 @@ query ProductionDetails($id: BigInt!) {
 		closetTime
 		credits {
 			id
-			person {
-				id
-				name
-			}
+      person {
+        id
+        name
+      }
+      priority
+      title
+      personId
 		}
 		description
 		discordChannel
@@ -43,6 +46,7 @@ query ProductionDetails($id: BigInt!) {
 		tags {
 			id
 			tag
+      productionId
 		}
 		teamNotes
 		thumbnail {
@@ -60,6 +64,7 @@ query ProductionDetails($id: BigInt!) {
 				name
 				metadata
 			}
+      videoId
 		}
 	}
 }

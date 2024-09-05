@@ -37,6 +37,7 @@ import { FilterVoteResponseInput } from "../vote_response/dto/filter-vote_respon
 import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import {GraphQLString} from "graphql/type";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -500,5 +501,41 @@ export class UserResolver {
     async self(@Session() session: Record<string, any>, @Context() ctx: any): Promise<User | null> {
         this.logger.verbose("self resolver called");
         return ctx.req.user || null;
+    }
+
+    // We don't check for creation permissions here. Inside the resolver we make sure that they're logged in and don't
+    //  already have a linked Person.
+    @Mutation(() => Person, { nullable: false, complexity: 10 })
+    @Rule(RuleType.ReadOne, Person, { name: "Generate own person"})
+    async generateOwnPerson(@Context() ctx: { req: Request }, @Args("name", { type: () => GraphQLString }) name: string): Promise<Person> {
+        this.logger.verbose("Generate own person resolver called");
+        if(!ctx.req.user) {
+            this.logger.verbose("Failed to create profile: user is not logged in");
+            ctx.req.passed = false;
+            return null;
+        }
+
+        if(ctx.req.user.personId !== null) {
+            this.logger.verbose("Failed to create profile: user already has a profile");
+            ctx.req.passed = false;
+            return null;
+        }
+
+        const person = await ctx.req.prismaTx.person.create({
+            data: {
+                name: name.slice(0, 100) // DB supports max name length of 100 characters
+            }
+        })
+
+        await ctx.req.prismaTx.user.update({
+            where: {
+                id: ctx.req.user.id
+            },
+            data: {
+                personId: person.id
+            }
+        });
+
+        return person;
     }
 }
