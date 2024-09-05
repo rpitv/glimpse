@@ -5,8 +5,8 @@
     <v-row>
       <v-col cols="4" v-for="credit in sortedCredits" :key="credit.id" class="col">
         <span class="no-display-at-1250">&ensp; </span>
-        <span class="name">&nbsp;{{ credit.person.name }}</span>
-        <span class="no-display-at-1250"> - </span>
+        <span class="name">&nbsp;{{ credit.person?.name }}</span>
+        <span class="no-display-at-1250">{{ credit.title ? " - " : "" }}</span>
         <span class="title">{{ credit.title }}</span>
       </v-col>
     </v-row>
