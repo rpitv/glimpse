@@ -3,7 +3,7 @@
     <h2>People: </h2>
     <div class="chip-group">
       <v-chip class="ml-1" v-if="person.id" closable v-tooltip="person.name"
-              @click:close="() => { person.id = 0; person.name = ''}" :key="person.id">
+          @click:close="() => emit('close')" :key="person.id">
         Person ID: {{ person.id }}
       </v-chip>
     </div>
@@ -14,12 +14,16 @@
 import type { PropType } from "vue";
 import type { Person } from "@/graphql/types";
 
+const emit = defineEmits(["close"])
+
 defineProps({
   person: {
     type: Object as PropType<Partial<Person>>,
     required: true
   }
-})
+});
+
+
 
 </script>
 

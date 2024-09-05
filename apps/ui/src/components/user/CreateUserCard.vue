@@ -36,7 +36,7 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <PeopleTable :person="person" :take="take" @attachPerson="attachPerson"/>
-            <PeopleRow :person="person"/>
+            <PeopleRow @close="person = {}" :person="person"/>
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <ReviewTable :person="person" :permissionsToAdd="permissionsToAdd" :groups="groups" :userData="userData" />

@@ -24,7 +24,7 @@ import { useMutation, useQuery } from "@vue/apollo-composable";
 import {
   CreateGroupPermissionDocument,
   DeleteGroupPermissionDocument,
-  FindGroupPermissionsDocument, type GroupPermission,
+  FindGroupPermissionsDocument,
   UpdateGroupPermissionDocument,
 } from "@/graphql/types";
 import PermissionsEditor from "@/components/util/permissions/PermissionsEditor.vue";

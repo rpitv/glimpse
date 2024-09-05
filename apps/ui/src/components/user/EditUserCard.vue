@@ -42,7 +42,7 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="4">
             <PeopleTable :person="person" :take="take" @attachPerson="attachPerson"/>
-            <PeopleRow :person="person"/>
+            <PeopleRow @close="person = {}" :person="person"/>
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <ReviewTable :person="person" :permissionsToAdd="newPermissions" :groups="newGroups" :userData="userData" />
@@ -112,7 +112,6 @@ const updateUserPermissionMutation = useMutation(UpdateUserPermissionDocument);
 sourceData.onResult((result) => {
   if (result.loading) return;
   const user = result.data.user;
-
   oldGroups.value = [];
   newGroups.value = [];
   oldPermissions.value = [];
@@ -141,9 +140,12 @@ sourceData.onResult((result) => {
 
 
   const personResult = user?.person;
-  if (personResult)
-    person.value = personResult;
-})
+  if (personResult) 
+    person.value = structuredClone(personResult);
+  else
+    person.value = {};
+});
+
 
 async function validate(next: () => void) {
   loading.value = false;
@@ -159,7 +161,7 @@ async function validate(next: () => void) {
         username: userData.value.username,
         mail: userData.value.mail,
         discord: userData.value.discord,
-        personId: person.value.id ?? null
+        personId: person.value.id || null
       },
     });
 
