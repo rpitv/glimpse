@@ -6,9 +6,9 @@
 		<n-data-table
 			:columns="tableCols"
 			:data="tableData"
-			:row-key="(row) => row.id"
+			:row-key="(row: AnnouncementRow) => row.id"
 			:summary="createFooter"
-			@update:checked-row-keys="(newSelectedRows) => selectedRows = newSelectedRows"/>
+			@update:checked-row-keys="(newSelectedRows: RowKey[]) => selectedRows = newSelectedRows"/>
 	</div>
 	<h4>Quickplay Buttons</h4>
 	<div v-if="!globalAnnouncements" class="quickplay">

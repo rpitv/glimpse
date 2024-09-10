@@ -35,7 +35,7 @@
 					:min="1"
 					:max="sliderMaxValue"
 					v-model:value="currentPeriod"
-					:format-tooltip="(val) => formatPeriod(val, periodCount, overtimeCount, areShootoutsEnabled)"
+					:format-tooltip="(val: number) => formatPeriod(val, periodCount, overtimeCount, areShootoutsEnabled)"
 					:marks="sliderMarks"
 				/>
 				<n-button

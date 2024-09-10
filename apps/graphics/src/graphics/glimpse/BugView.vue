@@ -1,5 +1,5 @@
 <template>
-	<div :class="replicants.lowerThird.bug.value || preview ? 'show' : 'hide'">
+	<div :class="'container' replicants.lowerThird.bug.show || preview ? 'show' : 'hide'">
 		<ESPNBug v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 		<RPITVBug v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 	</div>
@@ -24,4 +24,8 @@ const replicants = await loadReplicants();
 
 <style scoped lang="scss">
 @import url("./styles/transition.scss");
+
+.container {
+	position: absolute;
+}
 </style>

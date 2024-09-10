@@ -41,7 +41,7 @@ watch(replicants.slideshow.enabled, (value, oldValue) => {
 			}
 		}, replicants.slideshow.interval.value * 1000);
 	} else {
-		clearInterval(intervalId);
+		// clearInterval(intervalId);
 		setTimeout(() => {
 			firstImgLoaded.value = true;
 		}, 1500);

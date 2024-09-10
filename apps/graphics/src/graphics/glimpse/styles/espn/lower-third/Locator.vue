@@ -2,11 +2,11 @@
 	<img class="locator" :src="Locator">
 	<div :style="leftTeamSecondaryColor"></div>
 	<div :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicants.lowerThird.locator.leftTeam.logo.value">
+		<img :style="leftTeamLogo" :src="replicants.lowerThird.locator.leftTeam.logo.value || replicants.teams[0].logo.value">
 	</div>
 	<div :style="rightTeamSecondaryColor"></div>
 	<div :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicants.lowerThird.locator.rightTeam.logo.value">
+		<img :style="rightTeamLogo" :src="replicants.lowerThird.locator.rightTeam.logo.value || replicants.teams[1].logo.value">
 	</div>
 	<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[0].schoolName.value }}</div>
 	<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[1].schoolName.value }}</div>

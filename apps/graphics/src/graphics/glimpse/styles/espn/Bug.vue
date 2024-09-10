@@ -14,6 +14,7 @@ const bugStyle = computed((): CSSProperties => {
 	return {
 		height: "100vh",
 		left: replicantBug.offsetX.value + "vw",
+		overflow: "hidden",
 		position: "absolute",
 		bottom: replicantBug.offsetY.value - 1 + "vh",
 		width: "100vw",

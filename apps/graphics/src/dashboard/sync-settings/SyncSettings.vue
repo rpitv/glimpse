@@ -62,15 +62,15 @@
 			</n-upload-dragger>
 		</n-upload>
 		<label>Bitrate (approximate)</label>
-		<n-slider :min="100" :max="100000" v-model:value="mockBulkDataSliderValue" :step="100" :format-tooltip="(val) => `${val / 1000} Kbps`" />
+		<n-slider :min="100" :max="100000" v-model:value="mockBulkDataSliderValue" :step="100" :format-tooltip="(val: number) => `${val / 1000} Kbps`" />
 		<n-input-number
 			class="mt-10"
 			min="0"
 			v-model:value="mockBulkDataSliderValue"
 			size="small"
 			:step="100"
-			:format="(val) => `${(val || 0) / 1000} Kbps`"
-			:parse="(val) => parseFloat(val) * 1000"
+			:format="(val: number | null) => `${(val || 0) / 1000} Kbps`"
+			:parse="(val: string) => parseFloat(val) * 1000"
 		/>
 
 		<v-alert v-if="mockBulkDataSliderValue > 19200" class="mt-10" title="Impossible Bitrate" type="info">
@@ -107,7 +107,6 @@ import {v4} from "uuid";
 import {MessageComposable} from "../../common/MessageComposable";
 import {computed, ref} from "vue";
 import { loadReplicants } from "../../browser-common/replicants";
-import {SettledFileInfo} from "naive-ui/es/upload/src/interface";
 
 const themeVars = useThemeVars();
 const replicants = await loadReplicants();
@@ -368,7 +367,7 @@ async function submitMockPacket(): Promise<void> {
  * @param uploadEvent Event containing the file data, and the native DOM event. If the user is removing a file,
  *   then `uploadEvent.file` will contain the file that was removed, but `uploadEvent.event` will be undefined.
  */
-function uploadChangedEvent(uploadEvent:{file: SettledFileInfo, event?: Event}): void {
+function uploadChangedEvent(uploadEvent:{file: any, event?: Event}): void {
 	// If there is no browser attached to the NaiveUI event, then the file is being removed, not uploaded.
 	if(!uploadEvent.event) {
 		mockBulkData.value = null;

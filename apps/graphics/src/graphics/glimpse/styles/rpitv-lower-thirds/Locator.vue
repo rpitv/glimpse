@@ -1,11 +1,11 @@
 <template>
 	<img class="locator" :src="Locator">
 	<div :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicantLocator.leftTeam.logo.value" :alt="replicants.teams[0].name.value">
+		<img :style="leftTeamLogo" :src="replicantLocator.leftTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[0].name.value">
 		<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[0].schoolName }}</div>
 	</div>
 	<div :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicantLocator.rightTeam.logo.value" :alt="replicants.teams[1].name.value">
+		<img :style="rightTeamLogo" :src="replicantLocator.rightTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[1].name.value">
 		<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[1].schoolName }}</div>
 	</div>
 	<div :style="location">{{ replicantLocator.location.name.value || "Houston Field House" }}</div>

@@ -17,11 +17,11 @@
 		{{ replicantScoreboard.description.timer.value && replicants.scoreboard.clock.time.value ? `(${formattedClockTime})` : ''}}
 	</div>
 	<div class="colors" :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value">
+		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[0].logo.value">
 	</div>
 	<div class="colors" :style="leftTeamSecondaryColor"></div>
 	<div class="colors" :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value">
+		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value || replicants.teams[1].logo.value">
 	</div>
 	<div class="colors" :style="rightTeamSecondaryColor"></div>
 </template>

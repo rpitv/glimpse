@@ -1,6 +1,9 @@
 <template>
 	<img class="credits" :src="FullScreen">
-	<div :style="header">Credits</div>
+	<div :style="header">
+		<p>Produced By</p>
+		<img class="rpitvlogo" :src="RPITVLogo">
+	</div>
 	<div :style="creditsContainer">
 		<div class="credit" v-for="(credit, i) in fullscreenCredits.credit.value">
 			<p :style="title[i]">{{ credit.title }}</p>
@@ -11,6 +14,7 @@
 
 <script setup lang="ts">
 import FullScreen from "../../../../../assets/espn/FullScreen.png";
+import RPITVLogo from "../../../../../assets/rpitv-modern/rpitv_logo.svg";
 import { loadReplicants } from "../../../../../browser-common/replicants";
 import type { CSSProperties } from "vue";
 import { computed } from "vue";
@@ -20,10 +24,13 @@ const fullscreenCredits = replicants.fullscreen.credits;
 
 const header = computed((): CSSProperties => {
 	return {
-		bottom: "80vh",
+		bottom: "68vh",
+		display: "flex",
 		fontSize: "5vh",
+		justifyContent: "space-between",
 		left: "11vw",
-		position: "absolute"
+		position: "absolute",
+		width: "79vw"
 	}
 });
 const creditsContainer = computed((): CSSProperties => {
@@ -37,7 +44,6 @@ const creditsContainer = computed((): CSSProperties => {
 		width: "74.3vw",
 	}
 });
-
 
 const people = computed((): CSSProperties[] => {
 	const styles: CSSProperties[] = [];
@@ -86,11 +92,25 @@ div {
 	height: 100vh;
 }
 
+.logo {
+	position: absolute;
+	width: 12vw;
+	top: 8vh;
+	left: 78vw;
+}
+
 .credit {
 	position: relative;
 }
 
 .person {
 	font-family: "swiss721_med";
+}
+
+.rpitvlogo {
+	float: right;
+	position: relative;
+	width: 13vw;
+	bottom: 5vh;
 }
 </style>
