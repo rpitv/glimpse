@@ -121,7 +121,7 @@ data.onResult((result) => {
     name: person?.name,
     description: person?.description,
     pronouns: person?.pronouns,
-    graduation: person?.graduation,
+    graduation: new Date(person?.graduation),
     profilePicture: JSON.parse(JSON.stringify(person?.profilePicture)) ?? {},
     profilePictureId: person?.profilePicture?.id
   };
