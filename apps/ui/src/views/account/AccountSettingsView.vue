@@ -1,6 +1,7 @@
 <template>
   <div>
     <div v-if="userId !== null">
+      <h1>Change Password</h1>
       <ChangePasswordCard class="change-password-card" :user-id="BigInt(userId)" />
     </div>
     <div class="loading" v-else>Loading...</div>

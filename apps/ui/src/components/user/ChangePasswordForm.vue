@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>Change Password</h1>
-
     <v-alert class="popup-msg" v-if="!!error && passwordInput.length > 0" type="error" :text="error"></v-alert>
     <v-alert class="popup-msg" v-if="saveFailed" type="error" text="Failed to change password"></v-alert>
     <v-alert class="popup-msg" v-if="saveSuccess" type="success" text="Password changed"></v-alert>
@@ -37,7 +35,7 @@ const confirmPasswordInput = ref<string>('');
 const saveSuccess = ref<boolean>(false);
 const saveFailed = ref<boolean>(false);
 
-const emit = defineEmits(['save', 'close']);
+const emit = defineEmits(['save']);
 
 const props = defineProps({
   userId: {

@@ -33,7 +33,8 @@ import {
   faEye,
   faSquare,
   faCheck,
-  faPenToSquare
+  faPenToSquare,
+  faKey,
 } from "@fortawesome/pro-solid-svg-icons";
 import { faCircle, faDotCircle } from "@fortawesome/free-regular-svg-icons"
 
@@ -146,6 +147,7 @@ library.add(faSignalStream);
 library.add(faArrowsRotate);
 library.add(faBadgeSheriff);
 library.add(faGear);
+library.add(faKey);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);
