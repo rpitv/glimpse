@@ -110,7 +110,7 @@ import { computed, ref } from "vue";
 import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import { useRouter } from "vue-router";
-import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
+import ChangePasswordCard from "@/components/user/ChangePasswordForm.vue";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditUserCard from "@/components/user/EditUserCard.vue";
 

@@ -1,15 +1,9 @@
 <template>
-<div class="change-password-section">
-  <div v-if="userId !== null">
-    <ChangePasswordCard class="change-password-card" :user-id="BigInt(userId)" />
-  </div>
-  <div class="loading" v-else>Loading...</div>
-</div>
+<div></div>
 </template>
 
 <script setup lang="ts">
 
-import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
 import { useAuthStore } from "@/stores/auth";
 import { onMounted, ref } from "vue";
 

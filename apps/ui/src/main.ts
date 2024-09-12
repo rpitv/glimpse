@@ -67,6 +67,7 @@ import {
   faSignalStream,
   faArrowsRotate,
   faBadgeSheriff,
+  faGear,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -144,6 +145,7 @@ library.add(faMinus);
 library.add(faSignalStream);
 library.add(faArrowsRotate);
 library.add(faBadgeSheriff);
+library.add(faGear);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);

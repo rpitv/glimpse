@@ -24,7 +24,7 @@ import DashboardStreamPage from "../components/dashboard/DashboardStreamPage.vue
 import DashboardUsersPage from "../components/dashboard/DashboardUsersPage.vue";
 import DashboardVideosPage from "../components/dashboard/DashboardVideosPage.vue";
 import DashboardVotesPage from "../components/dashboard/DashboardVotesPage.vue";
-import AccountView from "../views/AccountView.vue";
+import AccountView from "../views/account/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import {
@@ -57,7 +57,7 @@ import UserList from "@/components/user/UserList.vue";
 import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
 import { useAuthStore } from "@/stores/auth";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
-import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
+import ChangePasswordCard from "@/components/user/ChangePasswordForm.vue";
 import DashboardRolesPage from "@/components/dashboard/DashboardRolesPage.vue";
 import GroupList from "@/components/group/GroupList.vue";
 import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
@@ -84,6 +84,8 @@ import SubmissionList from "@/components/contactsubmissions/SubmissionList.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 import AccessibilityStatementView from "@/views/AccessibilityStatementView.vue";
 import DashboardEditProductionPage from "@/components/dashboard/DashboardEditProductionPage.vue";
+import AccountSettingsView from "@/views/account/AccountSettingsView.vue";
+import AccountProfileView from "@/views/account/AccountProfileView.vue";
 
 function restrictedComponent(
   component: Component,
@@ -1326,8 +1328,26 @@ const router = createRouter({
         return auth.isLoggedIn;
       }),
       meta: {
-        layoutCssName: "wave-layout",
+        layoutCssName: "plain-layout",
       },
+      children: [
+        {
+          path: "settings",
+          name: "account-settings",
+          component: restrictedComponent(AccountSettingsView, () => {
+            const auth = useAuthStore();
+            return auth.isLoggedIn;
+          })
+        },
+        {
+          path: "profile",
+          name: "account-profile",
+          component: restrictedComponent(AccountProfileView, () => {
+            const auth = useAuthStore();
+            return auth.isLoggedIn;
+          })
+        }
+      ]
     },
     {
       path: "/:pathMatch(.*)*",
