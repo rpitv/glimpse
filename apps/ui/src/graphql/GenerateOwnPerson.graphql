@@ -1,0 +1,5 @@
+mutation GenerateOwnPerson($name: String!) {
+  generateOwnPerson(name: $name) {
+    id
+  }
+}

@@ -1,32 +1,216 @@
 <template>
-<div></div>
+  <div>
+    <div v-if="userQuery.loading.value" class="loading">
+      <v-progress-circular color="#d6001c" indeterminate :size="100" :width="5">
+        <p class="text-center" style="color: white" >Loading Profile...</p>
+      </v-progress-circular>
+    </div>
+    <div v-else-if="!userData.person">
+      <v-form ref="profileCreation">
+        <p>You currently do not have a profile, you can create it by entering your name below.</p>
+        <v-text-field :rules="[nameRule]" label="Name" v-model="profileName" />
+        <v-btn @click="createProfile" class="create-profile" color="green">Create Profile</v-btn>
+      </v-form>
+    </div>
+    <div v-else>
+      <h1 >Profile Information</h1>
+      <div class="details">
+        <p class="label">Name: <span class="info">{{ personData.name }}</span></p>
+        <v-btn @click="editableValues.name.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
+        <v-dialog :max-width="500" v-model="editableValues.name.dialog">
+          <template #default>
+            <v-card title="Edit Name" :max-width="500">
+              <template #text>
+                <v-text-field label="Enter your name" v-model="editableValues.name.value" />
+              </template>
+              <template #actions>
+                <v-spacer />
+                <v-btn :disabled="personData.name === editableValues.name.value" @click="() => {
+                  personData.name = editableValues.name.value;
+                  saveChanges('Successfully edited name');
+                  editableValues.name.dialog = false;
+                }">SAVE</v-btn>
+              </template>
+            </v-card>
+          </template>
+        </v-dialog>
+      </div>
+      <div class="details">
+        <p class="label">Pronouns:
+          <span v-if="userData.person.pronouns?.trim().length" class="info">{{ personData.pronouns }}</span>
+          <span v-else><em>No pronouns set</em></span>
+        </p>
+        <v-btn @click="editableValues.pronouns.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
+        <v-dialog :max-width="500" v-model="editableValues.pronouns.dialog">
+          <template #default>
+            <v-card title="Edit Pronouns" :max-width="500">
+              <template #text>
+                <v-combobox label="Enter your pronouns" :items="pronouns" v-model="editableValues.pronouns.value" />
+              </template>
+              <template #actions>
+                <v-spacer />
+                <v-btn :disabled="personData.pronouns === editableValues.pronouns.value" @click="() => {
+                  personData.pronouns = editableValues.pronouns.value;
+                  saveChanges('Successfully edited pronouns');
+                  editableValues.pronouns.dialog = false;
+                }">SAVE</v-btn>
+              </template>
+            </v-card>
+          </template>
+        </v-dialog>
+      </div>
+      <div class="details">
+        <p class="label">Graduation Date:
+          <span v-if="personData.graduation" class="info">{{ moment(personData.graduation).format("LL") }}</span>
+          <span v-else><em>No graduation date set</em></span>
+        </p>
+        <v-btn @click="editableValues.graduation.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
+        <v-dialog :max-width="500" v-model="editableValues.graduation.dialog">
+          <template #default>
+            <v-card title="Edit Graduation Date" :max-width="500">
+              <template #text>
+                <v-date-input label="Enter your graduation date" v-model="editableValues.graduation.value" />
+              </template>
+              <template #actions>
+                <v-spacer />
+                <v-btn :disabled="personData.graduation === editableValues.graduation.value" @click="() => {
+                  personData.graduation = editableValues.graduation.value;
+                  saveChanges('Successfully edited graduation date');
+                  editableValues.graduation.dialog = false;
+                }">SAVE</v-btn>
+              </template>
+            </v-card>
+          </template>
+        </v-dialog>
+      </div>
+    </div>
+    <v-snackbar :color="snackbarColor" v-model="snackbar" :timeout="3000">
+      {{ snackbarText}}
+    </v-snackbar>
+  </div>
 </template>
 
 <script setup lang="ts">
-
 import { useAuthStore } from "@/stores/auth";
-import { onMounted, ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useQuery, useMutation } from "@vue/apollo-composable";
+import { GenerateOwnPersonDocument, UpdatePersonDocument, UserDetailsDocument } from "@/graphql/types";
+import type { Person, User } from "@/graphql/types";
+import moment from "moment";
+
 
 const auth = useAuthStore();
+const generatePerson = useMutation(GenerateOwnPersonDocument);
+const mutatePerson = useMutation(UpdatePersonDocument);
 
-const userId = ref<number|null>(null);
-onMounted(async () => {
-  userId.value = await auth.getOwnId();
-})
+const userId = ref<number|null>(await auth.getOwnId());
+const userData = ref<Partial<User>>({});
+const personData = ref<Partial<Person>>({});
+const profileCreation = ref();
+const profileName = ref<string>("");
+const editableValues = ref({
+  name: {
+    dialog: false,
+    value: ""
+  },
+  pronouns: {
+    dialog: false,
+    value: ""
+  },
+  graduation: {
+    dialog: false,
+    value: ""
+  },
+});
+const pronouns = ["he/him", "she/her", "they/them"];
+const nameRule = (v: string) => {
+  if (!(v.trim()))
+    return "Name is required";
+  return true;
+};
+const snackbar = ref(false);
+const snackbarColor = ref("green");
+const snackbarText = ref("");
 
+async function createProfile() {
+  await profileCreation.value.validate();
+  if (profileName.value.trim()) {
+    try {
+      await generatePerson.mutate({
+        name: profileName.value
+      });
+      snackbar.value = true;
+      snackbarColor.value = "green";
+      snackbarText.value = "Success"
+    } catch (e) {
+      console.error(e);
+      snackbar.value = true;
+      snackbarColor.value = "red";
+      snackbarText.value = "An error has occurred";
+    }
+    userQuery.refetch();
+  }
+}
+const userQuery = useQuery(UserDetailsDocument, {
+  id: userId.value
+});
+
+userQuery.onResult((result) => {
+  if (result.data) {
+    userData.value = structuredClone(result.data.user) as User;
+    if (result.data.user?.person) {
+      personData.value = structuredClone(result.data.user.person);
+      personData.value.graduation = new Date(personData.value.graduation);
+      editableValues.value.name.value = personData.value.name as string;
+      editableValues.value.pronouns.value = personData.value.pronouns as string;
+      editableValues.value.graduation.value = personData.value.graduation;
+    }
+  }
+});
+
+async function saveChanges(text: string) {
+  await mutatePerson.mutate({
+    id: personData.value.id,
+    data: {
+      name: personData.value.name,
+      pronouns: personData.value.pronouns,
+      graduation: personData.value.graduation
+    },
+  });
+  snackbar.value = true;
+  snackbarColor.value = "green";
+  snackbarText.value = text;
+  userQuery.refetch();
+}
+
+onMounted(() => {
+  userQuery.refetch();
+});
 </script>
 
 <style scoped lang="scss">
-  .change-password-section {
-    display: flex;
-    justify-content: center;
+.create-profile {
+  float: right;
+}
 
-    .change-password-card {
-      width: min(500px, 90vw);
-    }
-  }
+.loading {
+  display: flex;
+  justify-content: center;
+  height: clamp(300px, 30vh, 800px);
+  align-items: center;
+}
 
-  .loading {
-    text-align: center;
-  }
+.details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  color: #a4a4a4;
+}
+
+.info {
+  color: white;
+}
 </style>

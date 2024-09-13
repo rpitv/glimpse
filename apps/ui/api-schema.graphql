@@ -186,6 +186,7 @@ type Mutation {
   deleteVideo(id: BigInt!): Video!
   deleteVote(id: BigInt!): Vote!
   deleteVoteResponse(id: BigInt!): VoteResponse!
+  generateOwnPerson(name: String!): Person
   loginLocal(password: String!, username: String!): User!
   logout: Boolean!
   updateAlertLog(id: BigInt!, input: UpdateAlertLogInput!): AlertLog!

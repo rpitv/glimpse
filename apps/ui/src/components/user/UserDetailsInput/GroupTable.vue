@@ -69,7 +69,7 @@ import {
 } from "@/graphql/types";
 import type { Group } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
-import {ref, watch} from "vue";
+import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";
 import {subject} from "@casl/ability";
 import {ability, AbilityActions} from "@/casl";
@@ -154,6 +154,10 @@ watch(order, () => {
 async function refresh() {
   await queryData.refetch();
 }
+
+onMounted(async () => {
+  await refresh();
+})
 
 </script>
 
