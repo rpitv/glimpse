@@ -14,8 +14,10 @@
     </div>
     <div class="team mt-10">
       <h1>Our Team</h1>
-      <div v-if="queryData.loading.value">
-        Loading Members...
+      <div v-if="queryData.loading.value" class="loading mb-10">
+        <v-progress-circular color="red" size="100" indeterminate>
+          <p style="color: white; text-align: center">Loading Members...</p>
+        </v-progress-circular>
       </div>
       <div v-else class="membership">
         <h2 class="ml-5">Leadership</h2>
@@ -93,6 +95,11 @@ queryData.onResult((result) => {
   aspect-ratio: 16 / 9;
   width: 100%;
   border: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
 }
 
 .members {
