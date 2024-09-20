@@ -4,6 +4,7 @@ import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
 enum PersonImageOrderableFields {
     id = "id",
+    priority = "priority",
 }
 
 registerEnumType(PersonImageOrderableFields, {
