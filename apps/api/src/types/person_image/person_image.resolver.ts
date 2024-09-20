@@ -11,16 +11,26 @@ import { PersonImage } from "./person_image.entity";
 import { FilterPersonImageInput } from "./dto/filter-person_image.input";
 import { CreatePersonImageInput } from "./dto/create-person_image.input";
 import { UpdatePersonImageInput } from "./dto/update-person_image.input";
+import { OrderPersonImageInput } from "./dto/order-person_image.input";
 import { Person } from "../person/person.entity";
 import { Image } from "../image/image.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import PaginationInput from "../../gql/pagination.input";
 
 @Resolver(() => PersonImage)
 export class PersonImageResolver {
     private logger: Logger = new Logger("PersonImageResolver");
 
     // -------------------- Generic Resolvers --------------------
+    @Query(() => [PersonImage], { complexity: Complexities.ReadMany })
+    @Rule(RuleType.ReadMany, PersonImage)
+    async findManyPersonImage(
+        @Context() ctx: { req: Request },
+        @Args("filter", { type: () => FilterPersonImageInput, nullable: true }) filter?: FilterPersonImageInput,
+        @Args("order", { type: () => [OrderPersonImageInput], nullable: true }) order?: OrderPersonImageInput[],
+        @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
+    )
 
     @Query(() => PersonImage, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, PersonImage)

@@ -1,0 +1,26 @@
+  query FindCredits($personId: Float, $pagination: PaginationInput) {
+    creditCount(filter: {
+      personId: {
+        equals: $personId
+      }
+    })
+    credits: findManyCredit(filter: {
+      personId: {
+        equals: $personId
+      },
+    }, pagination: $pagination) {
+      title
+      production {
+        name
+        description
+        eventLocation
+        id
+        startTime
+        thumbnail {
+          description
+          name
+          path
+        }
+      }
+    }
+  }

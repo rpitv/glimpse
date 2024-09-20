@@ -86,6 +86,7 @@ import AccessibilityStatementView from "@/views/AccessibilityStatementView.vue";
 import DashboardEditProductionPage from "@/components/dashboard/DashboardEditProductionPage.vue";
 import AccountSettingsView from "@/views/account/AccountSettingsView.vue";
 import AccountProfileView from "@/views/account/AccountProfileView.vue";
+import PersonView from "@/views/PersonView.vue";
 
 function restrictedComponent(
   component: Component,
@@ -181,6 +182,14 @@ const router = createRouter({
       ),
       meta: {
         layoutCssName: "plain-layout",
+      },
+    },
+    {
+      path: "/person/:id",
+      name: "person",
+      component: PersonView,
+      meta: {
+        layoutCssName: "plain-layout"
       },
     },
     {

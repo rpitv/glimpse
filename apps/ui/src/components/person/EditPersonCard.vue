@@ -202,14 +202,14 @@ async function validate(next: () => void) {
     }
 
     for (const newRole of newRoles.value) {
-      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === oldRole.roleId);
+      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === newRole.roleId);
       if (matchingRole) {
         if (matchingRole.endTime !== newRole.endTime || matchingRole.startTime !== newRole.startTime) {
           updatePersonRole.mutate({
             id: newRole.id,
             startTime: newRole.startTime,
             endTime: newRole.startTime
-          })
+          });
         }
       } else {
         createPersonRole.mutate({
