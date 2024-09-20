@@ -14,7 +14,7 @@ registerEnumType(PersonImageOrderableFields, {
  * Input type for ordering PersonRoles in ReadMany queries.
  */
 @InputType()
-export class OrderPersonRoleInput {
+export class OrderPersonImageInput {
     /**
      * Name of the field to sort by.
      */

@@ -30,7 +30,26 @@ export class PersonImageResolver {
         @Args("filter", { type: () => FilterPersonImageInput, nullable: true }) filter?: FilterPersonImageInput,
         @Args("order", { type: () => [OrderPersonImageInput], nullable: true }) order?: OrderPersonImageInput[],
         @Args("pagination", { type: () => PaginationInput, nullable: true }) pagination?: PaginationInput
-    )
+    ): Promise<PersonImage[]>{
+        this.logger.verbose("findManyPersonImage resolver called");
+        // If filter is provided, combine it with the CASL accessibleBy filter.
+        const where = filter
+            ? {
+                AND: [accessibleBy(ctx.req.permissions).PersonImage, filter].filter(v => v !== undefined)
+            }
+            : accessibleBy(ctx.req.permissions).PersonImage;
+
+        // If ordering args are provided, convert them to Prisma's orderBy format.
+        const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
+
+        return ctx.req.prismaTx.personRole.findMany({
+            where,
+            orderBy,
+            skip: pagination?.skip,
+            take: Math.max(0, pagination?.take ?? 20),
+            cursor: pagination?.cursor ? { id: BigInt(pagination.cursor) } : undefined
+        });
+    }
 
     @Query(() => PersonImage, { nullable: true, complexity: Complexities.ReadOne })
     @Rule(RuleType.ReadOne, PersonImage)
