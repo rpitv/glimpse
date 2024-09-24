@@ -13,11 +13,7 @@ export const productions = pgTable("productions", {
   unVolunteerEmbedId: text("unVolunteerEmbedID").notNull(),
 });
 
-export const users = pgTable("users", {
-  userId: text("userId").primaryKey()
-});
-
 export const volunteers = pgTable("volunteers", {
-  userId: text("userId").references(() => users.userId),
+  userId: text("userId"),
   channelId: text("channelId").references(() => productions.channelId)
 });

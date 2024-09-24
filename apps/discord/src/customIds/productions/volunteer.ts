@@ -1,10 +1,9 @@
 import {CustomId} from "../../types";
 import {BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, userMention} from "discord.js";
 import {db} from "../../db";
-import {productions, volunteers, users} from "../../schema";
+import {productions, volunteers} from "../../schema";
 import {eq} from "drizzle-orm";
 import {errorString} from "../../util";
-
 
 export const volunteer: CustomId = {
     name: "volunteer",
@@ -18,9 +17,7 @@ export const volunteer: CustomId = {
             const currentVolunteers = await db.query.volunteers.findMany({
                 where: (volunteer, {eq}) => eq(volunteer.channelId, currentProduction.channelId)
             });
-            const currentUser = await db.query.users.findFirst({
-                where: (user, {eq}) => eq(user.userId, interaction.user.id)
-            });
+
 
             if (!currentProduction) {
                 await interaction.editReply({
@@ -35,11 +32,6 @@ export const volunteer: CustomId = {
                 return;
             }
 
-            if (!currentUser) {
-                await db.insert(users).values({
-                    userId: interaction.user.id
-                });
-            }
 
             await db.insert(volunteers).values({
                 channelId: currentProduction.channelId,
