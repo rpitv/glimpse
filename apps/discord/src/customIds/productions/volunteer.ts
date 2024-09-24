@@ -1,10 +1,9 @@
 import {CustomId} from "../../types";
 import {BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, userMention} from "discord.js";
 import {db} from "../../db";
-import {productions, volunteers, users} from "../../schema";
+import {productions, volunteers} from "../../schema";
 import {eq} from "drizzle-orm";
 import {errorString} from "../../util";
-
 
 export const volunteer: CustomId = {
     name: "volunteer",

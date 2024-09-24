@@ -2,7 +2,7 @@ import {CustomId} from "../../types";
 import {BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, userMention} from "discord.js";
 import {db} from "../../db";
 import {eq} from "drizzle-orm";
-import {volunteers, users} from "../../schema";
+import {volunteers} from "../../schema";
 import {errorString} from "../../util";
 
 
