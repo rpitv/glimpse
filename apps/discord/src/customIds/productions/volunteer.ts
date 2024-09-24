@@ -18,9 +18,7 @@ export const volunteer: CustomId = {
             const currentVolunteers = await db.query.volunteers.findMany({
                 where: (volunteer, {eq}) => eq(volunteer.channelId, currentProduction.channelId)
             });
-            const currentUser = await db.query.users.findFirst({
-                where: (user, {eq}) => eq(user.userId, interaction.user.id)
-            });
+
 
             if (!currentProduction) {
                 await interaction.editReply({
@@ -35,11 +33,6 @@ export const volunteer: CustomId = {
                 return;
             }
 
-            if (!currentUser) {
-                await db.insert(users).values({
-                    userId: interaction.user.id
-                });
-            }
 
             await db.insert(volunteers).values({
                 channelId: currentProduction.channelId,

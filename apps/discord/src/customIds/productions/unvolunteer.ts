@@ -26,20 +26,12 @@ export const unvolunteer: CustomId = {
             const currentVolunteers = await db.query.volunteers.findMany({
                 where: (volunteer, {eq}) => eq(volunteer.channelId, interaction.channelId)
             });
-            const currentUser = await db.query.users.findFirst({
-                where: (user, {eq}) => eq(user.userId, interaction.user.id)
-            });
 
             if (!currentProduction) {
                 await interaction.editReply({
                     content: "This production doesn't exist...",
                 })
                 return;
-            }
-            if (!currentUser) {
-                await db.insert(users).values({
-                    userId: interaction.user.id
-                });
             }
 
             if (!currentVolunteers.find((volunteer) => volunteer.userId === interaction.user.id)) {
