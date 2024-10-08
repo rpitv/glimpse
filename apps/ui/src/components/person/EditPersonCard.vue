@@ -125,10 +125,18 @@ data.onResult((result) => {
     profilePicture: JSON.parse(JSON.stringify(person?.profilePicture)) ?? {},
     profilePictureId: person?.profilePicture?.id
   };
-  oldImages.value = person?.images as PersonImage[];
-  newImages.value = JSON.parse(JSON.stringify(person?.images)) as PersonImage[];
-  oldRoles.value = person?.roles as PersonRole[];
-  newRoles.value = JSON.parse(JSON.stringify(person?.roles)) as PersonRole[];
+  oldImages.value = structuredClone(person?.images) as PersonImage[];
+  newImages.value = structuredClone(person?.images) as PersonImage[];
+  oldRoles.value = structuredClone(person?.roles) as PersonRole[];
+  for (const role of oldRoles.value) {
+    role.startTime = new Date(role.startTime);
+    role.endTime = new Date(role.endTime);
+  }
+  newRoles.value = structuredClone(person?.roles) as PersonRole[];
+  for (const role of newRoles.value) {
+    role.startTime = new Date(role.startTime);
+    role.endTime = new Date(role.endTime);
+  }
 });
 
 function addImage(image: Image) {
@@ -202,21 +210,21 @@ async function validate(next: () => void) {
     }
 
     for (const newRole of newRoles.value) {
-      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === newRole.roleId);
+      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === oldRole.roleId);
       if (matchingRole) {
         if (matchingRole.endTime !== newRole.endTime || matchingRole.startTime !== newRole.startTime) {
           updatePersonRole.mutate({
             id: newRole.id,
-            startTime: newRole.startTime,
-            endTime: newRole.startTime
-          });
+            startTime: newRole.startTime.toISOString(),
+            endTime: newRole.endTime.toISOString()
+          })
         }
       } else {
         createPersonRole.mutate({
           roleId: newRole.roleId,
           personId: props.personId,
-          startTime: newRole.startTime,
-          endTime: newRole.endTime
+          startTime: newRole.startTime.toISOString(),
+          endTime: newRole.endTime.toISOString()
         });
       }
     }

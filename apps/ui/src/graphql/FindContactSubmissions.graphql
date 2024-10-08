@@ -1,4 +1,4 @@
-query FindContactSubmissions($filter: FilterContactSubmissionInput, $pagination: PaginationInput $order: [OrderContactSubmissionInput!]) {
+query FindContactSubmissions($filter: FilterContactSubmissionInput, $pagination: PaginationInput, $order: [OrderContactSubmissionInput!]) {
 	totalSubmissions: contactSubmissionCount(filter: $filter)
 	contactSubmissions: findManyContactSubmission(filter: $filter, order: $order, pagination: $pagination) {
 		id

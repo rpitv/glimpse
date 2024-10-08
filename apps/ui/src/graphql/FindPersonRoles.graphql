@@ -1,0 +1,26 @@
+query FindPersonRoles($filter: FilterPersonRoleInput) {
+  totalPersonRoles: personRoleCount(filter: $filter)
+  personRoles: findManyPersonRole(filter: $filter) {
+    id
+    startTime
+    endTime
+    person {
+      id
+      name
+      profilePicture {
+        id
+        name
+        path
+      }
+    }
+    role {
+      name
+      description
+      displayInLeadership
+      displayInMembership
+      priority
+    }
+    personId
+
+  }
+}
