@@ -20,7 +20,7 @@
         <template #activator="{ props }">
           <v-chip v-tooltip="'Click to view image'" class="ml-1" closable v-bind="props"
                   @click:close="images.splice(i, 1)" >
-            Image ID: {{ image.imageId }}
+            Image ID: {{ image.id }}
           </v-chip>
         </template>
         <template v-slot:default>

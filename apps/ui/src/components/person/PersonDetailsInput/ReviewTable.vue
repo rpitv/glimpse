@@ -26,7 +26,7 @@
               <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
                 <template #activator="{ props }">
                   <v-chip v-bind="props" >
-                    Image ID: {{ image.imageId }}
+                    Image ID: {{ image.id }}
                   </v-chip>
                 </template>
                 <template #default>

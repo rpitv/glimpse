@@ -7,10 +7,11 @@
       <v-combobox :rules="[pronounsRule]" :items="['he/him', 'she/her', 'they/them']" density="compact" variant="outlined" label="Pronouns" v-model="personData.pronouns" />
     </v-col>
     <v-col cols="3">
-      <v-date-input density="compact" variant="outlined" label="Graduation" prepend-icon="" prepend-inner-icon="$calendar" v-model="personData.graduation" />
+      <v-date-input density="compact" variant="outlined" label="Graduation"
+        prepend-icon="" prepend-inner-icon="$calendar" clearable v-model="personData.graduation" />
     </v-col>
   </v-row>
-  <v-textarea variant="outlined" label="Description" v-model="personData.description" />
+  <v-textarea label="Description" v-model="personData.description" />
   * = required
 </template>
 
@@ -41,6 +42,7 @@ const pronounsRule = () => {
     return "Pronouns must be 20 characters or less";
   return true;
 }
+
 
 </script>
 
