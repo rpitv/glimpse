@@ -15,25 +15,31 @@
     <div class="team mt-10">
       <h1>Our Team</h1>
       <div v-if="queryData.loading.value" class="loading mb-10">
-        <v-progress-circular color="red" size="100" indeterminate>
-          <p style="color: white; text-align: center">Loading Members...</p>
+        <v-progress-circular color="red-darken-1" size="80" indeterminate>
         </v-progress-circular>
+        <p style="color: white; text-align: center">Loading Members...</p>
       </div>
       <div v-else class="membership">
-        <h2 class="ml-5">Leadership</h2>
-          <div class="members ml-5">
-            <div v-for="officer in officers" class="member-container" :key="officer.id">
-              <v-avatar :rounded="officer.person?.profilePicture?.path ? 'default' : 0" size="150" :image="officer.person?.profilePicture?.path ?? rpitvLogo" />
-              <h3>{{ officer.person?.name }}</h3>
-              <h4 class="role">{{ officer.role?.name }}</h4>
+        <h2 v-if="officers.length" class="ml-5">Leadership</h2>
+          <div class="members mt-2 ml-5">
+            <div v-for="officer in officers" :key="officer.id">
+              <RouterLink class="member-container" :to="personURL + officer.person?.id">
+                <v-avatar :rounded="officer.person?.profilePicture?.path ? 'default' : 0" size="150"
+                          :image="officer.person?.profilePicture?.path ?? rpitvLogo" />
+                <h3>{{ officer.person?.name }}</h3>
+                <h4 class="role">{{ officer.role?.name }}</h4>
+              </RouterLink>
             </div>
           </div>
-        <h2 class="ml-5">Members</h2>
-        <div class="members ml-5">
-          <div v-for="member in members" class="member-container" :key="member.id">
-            <v-avatar rounded="0" size="150" :image="member.person?.profilePicture?.path ?? rpitvLogo" />
-            <h3>{{ member.person?.name }}</h3>
-            <h4 class="role">{{ member.role?.name }}</h4>
+        <h2 v-if="members.length" class="ml-5">Members</h2>
+        <div class="members mt-2 ml-5">
+          <div v-for="member in members" :key="member.id">
+            <RouterLink class="member-container" :to="personURL + member.person?.id">
+              <v-avatar :rounded="member.person?.profilePicture?.path ? 'default' : 0" size="150"
+                        :image="member.person?.profilePicture?.path ?? rpitvLogo" />
+              <h3>{{ member.person?.name }}</h3>
+              <h4 class="role">{{ member.role?.name }}</h4>
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -47,6 +53,8 @@ import type { PersonRole } from "@/graphql/types";
 import { useQuery } from "@vue/apollo-composable";
 import { ref } from "vue";
 import rpitvLogo from "../assets/rpitv_logo.svg";
+
+const personURL =  import.meta.env.BASE_URL + "person/";
 
 const peopleRoles = ref<PersonRole[]>([]);
 const officers = ref<PersonRole[]>([]);
@@ -69,6 +77,7 @@ queryData.onResult((result) => {
   officers.value = peopleRoles.value.filter((personRole) => personRole.role?.displayInLeadership && personRole.role?.displayInMembership);
   officers.value.sort((a, b) => b.role!.priority as number - (a.role!.priority as number));
   members.value = peopleRoles.value.filter((personRole) => !personRole.role?.displayInLeadership && personRole.role?.displayInMembership);
+  members.value = members.value.filter((member) => !officers.value.find((officer) => officer.personId === member.personId));
   members.value.sort((a, b) => b.person?.name!.toUpperCase() as string > (a.person?.name!.toUpperCase() as string) ? -1 : 1);
 });
 
@@ -99,20 +108,24 @@ queryData.onResult((result) => {
 
 .loading {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
 .members {
   width: 100%;
   display: grid;
   grid-auto-rows: 250px;
-  grid-template-columns: repeat(auto-fit, 200px) ;
+  grid-template-columns: repeat(auto-fit, 200px);
 }
 .member-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 200px;
+  text-decoration: inherit;
+  color: inherit;
 }
 .role {
   color: #ff8697

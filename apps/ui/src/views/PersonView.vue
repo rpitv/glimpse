@@ -2,7 +2,7 @@
   <div>
     <v-card class="person-card">
       <v-card-text>
-        <div v-if="creditsData.loading.value && creditsData.result.value" class="loading">
+        <div v-if="personData.loading.value && personData.result.value" class="loading">
           <v-progress-circular size="80" indeterminate color="red-lighten-1" />
           <p>Loading...</p>
         </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useQuery } from "@vue/apollo-composable";
 import {
@@ -125,8 +125,9 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
 
     if (productionSkip >= creditsDetails.value.length && creditsDetails.value.length !== 0)
       productionSkip -= take;
-    if (totalProductions <= creditsDetails.value.length)
+    if (totalProductions <= creditsDetails.value.length) {
       load.done('empty');
+    }
     else {
       load.done('ok');
       productionSkip += take;
@@ -136,7 +137,6 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
     load.done('error');
   }
 }
-
 
 </script>
 

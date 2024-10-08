@@ -50,7 +50,7 @@
     "validator": "^13.9.0",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14",
-    "vuetify": "^3.6.6"
+    "vuetify": "^3.7.2"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
