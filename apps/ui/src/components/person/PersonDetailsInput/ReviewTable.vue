@@ -4,11 +4,11 @@
     <v-table height="500" class="table">
       <tbody>
         <tr>
-          <td>Person Name</td>
+          <td>Name</td>
           <td>{{ personData.name }}</td>
         </tr>
         <tr>
-          <td>Person Pronouns</td>
+          <td>Pronouns</td>
           <td>{{ personData.pronouns?.trim().length ? personData.pronouns : 'No pronouns provided.' }}</td>
         </tr>
         <tr>

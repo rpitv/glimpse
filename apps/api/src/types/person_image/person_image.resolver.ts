@@ -42,7 +42,7 @@ export class PersonImageResolver {
         // If ordering args are provided, convert them to Prisma's orderBy format.
         const orderBy = order?.map((o) => ({ [o.field]: o.direction })) || undefined;
 
-        return ctx.req.prismaTx.personRole.findMany({
+        return ctx.req.prismaTx.personImage.findMany({
             where,
             orderBy,
             skip: pagination?.skip,

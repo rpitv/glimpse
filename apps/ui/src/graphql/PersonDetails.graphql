@@ -35,6 +35,7 @@ query PersonDetails($id: BigInt!) {
         path
         description
       }
+      imageId
       priority
     }
   }

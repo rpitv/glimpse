@@ -2,25 +2,24 @@
   <div>
     <v-card class="person-card">
       <v-card-text>
-        <div class="details-container">
+        <div v-if="creditsData.loading.value && creditsData.result.value" class="loading">
+          <v-progress-circular size="80" indeterminate color="red-lighten-1" />
+          <p>Loading...</p>
+        </div>
+        <div v-else class="details-container">
           <v-avatar :size="200" :image="personDetails?.profilePicture?.path ?? RPITV_Logo" />
           <h1>{{ personDetails?.name }}</h1>
           <footer>{{ personDetails?.pronouns }}</footer>
           <p class="description">{{ personDetails?.description }}</p>
-          <v-dialog width="1100">
+          <v-dialog v-if="personImageData.result.value?.personImageCount" width="1100">
             <template #activator="{ props: activatorProps }">
-              <v-btn v-bind="activatorProps">View Photos</v-btn>
+              <v-btn class="mt-7" @click="imageDetails = []" v-bind="activatorProps">View Photos</v-btn>
             </template>
             <template #default>
-              <v-card>
-                <v-card-text>
-                  
-                </v-card-text>
-              </v-card>
+              <PersonImageCard :personId="route.params.id as string" />
             </template>
           </v-dialog>
-          <br>
-          <h2>Club Positions</h2>
+          <h2 class="mt-5">Club Positions</h2>
           <div class="roles">
             <div class="text-center" v-for="role in personDetails?.roles">
               <h3 style="color: #ff6363">{{ role.role?.name }}</h3>
@@ -32,12 +31,12 @@
             </div>
           </div>
           <h2 class="mt-12" v-if="creditsDetails.length">Productions</h2>
-          <v-infinite-scroll style="width: 100%" direction="horizontal" @load="load">
+          <v-infinite-scroll style="width: 100%" direction="horizontal" @load="loadProductions">
             <div class="productions">
               <template v-for="(credit, i) in creditsDetails" :key="i">
-                  <ProductionCard :id="credit.production?.id" :startTime="new Date(credit.production?.startTime)"
-                    :description="credit.production?.description?.length ? credit.production?.description : ''"
-                    :name="credit.production?.name as string" />
+                <ProductionCard :id="credit.production?.id" :startTime="new Date(credit.production?.startTime)"
+                  :description="credit.production?.description?.length ? credit.production?.description : ''"
+                  :name="credit.production?.name as string" />
               </template>
             </div>
             <template #empty>
@@ -55,19 +54,27 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useQuery } from "@vue/apollo-composable";
-import {PersonDetailsDocument, FindCreditsDocument } from "@/graphql/types";
-import type { Person, Credit } from "@/graphql/types";
+import {
+  PersonDetailsDocument,
+  FindCreditsDocument,
+  FindPersonImageDocument,
+} from "@/graphql/types";
+import type { Person, Credit, PersonImage, OrderDirection, PersonImageOrderableFields } from "@/graphql/types";
 import RPITV_Logo from "../assets/rpitv_logo.svg";
 import moment from "moment";
 import ProductionCard from "@/components/ProductionCard.vue";
+import PersonImageCard from "@/components/PersonImageCard.vue";
 
 const route = useRoute();
 
 const take = 20;
-let skip = 0;
+let productionSkip = 0;
+let imageSkip = 0;
 let totalProductions = 0;
+let totalImages = 0;
 const personDetails = ref<Person>();
 const creditsDetails = ref<Credit[]>([]);
+const imageDetails = ref<PersonImage[]>([]);
 const personData = useQuery(PersonDetailsDocument, {
   id: route.params.id
 });
@@ -75,7 +82,22 @@ const creditsData = useQuery(FindCreditsDocument, {
   personId: parseFloat(route.params.id as string),
   pagination: {
     take: take,
-    skip: skip
+    skip: productionSkip
+  }
+});
+const personImageData = useQuery(FindPersonImageDocument, {
+  filter: {
+    personId: {
+      equals: parseFloat(route.params.id as string)
+    }
+  },
+  pagination: {
+    take: take,
+    skip: imageSkip,
+  },
+  order: {
+    direction: "Asc" as OrderDirection,
+    field: "priority" as PersonImageOrderableFields
   }
 });
 
@@ -86,13 +108,14 @@ personData.onResult((result) => {
   }
 });
 
-async function load(load: { done: (status: 'loading' | 'error' | 'empty' | 'ok') => void }) {
+
+async function loadProductions(load: { done: (status: 'loading' | 'error' | 'empty' | 'ok') => void }) {
   try {
     await creditsData.refetch({
       personId: parseInt(route.params.id as string),
       pagination: {
         take: take,
-        skip: skip
+        skip: productionSkip
       }
     });
     totalProductions = creditsData.result.value?.creditCount ?? 0;
@@ -100,13 +123,13 @@ async function load(load: { done: (status: 'loading' | 'error' | 'empty' | 'ok')
       for (const credit of creditsData.result.value.credits)
         creditsDetails.value.push(credit);
 
-    if (skip >= creditsDetails.value.length && creditsDetails.value.length !== 0)
-      skip -= take;
+    if (productionSkip >= creditsDetails.value.length && creditsDetails.value.length !== 0)
+      productionSkip -= take;
     if (totalProductions <= creditsDetails.value.length)
       load.done('empty');
     else {
       load.done('ok');
-      skip = skip + take;
+      productionSkip += take;
     }
   } catch (e) {
     console.error(e);
@@ -118,8 +141,18 @@ async function load(load: { done: (status: 'loading' | 'error' | 'empty' | 'ok')
 </script>
 
 <style scoped lang="scss">
+.loading {
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
 .person-card {
   margin: 5% 10%;
+  min-height: 500px;
 }
 
 .details-container {

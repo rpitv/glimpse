@@ -328,6 +328,7 @@ type Query {
   findManyGroupPermission(filter: FilterGroupPermissionInput, order: [OrderGroupPermissionInput!], pagination: PaginationInput): [GroupPermission!]!
   findManyImage(filter: FilterImageInput, order: [OrderImageInput!], pagination: PaginationInput): [Image!]!
   findManyPerson(filter: FilterPersonInput, order: [OrderPersonInput!], pagination: PaginationInput): [Person!]!
+  findManyPersonImage(filter: FilterPersonImageInput, order: [OrderPersonImageInput!], pagination: PaginationInput): [PersonImage!]!
   findManyPersonRole(filter: FilterPersonRoleInput, order: [OrderPersonRoleInput!], pagination: PaginationInput): [PersonRole!]!
   findManyProduction(filter: FilterProductionInput, order: [OrderProductionInput!], pagination: PaginationInput): [Production!]!
   findManyProductionRSVP(filter: FilterProductionRSVPInput, order: [OrderProductionRSVPInput!], pagination: PaginationInput): [ProductionRSVP!]!
@@ -600,9 +601,15 @@ enum PersonOrderableFields {
   name
 }
 
+enum PersonImageOrderableFields {
+  id
+  priority
+}
+
 enum PersonRoleOrderableFields {
   id
   startTime
+  priority
 }
 
 enum ProductionImageOrderableFields {
@@ -1270,6 +1277,11 @@ input OrderImageInput {
 input OrderPersonInput {
   direction: OrderDirection!
   field: PersonOrderableFields!
+}
+
+input OrderPersonImageInput {
+  direction: OrderDirection!
+  field: PersonImageOrderableFields!
 }
 
 input OrderPersonRoleInput {
