@@ -19,6 +19,7 @@ export async function loadReplicants() {
 					errorMsg: "Error"
 				}, persistent: false
 			}),
+			daktronicsFeed: await replicant<"tv" | "rtd" | "">("daktronicsFeed", "glimpse-graphics.sync-settings", {defaultValue: ""}),
 			values: {
 				clock: await replicant<boolean>("clock", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
 				period: await replicant<boolean>("period", "glimpse-graphics.sync-settings.values", {defaultValue: false}),

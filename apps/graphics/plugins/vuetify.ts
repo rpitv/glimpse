@@ -44,6 +44,9 @@ export default createVuetify({
 			variant: "outlined",
 			step: 0.5
 		},
+		VSelect: {
+			variant: "outlined"
+		},
 		VSwitch: {
 			inset: true,
 			color: "primary",

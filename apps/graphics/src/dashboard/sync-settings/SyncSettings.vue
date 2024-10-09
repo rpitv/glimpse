@@ -1,7 +1,9 @@
 <template>
 <div>
 
-	<h1>Daktronics RTD</h1>
+	<h1>Daktronics</h1>
+	<br>
+	<v-select :items="feedMethods" label="Feed Method" v-model="replicants.sync.daktronicsFeed.value" />
 	<div class="conn-light"></div>
 	<p class="conn-text">
 		{{connectedText}} -
@@ -110,6 +112,8 @@ import { loadReplicants } from "../../browser-common/replicants";
 
 const themeVars = useThemeVars();
 const replicants = await loadReplicants();
+
+const feedMethods = ["", "tv", "rtd"];
 
 // Unique IDs for pairing labels with inputs
 const syncPathId = v4();

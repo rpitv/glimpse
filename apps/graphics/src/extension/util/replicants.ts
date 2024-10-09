@@ -18,6 +18,7 @@ export const replicants = {
 				errorMsg: "Error"
 			}, persistent: false
 		}),
+		daktronicsFeed: nodecg().Replicant<"tv" | "rtd" | "">("daktronicsFeed", "glimpse-graphics.sync-settings", {defaultValue: ""}),
 		values: {
 			clock: nodecg().Replicant<boolean>("clock", "glimpse-graphics.sync-settings.values", {defaultValue: false}),
 			period: nodecg().Replicant<boolean>("period", "glimpse-graphics.sync-settings.values", {defaultValue: false}),

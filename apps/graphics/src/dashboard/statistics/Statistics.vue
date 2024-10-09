@@ -10,7 +10,7 @@
 				<li>Faceoffs Won: {{ team.totals.misc.facewon }}</li>
 				<li>Faceoffs Lost: {{ team.totals.misc.facelost }}</li>
 				<li>Faceoff %: {{ team.totals.misc.facepct}}</li>
-				<li>Goalie Saves: {{ team.totals.goalie.saves}}</li>
+<!--				<li>Goalie Saves: {{ team.totals.goalie.saves}}</li>-->
 				<li>Penalty Count/Minutes: {{ team.totals.penalty.count }} / {{ team.totals.penalty.minutes }} </li>
 				<li>Powerplay Opportunities: {{ team.totals.powerplay.ppopp }}</li>
 				<li>Powerplay Goals: {{ team.totals.powerplay.ppg }}</li>
