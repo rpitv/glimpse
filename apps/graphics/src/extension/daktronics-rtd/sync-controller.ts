@@ -53,7 +53,7 @@ async function openSerialPort(path: string, baudRate: number = 19200): Promise<v
 	} else {
 		// Confirm that the serial port exists.
 		if(!(await SerialPort.list()).some(port => port.path === path)) {
-			throw new Error("Serial port does not exist.");
+			 console.error("Serial port does not exist.");
 		}
 		port = new SerialPort({path, baudRate, endOnClose: true});
 	}

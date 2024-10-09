@@ -391,6 +391,9 @@ const possessionColors = computed(() => {
 }
 
 .animation-text {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 77.35vw;
 	position: fixed;
 	bottom: 9vh;
