@@ -121,7 +121,7 @@ async function validate(next: () => void) {
         name: personData.value.name,
         description: personData.value.description,
         pronouns: personData.value.pronouns,
-        graduation: personData.value.graduation.toISOString(),
+        graduation: personData.value.graduation,
         profilePictureId: personData.value.profilePictureId
       },
     });

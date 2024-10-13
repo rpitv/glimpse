@@ -65,9 +65,16 @@ const queryData = useQuery(FindPersonRolesDocument, {
     startTime: {
       lt: new Date().toISOString(),
     },
-    endTime: {
-      gt: new Date().toISOString()
-    },
+    OR: [
+      {
+        endTime: {
+          gt: new Date().toISOString()
+        }
+      },
+      {
+        endTime: null
+      }
+    ]
   }
 });
 
@@ -75,10 +82,20 @@ queryData.onResult((result) => {
   if (result.loading) return;
   peopleRoles.value = result.data.personRoles;
   officers.value = peopleRoles.value.filter((personRole) => personRole.role?.displayInLeadership && personRole.role?.displayInMembership);
-  officers.value.sort((a, b) => b.role!.priority as number - (a.role!.priority as number));
+  officers.value.sort((a, b) =>{
+    if ((b.role?.priority as number) - (a.role?.priority as number) !== 0) {
+      return (b.role?.priority as number) - (a.role?.priority as number)
+    }
+    return b.role?.name!.toUpperCase() as string > (a.role?.name!.toUpperCase() as string) ? -1 : 1
+  });
   members.value = peopleRoles.value.filter((personRole) => !personRole.role?.displayInLeadership && personRole.role?.displayInMembership);
   members.value = members.value.filter((member) => !officers.value.find((officer) => officer.personId === member.personId));
-  members.value.sort((a, b) => b.person?.name!.toUpperCase() as string > (a.person?.name!.toUpperCase() as string) ? -1 : 1);
+  members.value.sort((a, b) => {
+    if ((b.role?.priority as number) - (a.role?.priority as number) !== 0) {
+      return (b.role?.priority as number) - (a.role?.priority as number)
+    }
+    return b.role?.name!.toUpperCase() as string > (a.role?.name!.toUpperCase() as string) ? -1 : 1
+  });
 });
 
 </script>

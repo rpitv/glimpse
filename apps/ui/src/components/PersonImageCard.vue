@@ -4,7 +4,14 @@
       <v-infinite-scroll style="overflow-y: hidden" @load="loadImages">
         <div class="images">
           <template v-for="image in imageDetails" :key="image.id">
-            <img class="person-image" :src="image.image?.path as string" />
+            <v-dialog class="dialog" max-width="700" width="700">
+              <template #activator="{ props: activatorProps }">
+                <v-img v-bind="activatorProps" cover :aspect-ratio="3 /2" max-width="300" width="300" :src="image.image?.path as string" />
+              </template>
+              <template #default>
+                <v-img max-width="700" width="700" :src="image.image?.path as string" />
+              </template>
+            </v-dialog>
           </template>
         </div>
         <template #empty>
@@ -43,7 +50,7 @@ const personImageData = useQuery(FindPersonImageDocument, {
     }
   },
   pagination: {
-    take: take,
+    take: 0,
     skip: imageSkip,
   },
   order: {
@@ -81,7 +88,6 @@ async function loadImages(load: { done: (status: 'loading' | 'error' | 'empty' |
       load.done('ok');
       imageSkip += take;
     }
-
   } catch (e) {
     console.error(e);
     load.done('error');
@@ -107,4 +113,5 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 20px;
 }
+
 </style>

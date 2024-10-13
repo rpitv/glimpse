@@ -24,10 +24,8 @@
             <div class="text-center" v-for="role in personDetails?.roles">
               <h3 style="color: #ff6363">{{ role.role?.name }}</h3>
               <h4>{{ moment(role.startTime).format("LL") }}</h4>
-              <div v-if="role.endTime">
                 -
-                <h4>{{ moment(role.endTime).format("LL") }}</h4>
-              </div>
+              <h4>{{ role.endTime ? moment(role.endTime).format("LL") : "Present" }}</h4>
             </div>
           </div>
           <h2 class="mt-12" v-if="creditsDetails.length">Productions</h2>
@@ -71,7 +69,6 @@ const take = 20;
 let productionSkip = 0;
 let imageSkip = 0;
 let totalProductions = 0;
-let totalImages = 0;
 const personDetails = ref<Person>();
 const creditsDetails = ref<Credit[]>([]);
 const imageDetails = ref<PersonImage[]>([]);
@@ -81,7 +78,7 @@ const personData = useQuery(PersonDetailsDocument, {
 const creditsData = useQuery(FindCreditsDocument, {
   personId: parseFloat(route.params.id as string),
   pagination: {
-    take: take,
+    take: 0,
     skip: productionSkip
   }
 });
@@ -92,7 +89,7 @@ const personImageData = useQuery(FindPersonImageDocument, {
     }
   },
   pagination: {
-    take: take,
+    take: 0,
     skip: imageSkip,
   },
   order: {
