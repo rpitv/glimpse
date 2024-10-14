@@ -81,7 +81,7 @@ const queryData = useQuery(FindPersonRolesDocument, {
 queryData.onResult((result) => {
   if (result.loading) return;
   peopleRoles.value = result.data.personRoles;
-  officers.value = peopleRoles.value.filter((personRole) => personRole.role?.displayInLeadership && personRole.role?.displayInMembership);
+  officers.value = peopleRoles.value.filter((personRole) => personRole.role?.displayInLeadership);
   officers.value.sort((a, b) =>{
     if ((b.role?.priority as number) - (a.role?.priority as number) !== 0) {
       return (b.role?.priority as number) - (a.role?.priority as number)

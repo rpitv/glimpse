@@ -49,11 +49,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useQuery } from "@vue/apollo-composable";
 import {
-  PersonDetailsDocument,
+  FindOnePersonDocument,
   FindCreditsDocument,
   FindPersonImageDocument,
 } from "@/graphql/types";
@@ -72,7 +72,7 @@ let totalProductions = 0;
 const personDetails = ref<Person>();
 const creditsDetails = ref<Credit[]>([]);
 const imageDetails = ref<PersonImage[]>([]);
-const personData = useQuery(PersonDetailsDocument, {
+const personData = useQuery(FindOnePersonDocument, {
   id: route.params.id
 });
 const creditsData = useQuery(FindCreditsDocument, {

@@ -1,12 +1,15 @@
 <template>
   <v-card class="image-card">
+    <v-card-title>
+      <h1 class="text-center">Click on the images to enlarge them</h1>
+    </v-card-title>
     <v-card-text>
       <v-infinite-scroll style="overflow-y: hidden" @load="loadImages">
         <div class="images">
           <template v-for="image in imageDetails" :key="image.id">
             <v-dialog class="dialog" max-width="700" width="700">
               <template #activator="{ props: activatorProps }">
-                <v-img v-bind="activatorProps" cover :aspect-ratio="3 /2" max-width="300" width="300" :src="image.image?.path as string" />
+                <v-img v-tooltip="image.image?.name" v-bind="activatorProps" cover :aspect-ratio="3 /2" max-width="300" width="300" :src="image.image?.path as string" />
               </template>
               <template #default>
                 <v-img max-width="700" width="700" :src="image.image?.path as string" />

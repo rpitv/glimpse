@@ -1,0 +1,38 @@
+query FindOnePerson($id: BigInt!) {
+  person: findOnePerson(id: $id) {
+    id
+    name
+    description
+    graduation
+    pronouns
+    roles {
+      endTime
+      id
+      role {
+        id
+        name
+        description
+        priority
+      }
+      roleId
+      startTime
+    }
+    profilePicture {
+      id
+      name
+      description
+      path
+    }
+    images {
+      id
+      image {
+        id
+        name
+        path
+        description
+      }
+      imageId
+      priority
+    }
+  }
+}
