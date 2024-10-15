@@ -34,6 +34,7 @@ import {
   faSquare,
   faCheck,
   faPenToSquare,
+  faFileSlash,
   faKey,
 } from "@fortawesome/pro-solid-svg-icons";
 import { faCircle, faDotCircle } from "@fortawesome/free-regular-svg-icons"
@@ -116,6 +117,7 @@ library.add(faCircleCheck);
 library.add(faEye);
 library.add(faCheck);
 library.add(faPenToSquare);
+library.add(faFileSlash);
 
 library.add(faHome);
 library.add(faCircleInfo);

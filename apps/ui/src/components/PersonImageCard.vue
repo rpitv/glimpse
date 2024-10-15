@@ -1,18 +1,38 @@
 <template>
   <v-card class="image-card">
-    <v-card-title>
-      <h1 class="text-center">Click on the images to enlarge them</h1>
-    </v-card-title>
     <v-card-text>
+      <v-alert class="text-center" text="Click on the images to enlarge them"></v-alert>
       <v-infinite-scroll style="overflow-y: hidden" @load="loadImages">
         <div class="images">
           <template v-for="image in imageDetails" :key="image.id">
-            <v-dialog class="dialog" max-width="700" width="700">
+            <v-dialog class="dialog" width="80%" close-on-content-click>
               <template #activator="{ props: activatorProps }">
-                <v-img v-tooltip="image.image?.name" v-bind="activatorProps" cover :aspect-ratio="3 /2" max-width="300" width="300" :src="image.image?.path as string" />
+                <v-img v-tooltip="image.image?.name" v-bind="activatorProps" cover :aspect-ratio="3 /2" max-width="300" width="300" :src="image.image?.path as string">
+                  <template #placeholder>
+                    <v-skeleton-loader type="image" height="200"></v-skeleton-loader>
+                  </template>
+                  <template #error>
+                    <div class="d-flex align-center justify-center fill-height">
+                      <font-awesome-icon icon="fas fa-file-slash" class="fa-4x text-grey-darken-2" />
+                    </div>
+                  </template>
+                </v-img>
               </template>
               <template #default>
-                <v-img max-width="700" width="700" :src="image.image?.path as string" />
+                <v-img max-width="100%" height="90vh" :src="image.image?.path as string">
+                  <template #placeholder>
+                      <div class="d-flex align-center justify-center fill-height">
+                        <v-progress-circular indeterminate></v-progress-circular>
+                      </div>
+                  </template>
+                  <template #error>
+                    <div class="d-flex align-center justify-center fill-height">
+                      <v-card color="red-darken-4">
+                        <v-card-text>Unable to load image</v-card-text>
+                      </v-card>
+                    </div>
+                  </template>
+                </v-img>
               </template>
             </v-dialog>
           </template>
@@ -32,6 +52,7 @@ import type { PersonImage } from "@/graphql/types";
 import { ref } from "vue";
 import { useQuery } from "@vue/apollo-composable";
 import { onMounted } from "vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const imageDetails = ref<PersonImage[]>([]);
 
@@ -115,6 +136,6 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  justify-content: center;
 }
-
 </style>
