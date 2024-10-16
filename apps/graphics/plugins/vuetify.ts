@@ -32,6 +32,7 @@ export default createVuetify({
 			modes: ["hex", "rgb"],
 		},
 		VCombobox: {
+			clearable: true,
 			variant: "outlined",
 		},
 		VExpansionPanels: {

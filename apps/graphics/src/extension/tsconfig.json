@@ -1,3 +1,7 @@
 {
-  "extends": "../../tsconfig.extension.json"
+  "extends": "../../tsconfig.extension.json",
+  "compilerOptions": {
+	"module": "esnext",
+	"target": "esnext",
+  }
 }

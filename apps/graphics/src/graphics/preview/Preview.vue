@@ -5,6 +5,7 @@
 	<CreditsView v-if="credits" preview />
 	<LocatorView v-if="locator" preview />
 	<LowerThirdScoreboardView v-if="scoreboard" preview />
+	<PlayerBioView v-if="playerBio" preview />
 </template>
 
 <script setup lang="ts">
@@ -14,6 +15,7 @@ import CopyrightView from "../glimpse/LowerThirdViews/CopyrightView.vue";
 import CreditsView from "../glimpse/FullscreenViews/CreditView.vue";
 import LocatorView from "../glimpse/LowerThirdViews/LocatorView.vue";
 import LowerThirdScoreboardView from "../glimpse/LowerThirdViews/LowerThirdScoreboardView.vue";
+import PlayerBioView from "../glimpse/LowerThirdViews/PlayerBioView.vue";
 import { ref } from "vue";
 
 const bug = ref(false);
@@ -22,6 +24,7 @@ const copyright = ref(false);
 const credits = ref(false);
 const locator = ref(false);
 const scoreboard = ref(false);
+const playerBio = ref(false);
 
 
 const params = new URLSearchParams(window.location.search);
@@ -38,6 +41,8 @@ if (params.has("locator"))
 	locator.value = true;
 if (params.has("lowerThirdScoreboard"))
 	scoreboard.value = true;
+if (params.has("playerBio"))
+	playerBio.value = true;
 
 
 </script>

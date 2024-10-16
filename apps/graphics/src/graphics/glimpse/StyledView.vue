@@ -4,6 +4,7 @@
 		<ImageView />
 		<ScoreboardView />
 	  <CopyrightView />
+		<CopyrightView />
 		<CommentatorsView />
 		<CreditsView />
 		<div v-if="replicants.gameSettings.style.value === 'espn'">
@@ -12,7 +13,12 @@
 		</div>
 		<LocatorView />
 		<LowerThirdScoreboardView />
+<<<<<<< Updated upstream
 	  <BugView />
+=======
+		<PlayerBioView />
+		<BugView />
+>>>>>>> Stashed changes
 	</div>
 </template>
 
@@ -30,6 +36,10 @@ import CreditsView from "./FullscreenViews/CreditView.vue";
 import LocatorView from "./LowerThirdViews/LocatorView.vue";
 import LowerThirdScoreboardView from "./LowerThirdViews/LowerThirdScoreboardView.vue";
 import ScoreboardView from "./ScoreboardView.vue";
+<<<<<<< Updated upstream
+=======
+import PlayerBioView from "./LowerThirdViews/PlayerBioView.vue";
+>>>>>>> Stashed changes
 
 
 const replicants = await loadReplicants();

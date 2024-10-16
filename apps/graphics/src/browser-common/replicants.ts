@@ -221,6 +221,23 @@ export async function loadReplicants() {
 				},
 				show: await replicant<boolean>("show", `glimpse-grpahics.graphics.lowerThird.locator`, {defaultValue: false})
 			},
+			playerBio: {
+				action: {
+					description: await replicant<string>("description", `glimpse-graphics.graphics.lowerThird.playerBio.action`, {defaultValue: ""}),
+					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.playerBio.action`, {defaultValue: 0}),
+					player: {
+						name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
+						number: await replicant<number>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: 0}),
+						teamSide: await replicant<"leftTeam" | "rightTeam">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
+					},
+				},
+				image: {
+					url: await replicant<string>("url", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: ""}),
+					backgroundColor: await replicant<string>("backgroundColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+				},
+				offset: await replicant<number>("offset", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: 0}),
+				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: false}),
+			},
 			scoreboard: {
 				description: {
 					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: 0}),
@@ -272,7 +289,23 @@ export async function loadReplicants() {
 			sidearms: {
 				url: await replicant<string>("url", `glimpse-graphics.graphics.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
 				body: await replicant<any>("body", `glimpse-graphics.graphics.sidearms1`, {defaultValue: {}})
+				url: await replicant<string>("url", `glimpse-graphics.graphics.sidearms`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
+				body: await replicant<any>("body", `glimpse-graphics.graphics.sidearms`, {defaultValue: {}})
 			},
+			roster: {
+				leftTeam: {
+					url: await replicant<string>("url", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
+					body: await replicant<any>("body", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: {}}),
+					fetch: await replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: false}),
+					jersey: await replicant<string>("jersey", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: ""}),
+				},
+				rightTeam: {
+					url: await replicant<string>("url", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
+					body: await replicant<any>("body", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: {}}),
+					fetch: await replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: false}),
+					jersey: await replicant<string>("jersey", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: ""}),
+				}
+			}
 		}
 	}
 }

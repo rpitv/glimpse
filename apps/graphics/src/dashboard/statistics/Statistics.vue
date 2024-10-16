@@ -19,8 +19,34 @@
 			<div v-for="player of team.player">
 				#{{ player.code }}, {{ player.name }}
 			</div>
+	<div style="display: none" v-html="replicants.http.sidearms.body.value" ref="liveStats">
+	</div>
+	<div v-for="player of players">
+		<div>
+			<p>{{ player.name }}</p>
+			<img style="width: 100px" :src="player.image.url">
 		</div>
 	</div>
+<!--	<div style="display: flex; justify-content: space-between">-->
+<!--		<div v-for="(team, i) of liveStats.hkgame.team">-->
+<!--			<h2>Team: {{ team.name }}</h2>-->
+<!--			<h2>Record (Total, Conference): {{ team.record }}</h2>-->
+<!--			<h3>Totals: </h3>-->
+<!--			<ul class="ml-10">-->
+<!--				<li>Faceoffs Won: {{ team.totals.misc.facewon }}</li>-->
+<!--				<li>Faceoffs Lost: {{ team.totals.misc.facelost }}</li>-->
+<!--				<li>Faceoff %: {{ team.totals.misc.facepct}}</li>-->
+<!--&lt;!&ndash;				<li>Goalie Saves: {{ team.totals.goalie.saves}}</li>&ndash;&gt;-->
+<!--				<li>Penalty Count/Minutes: {{ team.totals.penalty.count }} / {{ team.totals.penalty.minutes }} </li>-->
+<!--				<li>Powerplay Opportunities: {{ team.totals.powerplay.ppopp }}</li>-->
+<!--				<li>Powerplay Goals: {{ team.totals.powerplay.ppg }}</li>-->
+<!--			</ul>-->
+<!--			<h3>Players</h3>-->
+<!--			<div v-for="player of team.player">-->
+<!--				#{{ player.code }}, {{ player.name }}-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
 	<br>
 </template>
 
@@ -29,6 +55,11 @@ import {onMounted, ref} from "vue";
 import { loadReplicants } from "../../browser-common/replicants";
 import { XMLParser } from "fast-xml-parser";
 const replicants = await loadReplicants();
+
+
+const players = ref<any[]>([]);
+
+
 
 const items = [
 	{
@@ -40,9 +71,6 @@ const items = [
 		value: "https://www.sidearmstats.com/rpi/whockey/1.xml"
 	}
 ];
-
-const liveStats = ref(replicants.http.sidearms.body);
-console.log(replicants.http.sidearms.body.value);
 </script>
 
 <style scoped lang="scss">
