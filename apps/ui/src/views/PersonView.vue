@@ -11,12 +11,13 @@
           <h1>{{ personDetails?.name }}</h1>
           <footer>{{ personDetails?.pronouns }}</footer>
           <p class="description">{{ personDetails?.description }}</p>
-          <v-dialog v-if="personImageData.result.value?.personImageCount" width="1100">
+          <v-dialog v-if="personImageData.result.value?.personImageCount" v-model="isPersonImageDialogOpened" width="1100">
             <template #activator="{ props: activatorProps }">
               <v-btn class="mt-7" @click="imageDetails = []" v-bind="activatorProps">View Photos</v-btn>
             </template>
             <template #default>
               <PersonImageCard :personId="route.params.id as string" />
+              <v-btn class="position-fixed right-0 mx-3 my-1" variant="text" icon="fal fa-xmark" @click="isPersonImageDialogOpened = false" />
             </template>
           </v-dialog>
           <h2 class="mt-5">Club Positions</h2>
@@ -72,6 +73,7 @@ let totalProductions = 0;
 const personDetails = ref<Person>();
 const creditsDetails = ref<Credit[]>([]);
 const imageDetails = ref<PersonImage[]>([]);
+const isPersonImageDialogOpened = ref<boolean>(false);
 const personData = useQuery(FindOnePersonDocument, {
   id: route.params.id
 });

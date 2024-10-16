@@ -1,8 +1,14 @@
 <template>
   <v-card class="image-card">
     <v-card-text>
-      <v-alert class="text-center" text="Click on the images to enlarge them"></v-alert>
-      <v-infinite-scroll style="overflow-y: hidden" @load="loadImages">
+      <div style="position:fixed; z-index: 20; top: 0; width: calc(100% - 48px)">
+        <v-banner>
+          <template #text>
+            Click on the images to enlarge them
+          </template>
+        </v-banner>
+      </div>
+      <v-infinite-scroll style="overflow-y: hidden; margin-top: 60px" @load="loadImages">
         <div class="images">
           <template v-for="image in imageDetails" :key="image.id">
             <v-dialog class="dialog" width="80%" close-on-content-click>
@@ -19,6 +25,15 @@
                 </v-img>
               </template>
               <template #default>
+                <!-- This button doesn't have any function, but demonstrates to the user a proper way to close the popup
+                 without clicking the back button. In reality, clicking anywhere will close it. Particularly relevant for
+                  mobile. -->
+                <v-tooltip text="Click anywhere or press ESC to close" location="start">
+                  <template #activator="{ props }">
+                    <v-btn  v-bind="props" class="position-fixed right-0 top-0" style="z-index: 30" variant="flat" color="red-darken-4" icon="fal fa-xmark" />
+                  </template>
+                </v-tooltip>
+
                 <v-img max-width="100%" height="90vh" :src="image.image?.path as string">
                   <template #placeholder>
                       <div class="d-flex align-center justify-center fill-height">
