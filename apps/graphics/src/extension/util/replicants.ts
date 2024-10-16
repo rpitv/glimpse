@@ -227,7 +227,7 @@ export const replicants = {
 				player: {
 					name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
 					number: nodecg().Replicant<number>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: 0}),
-					teamSide: nodecg().Replicant<"leftTeam" | "rightTeam">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
+					teamSide: nodecg().Replicant<"leftTeam" | "rightTeam">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: "rightTeam"}),
 				},
 			},
 			image: {
@@ -286,8 +286,6 @@ export const replicants = {
 	},
 	http: {
 		sidearms: {
-			url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
-			body: nodecg().Replicant<any>("body", `glimpse-graphics.graphics.sidearms1`, {defaultValue: {}})
 			url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.sidearms`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
 			body: nodecg().Replicant<any>("body", `glimpse-graphics.graphics.sidearms`, {defaultValue: {}})
 		},

@@ -19,6 +19,8 @@
 			<div v-for="player of team.player">
 				#{{ player.code }}, {{ player.name }}
 			</div>
+		</div>
+	</div>
 	<div style="display: none" v-html="replicants.http.sidearms.body.value" ref="liveStats">
 	</div>
 	<div v-for="player of players">

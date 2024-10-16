@@ -287,8 +287,6 @@ export async function loadReplicants() {
 		},
 		http: {
 			sidearms: {
-				url: await replicant<string>("url", `glimpse-graphics.graphics.sidearms1`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
-				body: await replicant<any>("body", `glimpse-graphics.graphics.sidearms1`, {defaultValue: {}})
 				url: await replicant<string>("url", `glimpse-graphics.graphics.sidearms`, {defaultValue: "https://www.sidearmstats.com/rpi/mhockey/1.xml"}),
 				body: await replicant<any>("body", `glimpse-graphics.graphics.sidearms`, {defaultValue: {}})
 			},
