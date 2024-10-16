@@ -104,6 +104,21 @@ personData.onResult((result) => {
   if (result.loading) return;
   if (result.data) {
     personDetails.value = structuredClone(result.data.person) as Person;
+    personDetails.value.roles = personDetails.value.roles?.sort(
+      (a, b) => {
+        // Scenario where if the start time were left blank, then the api would autofill the date with the time.
+        // We don't care about time so we'll need to get rid of it with date string
+        const bEndTime = b.endTime ? new Date(new Date(b.endTime).toDateString()).getTime() : Number.POSITIVE_INFINITY;
+        const aEndTime = a.endTime ? new Date(new Date(b.endTime).toDateString()).getTime() : Number.POSITIVE_INFINITY;
+        const endTimeDiff = bEndTime - aEndTime;
+        if (endTimeDiff !== 0)
+          return endTimeDiff;
+        // Start time cannot be null
+        const startTimeDiff = new Date(new Date(b.startTime).toDateString()).getTime() - new Date(new Date(a.startTime).toDateString()).getTime();
+        if (startTimeDiff !== 0)
+          return startTimeDiff;
+        return (b.role?.priority as number) - (a.role?.priority as number);
+      });
   }
 });
 

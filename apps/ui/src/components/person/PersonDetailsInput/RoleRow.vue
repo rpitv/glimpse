@@ -13,7 +13,7 @@
           <v-card :title="`Start and End Dates as ${role.role?.name} (Optional)`" min-width="350" >
             <v-card-text>
               <v-date-input v-model="role.startTime" label="Start Date" clearable />
-              <v-date-input v-model="role.endTime" label="End Date" clearable  />
+              <v-date-input v-model="role.endTime" label="End Date" clearable  @click:clear="role.endTime = null" />
             </v-card-text>
           </v-card>
         </template>
