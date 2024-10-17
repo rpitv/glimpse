@@ -5,6 +5,8 @@
 			<div class="actions">
 				<v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value" />
 				<v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value" />
+				<v-color-picker label="Background Image Color" v-model="replicants.lowerThird.playerBio.image.backgroundColor.value" width="400"/>
+				<v-text-field v-model="replicants.lowerThird.playerBio.image.backgroundColor.value" width="400" />
 				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Bio" />
 			</div>
 		</div>
@@ -47,7 +49,7 @@ import { loadReplicants } from "../../browser-common/replicants";
 import {onMounted, ref, watch} from "vue";
 import PlayerView from "./PlayerView.vue";
 
-const possiblePlays = ["Powerplay goal by", "Save made by", "Penalty by", "Goal by"];
+const possiblePlays = ["Powerplay goal by", "Save made by", "Penalty by", "Goal by", "Assisted by"];
 const sidearmsLinks = ["https://www.sidearmstats.com/rpi/mhockey/1.xml", "https://www.sidearmstats.com/rpi/whockey/1.xml"];
 const previewLocation = `/bundles/graphics/graphics/preview.html`;
 
@@ -113,7 +115,6 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 }
 
 function playerBio() {
-	console.log(selectedPerson.value);
 	if (selectedPerson.value) {
 		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
 		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.uni;
@@ -160,7 +161,8 @@ onMounted(() => {
 iframe {
 	border: none;
 	aspect-ratio: 16/9;
-	width: 1000px;
+	width: 100%;
+	height: 100%;
 	background-color: white;
 }
 

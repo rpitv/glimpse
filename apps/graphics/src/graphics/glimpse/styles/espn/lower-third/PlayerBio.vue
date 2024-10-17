@@ -6,7 +6,7 @@
 		</div>
 	</div>
 	<div :style="action">
-		{{ playerBio.action.description.value ? playerBio.action.description.value + ": " : "" }}
+		{{ playerBio.action.description.value ? playerBio.action.description.value : "" }}
 		{{ playerBio.action.player.number.value ? "#" + playerBio.action.player.number.value: "" }}
 		{{ playerBio.action.player.name.value ?? "" }}
 	</div>
@@ -24,7 +24,7 @@ const playerBio = replicants.lowerThird.playerBio;
 const imageBackground = computed((): CSSProperties => {
 	return {
 		position: "absolute",
-		backgroundColor: playerBio.image.backgroundColor.value.length ? playerBio.image.backgroundColor.value : (playerBio.action.player.teamSide.value === "leftTeam" ? replicants.teams[1].primaryColor.value : replicants.teams[0].primaryColor.value),
+		backgroundColor: playerBio.image.backgroundColor.value ? playerBio.image.backgroundColor.value : (playerBio.action.player.teamSide.value === "leftTeam" ? replicants.teams[1].primaryColor.value : replicants.teams[0].primaryColor.value),
 		bottom: playerBio.offset.value + 9.45 + "vh",
 		display: "flex",
 		justifyContent: "center",

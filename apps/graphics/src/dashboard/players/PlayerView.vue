@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<v-text-field label="Search for a player" v-model="searchInput" @update:modelValue="search" />
+		<v-text-field label="Search for a player" placeholder="Use commas to search for multiple players"
+		  v-model="searchInput" @update:modelValue="search" />
 	</div>
 	<div class="people">
 		<div v-for="(person, i) in searchRoster" :key="i + additionalPlayers">
@@ -58,11 +59,22 @@ const searchRoster = ref();
 const searchInput = ref("");
 
 function search() {
+	if (!searchInput.value) {
+		searchRoster.value = props.roster;
+		return;
+	}
+	// Make it possible to filter multiple players
+	const values  = searchInput.value.split(",").map((x) => x.trim());
 	searchRoster.value = props.roster.filter((person) => {
-		if (!searchInput.value) return true;
-		if (parseInt(searchInput.value))
-			return parseInt(person.uni) === parseInt(searchInput.value);
-		return person.name.toLowerCase().includes(searchInput.value.toLowerCase());
+		if (values.length === 0) return true;
+		for (const value of values) {
+			if (parseInt(value))
+				if (parseInt(person.uni) === parseInt(value))
+					return true;
+			if (person.name.toLowerCase().includes(value.toLocaleLowerCase()))
+				return true;
+		}
+		return false;
 	});
 }
 
