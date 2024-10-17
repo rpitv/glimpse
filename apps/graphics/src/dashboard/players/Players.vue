@@ -76,7 +76,7 @@ const rightTeamRoster = ref<HTMLDivElement>();
 const rightTeamJersey = ref<HTMLDivElement>();
 const selectedPerson = ref<{
 	person: Person,
-	selectedSide: string
+	teamSide: string
 }>();
 
 const rosters = ref<{
@@ -119,7 +119,7 @@ function playerBio() {
 		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
 		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.uni;
 		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image.url;
-		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.selectedSide;
+		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
 	} else {
 		replicants.lowerThird.playerBio.action.player.name.value = "";
 		replicants.lowerThird.playerBio.action.player.number.value = "";
