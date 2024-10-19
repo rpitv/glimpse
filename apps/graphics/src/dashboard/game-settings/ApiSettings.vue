@@ -1,5 +1,5 @@
 <template>
-	<h1 @click="openApiLink" title="Open API Docs" id="h1ApiLabel">API</h1>
+	<h1 @click="openApiLink" title="Open API Docs" id="h1ApiLabel">API (<u>Docs</u>)</h1>
 	<label>Enable API? </label>
 	<n-checkbox v-model:checked="replicants.gameSettings.api.enabled.value"/>
 	<div v-if="replicants.gameSettings.api.enabled.value">

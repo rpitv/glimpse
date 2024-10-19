@@ -30,16 +30,19 @@ export const endpointsToggle: { [key: string]: Replicant<boolean> } = {
 	"bug": replicants.lowerThird.bug.show,
 	"commentators": replicants.lowerThird.commentators.show,
 	"copyright": replicants.lowerThird.copyright.show,
+	"credits": replicants.fullscreen.credits.show,
 	"showProduced": replicants.lowerThird.showProduced,
-	"end-credits": replicants.lowerThird.endGraphics.show,
 	"lt-locator": replicants.lowerThird.locator.show,
 	"lt-scoreboard": replicants.lowerThird.scoreboard.show,
+	"lt-scoreboard-timer": replicants.lowerThird.scoreboard.description.timer,
 	"main-scoreboard": replicants.scoreboard.visible,
+	"player-bio": replicants.lowerThird.playerBio.show,
+	"scorebug": replicants.scoreboard.visible,
+	"slideshow": replicants.slideshow.enabled,
 	"sogs": replicants.sync.values.sogs,
 	"faceoffs": replicants.sync.values.faceoffs,
 	"team_1_enable": replicants.teams[0].enabled,
 	"team_2_enable": replicants.teams[1].enabled,
-	"clock": replicants.scoreboard.clock.isRunning,
 }
 
 /**
