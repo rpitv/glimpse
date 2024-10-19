@@ -31,6 +31,8 @@ export const announcement_global_param1: { [key: string]: string } = {
 	"empty_net": "Empty Net",
 	"official_review": "Official Review",
 	"delayed_penalty": "Delayed Penalty",
+	"flag": "Flag",
+	"pur": "Play Under Review",
 }
 
 export const announcement_teamSpecific_param2: { [key: string]: { name: string, time: number | null } } = {
@@ -47,6 +49,7 @@ export const announcement_teamSpecific_param2: { [key: string]: { name: string, 
 	"timeout": {name: "Timeout", time: null},
 	"card_yellow": {name: "Yellow Card", time: null},
 	"card_red": {name: "Red Card", time: null},
+	"flag": {name: "Flag", time: null},
 };
 
 /**

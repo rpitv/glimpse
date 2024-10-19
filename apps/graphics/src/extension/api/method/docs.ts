@@ -97,7 +97,7 @@ export async function generateDocs() {
 	body.push("</tbody></table>");
 	body.push(`<script type="text/javascript">
 const API_KEY = window.location.pathname.split("/")[3];
-const HOST = window.location.protocol + "//" + window.location.host;
+const HOST = window.location.protocol + "//" + window.location.host.replace("localhost", "127.0.0.1");
 const BASE_PATH = "/glimpse-graphics-api/v1/";
 
 window.addEventListener("load", (e) => {
