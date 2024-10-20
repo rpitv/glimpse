@@ -121,14 +121,24 @@ data.onResult((result) => {
     name: person?.name,
     description: person?.description,
     pronouns: person?.pronouns,
-    graduation: person?.graduation,
+    // Dates must be wrapped as a date object because vuetify can't parse ISO dates.
+    graduation: person?.graduation ? new Date(person?.graduation) : null,
     profilePicture: JSON.parse(JSON.stringify(person?.profilePicture)) ?? {},
     profilePictureId: person?.profilePicture?.id
   };
-  oldImages.value = person?.images as PersonImage[];
-  newImages.value = JSON.parse(JSON.stringify(person?.images)) as PersonImage[];
-  oldRoles.value = person?.roles as PersonRole[];
-  newRoles.value = JSON.parse(JSON.stringify(person?.roles)) as PersonRole[];
+  oldImages.value = structuredClone(person?.images) as PersonImage[];
+  newImages.value = structuredClone(person?.images) as PersonImage[];
+  oldRoles.value = structuredClone(person?.roles) as PersonRole[];
+  for (const role of oldRoles.value) {
+    // startTime is filled regardless of if the field was empty or not.
+    role.startTime = new Date(role.startTime);
+    role.endTime = role.endTime ? new Date(role.endTime) : null;
+  }
+  newRoles.value = structuredClone(person?.roles) as PersonRole[];
+  for (const role of newRoles.value) {
+    role.startTime = new Date(role.startTime);
+    role.endTime = role.endTime ? new Date(role.endTime) : null;
+  }
 });
 
 function addImage(image: Image) {
@@ -202,13 +212,13 @@ async function validate(next: () => void) {
     }
 
     for (const newRole of newRoles.value) {
-      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === oldRole.roleId);
+      const matchingRole = oldRoles.value.find((oldRole) => oldRole.roleId === newRole.roleId);
       if (matchingRole) {
         if (matchingRole.endTime !== newRole.endTime || matchingRole.startTime !== newRole.startTime) {
           updatePersonRole.mutate({
             id: newRole.id,
             startTime: newRole.startTime,
-            endTime: newRole.startTime
+            endTime: newRole.endTime ?? null
           })
         }
       } else {
@@ -216,7 +226,7 @@ async function validate(next: () => void) {
           roleId: newRole.roleId,
           personId: props.personId,
           startTime: newRole.startTime,
-          endTime: newRole.endTime
+          endTime: newRole.endTime ?? null,
         });
       }
     }

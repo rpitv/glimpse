@@ -45,6 +45,15 @@ html {
   margin-right: 10%;
 }
 
+.full-container {
+  margin-left: 10%;
+  margin-right: 10%;
+
+  @media(max-width: 599px) {
+    margin: 0;
+  }
+}
+
 a,a:visited {
   color: #ff7676;
   text-decoration: none;
