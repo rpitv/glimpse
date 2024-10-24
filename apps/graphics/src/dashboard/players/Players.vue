@@ -1,12 +1,11 @@
 <template>
 	<div>
 		<div class="player-bio">
-			<iframe :src="previewLocation + '?playerBio'" />
+			<iframe :src="previewLocation + '?playerBio'"></iframe>
 			<div class="actions">
 				<v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value" />
 				<v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value" />
-				<v-color-picker label="Background Image Color" v-model="replicants.lowerThird.playerBio.image.backgroundColor.value" width="400"/>
-				<v-text-field v-model="replicants.lowerThird.playerBio.image.backgroundColor.value" width="400" />
+				<v-checkbox v-model="replicants.lowerThird.playerBio.image.syncTeamColor.value"  label="Sync Team Colors"/>
 				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Bio" />
 			</div>
 		</div>
@@ -117,7 +116,7 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 function playerBio() {
 	if (selectedPerson.value) {
 		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
-		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.uni;
+		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.uni as string;
 		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image.url;
 		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
 	} else {

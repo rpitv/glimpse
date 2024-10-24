@@ -24,11 +24,9 @@ const playerBio = replicants.lowerThird.playerBio;
 const imageBackground = computed((): CSSProperties => {
 	return {
 		position: "absolute",
-		backgroundColor: playerBio.image.backgroundColor.value ?
-			playerBio.image.backgroundColor.value :
-			(playerBio.action.player.teamSide.value === "leftTeam" ?
-				replicants.teams[1].primaryColor.value :
-				(playerBio.action.player.teamSide.value === "rightTeam" ? replicants.teams[0].primaryColor.value : "")),
+		backgroundColor: !playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "leftTeam" ? playerBio.image.leftTeamColor.value : 
+			(!playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "rightTeam" ? playerBio.image.rightTeamColor.value : 
+			(playerBio.action.player.teamSide.value === "leftTeam" ? replicants.teams[1].primaryColor.value : (playerBio.action.player.teamSide.value === "rightTeam" ? replicants.teams[0].primaryColor.value : ""))),
 		bottom: playerBio.offset.value + 9.45 + "vh",
 		display: "flex",
 		justifyContent: "center",

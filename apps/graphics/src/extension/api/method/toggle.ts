@@ -40,6 +40,7 @@ export const endpointsToggle: { [key: string]: Replicant<boolean> } = {
 	"team_1_enable": replicants.teams[0].enabled,
 	"team_2_enable": replicants.teams[1].enabled,
 	"clock": replicants.scoreboard.clock.isRunning,
+	"player_bio": replicants.lowerThird.playerBio.show
 }
 
 /**

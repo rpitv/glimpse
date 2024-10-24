@@ -226,13 +226,14 @@ export const replicants = {
 				fontSize: nodecg().Replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.playerBio.action`, {defaultValue: 0}),
 				player: {
 					name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
-					number: nodecg().Replicant<number>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: 0}),
+					number: nodecg().Replicant<string>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
 					teamSide: nodecg().Replicant<"leftTeam" | "rightTeam">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: "rightTeam"}),
 				},
 			},
 			image: {
 				url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: ""}),
 				backgroundColor: nodecg().Replicant<string>("backgroundColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+				syncTeamColor: nodecg().Replicant<boolean>("syncTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: false})
 			},
 			offset: nodecg().Replicant<number>("offset", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: 0}),
 			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: false}),

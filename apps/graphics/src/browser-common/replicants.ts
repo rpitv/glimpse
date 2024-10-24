@@ -227,13 +227,15 @@ export async function loadReplicants() {
 					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.playerBio.action`, {defaultValue: 0}),
 					player: {
 						name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
-						number: await replicant<number>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: 0}),
-						teamSide: await replicant<"leftTeam" | "rightTeam">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
+						number: await replicant<string>("number", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: ""}),
+						teamSide: await replicant<"leftTeam" | "rightTeam"| "">("teamSide", `glimpse-graphics.graphics.lowerThird.playerBio.player`, {defaultValue: "rightTeam"}),
 					},
 				},
 				image: {
 					url: await replicant<string>("url", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: ""}),
-					backgroundColor: await replicant<string>("backgroundColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+					syncTeamColor: await replicant<boolean>("syncTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: false}),
+					leftTeamColor: await replicant<string>("leftTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+					rightTeamColor: await replicant<string>("rightTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
 				},
 				offset: await replicant<number>("offset", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: 0}),
 				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: false}),
