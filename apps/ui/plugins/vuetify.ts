@@ -54,7 +54,8 @@ export const vuetify = createVuetify({
       variant: "outlined"
     },
     VTextarea: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
     VTextField: {
       variant: "outlined"
