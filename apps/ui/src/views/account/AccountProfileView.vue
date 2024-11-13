@@ -6,10 +6,10 @@
       </v-progress-circular>
     </div>
     <div v-else-if="!userData.person">
-      <v-form ref="profileCreation">
+      <v-form ref="profileCreation" @submit.prevent="createProfile">
         <p>You currently do not have a profile, you can create it by entering your name below.</p>
         <v-text-field :rules="[nameRule]" label="Name" v-model="profileName" />
-        <v-btn @click="createProfile" class="create-profile" color="green">Create Profile</v-btn>
+        <v-btn type="submit" class="create-profile" color="green">Create Profile</v-btn>
       </v-form>
     </div>
     <div v-else>
@@ -156,6 +156,7 @@ async function createProfile() {
     }
     userQuery.refetch();
   }
+  return false;
 }
 const userQuery = useQuery(UserDetailsDocument, {
   id: userId.value
