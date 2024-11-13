@@ -20,16 +20,16 @@
               <v-btn class="position-fixed right-0 mx-3 my-1" variant="text" icon="fal fa-xmark" @click="isPersonImageDialogOpened = false" />
             </template>
           </v-dialog>
-          <h2 class="mt-5">Club Positions</h2>
+          <h1 class="mt-5">Club Positions</h1>
           <div class="roles">
             <div class="text-center" v-for="role in personDetails?.roles">
-              <h3 style="color: #ff6363">{{ role.role?.name }}</h3>
-              <h4>{{ moment(role.startTime).format("LL") }}</h4>
+              <p class="name" style="color: #ff6363">{{ role.role?.name }}</p>
+              <p>{{ moment(role.startTime).format("LL") }}</p>
                 -
-              <h4>{{ role.endTime ? moment(role.endTime).format("LL") : "Present" }}</h4>
+              <p>{{ role.endTime ? moment(role.endTime).format("LL") : "Present" }}</p>
             </div>
           </div>
-          <h2 class="mt-12" v-if="creditsDetails.length">Productions</h2>
+          <h1 class="mt-12" v-if="creditsDetails.length">Productions</h1>
           <v-infinite-scroll style="width: 100%" direction="horizontal" @load="loadProductions">
             <div class="productions">
               <template v-for="(credit, i) in creditsDetails" :key="i">
@@ -184,9 +184,7 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
 }
 
 .description {
-  font-weight: lighter;
   margin: 0 max(10px, 5%);
-  font-size: 1.1em;
 }
 
 .productions {
@@ -194,21 +192,13 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
   gap: 20px;
 }
 
-h1 {
-  font-size: 3em;
+p {
+  font-size: 16px;
+  font-weight: lighter;
 }
 
-h2 {
-  font-size: 2em;
+.name {
+  font-size: 24px;
 }
-
-h3 {
-  font-size: 1.5em;
-}
-
-h4 {
-  font-size: 1.2em;
-}
-
 
 </style>

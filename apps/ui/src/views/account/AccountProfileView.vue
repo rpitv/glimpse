@@ -17,7 +17,9 @@
       <div class="details">
         <p class="label">Name: <span class="info">{{ personData.name }}</span></p>
         <v-btn @click="editableValues.name.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
-        <v-dialog :max-width="500" v-model="editableValues.name.dialog">
+        <v-dialog :max-width="500" v-model="editableValues.name.dialog"
+          @update:modelValue="(show) => { if (!show) editableValues.name.value = personData.name as string }
+        ">
           <template #default>
             <v-card title="Edit Name" :max-width="500">
               <template #text>
@@ -25,7 +27,7 @@
               </template>
               <template #actions>
                 <v-spacer />
-                <v-btn :disabled="personData.name === editableValues.name.value" @click="() => {
+                <v-btn color="green-darken-2" :disabled="personData.name === editableValues.name.value" @click="() => {
                   personData.name = editableValues.name.value;
                   saveChanges('Successfully edited name');
                   editableValues.name.dialog = false;
@@ -41,7 +43,9 @@
           <span v-else><em>No pronouns set</em></span>
         </p>
         <v-btn @click="editableValues.pronouns.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
-        <v-dialog :max-width="500" v-model="editableValues.pronouns.dialog">
+        <v-dialog :max-width="500" v-model="editableValues.pronouns.dialog"
+          @update:modelValue="(show) => { if (!show) editableValues.pronouns.value = personData.pronouns as string }"
+        >
           <template #default>
             <v-card title="Edit Pronouns" :max-width="500">
               <template #text>
@@ -49,7 +53,7 @@
               </template>
               <template #actions>
                 <v-spacer />
-                <v-btn :disabled="personData.pronouns === editableValues.pronouns.value" @click="() => {
+                <v-btn color="green-darken-2" :disabled="personData.pronouns === editableValues.pronouns.value" @click="() => {
                   personData.pronouns = editableValues.pronouns.value;
                   saveChanges('Successfully edited pronouns');
                   editableValues.pronouns.dialog = false;
@@ -65,15 +69,17 @@
           <span v-else><em>No graduation date set</em></span>
         </p>
         <v-btn @click="editableValues.graduation.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
-        <v-dialog :max-width="500" v-model="editableValues.graduation.dialog">
+        <v-dialog :max-width="500" v-model="editableValues.graduation.dialog"
+          @update:modelValue="(show) => { if (!show) editableValues.graduation.value = personData.graduation }"
+        >
           <template #default>
             <v-card title="Edit Graduation Date" :max-width="500">
               <template #text>
-                <v-date-input label="Enter your graduation date" v-model="editableValues.graduation.value" />
+                <v-date-input label="Enter your graduation date" v-model="editableValues.graduation.value" @click:clear="() => editableValues.graduation.value = null"  />
               </template>
               <template #actions>
                 <v-spacer />
-                <v-btn :disabled="personData.graduation === editableValues.graduation.value" @click="() => {
+                <v-btn color="green-darken-2" :disabled="personData.graduation === editableValues.graduation.value" @click="() => {
                   personData.graduation = editableValues.graduation.value;
                   saveChanges('Successfully edited graduation date');
                   editableValues.graduation.dialog = false;
@@ -104,8 +110,8 @@ const generatePerson = useMutation(GenerateOwnPersonDocument);
 const mutatePerson = useMutation(UpdatePersonDocument);
 
 const userId = ref<number|null>(await auth.getOwnId());
-const userData = ref<Partial<User>>({});
-const personData = ref<Partial<Person>>({});
+const userData = ref<User>({});
+const personData = ref<Person>({});
 const profileCreation = ref();
 const profileName = ref<string>("");
 const editableValues = ref({
@@ -155,12 +161,18 @@ const userQuery = useQuery(UserDetailsDocument, {
   id: userId.value
 });
 
+
 userQuery.onResult((result) => {
   if (result.data) {
     userData.value = structuredClone(result.data.user) as User;
     if (result.data.user?.person) {
       personData.value = structuredClone(result.data.user.person);
-      personData.value.graduation = new Date(personData.value.graduation);
+      // Dates in the DB are UTC, Dates are converted into UTC-4, so we need to convert them back to UTC.
+      if (personData.value.graduation) {
+        personData.value.graduation = new Date(personData.value.graduation);
+        const userTimezoneOffset = personData.value.graduation.getTimezoneOffset() * 60000;
+        personData.value.graduation = new Date(personData.value.graduation.getTime() + userTimezoneOffset);
+      }
       editableValues.value.name.value = personData.value.name as string;
       editableValues.value.pronouns.value = personData.value.pronouns as string;
       editableValues.value.graduation.value = personData.value.graduation;
@@ -176,7 +188,13 @@ async function saveChanges(text: string) {
       pronouns: personData.value.pronouns,
       graduation: personData.value.graduation
     },
-  });
+  }).catch((err) => {
+    console.error(err);
+    snackbar.value = true;
+    snackbarColor.value = "red";
+    snackbarText.value = "An error has occurred";
+    return;
+  })
   snackbar.value = true;
   snackbarColor.value = "green";
   snackbarText.value = text;

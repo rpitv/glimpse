@@ -38,7 +38,8 @@ export const vuetify = createVuetify({
       showCurrentPage: true
     },
     VDateInput: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
     VDialog: {
       scrim: "black"

@@ -70,7 +70,7 @@ import { useQuery } from "@vue/apollo-composable";
 import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onBeforeMount } from "vue";
 import type { PropType } from "vue";
 
 const props = defineProps({
@@ -151,7 +151,7 @@ async function refresh() {
   await queryData.refetch();
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
   await refresh();
 })
 </script>

@@ -2,12 +2,12 @@
   <div class="container">
     <h1 style="font-size: 40px">About</h1>
     <div class="about">
-      <h2 class="about-content">
+      <p class="about-content">
         RPI TV is RPI's student-run, volunteer television club.
         We film various campus events and sports in an effort to
         preserve campus culture through video. Full videos of all
         the events we film can be watched for free on our <a href="https://www.youtube.com/@rpi-tv" target="_blank">youtube channel</a>.
-      </h2>
+      </p>
       <div class="about-content">
         <iframe src="https://www.youtube.com/embed/MfzmM3EFqIY?si=Q0ovRqJmr46-NN7z" allowfullscreen class="video-player" />
       </div>
@@ -26,8 +26,8 @@
               <RouterLink class="member-container" :to="personURL + officer.person?.id">
                 <v-avatar :rounded="officer.person?.profilePicture?.path ? 'default' : 0" size="150"
                           :image="officer.person?.profilePicture?.path ?? rpitvLogo" />
-                <h3>{{ officer.person?.name }}</h3>
-                <h4 class="role">{{ officer.role?.name }}</h4>
+                <p>{{ officer.person?.name }}</p>
+                <p class="role">{{ officer.role?.name }}</p>
               </RouterLink>
             </div>
           </div>
@@ -37,8 +37,8 @@
             <RouterLink class="member-container" :to="personURL + member.person?.id">
               <v-avatar :rounded="member.person?.profilePicture?.path ? 'default' : 0" size="150"
                         :image="member.person?.profilePicture?.path ?? rpitvLogo" />
-              <h3>{{ member.person?.name }}</h3>
-              <h4 class="role">{{ member.role?.name }}</h4>
+              <p>{{ member.person?.name }}</p>
+              <p class="role">{{ member.role?.name }}</p>
             </RouterLink>
           </div>
         </div>
@@ -115,6 +115,8 @@ queryData.onResult((result) => {
     width: 100%;
     margin-bottom: 25px;
   }
+  font-weight: lighter;
+  font-size: 24px;
 }
 
 .video-player {
@@ -128,6 +130,15 @@ queryData.onResult((result) => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+p {
+  font-size: 20px;
+  font-weight: lighter;
+}
+
+a {
+  font-weight: lighter;
 }
 
 .members {
@@ -145,6 +156,7 @@ queryData.onResult((result) => {
   color: inherit;
 }
 .role {
-  color: #ff8697
+  color: #ff8697;
+  font-size: 16px;
 }
 </style>
