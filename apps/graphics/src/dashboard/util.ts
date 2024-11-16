@@ -124,6 +124,7 @@ export function formatPeriodShorthand(period: number, periodCount: number, overt
 export function calcLinearGrad(hex: string): string {
 	const hexNoPound = hex.replace("#", '');
 	const colors = hexNoPound.match(/.{1,2}/g) as string[];
+	if (!colors) return "";
 	let r = parseInt(colors[0], 16);
 	let g = parseInt(colors[1], 16);
 	let b = parseInt(colors[2], 16);
@@ -160,7 +161,7 @@ export function isLighter(color1: string, color2: string): boolean {
 
 const hexToRgb = (hex: string) => {
 	const result: any = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-
+	if (!result) return { r: 0, g: 0, b: 0};
 	return {
 		r: parseInt(result[1], 16),
 		g: parseInt(result[2], 16),
