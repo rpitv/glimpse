@@ -5,7 +5,6 @@ import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 enum PersonRoleOrderableFields {
     id = "id",
     startTime = "startTime",
-    priority = "priority",
 }
 
 registerEnumType(PersonRoleOrderableFields, {
