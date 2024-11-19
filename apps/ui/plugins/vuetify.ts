@@ -38,7 +38,8 @@ export const vuetify = createVuetify({
       showCurrentPage: true
     },
     VDateInput: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
     VDialog: {
       scrim: "black"
@@ -53,7 +54,8 @@ export const vuetify = createVuetify({
       variant: "outlined"
     },
     VTextarea: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
     VTextField: {
       variant: "outlined"

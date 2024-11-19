@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import {useQuery} from "@vue/apollo-composable";
-import type {PersonOrderableFields, Production} from "@/graphql/types";
+import type { CategoryOrderableFields, Production} from "@/graphql/types";
 import {
   CaseSensitivity,
   FindAllProductionsDocument,
@@ -74,7 +74,7 @@ const categories = useQuery(FindCategoriesDocument, {
   filter: {},
   order: [{
     direction: "Asc" as OrderDirection,
-    field: "id" as PersonOrderableFields,
+    field: "id" as CategoryOrderableFields,
   }]
 });
 
@@ -88,7 +88,7 @@ async function getMoreProductions(load: { done: (status: 'loading' | 'error' | '
         skip: skip.value,
       }
     });
-    totalProductions = response.result.value?.totalProductions ? response.result.value?.totalProductions : 0;
+    totalProductions = response.result.value?.totalProductions ?? 0;
     if (response.result.value)
       for (const production of response.result.value.productions)
         productions.value.add(production);

@@ -33,7 +33,9 @@ import {
   faEye,
   faSquare,
   faCheck,
-  faPenToSquare
+  faPenToSquare,
+  faFileSlash,
+  faKey,
 } from "@fortawesome/pro-solid-svg-icons";
 import { faCircle, faDotCircle } from "@fortawesome/free-regular-svg-icons"
 
@@ -67,6 +69,7 @@ import {
   faSignalStream,
   faArrowsRotate,
   faBadgeSheriff,
+  faGear,
 } from "@fortawesome/pro-light-svg-icons";
 import {
   faHexagonExclamation,
@@ -114,6 +117,7 @@ library.add(faCircleCheck);
 library.add(faEye);
 library.add(faCheck);
 library.add(faPenToSquare);
+library.add(faFileSlash);
 
 library.add(faHome);
 library.add(faCircleInfo);
@@ -144,6 +148,8 @@ library.add(faMinus);
 library.add(faSignalStream);
 library.add(faArrowsRotate);
 library.add(faBadgeSheriff);
+library.add(faGear);
+library.add(faKey);
 
 library.add(faHexagonExclamation);
 library.add(faDoNotEnter);

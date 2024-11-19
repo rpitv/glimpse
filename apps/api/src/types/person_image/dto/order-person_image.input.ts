@@ -2,25 +2,25 @@ import {Field, InputType, registerEnumType} from "@nestjs/graphql";
 import { OrderDirection } from "../../../gql/order-direction.enum";
 import {NumberComparisonInput} from "../../../gql/number-comparison.input";
 
-enum PersonRoleOrderableFields {
+enum PersonImageOrderableFields {
     id = "id",
-    startTime = "startTime",
+    priority = "priority",
 }
 
-registerEnumType(PersonRoleOrderableFields, {
-    name: "PersonRoleOrderableFields"
+registerEnumType(PersonImageOrderableFields, {
+    name: "PersonImageOrderableFields"
 });
 
 /**
  * Input type for ordering PersonRoles in ReadMany queries.
  */
 @InputType()
-export class OrderPersonRoleInput {
+export class OrderPersonImageInput {
     /**
      * Name of the field to sort by.
      */
-    @Field(() => PersonRoleOrderableFields)
-    field: PersonRoleOrderableFields;
+    @Field(() => PersonImageOrderableFields)
+    field: PersonImageOrderableFields;
     /**
      * Direction to order in. Required.
      */

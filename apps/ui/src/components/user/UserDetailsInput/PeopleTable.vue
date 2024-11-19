@@ -67,10 +67,10 @@ import {
 } from "@/graphql/types";
 import type { Person } from "@/graphql/types";
 import { useQuery } from "@vue/apollo-composable";
-import {subject} from "@casl/ability";
+import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import CreatePersonCard from "@/components/person/CreatePersonCard.vue";
-import { ref, watch } from "vue";
+import { ref, watch, onBeforeMount } from "vue";
 import type { PropType } from "vue";
 
 const props = defineProps({
@@ -150,6 +150,10 @@ watch(order, () => {
 async function refresh() {
   await queryData.refetch();
 }
+
+onBeforeMount(async () => {
+  await refresh();
+})
 </script>
 
 <style scoped lang="scss">

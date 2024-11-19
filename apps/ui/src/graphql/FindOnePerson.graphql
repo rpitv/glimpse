@@ -1,4 +1,4 @@
-query PersonDetails($id: BigInt!) {
+query FindOnePerson($id: BigInt!) {
   person: findOnePerson(id: $id) {
     id
     name
@@ -16,10 +16,6 @@ query PersonDetails($id: BigInt!) {
       }
       roleId
       startTime
-    }
-    users {
-      id
-      username
     }
     profilePicture {
       id

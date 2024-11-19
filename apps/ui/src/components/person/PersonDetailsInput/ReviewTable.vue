@@ -4,11 +4,11 @@
     <v-table height="500" class="table">
       <tbody>
         <tr>
-          <td>Person Name</td>
+          <td>Name</td>
           <td>{{ personData.name }}</td>
         </tr>
         <tr>
-          <td>Person Pronouns</td>
+          <td>Pronouns</td>
           <td>{{ personData.pronouns?.trim().length ? personData.pronouns : 'No pronouns provided.' }}</td>
         </tr>
         <tr>
@@ -26,7 +26,7 @@
               <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
                 <template #activator="{ props }">
                   <v-chip v-bind="props" >
-                    Image ID: {{ image.imageId }}
+                    Image ID: {{ image.id }}
                   </v-chip>
                 </template>
                 <template #default>

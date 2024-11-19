@@ -8,7 +8,17 @@ query UserDetails($id: BigInt!) {
     person {
       id
       name
+      description
+      graduation
+      pronouns
+      profilePicture {
+        id
+        name
+        path
+        description
+      }
     }
+    personId
     groups {
       id
       groupId
