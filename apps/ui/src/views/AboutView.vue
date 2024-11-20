@@ -23,7 +23,7 @@
         <h2 v-if="officers.length" class="ml-5">Leadership</h2>
           <div class="members mt-2 ml-5">
             <div v-for="officer in officers" :key="officer.id">
-              <RouterLink class="member-container" :to="personURL + officer.person?.id">
+              <RouterLink class="member-container" :to="personURL + officer.personId">
                 <v-avatar :rounded="officer.person?.profilePicture?.path ? 'default' : 0" size="150"
                           :image="officer.person?.profilePicture?.path ?? rpitvLogo" />
                 <p>{{ officer.person?.name }}</p>
@@ -34,7 +34,7 @@
         <h2 v-if="members.length" class="ml-5">Members</h2>
         <div class="members mt-2 ml-5">
           <div v-for="member in members" :key="member.id">
-            <RouterLink class="member-container" :to="personURL + member.person?.id">
+            <RouterLink class="member-container" :to="personURL + member.personId">
               <v-avatar :rounded="member.person?.profilePicture?.path ? 'default' : 0" size="150"
                         :image="member.person?.profilePicture?.path ?? rpitvLogo" />
               <p>{{ member.person?.name }}</p>
@@ -74,7 +74,10 @@ const queryData = useQuery(FindPersonRolesDocument, {
       {
         endTime: null
       }
-    ]
+    ],
+  },
+  pagination: {
+    take: 70
   }
 });
 
@@ -158,5 +161,6 @@ a {
 .role {
   color: #ff8697;
   font-size: 16px;
+  text-align: center;
 }
 </style>

@@ -1,26 +1,22 @@
-query FindPersonRoles($filter: FilterPersonRoleInput) {
+query FindPersonRoles($filter: FilterPersonRoleInput, $pagination: PaginationInput!) {
   totalPersonRoles: personRoleCount(filter: $filter)
-  personRoles: findManyPersonRole(filter: $filter) {
+  personRoles: findManyPersonRole(filter: $filter, pagination: $pagination) {
     id
     startTime
     endTime
     person {
-      id
       name
       profilePicture {
-        id
         name
         path
       }
     }
     role {
       name
-      description
       displayInLeadership
       displayInMembership
       priority
     }
     personId
-
   }
 }
