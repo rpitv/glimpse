@@ -4,7 +4,7 @@
     <div class="chip-group">
       <v-dialog v-for="(role, i) in roles" :key="role.roleId" max-width="500">
         <template #activator="{ props }">
-          <v-chip class="ml-1" closable v-bind="props"
+          <v-chip class="ml-1" closable v-bind="props" v-tooltip="role.role?.name"
                 @click:close="roles.splice(i, 1)" >
             <v-icon icon="fa:fas fa-pen-to-square" />&nbsp;Role ID: {{ role.roleId }}
           </v-chip>

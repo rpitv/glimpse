@@ -10,7 +10,9 @@
           <v-avatar :size="200" :image="personDetails?.profilePicture?.path ?? RPITV_Logo" />
           <h1>{{ personDetails?.name }}</h1>
           <footer>{{ personDetails?.pronouns }}</footer>
-          <p class="description">{{ personDetails?.description }}</p>
+	        <Markdown class="description">
+		        {{ personDetails?.description }}
+	        </Markdown>
           <v-dialog v-if="personImageData.result.value?.personImageCount" v-model="isPersonImageDialogOpened" width="1100">
             <template #activator="{ props: activatorProps }">
               <v-btn class="mt-7" @click="imageDetails = []" v-bind="activatorProps">View Photos</v-btn>
@@ -22,7 +24,7 @@
           </v-dialog>
           <h1 class="mt-5">Club Positions</h1>
           <div class="roles">
-            <div class="text-center" v-for="role in personDetails?.roles">
+            <div class="text-center club-roles" v-for="role in personDetails?.roles">
               <p class="name" style="color: #ff6363">{{ role.role?.name }}</p>
               <p>{{ moment(role.startTime).format("LL") }}</p>
                 -
@@ -63,6 +65,7 @@ import RPITV_Logo from "../assets/rpitv_logo.svg";
 import moment from "moment";
 import ProductionCard from "@/components/ProductionCard.vue";
 import PersonImageCard from "@/components/PersonImageCard.vue";
+import Markdown from "@/components/util/Markdown.vue";
 
 const route = useRoute();
 
@@ -181,6 +184,7 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
   justify-content: center;
   column-gap: 50px;
   row-gap: 25px;
+	align-items: center;
 }
 
 .description {
@@ -192,13 +196,23 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
   gap: 20px;
 }
 
+h1 {
+	font-size: 2rem;
+}
+
 p {
-  font-size: 16px;
-  font-weight: lighter;
+	font-size: 16px;
+	font-weight: lighter;
 }
 
 .name {
-  font-size: 24px;
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.club-roles {
+	
+	width: 250px;
 }
 
 </style>
