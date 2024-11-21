@@ -6,8 +6,8 @@
              :order="display.width.value >= 556 ? 1 : 2">
         <h2>Info</h2>
         <div>
-          <p><RouterLink to="privacy">Privacy Policy</RouterLink></p>
-          <p><RouterLink to="accessibility">Accessibility Statement</RouterLink></p>
+          <p><RouterLink to="/privacy">Privacy Policy</RouterLink></p>
+          <p><RouterLink to="/accessibility">Accessibility Statement</RouterLink></p>
         </div>
       </v-col>
       <v-col :cols="display.width.value >= 556 ? 4 : 12"
@@ -21,7 +21,7 @@
             <FontAwesomeIcon class="github-icon icon" icon="fa-brands fa-github" />
           </a>
         </p>
-        <p><RouterLink to="constitution">Constitution</RouterLink></p>
+        <p><RouterLink to="/constitution">Constitution</RouterLink></p>
         <p><a href="https://github.com/rpitv/glimpse/wiki">Wiki</a></p>
       </v-col>
       <v-col :cols="display.width.value >= 556 ? 4 : 12" class="last-col col social" :order="3">
