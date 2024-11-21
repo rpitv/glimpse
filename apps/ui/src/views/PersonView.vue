@@ -11,7 +11,7 @@
           <h1>{{ personDetails?.name }}</h1>
           <footer>{{ personDetails?.pronouns }}</footer>
 	        <Markdown>
-		        <p class="description">{{ personDetails?.description }}</p>
+		        {{ personDetails?.description }}
 	        </Markdown>
           <v-dialog v-if="personImageData.result.value?.personImageCount" v-model="isPersonImageDialogOpened" width="1100">
             <template #activator="{ props: activatorProps }">
