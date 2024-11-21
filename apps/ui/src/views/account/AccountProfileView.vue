@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { GenerateOwnPersonDocument, UpdatePersonDocument, UserDetailsDocument } from "@/graphql/types";
 import type { Person, User } from "@/graphql/types";
