@@ -23,10 +23,10 @@
           <td>Image(s)</td>
           <td>
             <v-chip-group column v-if="images.length">
-              <v-dialog v-for="image in images" :key="image.id" width="400" scrim="black">
+              <v-dialog v-for="image in images" :key="image.imageId" width="400" scrim="black">
                 <template #activator="{ props }">
                   <v-chip v-bind="props" >
-                    Image ID: {{ image.id }}
+                    Image ID: {{ image.imageId }}
                   </v-chip>
                 </template>
                 <template #default>
