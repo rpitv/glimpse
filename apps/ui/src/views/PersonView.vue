@@ -189,6 +189,7 @@ async function loadProductions(load: { done: (status: 'loading' | 'error' | 'emp
 
 .description {
   margin: 0 max(10px, 5%);
+  text-align: center;
 }
 
 .productions {
@@ -211,7 +212,7 @@ p {
 }
 
 .club-roles {
-	
+
 	width: 250px;
 }
 
