@@ -1,4 +1,4 @@
-import { ApolloServerPlugin, GraphQLRequestListener } from "apollo-server-plugin-base";
+import { ApolloServerPlugin, GraphQLRequestListener } from "@apollo/server";
 import { Plugin } from "@nestjs/apollo";
 import { PrismaService } from "./prisma.service";
 import { Logger } from "@nestjs/common";
@@ -27,7 +27,7 @@ export class PrismaPlugin implements ApolloServerPlugin {
     private logger: Logger = new Logger("PrismaPlugin");
     constructor(private readonly prisma: PrismaService) {}
 
-    async requestDidStart(ctx): Promise<GraphQLRequestListener> {
+    async requestDidStart(ctx): Promise<GraphQLRequestListener<unknown>> {
         this.logger.verbose("Creating Prisma transaction...");
         let endTransaction: () => void;
         let failTransaction: (err: any) => void;
@@ -36,7 +36,7 @@ export class PrismaPlugin implements ApolloServerPlugin {
             this.prisma
                 .$transaction(
                     async (tx) => {
-                        ctx.context.req.prismaTx = tx;
+                        ctx.contextValue.req.prismaTx = tx;
                         this.logger.verbose("Prisma transaction created.");
                         continueRequest();
 
