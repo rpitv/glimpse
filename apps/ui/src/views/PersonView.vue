@@ -10,7 +10,7 @@
           <v-avatar :size="200" :image="personDetails?.profilePicture?.path ?? RPITV_Logo" />
           <h1>{{ personDetails?.name }}</h1>
           <footer>{{ personDetails?.pronouns }}</footer>
-	        <Markdown>
+	        <Markdown class="description">
 		        {{ personDetails?.description }}
 	        </Markdown>
           <v-dialog v-if="personImageData.result.value?.personImageCount" v-model="isPersonImageDialogOpened" width="1100">

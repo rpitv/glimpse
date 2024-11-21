@@ -100,7 +100,9 @@
       </div>
       <div class="details">
         <p class="label">Description:
-          <span v-if="personData.description" class="info">{{ personData.description }}</span>
+	        <Markdown class="info" v-if="personData.description">
+		        {{ personData.description }}
+	        </Markdown>
           <span v-else><em>No description provided</em></span>
         </p>
         <v-btn @click="editableValues.description.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
@@ -138,6 +140,7 @@ import { useQuery, useMutation } from "@vue/apollo-composable";
 import { GenerateOwnPersonDocument, UpdatePersonDocument, UserDetailsDocument } from "@/graphql/types";
 import type { Person, User } from "@/graphql/types";
 import moment from "moment";
+import Markdown from "@/components/util/Markdown.vue";
 
 const auth = useAuthStore();
 const generatePerson = useMutation(GenerateOwnPersonDocument);

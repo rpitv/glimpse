@@ -46,9 +46,6 @@
      :loading="queryData.loading.value"
      loading-text="Loading People..."
     >
-      <template #item.description="{ item }">
-        {{ item.description?.length ? item.description : "No description provided." }}
-      </template>
       <template #item.actions="{ index, item }">
         <RouterPopup
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Person, {
@@ -153,7 +150,6 @@ const deleteMutation = useMutation(DeletePersonDocument);
 const headers = [
   { title: "ID", sortable: true, key: "id" },
   { title: "Name", key: "name", sortable: true },
-  { title: "Description", key: "description", sortable: false},
   { title: "Actions", key: "actions", sortable: false, minWidth: "150px" }
 ]
 
@@ -210,7 +206,6 @@ function canDelete(person: Person): boolean {
   return ability.can(AbilityActions.Delete, subject(AbilitySubjects.Person, {
     id: person.id,
     name: person.name,
-    description: person.description,
   }))
 }
 
