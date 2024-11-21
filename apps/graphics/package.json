@@ -27,7 +27,6 @@
     "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
     "fast-xml-parser": "^4.3.3",
-    "firebase": "^9.22.1",
     "fs-extra": "^11.1.0",
     "gsap": "^3.12.2",
     "module-alias": "^2.2.2",
