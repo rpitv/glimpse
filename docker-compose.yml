@@ -70,7 +70,7 @@ services:
       - glimpse_network
 
   rabbitmq:
-    image: rabbitmq:3.10-management
+    image: rabbitmq:4.0-management
     restart: unless-stopped
     ports:
       - "5672:5672"
