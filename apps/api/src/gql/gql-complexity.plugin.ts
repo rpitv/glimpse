@@ -1,6 +1,6 @@
 import { ComplexityEstimatorArgs, GraphQLSchemaHost } from "@nestjs/graphql";
 import { Plugin } from "@nestjs/apollo";
-import { ApolloServerPlugin, GraphQLRequestListener } from "apollo-server-plugin-base";
+import { ApolloServerPlugin, GraphQLRequestListener } from "@apollo/server";
 import { GraphQLError } from "graphql";
 import { fieldExtensionsEstimator, getComplexity, simpleEstimator } from "graphql-query-complexity";
 import { Logger } from "@nestjs/common";
@@ -42,7 +42,7 @@ export class ComplexityPlugin implements ApolloServerPlugin {
 
     constructor(private gqlSchemaHost: GraphQLSchemaHost) {}
 
-    async requestDidStart(): Promise<GraphQLRequestListener> {
+    async requestDidStart(): Promise<GraphQLRequestListener<unknown>> {
         // Complexity is quite subjective and cannot be outlined in a comment. Read the wiki page for more information
         //  on how complexity is calculated: https://github.com/rpitv/glimpse/wiki/Rate-Limiting
         const maxComplexity = 1000;
