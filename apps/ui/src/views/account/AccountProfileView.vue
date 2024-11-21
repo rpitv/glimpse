@@ -14,6 +14,7 @@
     </div>
     <div v-else>
       <h1>Profile Information</h1>
+      <a :href="'/person/' + personData.id">View Profile</a>
       <div class="details">
         <p class="label">Name: <span class="info">{{ personData.name }}</span></p>
         <v-btn @click="editableValues.name.dialog = true;" variant="text" icon="fa-solid fa-pen-to-square" />
@@ -241,7 +242,7 @@ userQuery.onResult((result) => {
 async function saveChanges(text: string, field: keyof Person) {
   const data: Person = {}
   data[field] = personData.value[field];
-  
+
   await mutatePerson.mutate({
     id: personData.value.id,
     data: data
