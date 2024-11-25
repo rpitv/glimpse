@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package glimpse;
+
+message Pagination {
+  uint32 take = 1;
+  optional uint32 skip = 2;
+  optional string cursor = 3;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package glimpse;
+
+message BooleanComparisonInput {
+  optional int64 equals = 1;
+}

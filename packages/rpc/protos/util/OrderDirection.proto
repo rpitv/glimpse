@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package glimpse;
+
+enum OrderDirection {
+  Asc = 0;
+  Desc = 1;
+}

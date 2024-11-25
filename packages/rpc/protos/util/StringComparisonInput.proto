@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package glimpse;
+
+enum CaseSensitivity {
+  Default = 0;
+  Insensitive = 1;
+}
+
+message StringComparisonInput {
+  optional string equals = 1;
+  optional string not = 2;
+  optional string contains = 3;
+  optional string startsWith = 4;
+  optional string endsWidth = 5;
+  repeated string in = 6;
+  optional CaseSensitivity mode = 7;
+}

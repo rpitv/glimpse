@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+import "util/Context.proto";
+import "util/Pagination.proto";
+import "util/NumberComparisonInput.proto";
+import "util/StringComparisonInput.proto";
+import "util/DateComparisonInput.proto";
+import "util/OrderDirection.proto";
+
+package glimpse;
+
+service AccessLogService {
+  rpc FindManyAccessLog(FindManyAccessLogRequest) returns (FindManyAccessLogResponse) {};
+  rpc FindOneAccessLog(FindOneAccessLogRequest) returns (FindOneAccessLogResponse) {};
+  rpc AccessLogCount(FindOneAccessLogRequest) returns (FindOneAccessLogResponse) {};
+}
+
+message AccessLog {
+  uint64 id = 1;
+  uint64 userId = 2;
+  string service = 3;
+  uint64 timestamp = 4;
+  optional string ip = 5;
+}
+
+message FilterAccessLogInput {
+  optional NumberComparisonInput id = 1;
+  optional NumberComparisonInput userId = 2;
+  optional StringComparisonInput service = 3;
+  optional DateComparisonInput timestamp = 4;
+  optional StringComparisonInput ip = 5;
+  optional FilterAccessLogInput AND = 6;
+  optional FilterAccessLogInput OR = 7;
+  optional FilterAccessLogInput NOT = 8;
+}
+
+enum AccessLogOrderableFields {
+  id = 0;
+  timestamp = 1;
+  service = 2;
+}
+
+message OrderAccessLogInput {
+  AccessLogOrderableFields field = 1;
+  OrderDirection direction = 2;
+}
+
+message FindManyAccessLogRequest {
+  optional Context context = 1;
+  optional Pagination pagination = 2;
+  optional FilterAccessLogInput filter = 3;
+  optional OrderAccessLogInput order = 4;
+}
+
+message FindManyAccessLogResponse {
+  repeated AccessLog accessLogs = 1;
+}
+
+message FindOneAccessLogRequest {
+  optional Context context = 1;
+  uint64 id = 2;
+}
+
+message FindOneAccessLogResponse {
+  optional AccessLog accessLog = 1;
+}
+
+message AccessLogCountRequest {
+  optional Context context = 1;
+  optional FilterAccessLogInput filter = 3;
+}
+
+message AccessLogCountResponse {
+  optional uint64 count = 1;
+}

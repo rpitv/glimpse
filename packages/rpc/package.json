@@ -1,0 +1,23 @@
+{
+  "name": "@rpitv/glimpse-rpc",
+  "description": "Package containing the RPC schemas used by Glimpse",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpitv/glimpse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rpitv/glimpse/issues"
+  },
+  "homepage": "https://glimpse.rpi.tv",
+  "scripts": {
+    "prepare": "node -e \"fs.copyFileSync('../../LICENSE', './LICENSE')\"",
+    "build": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=dist/ ./service.proto"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.2",
+    "@grpc/proto-loader": "^0.7.13"
+  }
+}

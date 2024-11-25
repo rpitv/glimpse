@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package glimpse;
+
+message Context {
+  optional string sessionId = 1;
+  optional uint64 userId = 2;
+  optional string ip = 3;
+}

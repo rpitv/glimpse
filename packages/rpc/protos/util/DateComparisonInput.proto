@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package glimpse;
+
+message DateComparisonInput {
+  optional int64 equals = 1;
+  optional int64 not = 2;
+  optional int64 lt = 3;
+  optional int64 lte = 4;
+  optional int64 gt = 5;
+  optional int64 gte = 6;
+}
