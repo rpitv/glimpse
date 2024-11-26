@@ -8,16 +8,22 @@
     "type": "git",
     "url": "git+https://github.com/rpitv/glimpse.git"
   },
+  "type": "module",
   "bugs": {
     "url": "https://github.com/rpitv/glimpse/issues"
   },
   "homepage": "https://glimpse.rpi.tv",
   "scripts": {
-    "prepare": "node -e \"fs.copyFileSync('../../LICENSE', './LICENSE')\"",
-    "build": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=dist/ ./service.proto"
+    "prepare": "node -e \"fs.cpSync('../../LICENSE', './LICENSE')\"",
+    "build": "proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=dist/ src/service.proto && node -e \"fs.cpSync('./LICENSE', './dist/LICENSE')\" && node -e \"fs.cpSync('./protos', './dist/protos/', {recursive: true})\" && node -e \"fs.cpSync('./service.proto', './dist/service.proto')\"",
+    "proto:build": "npx tsx scripts/compile.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.12.2",
     "@grpc/proto-loader": "^0.7.13"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "ts-proto": "^2.4.0"
   }
 }
