@@ -6,28 +6,32 @@ import { commands } from "./commands"
 import { customIds } from "./customIds";
 import moment from "moment";
 
-config();
-if (!process.env.GUILD_ID)
-    throw new Error("GUILD_ID environment variable not set");
+function loadEnvironmentVariables() {
+    config(); // load env variables
+    if (!process.env.GUILD_ID)
+        throw new Error("GUILD_ID environment variable not set");
 
-if (!process.env.PRODUCTIONS_CHANNEL_ID)
-    throw new Error("PRODUCTIONS_CHANNEL_ID environment variable not set");
+    if (!process.env.PRODUCTIONS_CHANNEL_ID)
+        throw new Error("PRODUCTIONS_CHANNEL_ID environment variable not set");
 
-if (!process.env.PRODUCTIONS_CATEGORY_ID)
-    throw new Error("PRODUCTIONS_CATEGORY_ID environment variable not set");
+    if (!process.env.PRODUCTIONS_CATEGORY_ID)
+        throw new Error("PRODUCTIONS_CATEGORY_ID environment variable not set");
 
-if (!process.env.RPITV_ID)
-    throw new Error("RPITV_ID environment variable not set");
+    if (!process.env.RPITV_ID)
+        throw new Error("RPITV_ID environment variable not set");
 
-if (!process.env.TOKEN)
-    throw new Error("TOKEN environment variable not set");
+    if (!process.env.TOKEN)
+        throw new Error("TOKEN environment variable not set");
 
-if (!process.env.DATABASE_URL)
-    throw new Error("DATABASE_URL environment variable not set");
+    if (!process.env.DATABASE_URL)
+        throw new Error("DATABASE_URL environment variable not set");
 
-// if(!process.env.RABBITMQ_URL) {
-//     throw new Error("RABBITMQ_URL environment variable not set");
-// }
+    if(!process.env.RABBITMQ_URL) {
+        throw new Error("RABBITMQ_URL environment variable not set");
+    }
+}
+
+loadEnvironmentVariables();
 
 const client = new Client({
     intents: [

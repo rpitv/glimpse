@@ -1,6 +1,6 @@
 {
   "name": "@rpitv/glimpse-discord",
-  "version": "1.0.0-pre.1",
+  "version": "1.0.0",
   "description": "Discord integration for the RPI TV Glimpse infrastructure",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,7 @@
   },
   "homepage": "https://glimpse.rpi.tv",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "start": "npx ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
@@ -31,12 +32,13 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.1",
-    "@types/node": "^18.7.14",
+    "@types/amqplib": "^0.10.6",
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
     "@types/uuid": "^9.0.2",
     "drizzle-kit": "^0.24.2",
     "nodemon": "^3.1.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "ts-node": "^10.9.2"
   }
 }
