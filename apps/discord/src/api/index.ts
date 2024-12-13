@@ -3,6 +3,8 @@ import {TypedEmitter} from "./TypedEmitter";
 
 interface Production {}
 
+interface User {}
+
 interface ApiEvents {
     createProduction: (production: Production) => void;
     updateProduction: (production: Production) => void;
@@ -10,14 +12,28 @@ interface ApiEvents {
 }
 
 export interface GlimpseApiInterface extends TypedEmitter<ApiEvents> {
-    getRegistrationLink(discordUserId: string): Promise<ApiResponse<{ link: string }>>;
-    getLatestProductions(): Promise<ApiResponse<Production[]>>;
-    getProductionData(productionId: BigInt): Promise<ApiResponse<Production>>;
+    getUser(discordUserId: string): Promise<ApiResponse<User | null>>;
+    registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>>
     updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>>;
+    setProductionMessageId(productionId: BigInt, messageId: BigInt): Promise<ApiResponse<void>>;
+    getLatestProductions(): Promise<ApiResponse<Production[]>>;
+    getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>>;
 }
 
 export class GlimpseApi extends TypedEmitter<ApiEvents> implements GlimpseApiInterface {
-    public getRegistrationLink(discordUserId: string): Promise<ApiResponse<{ link: string }>> {
+    public getUser(discordUserId: string): Promise<ApiResponse<User | null>> {
+        throw new Error("Not implemented");
+    }
+
+    public registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>> {
+        throw new Error("Not implemented");
+    }
+
+    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+        throw new Error("Not implemented");
+    }
+
+    public setProductionMessageId(productionId: BigInt, messageId: BigInt): Promise<ApiResponse<void>> {
         throw new Error("Not implemented");
     }
 
@@ -25,17 +41,25 @@ export class GlimpseApi extends TypedEmitter<ApiEvents> implements GlimpseApiInt
         throw new Error("Not implemented");
     }
 
-    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production>> {
-        throw new Error("Not implemented");
-    }
-
-    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
         throw new Error("Not implemented");
     }
 }
 
 export class DummyGlimpseApi extends TypedEmitter<ApiEvents> implements GlimpseApiInterface {
-    public getRegistrationLink(discordUserId: string): Promise<ApiResponse<{ link: string }>> {
+    public getUser(discordUserId: string): Promise<ApiResponse<User | null>> {
+        throw new Error("Not implemented");
+    }
+
+    public registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>> {
+        throw new Error("Not implemented");
+    }
+
+    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+        throw new Error("Not implemented");
+    }
+
+    public setProductionMessageId(productionId: BigInt, messageId: BigInt): Promise<ApiResponse<void>> {
         throw new Error("Not implemented");
     }
 
@@ -43,11 +67,7 @@ export class DummyGlimpseApi extends TypedEmitter<ApiEvents> implements GlimpseA
         throw new Error("Not implemented");
     }
 
-    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production>> {
-        throw new Error("Not implemented");
-    }
-
-    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
         throw new Error("Not implemented");
     }
 }

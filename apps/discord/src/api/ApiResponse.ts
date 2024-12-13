@@ -1,6 +1,11 @@
+import {UserError} from "./UserError";
+
 export class ApiResponse<T> {
     private constructor(private readonly source: { error?: string, data?: T }) {
         if(source.error) {
+            if(source.error.startsWith("User Error: ")) {
+                throw new UserError(source.error.substring("User Error: ".length));
+            }
             throw new Error(source.error);
         }
     }
