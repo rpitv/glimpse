@@ -1,38 +1,7 @@
 import {ApiResponse} from "./ApiResponse";
 import {TypedEmitter} from "./TypedEmitter";
 import {UserError} from "./UserError";
-
-export interface Production {
-    id: BigInt;
-    name: string;
-    description?: string;
-    startTime?: Date;
-    endTime?: Date;
-    closetTime?: Date;
-    category?: string;
-    tags: string[];
-    teamNotes?: string;
-    useDiscord: boolean;
-    discordData?: Record<string, any>;
-}
-
-export interface User {
-    id: BigInt;
-    username: string;
-    mail: string;
-    personId?: BigInt;
-    personName?: string;
-    personCurrentRoles?: Role[];
-    personGraduation?: Date;
-    discord?: string;
-}
-
-export interface Role {
-    id: BigInt;
-    name: string;
-    isLeadership: boolean;
-    isMembership: boolean;
-}
+import { Production, User, Role } from './types'
 
 interface ApiEvents {
     createProduction: (production: Production) => void;
@@ -112,4 +81,4 @@ export class DummyGlimpseApi extends TypedEmitter<ApiEvents> implements GlimpseA
     }
 }
 
-export { ApiResponse, UserError };
+export { ApiResponse, UserError, Production, User, Role };
