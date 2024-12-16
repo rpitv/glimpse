@@ -6,15 +6,65 @@ import {GlimpseApiEvents, GlimpseApiInterface} from "./GlimpseApiInterface";
 export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements GlimpseApiInterface {
     private mockData = {
         productions: [
-            {   id: 14n,
+            {   id: 14n, // Production with full data
                 name: "RPI Men's Hockey vs. Union College",
                 description: "RPI Engineers play Union Garnet Chargers in the Houston Field House.",
-                closetTime: new Date("2024-10-01T20:00:00.000Z"),
-                startTime: new Date("2024-10-01T22:00:00.000Z"),
-                endTime: new Date("2024-10-02T03:00:00.000Z"),
+                closetTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+                startTime: new Date(Date.now() + 1 * 26 * 60 * 60 * 1000),
+                endTime: new Date(Date.now() + 1 * 29 * 60 * 60 * 1000),
                 closetLocation: "RPI TV Office",
                 eventLocation: "Houston Field House",
+                categoryId: 5n,
                 teamNotes: "There will be a team picture after the game. Please wear your RPI TV shirts!\n\nFood will be served.",
+                useDiscord: true
+            },
+            {   id: 15n, // Production with only start time
+                name: "RMA Family Weekend Concert - Fall 2024",
+                startTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 16n, // Production with only end and closet times
+                name: "RPI Football vs. Hobart College",
+                endTime: new Date(Date.now() + 2 * 29 * 60 * 60 * 1000),
+                closetTime: new Date(Date.now() + 2 * 31 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 17n, // Production that doesn't use Discord
+                name: "RPI Phalanx Taping Ceremony",
+                startTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                useDiscord: false
+            },
+            {   id: 18n, // Production that just ended
+                name: "RPI Women's Soccer vs. St. Lawrence University",
+                startTime: new Date(Date.now() - 3 * 60 * 60 * 1000),
+                endTime: new Date(Date.now() - 1 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 19n, // Production that started over 24 hours ago with no end date
+                name: "Rensselyrics Spring Invitational",
+                startTime: new Date(Date.now() - 1 * 25 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 20n, // Production that started less than 24 hours ago with no end date
+                name: "RPI ACHA Hockey vs. University of Massachusetts Amherst",
+                startTime: new Date(Date.now() - 1 * 23 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 21n, // Production that's ongoing
+                name: "RPI Men's Lacrosse vs. Union College",
+                startTime: new Date(Date.now() - 3 * 60 * 60 * 1000),
+                endTime: new Date(Date.now() + 3 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 22n, // Multi-day production that's ongoing
+                name: "RPI Women's Lacrosse vs. RIT",
+                startTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                endTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                useDiscord: true
+            },
+            {   id: 23n, // Production that's over two weeks in advance
+                name: "RPI President Town Hall - Fall 2024",
+                startTime: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000),
                 useDiscord: true
             }
         ],
@@ -25,14 +75,19 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 name: "hockey"
             },
             {
-                id: 1039n,
+                id: 1040n,
                 productionId: 14n,
                 name: "men's hockey"
             },
             {
-                id: 1039n,
+                id: 1041n,
                 productionId: 14n,
                 name: "union"
+            },
+            {
+                id: 1042n,
+                productionId: 15n,
+                name: "rma"
             }
         ],
         categories: [
@@ -123,7 +178,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 personId: 41n,
                 roleId: 18n,
                 startTime: new Date("2022-09-01T00:00:00.000Z"),
-                endTime: new Date("2025-12-31T00:00:00.000Z"),
+                endTime: new Date(Date.now() + 31_556_952_000),
             },
             {
                 id: 1390n,
