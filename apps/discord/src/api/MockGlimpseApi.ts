@@ -298,8 +298,25 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
     }
 
     public async getLatestProductions(): Promise<ApiResponse<Production[]>> {
-        // TODO
-        throw new Error("Not implemented");
+        const productions: Production[] = [];
+        for(const production of this.mockData.productions) {
+            const hasAtLeastOneDate = production.startTime || production.endTime || production.closetTime
+            if(!production.useDiscord || !hasAtLeastOneDate) {
+                continue;
+            }
+
+            const startTime: Date = production.startTime || production.endTime || production.closetTime;
+            const endTime: Date = production.endTime || production.startTime || production.closetTime;
+
+            // If start time is less than 7 days from now or end time is greater than 24 hours ago
+            if(startTime.getTime() < Date.now() + 604_800_000 || endTime.getTime() > Date.now() - 86_400_000) {
+                const transformedProductionData = await this.getProductionData(production.id);
+                productions.push(transformedProductionData.getData() as Production)
+            }
+        }
+        return ApiResponse.fromObject({
+            data: productions
+        })
     }
 
     public async getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
@@ -325,7 +342,19 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
             tags: []
         }
 
-        // TODO tags & category
+        if(production.categoryId) {
+            const category = this.mockData.categories.find(v => v.id === production.categoryId);
+            if(!category) {
+                throw new Error(`Mock database constraint violation: Category with ID ${production.categoryId} does not exist.`)
+            }
+            output.category = category.name
+        }
+
+        this.mockData.productionTags.forEach(tag => {
+            if(tag.productionId === production.id) {
+                output.tags.push(tag.name)
+            }
+        })
 
         return ApiResponse.fromObject({
             data: output

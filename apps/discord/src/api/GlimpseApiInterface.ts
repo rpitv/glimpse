@@ -105,7 +105,6 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
      * - In the event that `startTime`, `endTime`, and `closetTime` are not all set,
      *   the latest time will silently be used in place of those which are missing.
      * - In the event that `endTime` precedes `startTime` (anomaly), `startTime` is ignored.
-     *   Similarly, if `startTime` precedes `closetTime`, `closetTime` is ignored.
      * - A Production that does not have a `startTime`, `endTime`, or `closetTime` will never appear.
      * @returns {@link ApiResponse} with an array of Productions that match the given criteria.
      * @throws Error connection or database error.
