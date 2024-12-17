@@ -240,31 +240,96 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         ]
     }
 
-    public getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>> {
+    public async getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>> {
+        return ApiResponse.fromObject({
+            data: this.mockData.users.find(v => v.id === userId) || null
+        })
+    }
+
+    public async getUserFromDiscordId(discordUserId: string): Promise<ApiResponse<User | null>> {
+        return ApiResponse.fromObject({
+            data: this.mockData.users.find(v => v.discord === discordUserId) || null
+        })
+    }
+
+    public async registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>> {
+        const discordUserExists = !!this.mockData.users.find(v => v.discord === discordUserId);
+        if (discordUserExists) {
+            return ApiResponse.fromObject({
+                error: "User Error: You already have an account. You can log in with Discord at https://rpi.tv/login."
+            })
+        }
+        const usernameExists = !!this.mockData.users.find(v => v.username === username);
+        const emailExists = !!this.mockData.users.find(v => v.mail === email);
+        if (usernameExists || emailExists) {
+            return ApiResponse.fromObject({
+                error: "User Error: An account with that username or email already exists. Contact an officer if you need help."
+            })
+        }
+
+        const nextId = this.mockData.users.reduce((accumulator, current) => current.id > accumulator ? current.id : accumulator, 0n)
+        const newUser = {
+            id: nextId + 1n,
+            username,
+            mail: email,
+            discord: discordUserId
+        };
+
+        this.mockData.users.push(newUser);
+        return ApiResponse.fromObject({
+            data: newUser
+        })
+    }
+
+    public async updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+        // TODO
         throw new Error("Not implemented");
     }
 
-    public getUserFromDiscordId(discordUserId: string): Promise<ApiResponse<User | null>> {
+    public async setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>> {
+        const production = this.mockData.productions.find(production => production.id === productionId);
+        if(!production) {
+            return ApiResponse.fromObject({
+                error: `A production with ID ${productionId} could not be found.`
+            })
+        }
+        (production as any).discordData = data
+        return ApiResponse.fromObject(null);
+    }
+
+    public async getLatestProductions(): Promise<ApiResponse<Production[]>> {
+        // TODO
         throw new Error("Not implemented");
     }
 
-    public registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>> {
-        throw new Error("Not implemented");
-    }
+    public async getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
+        const production = this.mockData.productions.find(production => production.id === productionId)
+        if(!production) {
+            return ApiResponse.fromObject({
+                data: null
+            })
+        }
 
-    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
-        throw new Error("Not implemented");
-    }
+        const output: Production = {
+            id: production.id,
+            name: production.name,
+            description: production.description,
+            startTime: production.startTime,
+            endTime: production.endTime,
+            closetTime: production.closetTime,
+            closetLocation: production.closetLocation,
+            eventLocation: production.eventLocation,
+            teamNotes: production.teamNotes,
+            useDiscord: production.useDiscord,
+            discordData: (production as any).discordData,
+            tags: []
+        }
 
-    public setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>> {
-        throw new Error("Not implemented");
-    }
+        // TODO tags & category
 
-    public getLatestProductions(): Promise<ApiResponse<Production[]>> {
-        throw new Error("Not implemented");
-    }
+        return ApiResponse.fromObject({
+            data: output
+        })
 
-    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
-        throw new Error("Not implemented");
     }
 }
