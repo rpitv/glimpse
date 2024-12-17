@@ -16,7 +16,7 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
         throw new Error("Not implemented");
     }
 
-    public updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+    public updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean): Promise<ApiResponse<void>> {
         throw new Error("Not implemented");
     }
 

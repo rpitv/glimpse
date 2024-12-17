@@ -281,7 +281,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         })
     }
 
-    public async updateUserVolunteerStatus(discordUserId: string, status: boolean): Promise<ApiResponse<void>> {
+    public async updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean): Promise<ApiResponse<void>> {
         // TODO
         throw new Error("Not implemented");
     }
