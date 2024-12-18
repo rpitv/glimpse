@@ -4,7 +4,7 @@ import {Production, User} from "./types";
 import {GlimpseApiEvents, GlimpseApiInterface} from "./GlimpseApiInterface";
 
 export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements GlimpseApiInterface {
-    public getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>> {
+    public getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>> {
         throw new Error("Not implemented");
     }
 
@@ -16,11 +16,11 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
         throw new Error("Not implemented");
     }
 
-    public updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
+    public updateUserVolunteerStatus(discordUserId: string, productionId: bigint, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
         throw new Error("Not implemented");
     }
 
-    public setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>> {
+    public setProductionDiscordData(productionId: bigint, data: Record<string, any>): Promise<ApiResponse<void>> {
         throw new Error("Not implemented");
     }
 
@@ -28,7 +28,7 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
         throw new Error("Not implemented");
     }
 
-    public getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
+    public getProductionData(productionId: bigint): Promise<ApiResponse<Production | null>> {
         throw new Error("Not implemented");
     }
 }

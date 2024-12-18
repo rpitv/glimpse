@@ -287,7 +287,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         ]
     }
 
-    public async getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>> {
+    public async getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>> {
         // TODO person & roles
         return ApiResponse.fromObject({
             data: this.mockData.users.find(v => v.id === userId) || null
@@ -330,7 +330,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         })
     }
 
-    public async updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
+    public async updateUserVolunteerStatus(discordUserId: string, productionId: bigint, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
         const user = this.mockData.users.find(v => v.discord === discordUserId);
         if(!user) {
             return ApiResponse.fromObject({
@@ -352,7 +352,8 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
             currentRsvp = {
                 id: nextId,
                 productionId,
-                userId
+                userId,
+                willAttend: status ? "yes" : "no"
             }
             this.mockData.productionRsvps.push(currentRsvp)
         }
@@ -367,7 +368,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         return ApiResponse.fromObject(null);
     }
 
-    public async setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>> {
+    public async setProductionDiscordData(productionId: bigint, data: Record<string, any>): Promise<ApiResponse<void>> {
         const production = this.mockData.productions.find(production => production.id === productionId);
         if(!production) {
             return ApiResponse.fromObject({
@@ -400,7 +401,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         })
     }
 
-    public async getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>> {
+    public async getProductionData(productionId: bigint): Promise<ApiResponse<Production | null>> {
         const production = this.mockData.productions.find(production => production.id === productionId)
         if(!production) {
             return ApiResponse.fromObject({

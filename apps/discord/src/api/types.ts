@@ -4,7 +4,7 @@ export interface Production {
      * ID of the Production
      * @example 10n
      */
-    id: BigInt;
+    id: bigint;
     /**
      * Display name of the Production.
      * Max length of 100 characters.
@@ -79,7 +79,7 @@ export interface User {
      * ID of the User
      * @example 10n
      */
-    id: BigInt;
+    id: bigint;
     /**
      * Username of the User, usually an RCS ID.
      * Max length of eight characters.
@@ -98,7 +98,7 @@ export interface User {
      * but if they have a Person, then it can later automatically be added as a Credit.
      * @example 10n
      */
-    personId?: BigInt;
+    personId?: bigint;
     /**
      * The name of the Person, if they have one linked.
      * Max length of 100 characters.
@@ -133,12 +133,12 @@ export interface ProductionRSVP {
      * ID of the Production that the User is RSVPing for.
      * @example 21n
      */
-    productionId: BigInt,
+    productionId: bigint,
     /**
      * ID of the User which is RSVPing for the Production.
      * @example 15n
      */
-    userId: BigInt,
+    userId: bigint,
     /**
      * A string value "yes" or "no" indicating whether the user will attend.
      * Strings are used to simplify expansion into other options (e.g. "maybe").
@@ -158,7 +158,7 @@ export interface Role {
      * ID of the Role.
      * @example 10n
      */
-    id: BigInt;
+    id: bigint;
     /**
      * Display name of the Role.
      * Max length of 100 characters.

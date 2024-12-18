@@ -41,11 +41,11 @@ export interface GlimpseApiEvents {
 export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
     /**
      * Get a User from their ID.
-     * @param userId BigInt ID of the User.
+     * @param userId bigint ID of the User.
      * @returns {@link ApiResponse} with the User's data, or null if the User does not exist.
      * @throws Error connection or database error.
      */
-    getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>>;
+    getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>>;
 
     /**
      * Get a User from their Discord account ID.
@@ -82,7 +82,7 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
      * @throws UserError the provided Discord account ID is not associated with any User.
      * @returns An empty {@link ApiResponse}
      */
-    updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean, notes?: string | null): Promise<ApiResponse<void>>;
+    updateUserVolunteerStatus(discordUserId: string, productionId: bigint, status: boolean, notes?: string | null): Promise<ApiResponse<void>>;
 
     /**
      * Store JSON data containing information about a Production's Discord channel, messages,
@@ -95,7 +95,7 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
      * @throws Error the provided Production ID does not exist.
      * @returns An empty {@link ApiResponse}
      */
-    setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>>;
+    setProductionDiscordData(productionId: bigint, data: Record<string, any>): Promise<ApiResponse<void>>;
 
     /**
      * Get all active and upcoming Productions.
@@ -115,9 +115,9 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
 
     /**
      * Get a Production from its ID.
-     * @param productionId BigInt ID of the Production.
+     * @param productionId bigint ID of the Production.
      * @returns {@link ApiResponse} with the Production's data, or null if the Production does not exist.
      * @throws Error connection or database error.
      */
-    getProductionData(productionId: BigInt): Promise<ApiResponse<Production | null>>;
+    getProductionData(productionId: bigint): Promise<ApiResponse<Production | null>>;
 }
