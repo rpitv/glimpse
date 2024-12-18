@@ -75,12 +75,14 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
      * @param discordUserId The Discord account ID of the User to update the status for.
      * @param productionId The ID of the Production to update the volunteer status for.
      * @param status The status to update to (true == will be present).
+     * @param notes Optional notes to apply to the volunteer status.
+     *              Leave as `undefined` to leave notes unchanged, or `null` to remove any current notes.
      * @throws Error connection or database error.
      * @throws Error the provided Production ID does not exist.
      * @throws UserError the provided Discord account ID is not associated with any User.
      * @returns An empty {@link ApiResponse}
      */
-    updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean): Promise<ApiResponse<void>>;
+    updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean, notes?: string | null): Promise<ApiResponse<void>>;
 
     /**
      * Store JSON data containing information about a Production's Discord channel, messages,

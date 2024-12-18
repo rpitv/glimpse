@@ -127,13 +127,60 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 username: "thomar2",
                 mail: "spam2@example.com",
                 personId: 41n,
-                discord: "459401844196769813"
+                discord: "301567061547548673"
             },
             {
                 id: 73n,
                 username: "kohlb3",
                 mail: "spam4444@example.com",
                 discord: "972913103480168448"
+            }
+        ],
+        productionRsvps: [
+            {
+                id: 440n,
+                productionId: 14n,
+                userId: 71n,
+                willAttend: "yes",
+                notes: "I'm going to be late by 15 minutes!"
+            },
+            {
+                id: 441n,
+                productionId: 14n,
+                userId: 72n,
+                willAttend: "no"
+            },
+            {
+                id: 442n,
+                productionId: 15n,
+                userId: 71n,
+                willAttend: "yes"
+            },
+            {
+                id: 443n,
+                productionId: 15n,
+                userId: 72n,
+                willAttend: "yes"
+            },
+            {
+                id: 444n,
+                productionId: 16n,
+                userId: 71n,
+                willAttend: "no"
+            },
+            {
+                id: 445n,
+                productionId: 16n,
+                userId: 72n,
+                willAttend: "no",
+                notes: "Sorry, I have an exam :("
+            },
+            {
+                id: 446n,
+                productionId: 17n,
+                userId: 72n,
+                willAttend: "yes",
+                notes: "\n\n\n# This should not be a header!\n\n[this should not be a link!](https://google.com)\n\nThis should not be a tag! <@301567061547548673>"
             }
         ],
         people: [
@@ -241,12 +288,14 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
     }
 
     public async getUserFromUserId(userId: BigInt): Promise<ApiResponse<User | null>> {
+        // TODO person & roles
         return ApiResponse.fromObject({
             data: this.mockData.users.find(v => v.id === userId) || null
         })
     }
 
     public async getUserFromDiscordId(discordUserId: string): Promise<ApiResponse<User | null>> {
+        // TODO person & roles
         return ApiResponse.fromObject({
             data: this.mockData.users.find(v => v.discord === discordUserId) || null
         })
@@ -281,9 +330,41 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         })
     }
 
-    public async updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean): Promise<ApiResponse<void>> {
-        // TODO
-        throw new Error("Not implemented");
+    public async updateUserVolunteerStatus(discordUserId: string, productionId: BigInt, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
+        const user = this.mockData.users.find(v => v.discord === discordUserId);
+        if(!user) {
+            return ApiResponse.fromObject({
+                error: "User Error: You must create an account before you can volunteer for a production. Use the `/register` command."
+            })
+        }
+        const userId = user.id;
+
+        const production = this.mockData.productions.find(production => production.id === productionId)
+        if(!production) {
+            return ApiResponse.fromObject({
+                error: `Production with ID ${productionId} does not exist.`
+            })
+        }
+
+        let currentRsvp = this.mockData.productionRsvps.find(rsvp => rsvp.userId === userId && rsvp.productionId === productionId)
+        if(!currentRsvp) {
+            const nextId = this.mockData.productionRsvps.reduce((accumulator, current) => current.id > accumulator ? current.id : accumulator, 0n)
+            currentRsvp = {
+                id: nextId,
+                productionId,
+                userId
+            }
+            this.mockData.productionRsvps.push(currentRsvp)
+        }
+
+        currentRsvp.willAttend = status ? "yes" : "no"
+        if(notes === null) {
+            currentRsvp.notes = undefined
+        } else if(notes) {
+            currentRsvp.notes = notes
+        }
+
+        return ApiResponse.fromObject(null);
     }
 
     public async setProductionDiscordData(productionId: BigInt, data: Record<string, any>): Promise<ApiResponse<void>> {

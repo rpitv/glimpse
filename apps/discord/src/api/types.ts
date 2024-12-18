@@ -128,6 +128,31 @@ export interface User {
     discord?: string;
 }
 
+export interface ProductionRSVP {
+    /**
+     * ID of the Production that the User is RSVPing for.
+     * @example 21n
+     */
+    productionId: BigInt,
+    /**
+     * ID of the User which is RSVPing for the Production.
+     * @example 15n
+     */
+    userId: BigInt,
+    /**
+     * A string value "yes" or "no" indicating whether the user will attend.
+     * Strings are used to simplify expansion into other options (e.g. "maybe").
+     * @example "yes"
+     */
+    willAttend?: string
+    /**
+     * Any notes about the User's attendance.
+     * This could be set by the User or by an Officer.
+     * @example "I'll be late to closet time by 15 minutes."
+     */
+    notes?: string
+}
+
 export interface Role {
     /**
      * ID of the Role.
