@@ -5,6 +5,8 @@ import {Production, User} from "./types";
 export interface GlimpseApiEvents {
     /**
      * Event fires whenever a Production is created on the website.
+     * Only fires for Productions which match the criteria to also be
+     * returned by {@link GlimpseApiInterface#getLatestProductions}
      * @param production Production that was created.
      */
     createProduction: (production: Production) => void;
@@ -12,11 +14,15 @@ export interface GlimpseApiEvents {
      * Event fires whenever a Production is updated on the website.
      * This event fires whenever a Production itself is changed but does
      * not fire whenever its category or tags change.
+     * Only fires for Productions which match the criteria to also be
+     * returned by {@link GlimpseApiInterface#getLatestProductions}
      * @param production Production that was updated.
      */
     updateProduction: (production: Production) => void;
     /**
      * Event fires whenever a Production is deleted on the website.
+     * Only fires for Productions which match the criteria to also be
+     * returned by {@link GlimpseApiInterface#getLatestProductions}
      * @param production The Production that was just deleted.
      */
     deleteProduction: (production: Production) => void;
@@ -28,6 +34,8 @@ export interface GlimpseApiEvents {
      * to a Role could result in this event firing many times in quick
      * succession.
      * Keep this in mind to avoid hitting rate limits.
+     * This event does NOT fire when a Role naturally expires; query users
+     * periodically to verify their roles as needed.
      * @param user The User that was just updated.
      */
     updateUser: (user: User) => void;
