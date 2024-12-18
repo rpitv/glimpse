@@ -288,17 +288,64 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
     }
 
     public async getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>> {
-        // TODO person & roles
+        const user = this.mockData.users.find(v => v.id === userId);
+        if(!user) {
+            return ApiResponse.fromObject({
+                data: null
+            })
+        }
+
+        const output: User = {
+            id: user.id,
+            username: user.username,
+            mail: user.mail,
+            discord: user.discord
+        }
+
+        if(!user.personId) {
+            return ApiResponse.fromObject({
+                data: output
+            })
+        }
+
+        const person = this.mockData.people.find(v => v.id === user.personId);
+        if(!person) {
+            throw new Error(`Mock database constraint violation: Person with ID ${user.personId} does not exist.`)
+        }
+        output.personId = person.id;
+        output.personName = person.name;
+        output.personGraduation = person.graduation;
+        output.personCurrentRoles = [];
+
+        const personRoleEntries = this.mockData.personRoles.filter(v => v.personId === person.id)
+        for(const personRoleEntry of personRoleEntries) {
+            const roleIsActive = personRoleEntry.startTime < new Date() && (!personRoleEntry.endTime || personRoleEntry.endTime > new Date())
+            if(roleIsActive) {
+                const role = this.mockData.roles.find(v => v.id === personRoleEntry.roleId)
+                if(!role) {
+                    throw new Error(`Mock database constraint violation: Role with ID ${user.personId} does not exist.`)
+                }
+
+                output.personCurrentRoles.push({
+                    id: role.id,
+                    name: role.name,
+                    isLeadership: role.displayInLeadership,
+                    isMembership: role.displayInMembership
+                })
+            }
+        }
+
         return ApiResponse.fromObject({
-            data: this.mockData.users.find(v => v.id === userId) || null
+            data: output
         })
     }
 
     public async getUserFromDiscordId(discordUserId: string): Promise<ApiResponse<User | null>> {
-        // TODO person & roles
-        return ApiResponse.fromObject({
-            data: this.mockData.users.find(v => v.discord === discordUserId) || null
-        })
+        const user = this.mockData.users.find(v => v.discord === discordUserId);
+        if(!user) {
+            return ApiResponse.fromObject(null)
+        }
+        return this.getUserFromUserId(user.id)
     }
 
     public async registerUser(discordUserId: string, username: string, email: string): Promise<ApiResponse<User>> {
