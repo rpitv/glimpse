@@ -5,8 +5,9 @@ import moment from "moment";
 import { GlimpseApiEvents } from "./api/GlimpseApiInterface";
 import { MockGlimpseApi } from "./api/MockGlimpseApi";
 import { glimpseAPIEvents } from "./events/api";
-import { CustomId } from "./types";
+import { Command, CustomId } from "./types";
 import { customIds } from "./customIds";
+import commands from "./commands";
 
 function loadEnvironmentVariables() {
   config(); // load env variables
@@ -49,7 +50,11 @@ const client = new Client({
 });
 
 client.customIds = new Collection<string, CustomId>();
+client.commands = new Collection<string, Command>();
 
+// Commands
+for (const command of commands)
+  client.commands.set(command.data.name, command);
 
 // Event Handler
 for (const event of discordEvents)

@@ -2,8 +2,8 @@ import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, userMention } fr
 import { CustomId } from "../types";
 
 export const unvolunteer: CustomId = {
-    name: "unvolunteer",
-    async execute(interaction: ButtonInteraction) {
-        await interaction.deferReply({ ephemeral: true });
-    }
+  name: "unvolunteer",
+  async execute(interaction: ButtonInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+  }
 }

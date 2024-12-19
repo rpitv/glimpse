@@ -46,5 +46,6 @@ declare global {
 declare module "discord.js" {
   export interface Client {
     customIds: Collection<string, CustomId>;
+    commands: Collection<string, Command>;
   }
 }
