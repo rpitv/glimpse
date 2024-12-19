@@ -110,7 +110,6 @@ export interface GlimpseApiInterface extends TypedEmitter<GlimpseApiEvents> {
      *
      * To be included in this list, a Production must meet the following criteria:
      * - `useDiscord` set to true.
-     * - `startTime` is within the next 7 days, or
      * - `endTime` is in the future or less than 24 hours in the past.
      * - In the event that `startTime`, `endTime`, and `closetTime` are not all set,
      *   the latest time will silently be used in place of those which are missing.

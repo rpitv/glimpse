@@ -422,7 +422,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 error: `A production with ID ${productionId} could not be found.`
             })
         }
-        (production as any).discordData = data
+        (production as any).discordData = data;
         return ApiResponse.fromObject(null);
     }
 
@@ -434,11 +434,10 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 continue;
             }
 
-            const startTime: Date = production.startTime || production.endTime || production.closetTime;
             const endTime: Date = production.endTime || production.startTime || production.closetTime;
 
-            // If start time is less than 7 days from now or end time is greater than 24 hours ago
-            if(startTime.getTime() < Date.now() + 604_800_000 || endTime.getTime() > Date.now() - 86_400_000) {
+            // If end time is greater than 24 hours ago
+            if(endTime.getTime() > Date.now() - 86_400_000) {
                 const transformedProductionData = await this.getProductionData(production.id);
                 productions.push(transformedProductionData.getData() as Production)
             }

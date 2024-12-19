@@ -1,7 +1,7 @@
-import { Event } from "../types";
+import { DiscordEvent } from "../../types";
 import { ready } from "./ready";
 import { interactionCreate } from "./interactionCreate";
 
-export const events: Event[] = [
+export const discordEvents: DiscordEvent[] = [
     ready, interactionCreate
 ];
