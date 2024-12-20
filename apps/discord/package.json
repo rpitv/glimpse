@@ -28,7 +28,7 @@
     "dotenv": "^16.0.2",
     "moment": "^2.29.4",
     "postgres": "^3.4.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.6",
