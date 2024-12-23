@@ -1,9 +1,9 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client } from "discord.js"
+import { type SlashCommandBuilder, ChatInputCommandInteraction, Client, SlashCommandOptionsOnlyBuilder } from "discord.js"
 import { GlimpseApiInterface } from "./api/GlimpseApiInterface";
 import { Collection } from "discord.js";
 
 export interface Command {
-    data: SlashCommandBuilder,
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder,
     execute: (interaction: ChatInputCommandInteraction) => void,
 }
 

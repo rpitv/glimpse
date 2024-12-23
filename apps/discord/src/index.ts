@@ -3,11 +3,11 @@ import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { discordEvents } from "./events/discord";
 import moment from "moment";
 import { GlimpseApiEvents } from "./api/GlimpseApiInterface";
-import { MockGlimpseApi } from "./api/MockGlimpseApi";
 import { glimpseAPIEvents } from "./events/api";
 import { Command, CustomId } from "./types";
 import { customIds } from "./customIds";
 import commands from "./commands";
+import { glimpseApi } from "./util";
 
 function loadEnvironmentVariables() {
   config(); // load env variables
@@ -77,7 +77,6 @@ process.on("unhandledRejection", error => {
 });
 
 // API Handler
-const glimpseApi = new MockGlimpseApi();
 
 for (const event of glimpseAPIEvents)
   glimpseApi.on(event.name as keyof GlimpseApiEvents, (arg) => event.execute(arg, client, glimpseApi));

@@ -1,6 +1,7 @@
 import { Moment } from "moment";
 import { Production } from "./api/types";
 import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonStyle, channelMention, EmbedBuilder, MessageCreateOptions, MessageEditOptions, messageLink } from "discord.js";
+import { MockGlimpseApi } from "./api/MockGlimpseApi";
 
 
 export const dateFormat = "MMMM Do YYYY hh:mm A";
@@ -30,7 +31,7 @@ export function errorString(message: string, e) {
   return `${message}\n\`\`\`${e}\`\`\``
 }
 
-export function createVolunteerEmbed(production: Production, threadChannelId: string): MessageCreateOptions {
+export function createVolunteerEmbed(production: Production, threadChannelId: string): MessageCreateOptions | MessageEditOptions {
   let closetTime = production.closetTime;
   let startTime = production.startTime || production.endTime || production.closetTime;
   let endTime = production.endTime || production.startTime || production.closetTime;
@@ -64,8 +65,8 @@ export function createVolunteerEmbed(production: Production, threadChannelId: st
       inline: false
     });
 
-  const embed = new EmbedBuilder().setTitle(`${production.name}`).setColor("#d6001c")
-  .addFields(...fields);
+  const embed = new EmbedBuilder().setTitle(`${production.name}`).setColor("#d6001c").setFooter({ text: `Production ID: ${production.id}`})
+    .addFields(...fields);
   if (production.description && production.description?.trim() !== "")
     embed.setDescription(`${production.description}`);
   
@@ -81,6 +82,9 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
   let closetTime = production.closetTime;
   let startTime = production.startTime || production.endTime || production.closetTime;
   let endTime = production.endTime || production.startTime || production.closetTime;
+
+  let volunteers = ``;
+
 
   const fields: APIEmbedField[] = [
     {
@@ -112,7 +116,7 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
     });
   
 
-  const embed = new EmbedBuilder().setTitle(`${production.name}`).setColor("#d6001c")
+  const embed = new EmbedBuilder().setTitle(`${production.name}`).setColor("#d6001c").setFooter({ text: `Production ID: ${production.id}`})
     .addFields(...fields);
 
   if (production.description && production.description?.trim() !== "")
@@ -126,3 +130,5 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
 
   return { content: "", embeds: [embed], components: [unvolunteerRow] };
 }
+
+export const glimpseApi = new MockGlimpseApi();

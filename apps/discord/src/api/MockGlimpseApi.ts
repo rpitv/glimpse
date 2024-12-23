@@ -4,7 +4,7 @@ import {Production, User} from "./types";
 import {GlimpseApiEvents, GlimpseApiInterface} from "./GlimpseApiInterface";
 
 export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements GlimpseApiInterface {
-    private mockData = {
+    public mockData = {
         productions: [
             {   id: 14n, // Production with full data
                 name: "RPI Men's Hockey vs. Union College",

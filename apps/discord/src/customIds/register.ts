@@ -1,6 +1,6 @@
-import { BaseGuildTextChannel, ModalSubmitInteraction, EmbedBuilder, userMention, codeBlock } from "discord.js";
+import { ModalSubmitInteraction } from "discord.js";
 import { CustomId } from "../types";
-import { MockGlimpseApi } from "../api/MockGlimpseApi";
+import { glimpseApi } from "../util";
 
 export const register: CustomId = {
   name: "register",
@@ -10,15 +10,12 @@ export const register: CustomId = {
     const username = fields.get("username").value;
     const email = fields.get("email").value;
 
-    const glimpseApi = new MockGlimpseApi();
-
-    console.log(username, email);
-
     try {
       const user = await glimpseApi.registerUser(interaction.user.id, username, email);
       const userData = user.getData();
+      await interaction.editReply({ content: `You are user ${userData.id}`});
     } catch (e) {
-      interaction.editReply({ content: `${e}` });
+      await interaction.editReply({ content: `${e}` });
     }
 
     // { id: 74n, username: 'aaa', mail: 'a', discord: '283754983415873536' }
