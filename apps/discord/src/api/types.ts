@@ -72,6 +72,15 @@ export interface Production {
      * @example { "threadId": "1317312092893876314", "volunteerMessageId": "1317155990273003581" }
      */
     discordData?: Record<string, any>;
+
+    /**
+     * Array of {@link ProductionRSVP} objects signifying who is/is not volunteering for this Production.
+     * Each ProductionRSVP object contains the User ID of the volunteer.
+     * Get the corresponding User with {@link GlimpseApiInterface#getUserFromUserId}.
+     * Note: Users don't technically need a Discord account to RSVP, so when displaying a list of
+     * volunteers in Discord, fall back to usernames/person names when Discord is not linked.
+     */
+    rsvps: ProductionRSVP[]
 }
 
 export interface User {

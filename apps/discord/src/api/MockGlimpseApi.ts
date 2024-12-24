@@ -467,7 +467,8 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
             teamNotes: production.teamNotes,
             useDiscord: production.useDiscord,
             discordData: (production as any).discordData,
-            tags: []
+            tags: [],
+            rsvps: []
         }
 
         if(production.categoryId) {
@@ -481,6 +482,17 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         this.mockData.productionTags.forEach(tag => {
             if(tag.productionId === production.id) {
                 output.tags.push(tag.name)
+            }
+        })
+
+        this.mockData.productionRsvps.forEach(rsvp => {
+            if(rsvp.productionId === production.id) {
+                output.rsvps.push({
+                    productionId: rsvp.productionId,
+                    userId: rsvp.userId,
+                    willAttend: rsvp.willAttend,
+                    notes: rsvp.notes
+                })
             }
         })
 
