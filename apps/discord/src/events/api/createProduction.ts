@@ -11,7 +11,6 @@ config();
 export const createProduction = {
   name: "createProduction",
   async execute(production: Production, client: Client, api: MockGlimpseApi) {
-    console.log("HELLO");
     if (!production.useDiscord) return;
 
     const productionForum = await client.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID) as ForumChannel;
