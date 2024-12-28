@@ -10,17 +10,17 @@ export const unvolunteer: CustomId = {
     const message = interaction.message;
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
     try {
-      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false);
+      // Check if the user exists in the production's RSVP list.
       const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
-      const threadEmbed = message.embeds[0];
-      
       const modifiableProduction = glimpseApi.mockData.productions.find((p) => p.id === productionId) as Production;
-
-
-      // Gets the user's RSVP and removes it from the production's RSVP list.
       const userIndex = async (rsvp) => rsvp.userId === (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id;
-      modifiableProduction.rsvps.splice(modifiableProduction.rsvps.findIndex(userIndex, 1));
-      
+      const rsvpIndex = modifiableProduction.rsvps.findIndex(userIndex);
+      if (rsvpIndex === -1) return await interaction.editReply(`You are not a volunteer for this production!`);
+
+      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false);      
+      modifiableProduction.rsvps.splice(rsvpIndex, 1);
+
+      const threadEmbed = message.embeds[0];
       let volunteers = ``;
       if (modifiableProduction.rsvps.length === 0) {
         volunteers = `(0) 🦗`;
@@ -43,16 +43,16 @@ export const unvolunteer: CustomId = {
       volunteerEmbed.data.fields[4].value = volunteers;
 
       const threadChannel = await interaction.guild.channels.fetch(interaction.channelId) as ThreadChannel;
-      await threadChannel.members.fetch(interaction.user.id).then(member => member.remove());
+      // Remove them if they're following the channel.
+      await threadChannel.members.fetch(interaction.user.id).then(member => {
+        if (member) member.remove();
+      });
       const threadEmbedMessage = await threadChannel.fetchStarterMessage();
       await volunteerMessage.edit({ embeds: [volunteerEmbed] });
       await threadEmbedMessage.edit({ embeds: [threadEmbed] });
 
       await interaction.editReply(`You have unvolunteered for this production!`);
-
-      // TODO: Add code to update the embed with the new volunteer count.
     } catch (e) {
-      if (e.toString().startsWith("DiscordAPIError[10007]: Unknown Member")) return await interaction.editReply(`You are not a volunteer for this production!`);
       return await interaction.editReply(`${e}`);
     }    
   }

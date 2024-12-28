@@ -11,13 +11,15 @@ export const volunteer: CustomId = {
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
     
     try {
+      const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+      const modifiableProduction = glimpseApi.mockData.productions.find((p) => p.id === productionId) as Production;
+
+      const userIndex = async (rsvp) => rsvp.userId === (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id;
+      const rsvpIndex = modifiableProduction.rsvps.findIndex(userIndex);
+      if (rsvpIndex !== -1) return await interaction.editReply(`You have already volunteered for this production!`);
+
       await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, true);
       const volunteerEmbed = message.embeds[0];
-      const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
-      
-      const modifiableProduction = glimpseApi.mockData.productions.find((p) => p.id === productionId) as Production;
-      if (!modifiableProduction.rsvps)
-        modifiableProduction.rsvps = [];
       
       // Temporary solution (Needs to check for the same users and prevent them from RSVPing twice)
       modifiableProduction.rsvps.push({ userId: (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id, productionId: productionId, willAttend: "yes" });

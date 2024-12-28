@@ -19,7 +19,8 @@ export const create: Command = {
       closetLocation: "RPI TV Closet",
       eventLocation: "Houston Field House",
       tags: ["1316667831303147540"],
-      teamNotes: "Testing"
+      teamNotes: "Testing",
+      rsvps: []
     });
     await interaction.reply("Production created");
   }
