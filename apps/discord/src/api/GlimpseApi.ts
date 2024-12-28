@@ -67,7 +67,7 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
     }
 
     public getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>> {
-        return this.sendRPC<User | null>('getUserFromUserId', { userId })
+        return this.sendRPC<User | null>('getUserFromUserId', { userId: userId.toString() })
     }
 
     public getUserFromDiscordId(discordUserId: string): Promise<ApiResponse<User | null>> {
@@ -79,11 +79,19 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
     }
 
     public updateUserVolunteerStatus(discordUserId: string, productionId: bigint, status: boolean, notes?: string | null): Promise<ApiResponse<void>> {
-        return this.sendRPC<void>('updateUserVolunteerStatus', { discordUserId, productionId, status, notes })
+        return this.sendRPC<void>('updateUserVolunteerStatus', {
+            discordUserId,
+            productionId: productionId.toString(),
+            status,
+            notes
+        })
     }
 
     public setProductionDiscordData(productionId: bigint, data: Record<string, any>): Promise<ApiResponse<void>> {
-        return this.sendRPC<void>('setProductionDiscordData', { productionId, data })
+        return this.sendRPC<void>('setProductionDiscordData', {
+            productionId: productionId.toString(),
+            data
+        })
     }
 
     public getLatestProductions(): Promise<ApiResponse<Production[]>> {
@@ -91,6 +99,6 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
     }
 
     public getProductionData(productionId: bigint): Promise<ApiResponse<Production | null>> {
-        return this.sendRPC<Production | null>('getProductionData', { productionId })
+        return this.sendRPC<Production | null>('getProductionData', { productionId: productionId.toString() })
     }
 }

@@ -43,7 +43,9 @@ import {GraphQLString} from "graphql/type";
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(private readonly authService: AuthService) {
+
+    }
 
     // -------------------- Generic Resolvers --------------------
 
