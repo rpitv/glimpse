@@ -94,6 +94,7 @@ export class ProductionRSVPRpcService implements OnModuleInit {
                     }
                 })
             }
+            return null;
         })
     }
 
