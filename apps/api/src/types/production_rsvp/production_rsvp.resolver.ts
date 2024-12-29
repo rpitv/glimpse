@@ -17,10 +17,17 @@ import { Production } from "../production/production.entity";
 import { User } from "../user/user.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import {ProductionRpcService} from "../production/production_rpc.service";
+import {RabbitMQService} from "../../amqp/rabbitmq.service";
 
 @Resolver(() => ProductionRSVP)
 export class ProductionRSVPResolver {
     private logger: Logger = new Logger("ProductionRSVPResolver");
+
+    constructor(
+        private readonly productionRpcService: ProductionRpcService,
+        private readonly rabbitMQService: RabbitMQService)
+    {}
 
     // -------------------- Generic Resolvers --------------------
 
@@ -91,6 +98,18 @@ export class ProductionRSVPResolver {
             id: result.id
         });
 
+        const production = await ctx.req.prismaTx.production.findFirst({
+            where: {
+                id: result.productionId
+            },
+            select: {
+                useDiscord: true
+            }
+        })
+        if(production.useDiscord) {
+            await this.rabbitMQService.emit('updateProduction', await this.productionRpcService.getProductionData(result.productionId, ctx.req.prismaTx))
+        }
+
         return result;
     }
 
@@ -143,6 +162,18 @@ export class ProductionRSVPResolver {
             id: result.id
         });
 
+        const production = await ctx.req.prismaTx.production.findFirst({
+            where: {
+                id: result.productionId
+            },
+            select: {
+                useDiscord: true
+            }
+        })
+        if(production.useDiscord) {
+            await this.rabbitMQService.emit('updateProduction', await this.productionRpcService.getProductionData(result.productionId, ctx.req.prismaTx))
+        }
+
         return result;
     }
 
@@ -183,6 +214,18 @@ export class ProductionRSVPResolver {
             subject: "ProductionRSVP",
             id: result.id
         });
+
+        const production = await ctx.req.prismaTx.production.findFirst({
+            where: {
+                id: result.productionId
+            },
+            select: {
+                useDiscord: true
+            }
+        })
+        if(production.useDiscord) {
+            await this.rabbitMQService.emit('updateProduction', await this.productionRpcService.getProductionData(result.productionId, ctx.req.prismaTx))
+        }
 
         return result;
     }

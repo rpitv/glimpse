@@ -17,10 +17,18 @@ import { Person } from "../person/person.entity";
 import { Role } from "../role/role.entity";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import {RabbitMQService} from "../../amqp/rabbitmq.service";
+import {UserRpcService} from "../user/user_rpc.service";
 
 @Resolver(() => PersonRole)
 export class PersonRoleResolver {
     private logger: Logger = new Logger("PersonRoleResolver");
+
+    constructor(
+        private readonly rabbitMQService: RabbitMQService,
+        private readonly userRpcService: UserRpcService,
+    ) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -81,7 +89,18 @@ export class PersonRoleResolver {
         }
 
         const result = await ctx.req.prismaTx.personRole.create({
-            data: input
+            data: input,
+            include: {
+                person: {
+                    select: {
+                        users: {
+                            select: {
+                                id: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         await ctx.req.prismaTx.genAuditLog({
@@ -90,6 +109,10 @@ export class PersonRoleResolver {
             subject: "PersonRole",
             id: result.id
         });
+
+        for(const user of result.person.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }
@@ -132,7 +155,18 @@ export class PersonRoleResolver {
             where: {
                 id
             },
-            data: input
+            data: input,
+            include: {
+                person: {
+                    select: {
+                        users: {
+                            select: {
+                                id: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         await ctx.req.prismaTx.genAuditLog({
@@ -142,6 +176,10 @@ export class PersonRoleResolver {
             subject: "PersonRole",
             id: result.id
         });
+
+        for(const user of result.person.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }
@@ -174,6 +212,17 @@ export class PersonRoleResolver {
         const result = await ctx.req.prismaTx.personRole.delete({
             where: {
                 id
+            },
+            include: {
+                person: {
+                    select: {
+                        users: {
+                            select: {
+                                id: true
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -183,6 +232,10 @@ export class PersonRoleResolver {
             subject: "PersonRole",
             id: result.id
         });
+
+        for(const user of result.person.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 import { ProductionResolver } from "./production.resolver";
 import { PrismaModule } from "../../prisma/prisma.module";
 import {ProductionRpcService} from "./production_rpc.service";
@@ -7,7 +7,7 @@ import {RabbitMQModule} from "../../amqp/rabbitmq.module";
 
 @Module({
     providers: [ProductionResolver, ProductionRpcService],
-    imports: [PrismaModule, ProductionRSVPModule, RabbitMQModule],
+    imports: [PrismaModule, forwardRef(() => ProductionRSVPModule), RabbitMQModule],
     exports: [ProductionRpcService]
 })
 export class ProductionModule {}

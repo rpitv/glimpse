@@ -109,8 +109,11 @@ export class UserRpcService implements OnModuleInit {
         })
     }
 
-    public async getUserData(userId: bigint) {
-        const raw = await this.prismaService.user.findFirst({
+    public async getUserData(userId: bigint, prisma?: Omit<PrismaService, "$on" | "$connect" | "$disconnect" | "$use" | "$transaction">) {
+        if(!prisma) {
+            prisma = this.prismaService;
+        }
+        const raw = await prisma.user.findFirst({
             where: {
                 id: userId,
             },

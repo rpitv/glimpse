@@ -12,6 +12,11 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
     private channel: ChannelWrapper;
     private responseQueue: Replies.AssertQueue;
 
+    constructor() {
+        super();
+        this.awaitChannel();
+    }
+
     /**
      * Wait for {@link #channel} and {@link #responseQueue} to be created and connected
      * if they do not already exist or are not currently connected.
@@ -23,12 +28,25 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
         }
         this.channel = this.amqp.createChannel({
             json: true,
-            setup: async (channel) => {
+            setup: async (channel: ChannelWrapper) => {
                 await channel.assertQueue('rpc', { durable: true })
                 this.responseQueue = await channel.assertQueue('', { exclusive: true })
+                await this.setupEventListener(channel)
             }
         });
         await this.channel.waitForConnect();
+    }
+
+    private async setupEventListener(channel: ChannelWrapper): Promise<void> {
+        await channel.assertExchange('discord-emitter', 'fanout', {
+            durable: false
+        });
+        const eventResponseQueue = await channel.assertQueue('', { exclusive: true });
+        await channel.bindQueue(eventResponseQueue.queue, 'discord-emitter', '');
+        await channel.consume(eventResponseQueue.queue, (msg) => {
+            const data = JSON.parse(msg.content.toString());
+            this.emit(data.event, data.data)
+        }, { noAck: true })
     }
 
     /**

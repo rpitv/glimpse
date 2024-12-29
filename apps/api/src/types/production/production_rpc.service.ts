@@ -108,8 +108,11 @@ export class ProductionRpcService implements OnModuleInit {
         })
     }
 
-    public async getProductionData(productionId: bigint) {
-        const raw = await this.prismaService.production.findFirst({
+    public async getProductionData(productionId: bigint, prisma?: Omit<PrismaService, "$on" | "$connect" | "$disconnect" | "$use" | "$transaction">) {
+        if(!prisma) {
+            prisma = this.prismaService;
+        }
+        const raw = await prisma.production.findFirst({
             where: {
                 id: productionId,
             },
@@ -165,7 +168,7 @@ export class ProductionRpcService implements OnModuleInit {
             out.tags.push(tag.tag);
         }
 
-        out.rsvps = await this.productionRsvpRpcService.getProductionRSVPList(productionId);
+        out.rsvps = await this.productionRsvpRpcService.getProductionRSVPList(productionId, prisma);
 
         return out;
     }

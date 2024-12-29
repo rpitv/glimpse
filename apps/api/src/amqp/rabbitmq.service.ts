@@ -74,6 +74,7 @@ export class RabbitMQService {
             json: true,
             setup: async (channel) => {
                 await channel.assertQueue('rpc', { durable: true })
+                await channel.assertExchange('discord-emitter', 'fanout', { durable: false })
             }
         });
 
@@ -97,5 +98,12 @@ export class RabbitMQService {
         this.createRpcConsumer(rpcMethod).catch(e => {
             this.logger.error("Failed to listen for RPC messages RPC queue: " + e)
         })
+    }
+
+    public async emit(event: string, data: Record<string, any>): Promise<void> {
+        await this.channel.publish('discord-emitter', '', {
+            event,
+            data
+        });
     }
 }

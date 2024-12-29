@@ -97,23 +97,11 @@ export class ProductionRSVPRpcService implements OnModuleInit {
         })
     }
 
-    public async getProductionRSVPData(productionId: bigint, userId: bigint) {
-        return this.prismaService.productionRSVP.findFirst({
-            where: {
-                productionId: productionId,
-                userId: userId,
-            },
-            select: {
-                productionId: true,
-                userId: true,
-                willAttend: true,
-                notes: true
-            }
-        })
-    }
-
-    public async getProductionRSVPList(productionId: bigint) {
-        return this.prismaService.productionRSVP.findMany({
+    public async getProductionRSVPList(productionId: bigint, prisma?: Omit<PrismaService, "$on" | "$connect" | "$disconnect" | "$use" | "$transaction">) {
+        if(!prisma) {
+            prisma = this.prismaService
+        }
+        return prisma.productionRSVP.findMany({
             where: {
                 productionId: productionId,
             },
