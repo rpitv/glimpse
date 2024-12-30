@@ -1,7 +1,8 @@
 import { Moment } from "moment";
 import { Production } from "./api/types";
 import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonStyle, channelMention, EmbedBuilder, MessageCreateOptions, MessageEditOptions, messageLink } from "discord.js";
-import { MockGlimpseApi } from "./api/MockGlimpseApi";
+import {GlimpseApi} from "./api/GlimpseApi";
+import { config } from "dotenv";
 
 
 export const dateFormat = "MMMM Do YYYY hh:mm A";
@@ -39,12 +40,12 @@ export function createVolunteerEmbed(production: Production, threadChannelId: st
   const fields: APIEmbedField[] = [
     {
       name: "Start",
-      value: `<t:${Math.floor(startTime.valueOf() / 1000)}:R>`,
+      value: `<t:${Math.floor(new Date(startTime).valueOf() / 1000)}>`,
       inline: false
     },
     {
       name: "End",
-      value: `<t:${Math.floor(endTime.valueOf() / 1000)}:R>`,
+      value: `<t:${Math.floor(new Date(endTime).valueOf() / 1000)}>`,
       inline: false
     },
     {
@@ -61,7 +62,7 @@ export function createVolunteerEmbed(production: Production, threadChannelId: st
   if (closetTime)
     fields.unshift({
       name: "Closet",
-      value: `<t:${Math.floor(closetTime.getTime() / 1000)}:R>`,
+      value: `<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}>`,
       inline: false
     });
 
@@ -83,18 +84,15 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
   let startTime = production.startTime || production.endTime || production.closetTime;
   let endTime = production.endTime || production.startTime || production.closetTime;
 
-  let volunteers = ``;
-
-
   const fields: APIEmbedField[] = [
     {
       name: "Start",
-      value: `<t:${Math.floor(startTime.valueOf() / 1000)}>`,
+      value: `<t:${Math.floor(new Date(startTime).valueOf() / 1000)}>`,
       inline: false
     },
     {
       name: "End",
-      value: `<t:${Math.floor(endTime.valueOf() / 1000)}>`,
+      value: `<t:${Math.floor(new Date(endTime).valueOf() / 1000)}>`,
       inline: false
     },
     {
@@ -111,7 +109,7 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
   if (closetTime)
     fields.unshift({
       name: "Closet",
-      value: `<t:${Math.floor(closetTime.getTime() / 1000)}>`,
+      value: `<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}>`,
       inline: false
     });
   
@@ -131,4 +129,6 @@ export function createUnvolunteerEmbed(production: Production, volunteerChannelI
   return { content: "", embeds: [embed], components: [unvolunteerRow] };
 }
 
-export const glimpseApi = new MockGlimpseApi();
+config();
+
+export const glimpseApi = new GlimpseApi();

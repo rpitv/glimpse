@@ -11,21 +11,19 @@ export const unvolunteer: CustomId = {
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
     try {
       // Check if the user exists in the production's RSVP list.
+      
+      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false);
+      // Data doesn't get updated so...
       const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
-      const modifiableProduction = glimpseApi.mockData.productions.find((p) => p.id === productionId) as Production;
-      const userIndex = async (rsvp) => rsvp.userId === (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id;
-      const rsvpIndex = modifiableProduction.rsvps.findIndex(userIndex);
-      if (rsvpIndex === -1) return await interaction.editReply(`You are not a volunteer for this production!`);
-
-      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false);      
-      modifiableProduction.rsvps.splice(rsvpIndex, 1);
-
+      
       const threadEmbed = message.embeds[0];
       let volunteers = ``;
-      if (modifiableProduction.rsvps.length === 0) {
+      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      if (validRSVPs.length === 0) {
         volunteers = `(0) 🦗`;
       } else {
-        for (const rsvp of modifiableProduction.rsvps) {
+        for (const rsvp of validRSVPs) {
+          if (rsvp.willAttend === "no") continue;
           const user = (await glimpseApi.getUserFromUserId(rsvp.userId)).getData();
           if (user.discord)
             volunteers += ` ${userMention(user.discord)}`;
@@ -33,24 +31,29 @@ export const unvolunteer: CustomId = {
           else
             volunteers += ` \`${user.username}\``;
         }
-        volunteers = `(${modifiableProduction.rsvps.length})` + volunteers;
+        volunteers = `(${validRSVPs.length})` + volunteers;
       }
-      threadEmbed.data.fields[4].value = volunteers;
+      threadEmbed.data.fields[threadEmbed.data.fields.length - 1].value = volunteers;
+
+      const discordData = JSON.parse(production.discordData.toString()).data as ProductionDiscordData;
 
       const volunteerChannel = await interaction.guild.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID) as TextChannel;
-      const volunteerMessage = await volunteerChannel.messages.fetch(production.discordData.volunteerMessageId);
+      const volunteerMessage = await volunteerChannel.messages.fetch(discordData.volunteerMessageId);
       const volunteerEmbed = volunteerMessage.embeds[0];
-      volunteerEmbed.data.fields[4].value = volunteers;
+      volunteerEmbed.data.fields[volunteerEmbed.data.fields.length - 1].value = volunteers;
 
       const threadChannel = await interaction.guild.channels.fetch(interaction.channelId) as ThreadChannel;
       // Remove them if they're following the channel.
-      await threadChannel.members.fetch(interaction.user.id).then(member => {
-        if (member) member.remove();
-      });
       const threadEmbedMessage = await threadChannel.fetchStarterMessage();
       await volunteerMessage.edit({ embeds: [volunteerEmbed] });
       await threadEmbedMessage.edit({ embeds: [threadEmbed] });
 
+      // If they unvolunteer and they're not in the channel, doesn't matter, just display the unvolunteer message.
+      try {
+        await threadChannel.members.fetch(interaction.user.id).then(member => {
+          member.remove();
+        });
+      } catch (e) {};
       await interaction.editReply(`You have unvolunteered for this production!`);
     } catch (e) {
       return await interaction.editReply(`${e}`);

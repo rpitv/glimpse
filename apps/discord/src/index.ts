@@ -32,9 +32,8 @@ function loadEnvironmentVariables() {
   if (!process.env.CLIENT_ID)
     throw new Error("CLIENT_ID environment variable not set");
 
-  // if(!process.env.RABBITMQ_URL) {
-  //     throw new Error("RABBITMQ_URL environment variable not set");
-  // }
+  if(!process.env.RABBITMQ_URL)
+      throw new Error("RABBITMQ_URL environment variable not set");
 }
 
 loadEnvironmentVariables();
@@ -56,12 +55,12 @@ client.commands = new Collection<string, Command>();
 for (const command of commands)
   client.commands.set(command.data.name, command);
 
-// Event Handler
+// Discord Event Handler
 for (const event of discordEvents)
   if (event.once)
-    client.once(event.name, (arg) => event.execute(arg));
+    client.once(event.name, (...arg) => event.execute(...arg));
   else
-    client.on(event.name, (arg) => event.execute(arg));
+    client.on(event.name, (...arg) => event.execute(...arg));
 
 // CustomId Handler
 for (const customId of customIds)
@@ -83,16 +82,3 @@ for (const event of glimpseAPIEvents)
 
 
 client.login(process.env.TOKEN);
-
-// setTimeout(() => {
-//   glimpseApi.emit("createProduction", {
-//     id: 1n,
-//     name: "Test Production",
-//     description: "A test production",
-//     closetTime: new Date(),
-//     startTime: new Date(),
-//     endTime: new Date(),
-//     tags: ["test"],
-//     useDiscord: true,
-//   });
-// }, 1000);

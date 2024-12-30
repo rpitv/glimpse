@@ -15,7 +15,7 @@ export interface CustomId {
 export interface DiscordEvent {
     name: string,
     once?: boolean,
-    execute: (interaction: any) => void;
+    execute: (...interaction: any) => void;
 }
 
 export interface APIEvent {
