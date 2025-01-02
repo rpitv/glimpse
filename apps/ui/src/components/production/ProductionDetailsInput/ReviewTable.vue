@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Production Details</h2>
-    <v-table height="500"  class="table">
+    <v-table height="400"  class="table">
       <tbody>
         <tr>
           <td>Production Name</td>
@@ -9,7 +9,7 @@
         </tr>
         <tr>
           <td>Closet Location</td>
-          <td>{{ productionData.closetLocation }}</td>
+          <td>{{ productionData.closetLocation ?? "No closet location provided" }}</td>
         </tr>
         <tr>
           <td>Event Location</td>
@@ -17,7 +17,7 @@
         </tr>
         <tr>
           <td>Closet Time</td>
-          <td>{{ formattedTime(productionData.closetTime) }}</td>
+          <td>{{ productionData.closetTime ? formattedTime(productionData.closetTime) : "No closet time provided" }}</td>
         </tr>
         <tr>
           <td>Start Time</td>
@@ -31,11 +31,11 @@
           <td>Tags</td>
           <td>
             <v-chip-group v-if="tags.length > 0">
-              <v-chip v-for="tag in tags" :key="tag.tag">
+              <v-chip v-for="tag in tags" :key="tag.tag as string">
                 {{ tag.tag }}
               </v-chip>
             </v-chip-group>
-            <p v-else>No tags provided</p>
+            <p v-else>No tags provided.</p>
           </td>
         </tr>
         <tr>

@@ -13,10 +13,10 @@ export const deleteProduction = {
   async execute(production: Production, client: Client, api: GlimpseApiInterface) {
     if (!production.useDiscord) return;
     
-    const productionData = production.discordData as ProductionDiscordData;
-    const threadChannel = await client.channels.fetch(productionData.threadChannelId) as ForumChannel;
+    const discordData = JSON.parse(production.discordData.toString()).data as ProductionDiscordData;
+    const threadChannel = await client.channels.fetch(discordData.threadChannelId) as ForumChannel;
     const volunteerChannel = await client.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID) as TextChannel;
-    const volunteerMessage = await volunteerChannel.messages.fetch(productionData.volunteerMessageId);
+    const volunteerMessage = await volunteerChannel.messages.fetch(discordData.volunteerMessageId);
 
     await threadChannel.delete("Production deleted");
     await volunteerMessage.delete();

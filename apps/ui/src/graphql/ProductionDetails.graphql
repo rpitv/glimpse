@@ -21,8 +21,7 @@ query ProductionDetails($id: BigInt!) {
       personId
 		}
 		description
-		discordChannel
-		discordServer
+		discordData
 		endTime
 		eventLocation
 		images {
@@ -66,5 +65,6 @@ query ProductionDetails($id: BigInt!) {
 			}
       videoId
 		}
+		useDiscord
 	}
 }

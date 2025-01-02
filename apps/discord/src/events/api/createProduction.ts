@@ -1,7 +1,7 @@
 import { Production} from "../../api/types";
-import { Client, ForumChannel, MessageCreateOptions, TextChannel } from "discord.js";
+import { Client, ForumChannel, GuildForumTag, MessageCreateOptions, TextChannel } from "discord.js";
 import { config } from "dotenv";
-import { createUnvolunteerEmbed, createVolunteerEmbed, formatChannelName } from "../../util";
+import { addForumTag, createUnvolunteerEmbed, createVolunteerEmbed, formatChannelName } from "../../util";
 import { GlimpseApiInterface } from "../../api/GlimpseApiInterface";
 import moment from "moment";
 
@@ -18,24 +18,33 @@ export const createProduction = {
 
     let startTime = production.startTime || production.endTime || production.closetTime;
 
+    // Adds the category to the list of tags if it doesn't exist.
+    let discordTag: string[] = [];
+    if (production.category) {
+      await addForumTag(productionForum, production.category);
+      const availableTags = productionForum.availableTags;
+      discordTag.push(availableTags.find(tag => tag.name === production.category).id);
+    }
+
+
     const threadChannel = await productionForum.threads.create({
       name: `${formatChannelName(production.name, moment(startTime))}`,
       message: {
-        content: `If you see this message, it means that u are noob.`
+        content: `<@${process.env.RPITV_ID}>`
       },
-      appliedTags: production.tags,
+      appliedTags: discordTag
     });
 
-    const volunteerMessage = await volunteerChannel.send(createVolunteerEmbed(production, threadChannel.id) as MessageCreateOptions);
+
+    const volunteerMessage = await volunteerChannel.send(await createVolunteerEmbed(production, threadChannel.id) as MessageCreateOptions);
 
     const threadMessage = await threadChannel.fetchStarterMessage();
-    await threadMessage.edit(createUnvolunteerEmbed(production, volunteerChannel.id, volunteerMessage.id));
+    await threadMessage.edit(await createUnvolunteerEmbed(production, volunteerChannel.id, volunteerMessage.id));
     await api.setProductionDiscordData(production.id, {
       threadChannelId: threadChannel.id,
       volunteerMessageId: volunteerMessage.id
     });
     
     return { threadChannelId: threadChannel.id, volunteerMessageId: volunteerMessage.id };
-
   }
 }

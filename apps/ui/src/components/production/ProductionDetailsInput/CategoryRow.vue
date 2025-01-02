@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container mt-2" v-if="productionCategory.id">
+  <div class="flex-container mt-2" v-if="productionCategory?.id">
     <h2>Chosen Category: </h2>
     <div class="chip-group">
       <v-chip v-tooltip="productionCategory.name" class="ml-2" closable @click:close="emit('close')" >

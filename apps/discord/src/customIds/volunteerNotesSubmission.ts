@@ -1,18 +1,21 @@
+import { ActionRowBuilder, ButtonInteraction, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, ModalSubmitInteraction, TextInputBuilder, TextInputStyle, ThreadChannel, userMention } from "discord.js";
 import { CustomId, ProductionDiscordData } from "../types";
-import { ButtonInteraction, EmbedBuilder, ThreadChannel, userMention } from "discord.js";
 import { glimpseApi, updateVolunteers } from "../util";
+import { volunteer } from "./volunteer";
 
-export const volunteer: CustomId = {
-  name: "volunteer",
-  async execute(interaction: ButtonInteraction) {
+export const volunteerNotesSubmission: CustomId = {
+  name: "volunteerNotesSubmission",
+  async execute(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ ephemeral: true });
+    const fields = interaction.fields;
+    const notes = fields.getTextInputValue("notes");
     const message = interaction.message;
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
     
     try {
       let production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
       const oldValidRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
-      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, true, null);
+      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, true, notes);
       production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
 
       const volunteerEmbed = message.embeds[0];
@@ -39,5 +42,6 @@ export const volunteer: CustomId = {
     } catch (e) {
       return await interaction.editReply(`${e}`);
     }
+
   }
 }

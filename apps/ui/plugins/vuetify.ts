@@ -28,7 +28,8 @@ export const vuetify = createVuetify({
       variant: "outlined",
     },
     VCombobox: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
     VDataTableServer: {
       style: "border-style: inset;",
@@ -58,7 +59,8 @@ export const vuetify = createVuetify({
       clearable: true
     },
     VTextField: {
-      variant: "outlined"
+      variant: "outlined",
+      clearable: true
     },
   },
   components: {

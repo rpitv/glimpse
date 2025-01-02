@@ -31,13 +31,14 @@ export interface ProductionDiscordData {
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
-            TOKEN: string
-            CLIENT_ID: string
-            RPITV_ID: string
-            DATABASE_URL: string
             GUILD_ID: string
             PRODUCTIONS_CHANNEL_ID: string
             VOLUNTEER_CHANNEL_ID: string
+            TOKEN: string
+            DATABASE_URL: string
+            RPITV_ID: string
+            CLIENT_ID: string
+            RABBITMQ_URL: string
         }
     }
 }
