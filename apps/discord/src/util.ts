@@ -27,6 +27,8 @@ export async function createVolunteerEmbed(production: Production, threadChannel
   let startTime = production.startTime || production.endTime || production.closetTime;
   let endTime = production.endTime || production.startTime || production.closetTime;
 
+  const validRsvps = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+
   const fields: APIEmbedField[] = [
     {
       name: "Event Start",
@@ -54,7 +56,7 @@ export async function createVolunteerEmbed(production: Production, threadChannel
     },
     {
       name: "~~------------~~ Volunteer List ~~-------------~~",
-      value: `${(await updateVolunteers(production.rsvps)).volunteers}`,
+      value: `${(await updateVolunteers(validRsvps)).volunteers}`,
       inline: false
     },
   ];
@@ -93,6 +95,8 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
   let startTime = production.startTime || production.endTime || production.closetTime;
   let endTime = production.endTime || production.startTime || production.closetTime;
 
+  const validRsvps = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+  
   const fields: APIEmbedField[] = [
     {
       name: "Event Start",
@@ -120,7 +124,7 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
     },
     {
       name: "~~-------------~~ Volunteer List ~~-------------~~",
-      value: `${(await updateVolunteers(production.rsvps)).volunteers}`,
+      value: `${(await updateVolunteers(validRsvps)).volunteers}`,
       inline: false
     },
     // Volunteer Notes

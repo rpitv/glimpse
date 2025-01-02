@@ -61,9 +61,9 @@ defineEmits(["update:modelValue"]);
 
 const nameRules = [
   (v: string) => {
-		if (v.length === 0)
+		if (v?.length === 0)
 			return "Production name is required";
-		if (v.length > 100)
+		if (v?.length > 100)
 			return "Production name cannot be greater than 100 characters";
 		return true;
   }
@@ -71,7 +71,7 @@ const nameRules = [
 
 const closetRules = [
 	(v: string) => {
-		if (v.length > 100)
+		if (v?.length > 100)
 			return "Closet location cannot be greater than 100 characters";
 		return true;
 	}
@@ -79,9 +79,9 @@ const closetRules = [
 
 const eventLocRules = [
   (v: string) => {
-		if (v.length === 0)
+		if (v?.length === 0)
 			return "Event location is required";
-		if (v.length > 100)
+		if (v?.length > 100)
 			return "Event location cannot be greater than 100 characters";
 		return true;
   }
