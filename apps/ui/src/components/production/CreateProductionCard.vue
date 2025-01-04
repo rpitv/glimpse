@@ -40,7 +40,7 @@
             <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages" @close="productionData.thumbnailId = null" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
-            <VideoTable :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
+            <VideoTable :productionName="productionData.name as string" :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
             <VideoRow :productionVideos="productionVideos" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">

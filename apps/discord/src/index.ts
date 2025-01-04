@@ -26,9 +26,6 @@ function loadEnvironmentVariables() {
   if (!process.env.TOKEN)
     throw new Error("TOKEN environment variable not set");
 
-  if (!process.env.DATABASE_URL)
-    throw new Error("DATABASE_URL environment variable not set");
-
   if (!process.env.CLIENT_ID)
     throw new Error("CLIENT_ID environment variable not set");
 
