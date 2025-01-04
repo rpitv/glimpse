@@ -12,13 +12,17 @@ export const volunteer: CustomId = {
     try {
       let production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
       const oldValidRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      const userId = (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id;
+      const oldUser = oldValidRSVPs.find((rsvp) => rsvp.userId === userId);
       await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, true, null);
       production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      // Should the user have already volunteered and not have notes previously...
+      if (oldValidRSVPs.length === validRSVPs.length && !oldUser.notes) return await interaction.editReply(`You have already volunteered for this production!`);
 
       const volunteerEmbed = message.embeds[0];
       
       let volunteers = ``;
-      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
       volunteers = (await updateVolunteers(validRSVPs)).volunteers;
       volunteerEmbed.data.fields[volunteerEmbed.data.fields.length - 1].value = volunteers;
 
@@ -32,10 +36,14 @@ export const volunteer: CustomId = {
 
       await message.edit({ embeds: [volunteerEmbed] });
       await threadMessage.edit({ embeds: [threadEmbed] });
-      if (oldValidRSVPs.length !== validRSVPs.length)
+      if (oldValidRSVPs.length !== validRSVPs.length) {
         await threadChannel.send(`${userMention(interaction.user.id)} has volunteered for this production!`);
+        await interaction.editReply(`You have volunteered for this production!`);
+      } else {
+        await threadChannel.send(`${userMention(interaction.user.id)} has removed their notes for this production!`);
+        await interaction.editReply(`You have removed your notes for this production!`);
+      }
 
-      await interaction.editReply(`You have volunteered for this production!`);
     } catch (e) {
       return await interaction.editReply(`${e}`);
     }

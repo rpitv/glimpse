@@ -10,15 +10,16 @@ export const unvolunteer: CustomId = {
     const message = interaction.message;
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
     try {
+      let production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+      const oldValidRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
       // Check if the user exists in the production's RSVP list.
-      
-      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false);
-      // Data doesn't get updated so...
-      const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
-      
+      await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, false, null);
+      production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      if (oldValidRSVPs.length === validRSVPs.length) return await interaction.editReply(`You never signed up for this production to begin with!`);
+
       const threadEmbed = message.embeds[0];
       let volunteers = ``;
-      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
       volunteers = (await updateVolunteers(validRSVPs)).volunteers;
       threadEmbed.data.fields[threadEmbed.data.fields.length - 2].value = volunteers;
       threadEmbed.data.fields[threadEmbed.data.fields.length - 1].value = (await updateVolunteers(validRSVPs)).volunteerNotes;
@@ -35,12 +36,9 @@ export const unvolunteer: CustomId = {
       await volunteerMessage.edit({ embeds: [volunteerEmbed] });
       await threadEmbedMessage.edit({ embeds: [threadEmbed] });
 
-      // If they unvolunteer and they're not in the channel, doesn't matter, just display the unvolunteer message.
-      try {
-        await threadChannel.members.fetch(interaction.user.id).then(member => {
-          member.remove();
-        });
-      } catch (e) {};
+      await threadChannel.members.fetch(interaction.user.id).then(member => {
+        member.remove();
+      });
       await interaction.editReply(`You have unvolunteered for this production!`);
     } catch (e) {
       return await interaction.editReply(`${e}`);

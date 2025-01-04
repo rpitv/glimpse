@@ -15,13 +15,17 @@ export const volunteerNotesSubmission: CustomId = {
     try {
       let production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
       const oldValidRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      const userId = (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData().id;
+      const oldUser = oldValidRSVPs.find((rsvp) => rsvp.userId === userId);
       await glimpseApi.updateUserVolunteerStatus(interaction.user.id, productionId, true, notes);
       production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
+      // Should the user have already volunteered and not have notes previously...
+      if (oldValidRSVPs.length === validRSVPs.length && oldUser.notes === notes) return await interaction.editReply(`You have already volunteered for this production with the same notes!`);
 
       const volunteerEmbed = message.embeds[0];
       
       let volunteers = ``;
-      const validRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
       volunteers = (await updateVolunteers(validRSVPs)).volunteers;
       volunteerEmbed.data.fields[volunteerEmbed.data.fields.length - 1].value = volunteers;
 
@@ -35,10 +39,15 @@ export const volunteerNotesSubmission: CustomId = {
 
       await message.edit({ embeds: [volunteerEmbed] });
       await threadMessage.edit({ embeds: [threadEmbed] });
-      if (oldValidRSVPs.length !== validRSVPs.length)
-        await threadChannel.send(`${userMention(interaction.user.id)} has volunteered for this production!`);
+      if (oldValidRSVPs.length !== validRSVPs.length) {
+        await threadChannel.send(`${userMention(interaction.user.id)} has volunteered for this production with notes!`);
+        await interaction.editReply(`You have volunteered for this production with notes!`);
+      } else {
+        await threadChannel.send(`${userMention(interaction.user.id)} has updated their notes for this production!`)
+        await interaction.editReply(`You have updated your notes for this production!`);
+      }
 
-      await interaction.editReply(`You have volunteered for this production!`);
+
     } catch (e) {
       return await interaction.editReply(`${e}`);
     }
