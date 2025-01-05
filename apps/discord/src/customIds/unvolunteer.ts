@@ -41,7 +41,12 @@ export const unvolunteer: CustomId = {
       });
       await interaction.editReply(`You have unvolunteered for this production!`);
     } catch (e) {
-      return await interaction.editReply(`${e}`);
-    }    
+        if(e instanceof Error && e.message.startsWith("User Error: ")) {
+            return await interaction.editReply(`${e.message.substring("User Error: ".length)}`);
+        } else {
+            console.error(e);
+            return await interaction.editReply(`There was an error! Contact an officer or developer.`);
+        }
+    }
   }
 }

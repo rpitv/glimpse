@@ -38,7 +38,12 @@ export const getVolunteerWithNotes: CustomId = {
 
       await interaction.editReply({ embeds: [embed] });
     } catch(e) {
-      await interaction.editReply(`${e}`);
+        if(e instanceof Error && e.message.startsWith("User Error: ")) {
+            return await interaction.editReply(`${e.message.substring("User Error: ".length)}`);
+        } else {
+            console.error(e);
+            return await interaction.editReply(`There was an error! Contact an officer or developer.`);
+        }
     }
   }
 }

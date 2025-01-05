@@ -11,7 +11,7 @@ export const volunteerNotesSubmission: CustomId = {
     const notes = fields.getTextInputValue("notes");
     const message = interaction.message;
     const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
-    
+
     try {
       let production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
       const oldValidRSVPs = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
@@ -24,7 +24,7 @@ export const volunteerNotesSubmission: CustomId = {
       if (oldValidRSVPs.length === validRSVPs.length && oldUser.notes === notes) return await interaction.editReply(`You have already volunteered for this production with the same notes!`);
 
       const volunteerEmbed = message.embeds[0];
-      
+
       let volunteers = ``;
       volunteers = (await updateVolunteers(validRSVPs)).volunteers;
       volunteerEmbed.data.fields[volunteerEmbed.data.fields.length - 1].value = volunteers;
@@ -49,7 +49,12 @@ export const volunteerNotesSubmission: CustomId = {
 
 
     } catch (e) {
-      return await interaction.editReply(`${e}`);
+        if(e instanceof Error && e.message.startsWith("User Error: ")) {
+            return await interaction.editReply(`${e.message.substring("User Error: ".length)}`);
+        } else {
+            console.error(e);
+            return await interaction.editReply(`There was an error! Contact an officer or developer.`);
+        }
     }
 
   }

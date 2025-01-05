@@ -16,7 +16,12 @@ export const register: CustomId = {
       console.log(userData);
       await interaction.editReply({ content: `You have successfully registered! You can sign in via discord at our [website](http://rpi.tv/)` });
     } catch (e) {
-      await interaction.editReply({ content: `${e}` });
+        if(e instanceof Error && e.message.startsWith("User Error: ")) {
+            return await interaction.editReply(`${e.message.substring("User Error: ".length)}`);
+        } else {
+            console.error(e);
+            return await interaction.editReply(`There was an error! Contact an officer or developer.`);
+        }
     }
   }
 }
