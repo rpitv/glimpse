@@ -77,7 +77,7 @@ export async function createVolunteerEmbed(production: Production, threadChannel
     .addFields(...fields);
   if (production.description && production.description?.trim() !== "")
     embed.setDescription(`${ellipsis(50, production.description)}`);
-  
+
   const volunteer = new ButtonBuilder()
     .setCustomId("volunteer")
     .setLabel("Volunteer")
@@ -96,7 +96,7 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
   let endTime = production.endTime || production.startTime || production.closetTime;
 
   const validRsvps = production.rsvps.filter((rsvp) => rsvp.willAttend === "yes");
-  
+
   const fields: APIEmbedField[] = [
     {
       name: "Event Start",
@@ -149,7 +149,7 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
     .addFields(...fields);
   if (production.description && production.description?.trim() !== "")
     embed.setDescription(`${ellipsis(50, production.description)}`);
-    
+
   const unvolunteer = new ButtonBuilder()
     .setCustomId("unvolunteer")
     .setLabel("Unvolunteer")
@@ -200,8 +200,9 @@ export async function updateVolunteers(rsvps: ProductionRSVP[]) {
 
 export async function addForumTag(forumChannel: ForumChannel, category: string) {
   const availableTags = forumChannel.availableTags;
-  if (!availableTags.find((tag) => tag.name === category)) {
-    await forumChannel.setAvailableTags([...availableTags, { name: category }]);
+  const trimmedCategoryName = category.substring(0, 20)
+  if (!availableTags.find((tag) => tag.name === trimmedCategoryName)) {
+    await forumChannel.setAvailableTags([...availableTags, { name: trimmedCategoryName }]);
   }
 }
 

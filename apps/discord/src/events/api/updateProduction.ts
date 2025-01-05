@@ -40,12 +40,12 @@ export const updateProduction = {
       const productionForum = await client.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID) as ForumChannel;
       await addForumTag(productionForum, production.category);
       const availableTags = productionForum.availableTags;
-      discordTag.push(availableTags.find(tag => tag.name === production.category).id);
+      discordTag.push(availableTags.find(tag => tag.name === production.category.substring(0, 20)).id);
     }
 
     await threadChannel.setName(`${formatChannelName(production.name, moment(startTime))}`);
     await threadChannel.setAppliedTags(discordTag);
-    
+
     const threadMessage = await threadChannel.fetchStarterMessage();
     await threadMessage.edit(await createUnvolunteerEmbed(production, volunteerChannel.id, volunteerMessageId));
 

@@ -23,7 +23,7 @@ export const createProduction = {
     if (production.category) {
       await addForumTag(productionForum, production.category);
       const availableTags = productionForum.availableTags;
-      discordTag.push(availableTags.find(tag => tag.name === production.category).id);
+      discordTag.push(availableTags.find(tag => tag.name === production.category.substring(0, 20)).id);
     }
 
 
@@ -44,7 +44,7 @@ export const createProduction = {
       threadChannelId: threadChannel.id,
       volunteerMessageId: volunteerMessage.id
     });
-    
+
     return { threadChannelId: threadChannel.id, volunteerMessageId: volunteerMessage.id };
   }
 }
