@@ -134,6 +134,13 @@
         "file": "fullscreen.html",
         "workspace": "Graphics",
         "width": "10"
+      },
+      {
+        "name": "players",
+        "title": "Players",
+        "file": "players.html",
+        "workspace": "Graphics",
+        "width": "10"
       }
     ],
     "graphics": [

@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div @keyup="renderPlayers">
 		<v-text-field label="Search for a player" placeholder="Use commas to search for multiple players"
 		  v-model="searchInput" @update:modelValue="search" />
 	</div>
@@ -57,6 +57,8 @@ const props = defineProps({
 
 const searchRoster = ref();
 const searchInput = ref("");
+const renderedPlayers = ref<Person[]>([]);
+const renderIndex = ref(0);
 
 function search() {
 	if (!searchInput.value) {
@@ -64,18 +66,62 @@ function search() {
 		return;
 	}
 	// Make it possible to filter multiple players
-	const values  = searchInput.value.split(",").map((x) => x.trim());
+	let values = searchInput.value.split(",").map((x) => x.trim());
+	if (values.length > 1)
+		values = values.filter((x) => x !== ""); 
 	searchRoster.value = props.roster.filter((person) => {
 		if (values.length === 0) return true;
 		for (const value of values) {
 			if (parseInt(value))
 				if (parseInt(person.uni) === parseInt(value))
 					return true;
-			if (person.name.toLowerCase().includes(value.toLocaleLowerCase()))
+			if (person.name.toLowerCase().includes(value.toLowerCase()))
 				return true;
 		}
 		return false;
 	});
+
+}
+
+function renderPlayers(event: KeyboardEvent) {
+	if (event.key === "Enter") {
+		replicants.lowerThird.playerBio.action.player.name.value = renderedPlayers.value[renderIndex.value].name;
+		replicants.lowerThird.playerBio.action.player.number.value = renderedPlayers.value[renderIndex.value].uni as string;
+		replicants.lowerThird.playerBio.image.url.value = renderedPlayers.value[renderIndex.value].image.url;
+		replicants.lowerThird.playerBio.action.player.teamSide.value = props.teamSide as ("leftTeam" | "rightTeam" | "");
+		replicants.lowerThird.playerBio.show.value = !replicants.lowerThird.playerBio.show.value;
+
+		if (replicants.lowerThird.playerBio.show.value)
+			renderIndex.value++;
+		if (renderIndex.value >= renderedPlayers.value.length)
+			renderIndex.value = 0;
+		return;
+	}
+	let values = searchInput.value.split(",").map((x) => x.trim());
+	if (!values.length) return;
+	if (values.length > 1)
+		values = values.filter((x) => x !== "");
+	renderedPlayers.value = [];
+	renderIndex.value = 0;
+	for (const value of values) {
+		if (parseInt(value)) {
+			for (const person of props.roster) {
+				if (parseInt(value) === parseInt(person.uni as string)) {
+					renderedPlayers.value.push(person);
+					break;
+				}
+			}
+		}
+		else {
+			for (const person of props.roster) {
+				if (person.name.toLowerCase().includes(value.toLowerCase())) {
+					renderedPlayers.value.push(person);
+					break;
+				}
+			}
+		}
+
+	}
 }
 
 watch((props), () => {

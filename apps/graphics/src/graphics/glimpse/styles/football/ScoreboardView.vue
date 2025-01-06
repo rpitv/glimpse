@@ -16,9 +16,7 @@
 			</div>
 			<div class="play-clock">{{replicants.scoreboard.playClock.value}}</div>
 			<div :class="'down-counter-announcements ' + (announcement.length ? 'announcement' : 'down')">
-				{{announcement ? announcement :
-					(replicants.scoreboard.possession.value === '' ? '' :
-						`${getSuffix(replicants.scoreboard.down.value)}`) }}
+				{{announcement ? announcement :	`${getSuffix(replicants.scoreboard.down.value)}` }}
 			</div>
 		</div>
 	</div>

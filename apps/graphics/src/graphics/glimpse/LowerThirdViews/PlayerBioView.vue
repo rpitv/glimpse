@@ -1,6 +1,7 @@
 <template>
 	<div :class="replicants.lowerThird.playerBio.show.value || preview ? 'show' : 'hide'">
 		<ESPNPlayerBio v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
+		<RPITVPlayerBio v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 	</div>
 </template>
 
@@ -8,6 +9,7 @@
 import {loadReplicants} from "../../../browser-common/replicants";
 import { espnStyles, rpiTVStyles} from "../util";
 import ESPNPlayerBio from "../styles/espn/lower-third/PlayerBio.vue";
+import RPITVPlayerBio from "../styles/football/PlayerBio.vue";
 
 defineProps({
 	preview: {
