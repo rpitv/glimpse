@@ -97,7 +97,8 @@ type OperatorValues = 'string' | 'number' | 'boolean' | 'date' | 'string[]' | 'n
 const variableTypes: Record<string, OperatorValues> = {
   "$id": "number",
   "$groups": "number[]",
-  "$now": "date"
+  "$now": "date",
+  "$person": "number"
 }
 const operators: Record<string, OperatorValues[]> = {
   equals: ['string', 'number', 'boolean', 'date', 'null'],

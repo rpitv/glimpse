@@ -49,7 +49,7 @@
        loading-text="Loading Images..."
     >
       <template #item.description="{ item }">
-        {{ !!item.description.trim().length ? item.description.trim() : "No description provided" }}
+        {{ !!item.description?.trim().length ? item.description?.trim() : "No description provided" }}
       </template>
       <template #item.path="{ item }">
         <a :href="item.path" target="_blank">Link</a>
@@ -59,7 +59,6 @@
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Image, {
             id: item.id,
             name: item.name,
-            priority: item.priority
           }))"
           :max-width="1100" v-model="list[index]"
           :to="{ name: 'dashboard-image-details-edit', params: {id: item.id } }"

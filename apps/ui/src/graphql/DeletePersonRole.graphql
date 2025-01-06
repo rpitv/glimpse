@@ -1,0 +1,5 @@
+mutation DeletePersonRole($id: BigInt!) {
+  person: deletePersonRole(id: $id) {
+    id
+  }
+}

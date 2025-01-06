@@ -43,13 +43,13 @@
       <a :href="item.path" target="_blank">Link</a>
     </template>
     <template #item.actions="{ item }">
-      <VBtn variant="outlined" class="text-none mr-2" :disabled="thumbnailId === item.id"
-            @click="emit('setThumbnail', item.id, item.path)" color="blue">Set As Thumbnail</VBtn>
+      <VBtn variant="outlined" class="text-none mr-2" :disabled="thumbnail.id === item.id"
+            @click="emit('setThumbnail', item)" color="blue">Set As Thumbnail</VBtn>
       <VBtn variant="outlined" class="text-none"
             :disabled="productionImages.findIndex(
-            (ele) => ele.id === item.id && ele.url === item.path) !== -1 ||
+            (ele) => ele.imageId === item.id && ele.image?.path === item.path) !== -1 ||
             !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionImage, {imageId: item.id}))"
-            @click="emit('addImage', item.id, item.path)">
+            @click="emit('addImage', item, item.id)">
         Add Image
       </VBtn>
     </template>
@@ -66,11 +66,13 @@
 <script setup lang="ts">
 import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects, CaseSensitivity,
+  AbilitySubjects,
+  CaseSensitivity,
   ImageOrderableFields,
   OrderDirection,
   SearchImagesDocument
 } from "@/graphql/types";
+import type { ProductionImage, Image } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch} from "vue";
 import type {PropType} from "vue";
@@ -85,11 +87,11 @@ const props = defineProps({
     required: true
   },
   productionImages: {
-    type: Object as PropType<Array<{id: string, url: string, priority: number}>>,
+    type: Object as PropType<ProductionImage[]>,
     required: true
   },
-  thumbnailId: {
-    type: null,
+  thumbnail: {
+    type: Object as PropType<Image>,
     required: true
   }
 });

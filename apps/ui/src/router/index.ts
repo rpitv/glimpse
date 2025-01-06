@@ -24,7 +24,7 @@ import DashboardStreamPage from "../components/dashboard/DashboardStreamPage.vue
 import DashboardUsersPage from "../components/dashboard/DashboardUsersPage.vue";
 import DashboardVideosPage from "../components/dashboard/DashboardVideosPage.vue";
 import DashboardVotesPage from "../components/dashboard/DashboardVotesPage.vue";
-import AccountView from "../views/AccountView.vue";
+import AccountView from "../views/account/AccountView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import NoPermissionView from "../views/NoPermissionView.vue";
 import {
@@ -57,7 +57,7 @@ import UserList from "@/components/user/UserList.vue";
 import DashboardEditUserPage from "@/components/dashboard/DashboardEditUserPage.vue";
 import { useAuthStore } from "@/stores/auth";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
-import ChangePasswordCard from "@/components/user/ChangePasswordCard.vue";
+import ChangePasswordCard from "@/components/user/ChangePasswordForm.vue";
 import DashboardRolesPage from "@/components/dashboard/DashboardRolesPage.vue";
 import GroupList from "@/components/group/GroupList.vue";
 import CreateGroupCard from "@/components/group/CreateGroupCard.vue";
@@ -83,6 +83,10 @@ import EditProductionCard from "@/components/production/EditProductionCard.vue";
 import SubmissionList from "@/components/contactsubmissions/SubmissionList.vue";
 import ViewSubmissionCard from "@/components/contactsubmissions/ViewSubmissionCard.vue";
 import AccessibilityStatementView from "@/views/AccessibilityStatementView.vue";
+import DashboardEditProductionPage from "@/components/dashboard/DashboardEditProductionPage.vue";
+import AccountSettingsView from "@/views/account/AccountSettingsView.vue";
+import AccountProfileView from "@/views/account/AccountProfileView.vue";
+import PersonView from "@/views/PersonView.vue";
 
 function restrictedComponent(
   component: Component,
@@ -181,6 +185,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/person/:id",
+      name: "person",
+      component: PersonView,
+      meta: {
+        layoutCssName: "plain-layout"
+      },
+    },
+    {
       path: "/login",
       name: "login",
       component: LoginView,
@@ -191,9 +203,9 @@ const router = createRouter({
     {
       path: "/donate",
       name: "donate",
-      beforeEnter() {
-        window.location.replace("https://impact.rpi.edu/project/40580")
-      },
+      // beforeEnter() {
+      //   window.location.replace("https://impact.rpi.edu/project/40580")
+      // },
       component: DonateView,
       meta: {
         layoutCssName: "wave-layout",
@@ -814,14 +826,14 @@ const router = createRouter({
           children: [
             {
               path: "",
-              name: "dashboard-production-list",
+              name: "dashboard-productions-list",
               component: restrictedComponent(ProductionList, () =>
                 canViewProductionsDashboard()
               ),
               meta: {
                 breadcrumb: () => [
                   { route: {name: "dashboard"}, name: "Dashboard"},
-                  { route: {name: "dashboard-production-list"}, name: "Productions"}
+                  { route: {name: "dashboard-productions-list"}, name: "Productions"}
                 ],
               },
             },
@@ -832,7 +844,7 @@ const router = createRouter({
                 h(CreateProductionCard, {
                   onSave: (id: string) =>
                     router.push({
-                      name: "dashboard-production-list",
+                      name: "dashboard-productions-list",
                       params: { id },
                     }),
                 }), () => canViewProductionsDashboard()
@@ -840,7 +852,7 @@ const router = createRouter({
               meta: {
                 breadcrumb: () => [
                    { route: { name: "dashboard" }, name: "Dashboard"},
-                   { route: { name: "dashboard-production-list" }, name: "Productions" },
+                   { route: { name: "dashboard-productions-list" }, name: "Productions" },
                    {
                      route: { name: "dashboard-production-create" },
                      name: "Create",
@@ -857,7 +869,7 @@ const router = createRouter({
               meta: {
                 breadcrumb: (route: RouteLocationNormalizedLoaded) => [
                   { route: { name: "dashboard" }, name: "Dashboard" },
-                  { route: { name: "dashboard-production-list" }, name: "Productions" },
+                  { route: { name: "dashboard-productions-list" }, name: "Productions" },
                   {
                     route: { name: "dashboard-production-details" },
                     name: `Production ${route.params.id}`,
@@ -868,7 +880,7 @@ const router = createRouter({
                 {
                   path: "",
                   name: "dashboard-production-details",
-                  component: restrictedComponent(EditProductionCard, () =>
+                  component: restrictedComponent(DashboardEditProductionPage, () =>
                     canViewProductionsDashboard()
                   ),
                   meta: {
@@ -888,9 +900,18 @@ const router = createRouter({
                 {
                   path: "edit",
                   name: "dashboard-production-details-edit",
-                  component: restrictedComponent(EditProductionCard, () =>
+                  component: restrictedComponent(h(DashboardEditProductionPage, {
+                    onSave: () => {
+                      router.push({
+                        name: "dashboard-productions-list",
+                      })
+                    }
+                  }), () =>
                     canViewProductionsDashboard()
                   ),
+                  props: (route) => ({
+                    productionId: BigInt(route.params.id.toString()),
+                  }),
                   meta: {
                     breadcrumb: (route: RouteLocationNormalizedLoaded) => [
                       { route: { name: "dashboard" }, name: "Dashboard" },
@@ -1137,7 +1158,13 @@ const router = createRouter({
                 {
                   path: "edit",
                   name: "dashboard-user-details-edit",
-                  component: restrictedComponent(DashboardEditUserPage, () =>
+                  component: restrictedComponent(h(DashboardEditUserPage, {
+                    onSave: () => {
+                      router.push({
+                        name: "dashboard-users-list"
+                      })
+                    }
+                  }), () =>
                     canViewUsersDashboard()
                   ),
                   meta: {
@@ -1310,8 +1337,26 @@ const router = createRouter({
         return auth.isLoggedIn;
       }),
       meta: {
-        layoutCssName: "wave-layout",
+        layoutCssName: "plain-layout",
       },
+      children: [
+        {
+          path: "settings",
+          name: "account-settings",
+          component: restrictedComponent(AccountSettingsView, () => {
+            const auth = useAuthStore();
+            return auth.isLoggedIn;
+          })
+        },
+        {
+          path: "profile",
+          name: "account-profile",
+          component: restrictedComponent(AccountProfileView, () => {
+            const auth = useAuthStore();
+            return auth.isLoggedIn;
+          })
+        }
+      ]
     },
     {
       path: "/:pathMatch(.*)*",

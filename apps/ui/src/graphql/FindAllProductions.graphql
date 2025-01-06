@@ -4,6 +4,13 @@ query FindAllProductions($pagination: PaginationInput, $filter: FilterProduction
     category {
       name
     }
+    credits {
+      productionId,
+      id
+      priority
+      personId
+      title
+    }
     id
     name
     description

@@ -1,15 +1,14 @@
 <template>
-  <UserDetailsCard :id="id" />
+  <div></div>
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { computed } from "vue";
-import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
+import {useRoute, useRouter} from "vue-router";
 
+// Redirect to edit page
+const router = useRouter();
 const route = useRoute();
-
-const id = computed(() => BigInt(route.params.id.toString()));
+router.replace(route.fullPath + '/edit')
 </script>
 
 <style scoped lang="scss">

@@ -1,0 +1,14 @@
+query FindPersonImage($filter: FilterPersonImageInput!, $pagination: PaginationInput, $order: [OrderPersonImageInput!]) {
+  personImageCount(filter: $filter)
+  personImages: findManyPersonImage (filter: $filter, order: $order, pagination: $pagination) {
+    id
+    image {
+      name
+      description
+      path
+    }
+    imageId
+    priority
+    personId
+  }
+}

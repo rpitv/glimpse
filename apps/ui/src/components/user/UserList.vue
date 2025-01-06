@@ -9,7 +9,6 @@
       >
         <template #default>
           <CreateUserCard
-              closable
               @save="(id: number) => {
                 showCreatePopup = false;
                 refresh();
@@ -49,28 +48,13 @@
        loading-text="Loading Users..."
     >
       <template #item.username="{index, item}">
-        <RouterPopup
-          :max-width="1100" v-model="details[index]"
-          :to="{ name: 'dashboard-user-details-edit', params: {id: item.id } }"
-          @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
-        >
-          <UserDetailsCard
-            @close="
-                details[index] = false
-                refresh();"
-            :id="BigInt(item.id)"
-            :closable="true"
-          />
-          <template #trigger>
-            {{ item.username }}
-          </template>
-        </RouterPopup>
+        {{ item.username }}
       </template>
       <template #item.actions="{ index, item }">
         <RouterPopup
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.User, {
             id: item.id,
-            name: item.name,
+            username: item.username,
             email: item.mail,
             joined: item.joined
           }))"
@@ -79,16 +63,41 @@
           @update:modelValue="(value: boolean) => { shownPopup = value ? item.id : null}"
         >
           <EditUserCard
-            @close="
-                list[index] = false
-                refresh();"
+            @save="(id: number) => {
+                showCreatePopup = false;
+                list[index] = false;
+                editedUser = { id: id, show: true};
+                refresh();
+              }
+            "
             :id="BigInt(item.id)"
-            :closable="true"
           />
           <template #trigger>
             <v-btn variant="flat" icon="fa-pen" color="green-darken-3" size="small" class="mr-2"/>
           </template>
         </RouterPopup>
+
+        <v-dialog max-width="500">
+          <template #activator="{ props }">
+            <v-btn variant="flat" size="small" color="blue-darken-4" v-bind="props" v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.User, {
+            id: item.id,
+            username: item.username,
+            email: item.mail,
+            joined: item.joined
+          }), 'password')" icon="fa-key" class="mr-2" />
+          </template>
+          <template #default="{ isActive }">
+            <v-card :title="'Update ' + item.username + ' Password'">
+              <v-card-text>
+                <v-alert color="warning" title="Are you sure?" class="mb-5">
+                  You are updating the password for {{item.username}} (user ID {{item.id}}).
+                </v-alert>
+                <ChangePasswordForm :user-id="BigInt(item.id)" @save="isActive.value = false" />
+              </v-card-text>
+            </v-card>
+          </template>
+        </v-dialog>
+
         <v-dialog max-width="500">
           <template #activator="{ props }">
             <v-btn variant="flat" size="small" color="red-darken-4" v-bind="props" v-if="canDelete(item)" icon="fa-trash" />
@@ -96,7 +105,7 @@
           <template #default="{ isActive }">
             <v-card title="Delete User">
               <v-card-text>
-                Are you sure you want to delete the user "{{item.name}}"? This will also remove its members.
+                Are you sure you want to delete the user "{{item.username}}"? This will also remove its members.
               </v-card-text>
               <v-card-actions>
                 <v-spacer />
@@ -116,6 +125,12 @@
         />
       </template>
     </v-data-table-server>
+    <v-snackbar v-model="editedUser.show" color="green-darken-1" class="text-center">
+      <p>Edited User {{ editedUser.id }}</p>
+      <template #actions>
+        <v-btn @click="editedUser.show = false" icon="fa-circle-xmark"/>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -134,9 +149,9 @@ import { AbilityActions, useGlimpseAbility } from "@/casl";
 import { subject } from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";
 import EditUserCard from "@/components/user/EditUserCard.vue";
-import UserDetailsCard from "@/components/user/UserDetailsCard.vue";
 import DashboardSearch from "@/components/DashboardSearch.vue";
 import CreateUserCard from "@/components/user/CreateUserCard.vue";
+import ChangePasswordForm from "@/components/user/ChangePasswordForm.vue";
 
 const ability = useGlimpseAbility();
 const showCreatePopup = ref<boolean>(false);
@@ -147,6 +162,7 @@ const isDeleting = ref(false);
 const currentPage = ref(1);
 const order = ref<{key: string, order: string}[]>([]);
 const createdUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
+const editedUser = ref<{id: number, show: boolean}>({ id: 0, show: false });
 const take = 20;
 
 for (let i = 0; i < take; i++)

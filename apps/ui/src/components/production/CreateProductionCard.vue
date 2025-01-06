@@ -1,109 +1,66 @@
 <template>
   <v-card title="Create Production">
-    <v-stepper :flat="true" v-model="step" :editable="editable">
+    <v-stepper :flat="true" v-model="step" :editable="validation">
       <template v-slot:actions="{ prev, next }">
         <v-stepper-header >
-          <v-stepper-item value="1" title="Production Details" subtitle="Required" />
+          <v-stepper-item :value="1" title="Details" :editable="true" :complete="step > 1" />
           <v-divider />
-          <v-stepper-item value="2" title="Additional Information" subtitle="Optional"/>
+          <v-stepper-item :value="2" title="More Information" :complete="step > 2"/>
           <v-divider />
-          <v-stepper-item value="3" title="Set Category" subtitle="Optional" />
+          <v-stepper-item :value="3" title="Set Category" :complete="step > 3" />
           <v-divider />
-          <v-stepper-item value="4" title="Attach Images" subtitle="Optional"/>
+          <v-stepper-item :value="4" title="Attach Images" :complete="step > 4" />
           <v-divider />
-          <v-stepper-item value="5" title="Attach Videos" subtitle="Optional" />
+          <v-stepper-item :value="5" title="Attach Videos" :complete="step > 5" />
           <v-divider />
-          <v-stepper-item value="6" title="Review" subtitle="Required" />
+          <v-stepper-item :value="6" title="Credit People" :complete="step > 6" />
+          <v-divider />
+          <v-stepper-item :value="7" title="Review" />
         </v-stepper-header>
-        <v-stepper-window style="overflow-y: scroll">
-          <v-stepper-window-item value="1">
+        <v-stepper-window>
+          <v-stepper-window-item :value="1">
             <v-form ref="requiredForm">
               <RequiredInput v-model="productionData" :closet-time-missing="closetTimeMissing"
                              :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
             </v-form>
           </v-stepper-window-item>
-          <v-stepper-window-item value="2" >
-            <OptionalInput v-model="productionData" :tags="productionTags" @update:tags="(value: string[]) => productionTags = value" />
+          <v-stepper-window-item :value="2" >
+            <OptionalInput v-model="productionData"  v-model:tags="productionTags" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="3">
-            <CategoryTable :take="take" :productionCategory="productionCategory"
-               @setCategory="
-               (category: any) => productionCategory = {
-                  id: category.id,
-                  name: category.name
-                }"
+          <v-stepper-window-item :value="3">
+            <CategoryTable :take="take" :productionCategory="productionData.category as Category"
+               @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"
             />
-            <div class="flex-container mt-2" v-if="productionCategory.id">
-              <h2>Chosen Category: </h2>
-              <v-chip-group column>
-                <v-chip class="ml-3" closable
-                        @click:close="productionCategory = { id: '', name: ''}" >
-                  Category ID: {{ productionCategory.id }}
-                </v-chip>
-              </v-chip-group>
-            </div>
+            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category.id = null" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="4" >
-            <ImageTable :take="take" :productionImages="productionImages" :thumbnailId="productionThumbnail.id"
-              @setThumbnail="setThumbnailId"
+          <v-stepper-window-item :value="4" >
+            <ImageTable :take="take" :productionImages="productionImages" :thumbnail="productionData.thumbnail as Image"
+              @setThumbnail="setThumbnail"
               @addImage="addImage"
             />
-            <div class="flex-container mt-2" v-if="productionThumbnail.id">
-              <h2>Thumbnail: </h2>
-              <v-dialog width="400" scrim="black">
-                <template v-slot:activator="{ props }" >
-                  <v-chip v-bind="props" class="ml-3" closable
-                          @click:close="() => { productionThumbnail.url = ''; productionThumbnail.id = ''}">
-                    Image ID: {{ productionThumbnail.id }}
-                  </v-chip>
-                </template>
-                <template v-slot:default>
-                  <img :src="productionThumbnail.url">
-                </template>
-              </v-dialog>
-            </div>
-            <div class="flex-container mt-2" v-if="productionImages.length">
-              <h2>Production Images: </h2>
-              <v-chip-group column>
-                <v-dialog v-for="(image, i) in productionImages" :key="image.id" width="400" scrim="black">
-                  <template v-slot:activator="{ props }">
-                    <v-chip class="ml-3" closable v-bind="props"
-                            @click:close="productionImages.splice(i, 1)" >
-                      Image ID: {{ image.id }}
-                    </v-chip>
-                  </template>
-                  <template v-slot:default>
-                    <img :src="image.url">
-                  </template>
-                </v-dialog>
-              </v-chip-group>
-            </div>
+            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages" @close="productionData.thumbnailId = null" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="5">
+          <v-stepper-window-item :value="5">
             <VideoTable :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
-            <div class="flex-container mt-2" v-if="productionVideos.length" >
-              <h2>Production Videos: </h2>
-              <v-chip-group column>
-                <v-chip class="ml-3" v-for="(video, i) in productionVideos" closable @click="openURL(video.url)"
-                        @click:close="productionVideos.splice(i, 1)" :key="video.id">
-                  Video ID: {{ video.id }}
-                </v-chip>
-              </v-chip-group>
-            </div>
+            <VideoRow :productionVideos="productionVideos" />
           </v-stepper-window-item>
-          <v-stepper-window-item value="6">
+          <v-stepper-window-item :value="6">
+            <PeopleTable :take="take" :people="creditPeople" @addPerson="addPerson"/>
+            <PeopleRow :creditPeople="creditPeople" />
+          </v-stepper-window-item>
+          <v-stepper-window-item :value="7">
             <v-alert v-if="error" color="red">
               {{ error }}
             </v-alert>
             <div style="display: grid; grid-template-columns: 1fr 1fr">
-              <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionCategory" :thumbnail="productionThumbnail"
-                         :images="productionImages" :videos="productionVideos" />
-              <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0"
-                      :productionVideos="productionVideos" :productionImages="productionImages" />
+              <ReviewTable :productionData="productionData" :tags="productionTags" :category="productionData.category as Category" :thumbnail="productionData.thumbnail as Image"
+                         :images="productionImages" :videos="productionVideos" :credits="creditPeople" />
+              <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0 || creditPeople.length > 0"
+                      :productionVideos="productionVideos" :productionImages="productionImages" :creditPeople="creditPeople" />
             </div>
           </v-stepper-window-item>
         </v-stepper-window>
-        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" :next-text="step >= 6 ? 'Create' : 'Next'"
+        <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 7 ? 'CREATE' : 'NEXT'"
                            :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
         </v-stepper-actions>
       </template>
@@ -112,13 +69,23 @@
 </template>
 
 <script setup lang="ts">
-import {watch, ref, computed} from "vue";
+import {watch, ref} from "vue";
 import type {PropType} from "vue";
 import {
   CreateProductionDocument, CreateProductionTagDocument, CreateProductionImageDocument,
-  CreateProductionVideoDocument
+  CreateProductionVideoDocument, CreateCreditDocument
 } from "@/graphql/types";
-import type { Production } from "@/graphql/types";
+import type {
+  Category,
+  Credit,
+  Image,
+  Person,
+  Production,
+  ProductionImage,
+  ProductionVideo,
+  ProductionTag,
+  Video
+} from "@/graphql/types";
 import {useMutation} from "@vue/apollo-composable";
 import RequiredInput from "@/components/production/ProductionDetailsInput/RequiredInput.vue";
 import OptionalInput from "@/components/production/ProductionDetailsInput/OptionalInput.vue";
@@ -127,11 +94,17 @@ import ImageTable from "@/components/production/ProductionDetailsInput/ImageTabl
 import VideoTable from "@/components/production/ProductionDetailsInput/VideoTable.vue";
 import PriorityEditor from "@/components/production/ProductionDetailsInput/PriorityEditor.vue";
 import ReviewTable from "@/components/production/ProductionDetailsInput/ReviewTable.vue";
+import PeopleTable from "@/components/production/ProductionDetailsInput/PeopleTable.vue";
+import PeopleRow from "@/components/production/ProductionDetailsInput/PeopleRow.vue";
+import VideoRow from "@/components/production/ProductionDetailsInput/VideoRow.vue";
+import ImageRow from "@/components/production/ProductionDetailsInput/ImageRow.vue";
+import CategoryRow from "@/components/production/ProductionDetailsInput/CategoryRow.vue";
 
 const createProductionMutation = useMutation(CreateProductionDocument);
 const createTagsMutation = useMutation(CreateProductionTagDocument);
 const createImageMutation = useMutation(CreateProductionImageDocument);
 const createVideoMutation = useMutation(CreateProductionVideoDocument);
+const createCreditMutation = useMutation(CreateCreditDocument);
 
 const take = 20;
 const requiredForm = ref();
@@ -147,38 +120,31 @@ const props = defineProps({
 })
 
 const productionData = ref<Partial<Production>>({
-  name: "",
+  category: {},
+  categoryId: null,
   closetLocation: "",
   eventLocation: "",
   closetTime: "",
+  name: "",
   startTime: "",
   endTime: "",
   description: "",
   teamNotes: "",
+  thumbnail: {},
+  thumbnailId: null,
 });
 
-interface urlInterface {
-  id: number | null,
-  url: string,
-  priority: number,
-}
-
-const step = ref(0);
+const step = ref(1);
 let firstTime = true;
 const loading = ref(false);
 const closetTimeMissing = ref(false);
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
-const productionTags = ref<string[]>([]);
-const productionCategory = ref({id: '', name: ''});
-const productionThumbnail = ref<urlInterface>({id: null, url: '', priority: 0});
-const productionImages = ref<urlInterface[]>([]);
-const productionVideos = ref<urlInterface[]>([]);
-
-const editable = computed(() => {
-  return !(!productionData.value.name || !productionData.value.closetLocation || !productionData.value.eventLocation ||
-    !productionData.value.closetTime || !productionData.value.startTime || !productionData.value.endTime);
-});
+const validation = ref(false);
+const productionTags = ref<ProductionTag[]>([]);
+const productionImages = ref<ProductionImage[]>([]);
+const productionVideos = ref<ProductionVideo[]>([]);
+const creditPeople = ref<Partial<Credit>[]>([]);
 
 if (props.data) {
   const startTime = new Date(props.data.startTime);
@@ -219,14 +185,14 @@ watch((productionData.value), () => {
 });
 
 async function validate(next: any) {
-  const validation = await requiredForm.value.validate();
   loading.value = false;
-  if (step.value >= 6) {
+  if (step.value >= 7) {
     loading.value = true;
     await createProduction();
     return;
   }
-  if (validation.valid && productionData.value.closetTime && productionData.value.startTime && productionData.value.endTime)
+  await requiredForm.value.validate();
+  if (validation.value)
     next();
   if (!productionData.value.closetTime)
     closetTimeMissing.value = true;
@@ -240,20 +206,17 @@ async function createProduction() {
   let createdProduction;
   try {
     let production: Partial<Production> = {
-      name: productionData.value.name,
+      categoryId: productionData.value.categoryId ?? null,
       closetLocation: productionData.value.closetLocation,
-      eventLocation: productionData.value.eventLocation,
       closetTime: new Date(productionData.value.closetTime).toISOString(),
-      startTime: new Date(productionData.value.startTime).toISOString(),
-      endTime: new Date(productionData.value.endTime).toISOString(),
       description: productionData.value.description,
+      endTime: new Date(productionData.value.endTime).toISOString(),
+      eventLocation: productionData.value.eventLocation,
+      name: productionData.value.name,
+      startTime: new Date(productionData.value.startTime).toISOString(),
       teamNotes: productionData.value.teamNotes,
+      thumbnailId: productionData.value.thumbnailId ?? null,
     }
-    if (productionThumbnail.value.id)
-      production.thumbnailId = productionThumbnail.value.id;
-
-    if (productionCategory.value.id)
-      production.categoryId = productionCategory.value.id;
 
     createdProduction = await createProductionMutation.mutate({
       data: production
@@ -263,30 +226,38 @@ async function createProduction() {
       return;
     }
     const productionId = createdProduction?.data?.production.id;
-    for (let i = 0; i < productionTags.value.length; i++)
+    for (const productionTag of productionTags.value)
       await createTagsMutation.mutate({
         data: {
           productionId: productionId,
-          tag: productionTags.value[i]
+          tag: productionTag.tag
         }
       });
 
-    for (let i = 0; i < productionImages.value.length; i++)
-      // DON'T ASK QUESTIONS, JUST TRUST ME
+    for (const productionImage of productionImages.value) {
       await createImageMutation.mutate({
         data: {
-          imageId: productionImages.value[i].id,
+          imageId: productionImage.imageId,
           productionId: productionId,
-          priority: parseInt(productionImages.value[i].priority.toString())
+          priority: productionImage.priority || 0
         }
       });
-    for (let i = 0; i < productionVideos.value.length; i++)
-      // DON'T ASK QUESTIONS, JUST TRUST ME
+    }
+    for (const productionVideo of productionVideos.value)
       await createVideoMutation.mutate({
         data: {
-          videoId: productionVideos.value[i].id,
+          videoId: productionVideo.videoId,
           productionId: productionId,
-          priority: parseInt(productionVideos.value[i].priority.toString())
+          priority: productionVideo.priority || 0
+        }
+      });
+    for (const person of creditPeople.value)
+      await createCreditMutation.mutate({
+        data: {
+          personId: person.personId,
+          productionId: productionId,
+          priority: person.priority || 0,
+          title: person.title
         }
       });
   } catch (e) {
@@ -298,33 +269,43 @@ async function createProduction() {
   emit("save", createdProduction?.data?.production.id);
 }
 
-function setThumbnailId(imageId: number, url: string) {
-  productionThumbnail.value = {
-    id: imageId,
-    url: url,
-    priority: 0
-  }
+function setThumbnail(image: Image) {
+  productionData.value.thumbnail = image;
+  productionData.value.thumbnailId = image.id;
 }
 
-function addImage(imageId: number, url: string) {
+function addImage(image: Image) {
   productionImages.value.push({
-    id: imageId,
-    url: url,
+    image: image,
+    imageId: image.id,
     priority: 0
   });
 }
 
-function addVideo(videoId: number, url: string) {
+function addVideo(video: Video) {
   productionVideos.value.push({
-    id: videoId,
-    url: url,
+    video: video,
+    videoId: video.id,
     priority: 0
   });
 }
 
-function openURL(url: string) {
-  window.open(url.replace("embed/", "watch?v="), '_blank', 'noreferrer')
+function addPerson(person: Person) {
+  creditPeople.value.push({
+    person: person,
+    personId: person.id,
+    priority: 0
+  });
 }
+
+
+watch(productionData, async () => {
+  if (requiredForm.value) {
+    const valid = await requiredForm.value.validate();
+    validation.value = valid.valid && !!productionData.value.closetLocation && !!productionData.value.closetLocation && !!productionData.value.eventLocation &&
+      !!productionData.value.closetTime && !!productionData.value.startTime && !!productionData.value.endTime;
+  }
+}, {deep: true});
 
 </script>
 
@@ -341,11 +322,6 @@ function openURL(url: string) {
 
 .button-action {
   font-size: 10px;
-}
-
-.flex-container {
-  display: flex;
-  justify-content: flex-start;
 }
 
 .missing {

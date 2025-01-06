@@ -1,6 +1,6 @@
 {
   "name": "glimpse-ui",
-  "version": "1.0.4",
+  "version": "1.2.1",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -50,7 +50,7 @@
     "validator": "^13.9.0",
     "vue": "^3.2.33",
     "vue-router": "^4.0.14",
-    "vuetify": "^3.5.3"
+    "vuetify": "^3.7.2"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.2",

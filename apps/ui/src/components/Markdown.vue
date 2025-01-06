@@ -20,7 +20,12 @@ function formatNode(node: VNodeArrayChildren | VNodeChild): VNode {
   }
 
   if(typeof node === "string") {
-    return h("div", { innerHTML: DOMPurify.sanitize(marked(node)) });
+    return h("div", { innerHTML: marked(DOMPurify.sanitize(node, {
+		    ALLOWED_TAGS: ["kbd", "mark", "q", "ruby", "rp", "rt", "sub", "sup", "wbr", "details", "summary"],
+		    ALLOWED_ATTR: ["cite", "open", "translate"],
+		    ALLOW_ARIA_ATTR: false,
+		    ALLOW_DATA_ATTR: false
+	    })) });
   }
 
   if(Array.isArray(node)) {

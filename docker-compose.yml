@@ -1,6 +1,4 @@
-version: '3.9'
 services:
-
   api:
     image: ghcr.io/rpitv/glimpse-api:latest
     restart: unless-stopped
@@ -72,7 +70,7 @@ services:
       - glimpse_network
 
   rabbitmq:
-    image: rabbitmq:3.10-management
+    image: rabbitmq:4.0-management
     restart: unless-stopped
     ports:
       - "5672:5672"

@@ -1,0 +1,5 @@
+mutation DeleteCredit($id: BigInt!) {
+  deleteCredit(id: $id) {
+    id
+  }
+}

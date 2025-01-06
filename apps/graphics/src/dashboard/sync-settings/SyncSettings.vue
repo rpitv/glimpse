@@ -3,7 +3,7 @@
 
 	<h1>Daktronics</h1>
 	<br>
-	<v-select :items="feedMethods" label="Feed Method" v-model="replicants.sync.daktronicsFeed.value" />
+	<v-select :items="feedFormats" label="Feed Format" v-model="replicants.sync.daktronicsFeed.value" />
 	<div class="conn-light"></div>
 	<p class="conn-text">
 		{{connectedText}} -
@@ -113,7 +113,7 @@ import { loadReplicants } from "../../browser-common/replicants";
 const themeVars = useThemeVars();
 const replicants = await loadReplicants();
 
-const feedMethods = ["", "tv", "rtd"];
+const feedFormats = ["", "tv", "rtd"];
 
 // Unique IDs for pairing labels with inputs
 const syncPathId = v4();

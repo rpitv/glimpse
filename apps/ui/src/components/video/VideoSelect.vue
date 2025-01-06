@@ -22,7 +22,7 @@ import {
   CaseSensitivity,
   FilterVideoInput,
   Video,
-  SearchVideosDocument, CategoryOrderableFields, OrderDirection, VideoOrderableFields,
+  SearchVideosDocument, PersonOrderableFields, OrderDirection, VideoOrderableFields,
 } from "@/graphql/types";
 
 const emit = defineEmits(["select"]);

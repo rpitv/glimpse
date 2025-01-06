@@ -3,7 +3,7 @@
     <n-dialog-provider>
       <v-theme-provider theme="dark">
         <n-message-provider>
-          <v-defaults-provider :defaults="defaults">
+          <v-defaults-provider>
             <Suspense>
               <Page/>
               <template #fallback>
@@ -56,40 +56,6 @@ export default defineComponent({
           iconColor: "#70c0e8"
         }
       },
-      defaults: {
-        VTextField: {
-          variant: "outlined"
-        },
-        VTextarea: {
-          variant: "outlined"
-        },
-        VSelect: {
-          variant: "outlined"
-        },
-        VCombobox: {
-          variant: "outlined"
-        },
-        VFileInput: {
-          variant: "outlined"
-        },
-        VBtn: {
-          class: "text-none",
-          variant: "outlined"
-        },
-        VDialog: {
-          scrim: "black"
-        },
-        VDataTableServer: {
-          style: "max-height: max(600px, 50vh)",
-          fixedHeader: true,
-          hover: true,
-          fixedFooter: true,
-          showCurrentPage: true
-        },
-        VPagination: {
-          rounded: true
-        },
-      }
     };
   },
   components: {

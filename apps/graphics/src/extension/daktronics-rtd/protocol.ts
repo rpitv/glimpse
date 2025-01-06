@@ -3,15 +3,12 @@ import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
 import * as fs from 'fs-extra';
 import * as path from "path";
-import * as repl from "node:repl";
 import {announcementTimersTick} from "@nodecg-vue-ts-template/scoreboard-clock";
 
 const packetBytes: number[] = [];
 let computedChecksum = 0;
-const PAK_HEADER = ``;
-const PAK_TAIL = ``;
-const LENGTH_OF_PACKET = 43;
-
+const TV_PAK_HEADER = ``;
+const TV_PAK_TAIL = ``;
 
 /*
 DAKTRONICS RTD PROTOCOL
@@ -189,13 +186,23 @@ export function daktronicsRtdListener(data: Buffer) {
 	}
 }
 
+/**
+ * Handler for incoming ASCII data in the Daktronics TV Feed Format.
+ *
+ * Serial Settings: 9600-8-N-1 no control.
+ *
+ * Packets start with {@link TV_PAK_HEADER} and ends with {@link TV_PAK_TAIL}.
+ * The data is located in between the header and tail with the last 2 characters being a checksum of the payload. Checksum ({@link calculateChecksum})
+ * is calculated in by adding all the payload characters mod 256 encoded into hex string.
+ * @param data Buffer containing incoming data, may or may not require multiple data buffers to compile into an entire packet.
+ */
 export function daktronicsTVListener(data: Buffer) {
 	const hexString = data.toString();
 
 	for (const byte of hexString) {
-		if (byte === PAK_HEADER) {
+		if (byte === TV_PAK_HEADER) {
 			staging = []
-		} else if (byte === PAK_TAIL && staging.length == LENGTH_OF_PACKET) {
+		} else if (byte === TV_PAK_TAIL) {
 			const packet = staging.join("");
 			const calculatedChecksum = calculateChecksum(packet);
 			const actualChecksum = packet.slice(-2); // Last two characters
@@ -265,8 +272,13 @@ function handleRTDPacket(packet: Buffer): void {
 }
 
 function handleTVPacket(packet: string): void {
-	// These should be ecav packets.
-	const ecavData = {
+	const LENGTH_OF_FOOTBALL_PACKET = 43;
+
+	// currently only the Daktronics football packet is implemented
+	if (!(replicants.sync.selectedSport.value === "Football" && packet.length == LENGTH_OF_FOOTBALL_PACKET))
+		return
+
+	const footballPacket = {
 		clock: packet.substring(0, 5),
 		// unknown CHARS 5-25
 		homeScore: packet.substring(27, 29),
@@ -284,21 +296,21 @@ function handleTVPacket(packet: string): void {
 	};
 	const footballSync = replicants.sync.values.football;
 	if (footballSync.downs.value)
-		replicants.scoreboard.down.value = parseInt(ecavData.down);
+		replicants.scoreboard.down.value = parseInt(footballPacket.down);
 	if (footballSync.playClock.value)
-		replicants.scoreboard.playClock.value = parseInt(ecavData.playClock);
+		replicants.scoreboard.playClock.value = parseInt(footballPacket.playClock);
 	if (footballSync.possession.value) {
 		const possession = (): string => {
-			if (ecavData.possessionHome.trim())
-				return ecavData.possessionHome;
-			if (ecavData.possessionAway.trim())
-				return ecavData.possessionAway;
+			if (footballPacket.possessionHome.trim())
+				return footballPacket.possessionHome;
+			if (footballPacket.possessionAway.trim())
+				return footballPacket.possessionAway;
 			return '';
 		}
 		replicants.scoreboard.possession.value = possession();
 	}
 	if (footballSync.yardsToGo.value)
-		replicants.scoreboard.yardsToGo.value = ecavData.yardsToGo;
+		replicants.scoreboard.yardsToGo.value = footballPacket.yardsToGo;
 
 	const universalSync = replicants.sync.values;
 	// General Stuff
@@ -310,16 +322,16 @@ function handleTVPacket(packet: string): void {
 
 		// Clock is considered disabled whenever a blank value is sent. Conversely, it is considered enabled whenever a
 		//   non-blank value is sent.
-		if (ecavData.clock.length === 0 && replicants.gameSettings.clock.enabled.value) {
+		if (footballPacket.clock.length === 0 && replicants.gameSettings.clock.enabled.value) {
 			logger.trace('Blank clock value received, disabling the clock.');
 			replicants.gameSettings.clock.enabled.value = false;
-		} else if(ecavData.clock.length > 0 && !replicants.gameSettings.clock.enabled.value) {
+		} else if(footballPacket.clock.length > 0 && !replicants.gameSettings.clock.enabled.value) {
 			logger.trace('Non-blank clock value received, enabling the clock.');
 			replicants.gameSettings.clock.enabled.value = true;
 		}
 
 		let mins, secs, tenths, minsAndSecs;
-		[minsAndSecs, tenths] = ecavData.clock.split('.');
+		[minsAndSecs, tenths] = footballPacket.clock.split('.');
 		if(minsAndSecs.indexOf(':') > -1) {
 			[mins, secs] = minsAndSecs.split(':')
 		} else {
@@ -331,18 +343,18 @@ function handleTVPacket(packet: string): void {
 		announcementTimersTick();
 	}
 	if (universalSync.period.value)
-		replicants.scoreboard.period.value = parseInt(ecavData.period);
+		replicants.scoreboard.period.value = parseInt(footballPacket.period);
 
 	// Team Stuff
 	if (universalSync.teams[1].score.value)
-		replicants.teams[1].score.value = parseInt(ecavData.homeScore);
+		replicants.teams[1].score.value = parseInt(footballPacket.homeScore);
 	if (universalSync.teams[1].timeouts.value)
-		replicants.teams[1].timeouts.value = parseInt(ecavData.timeoutsLeftHome);
+		replicants.teams[1].timeouts.value = parseInt(footballPacket.timeoutsLeftHome);
 
 	if (universalSync.teams[0].score.value)
-		replicants.teams[0].score.value = parseInt(ecavData.awayScore);
+		replicants.teams[0].score.value = parseInt(footballPacket.awayScore);
 	if (universalSync.teams[0].timeouts.value)
-		replicants.teams[0].timeouts.value = parseInt(ecavData.timeoutsLeftAway);
+		replicants.teams[0].timeouts.value = parseInt(footballPacket.timeoutsLeftAway);
 
 
 }
