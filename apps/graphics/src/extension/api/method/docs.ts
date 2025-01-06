@@ -5,6 +5,7 @@ import {endpointsScore} from "./score";
 import path from "path";
 import * as fs from "fs-extra";
 import {apiFatalPanik} from "../api";
+import {endpointsConfigs} from "@nodecg-vue-ts-template/api/method/config";
 
 /**
  * Serves the statically generated HTML file of the documentation.
@@ -43,7 +44,9 @@ export async function generateDocs() {
 		"#warn { position: sticky; top: 10; background: yellow; text-align: right; }",
 		"</style></head><body>",
 		"<noscript><h1 id='warn'>WARNING JAVASCRIPT SHOULD BE ENABLED FOR PROPER FUNCTIONALITY</h1></noscript>",
-		"<table><tbody><tr><th>Endpoint</th><th>__URL__</th><th>Click to Copy</th></tr>"];
+		"<table><thead><tr><th colspan='3'><span id='bitfocus_base'>Click for Bitfocus Companion Base</span></th></tr></thead>",
+		"<tbody><tr><th>Endpoint</th>" +
+		"<th>__URL__</th><th>Click to Copy</th></tr>"];
 
 	// insert global announcements endpoint
 	const a_ep_ann_global = Object.keys(announcement_global_param1);
@@ -55,33 +58,44 @@ export async function generateDocs() {
 	// insert team specific announcements endpoint
 	const a_ep_ann_team = Object.keys(announcement_teamSpecific_param2);
 	for (const e in a_ep_ann_team) {
-		body.push(`<tr><td>announcements</td><td>announcements/team_specific/team1/${a_ep_ann_team[e]}</td></tr>`);
-		body.push(`<tr><td>announcements</td><td>announcements/team_specific/team1/${a_ep_ann_team[e]}/top</td></tr>`);
+		body.push(`<tr><td>announcements</td><td>announcements/__team_specific__/__team1__/${a_ep_ann_team[e]}</td></tr>`);
+		body.push(`<tr><td>announcements</td><td>announcements/__team_specific__/__team1__/${a_ep_ann_team[e]}/top</td></tr>`);
 	}
 	for (const e in a_ep_ann_team) {
-		body.push(`<tr><td>announcements</td><td>announcements/team_specific/team2/${a_ep_ann_team[e]}</td></tr>`);
-		body.push(`<tr><td>announcements</td><td>announcements/team_specific/team2/${a_ep_ann_team[e]}/top</td></tr>`);
+		body.push(`<tr><td>announcements</td><td>announcements/__team_specific__/__team2__/${a_ep_ann_team[e]}</td></tr>`);
+		body.push(`<tr><td>announcements</td><td>announcements/__team_specific__/__team2__/${a_ep_ann_team[e]}/top</td></tr>`);
 	}
 
 	// insert remove announcement endpoints
 	body.push("<tr><td>announcements</td><td>announcements/remove/global</td></tr>");
 	body.push("<tr><td>announcements</td><td>announcements/remove/global/all</td></tr>");
 	body.push("<tr><td>announcements</td><td>announcements/remove/global/bottom</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team1</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team1/all</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team1/bottom</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team2</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team2/all</td></tr>");
-	body.push("<tr><td>announcements</td><td>announcements/remove/team2/bottom</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team1__</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team1__/all</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team1__/bottom</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team2__</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team2__/all</td></tr>");
+	body.push("<tr><td>announcements</td><td>announcements/remove/__team2__/bottom</td></tr>");
+
+
+	// insert config endpoints
+	body.push("<tr><td>config</td><td>config/lt-scoreboard/__DESCRIPTION__/__FONT_SIZE_0.0__/__TIMER_ON__</td></tr>");
+
 
 	// insert the link to this documentation
 	body.push("<tr><td>docs</td><td>docs</td></tr>");
 
+	// football endpoints
+	body.push("<tr><td>football</td><td>football/clock_info/__DOWN__/__yards_to_go__/__possession__</td></tr>");
+	body.push("<tr><td>football</td><td>football/clock_info/clock_adj/__up1-down1__</td></tr>");
+	body.push("<tr><td>football</td><td>football/score/__team1-team2__/__score__</td></tr>");
+
+
 	// insert changing scores endpoint
 	const a_ep_score = Object.keys(endpointsScore);
 	for (const e in a_ep_score) {
-		body.push(`<tr><td>score</td><td>score/${a_ep_score[e]}/team1/<b>__NUMBER__</b></td></tr>`);
-		body.push(`<tr><td>score</td><td>score/${a_ep_score[e]}/team2/<b>__NUMBER__</b></td></tr>`);
+		body.push(`<tr><td>score</td><td>score/${a_ep_score[e]}/__team1__/<b>__NUMBER__</b></td></tr>`);
+		body.push(`<tr><td>score</td><td>score/${a_ep_score[e]}/__team2__/<b>__NUMBER__</b></td></tr>`);
 	}
 
 	// insert the available toggle endpoints
@@ -97,7 +111,7 @@ export async function generateDocs() {
 	body.push("</tbody></table>");
 	body.push(`<script type="text/javascript">
 const API_KEY = window.location.pathname.split("/")[3];
-const HOST = window.location.protocol + "//" + window.location.host;
+const HOST = window.location.protocol + "//" + window.location.host.replace("localhost", "127.0.0.1");
 const BASE_PATH = "/glimpse-graphics-api/v1/";
 
 window.addEventListener("load", (e) => {
@@ -106,26 +120,31 @@ window.addEventListener("load", (e) => {
 			const a = document.createElement("a");
 			a.href = HOST + BASE_PATH + API_KEY + "/" + e.lastChild.textContent;
 			a.text = e.lastChild.textContent;
+			a.target = "_blank";
 
 			const td_bit = document.createElement("td");
             td_bit.title = "Click to copy Bitfocus Companion link to clipboard.";
 			td_bit.textContent = "Bitfocus Companion Link";
 			td_bit.onclick = (e) => {
-				navigator.clipboard.writeText(HOST + BASE_PATH +
-					"$(internal:custom_GLIMPSE_GFX_API_KEY)/" + e.target.parentElement.childNodes[1].textContent);
+				navigator.clipboard.writeText("/" + e.target.parentElement.childNodes[1].textContent);
 			};
 			td_bit.classList.add("bit-link");
 
 			const td_url = document.createElement("td");
 			td_url.title = "Click to test in browser.";
 			td_url.appendChild(a);
-			td_url.onclick = (e) => { window.location.href = e.target.childNodes[0].href; };
 			e.removeChild(e.lastChild);
 			e.appendChild(td_url);
 			e.appendChild(td_bit);
         }
 	});
+
+	document.getElementById("bitfocus_base").onclick = () => {
+		navigator.clipboard.writeText(HOST + BASE_PATH + API_KEY);
+	};
 });
+
+
 </script>`);
 	body.push("")
 	body.push("</body></html>");

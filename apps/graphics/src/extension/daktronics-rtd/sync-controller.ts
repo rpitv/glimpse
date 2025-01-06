@@ -3,7 +3,7 @@ import {MessageComposable} from "../util/MessageComposable";
 import {SerialPortStream} from "@serialport/stream";
 import {MockBinding, MockPortBinding} from "@serialport/binding-mock";
 import {SerialPort} from "serialport";
-import {daktronicsRtdListener} from "./protocol";
+import {daktronicsRtdListener, daktronicsTVListener} from "./protocol";
 import {sports} from "./sports-definitions";
 import {logger} from "../util/logger";
 
@@ -53,7 +53,7 @@ async function openSerialPort(path: string, baudRate: number = 19200): Promise<v
 	} else {
 		// Confirm that the serial port exists.
 		if(!(await SerialPort.list()).some(port => port.path === path)) {
-			throw new Error("Serial port does not exist.");
+			 console.error("Serial port does not exist.");
 		}
 		port = new SerialPort({path, baudRate, endOnClose: true});
 	}
@@ -73,7 +73,12 @@ async function openSerialPort(path: string, baudRate: number = 19200): Promise<v
 	});
 
 	// Set up the Daktronics RTD listener on the port.
-	port.on('data', daktronicsRtdListener);
+	port.on('data', (data: Buffer) => {
+		if (replicants.sync.daktronicsFeed.value === "rtd")
+			daktronicsRtdListener(data);
+		else if (replicants.sync.daktronicsFeed.value === "tv")
+			daktronicsTVListener(data);
+	});
 
 	port.on('open', () => {
 		replicants.sync.status.value.error = false;
@@ -112,7 +117,7 @@ setInterval(async () => {
 setInterval(async () => {
 	if(replicants.sync.selectedPort.value !== null && !port?.isOpen) {
 		try {
-			await openSerialPort(replicants.sync.selectedPort.value);
+			await openSerialPort(replicants.sync.selectedPort.value,  replicants.sync.daktronicsFeed.value === "tv" ? 9600 : 19200);
 		} catch(ignored) {}
 	}
 }, 1000);
@@ -124,7 +129,7 @@ replicants.sync.selectedPort.on('change', async (newSelectedPort) => {
 		return;
 	}
 	try {
-		await openSerialPort(newSelectedPort);
+		await openSerialPort(newSelectedPort, replicants.sync.daktronicsFeed.value === "tv" ? 9600 : 19200);
 	} catch(e) {
 		logger.error(e, 'Failed to open serial port.');
 	}

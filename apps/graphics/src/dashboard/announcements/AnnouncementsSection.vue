@@ -6,14 +6,14 @@
 		<n-data-table
 			:columns="tableCols"
 			:data="tableData"
-			:row-key="(row) => row.id"
+			:row-key="(row: AnnouncementRow) => row.id"
 			:summary="createFooter"
-			@update:checked-row-keys="(newSelectedRows) => selectedRows = newSelectedRows"/>
+			@update:checked-row-keys="(newSelectedRows: RowKey[]) => selectedRows = newSelectedRows"/>
 	</div>
 	<h4>Quickplay Buttons</h4>
 	<div v-if="!globalAnnouncements" class="quickplay">
 		<!--Hockey-->
-		<span v-if="replicants.gameSettings.style.value === 'espn' || replicants.gameSettings.style.value === 'rpitv-style7'">
+		<span v-if="replicants.gameSettings.style.value !== 'football'">
 			<NButton @click="addAnnouncement('Power Play', '2:00')">2:00 Power Play</NButton>
 			<NButton @click="addAnnouncement('Power Play', '5:00')">5:00 Power Play</NButton>
 			<NButton @click="addAnnouncement('Man Up', '0:30')">0:30 Man Up</NButton>
@@ -29,7 +29,7 @@
 		<NButton @click="addAnnouncement('Timeout', '')">Timeout</NButton>
 	</div>
 	<div v-else>
-		<span v-if="replicants.gameSettings.style.value === 'espn' || replicants.gameSettings.style.value === 'rpitv-style7'">
+		<span v-if="replicants.gameSettings.style.value !== 'football'">
 			<NButton @click="addAnnouncement('Official Review', '')">Official Review</NButton>
 			<NButton @click="addAnnouncement('Delayed Penalty', '')">Delayed Penalty</NButton>
 			<NButton @click="addAnnouncement('Empty Net', '')">Empty Net</NButton>

@@ -18,7 +18,7 @@
 			<div :class="'down-counter-announcements ' + (announcement.length ? 'announcement' : 'down')">
 				{{announcement ? announcement :
 					(replicants.scoreboard.possession.value === '' ? '' :
-						`${getSuffix(replicants.scoreboard.down.value)} & ${replicants.scoreboard.yardsToGo.value}`)}}
+						`${getSuffix(replicants.scoreboard.down.value)}`) }}
 			</div>
 		</div>
 	</div>
@@ -89,7 +89,6 @@ const announcement = computed(() => {
 		backgroundColor1.value = "#FFF700";
 		backgroundColor2.value = "#807C00";
 	}
-	console.log("THE FK")
 	announcementTextColor.value = isLightColor(backgroundColor1.value) ? "white" : "black";
 	return currentState;
 })
@@ -107,15 +106,20 @@ const formattedClockTime = computed<string>(() => {
 	}
 })
 
-function getSuffix(n: number) {
+function getSuffix(n: number, period=false) {
+	if (!n)
+		return "";
+	let ytg: string = "";
+	if (!period)
+		ytg = ` & ${replicants.scoreboard.yardsToGo.value}`;
 	if(n == 1) {
-		return `${n}ST`;
+		return `${n}ST` + ytg;
 	} else if(n == 2) {
-		return `${n}ND`;
+		return `${n}ND` + ytg;
 	} else if(n == 3) {
-		return `${n}RD`;
+		return `${n}RD` + ytg;
 	} else {
-		return `${n}TH`;
+		return `${n}TH` + ytg;
 	}
 }
 
@@ -140,7 +144,7 @@ const formattedPeriod = computed<string>(() => {
 
 	// For all other numbers, we need to figure out the suffix.
 	const lastNumberOfPeriod = period.value % 10;
-	return getSuffix(lastNumberOfPeriod);
+	return getSuffix(lastNumberOfPeriod, true);
 });
 
 function grabScoreType (n: number, teamNumber: number) {
@@ -317,13 +321,16 @@ const possessionColors = computed(() => {
 	color: white;
 	justify-content: space-around;
 	text-shadow: 0.1vw 0.1vw 0.6vh #292929;
-	text-align: center;
+	align-items: center;
 	font-family: "Malgun Gothic";
 	font-weight: bold;
 }
 
 
 .play-clock {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 4.45vw;
 	height: 6.2vh;
 	background: linear-gradient(#C5C5C5, #636363);
@@ -337,12 +344,14 @@ const possessionColors = computed(() => {
 
 
 .down-counter-announcements {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 20.7vw;
 	height: 6.2vh;
 	font-family: "Malgun Gothic";
 	font-weight: bold;
 	font-size: 4.3vh;
-	text-align: center;
 	border-radius: 0 2vh 2vh 0;
 	text-shadow: 0.1vw 0.1vw 0.6vh #292929;
 }
@@ -382,6 +391,9 @@ const possessionColors = computed(() => {
 }
 
 .animation-text {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	width: 77.35vw;
 	position: fixed;
 	bottom: 9vh;

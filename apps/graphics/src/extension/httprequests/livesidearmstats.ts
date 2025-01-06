@@ -8,9 +8,8 @@ const options = {
 };
 
 const parser = new XMLParser(options);
-const sidearms = replicants.http.sidearms;
 
 setInterval(async () => {
-	const response = await fetch(sidearms.url.value);
-	sidearms.body.value = parser.parse(await response.text());
+	const response = await fetch(replicants.http.sidearms.url.value).then((res) => res.text()).catch(() => "");
+	replicants.http.sidearms.body.value = parser.parse(response);
 }, 1000);

@@ -1,5 +1,5 @@
 <template>
-	<div :class="{show: replicants.lowerThird.showCopyright.value, hide: !replicants.lowerThird.showCopyright.value}">
+	<div :class="replicants.lowerThird.showCopyright.value || preview ? 'show' : 'hide'">
 		<ESPNCopyright v-if="espnStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 		<RPITVCopyright v-if="rpiTVStyles.indexOf(replicants.gameSettings.style.value) !== -1" />
 	</div>
@@ -10,9 +10,17 @@ import ESPNCopyright from "./styles/espn/lower-third/Copyright.vue";
 import RPITVCopyright from "./styles/rpitv/Copyright.vue";
 import { loadReplicants } from "../../../src/browser-common/replicants"
 import { espnStyles, rpiTVStyles } from "../glimpse/util";
+import {computed, ref} from "vue";
+
+defineProps({
+	preview: {
+		type: Boolean,
+		required: false,
+		default: false
+	}
+});
 
 const replicants = await loadReplicants();
-
 </script>
 
 <style scoped lang="scss">

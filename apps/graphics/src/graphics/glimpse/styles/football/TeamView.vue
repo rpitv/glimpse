@@ -75,11 +75,9 @@ watch(team.score, (n, o) => {
 	grid-template-columns: 2fr 1fr;
 	align-items: center;
 	align-content: center;
-	//position: fixed;
 	background: linear-gradient(v-bind(color1), v-bind(color2));
 	width: 16vw;
 	height: 6.2vh;
-	left: 8.2vw;
 }
 
 .team-info {
@@ -98,7 +96,9 @@ watch(team.score, (n, o) => {
 }
 
 .team-score {
-	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	height: 6.2vh;
 	background: linear-gradient(v-bind(color3), v-bind(color4));
 	font-size: 4.63vh;

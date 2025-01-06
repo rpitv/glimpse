@@ -34,6 +34,9 @@ export const createApi = (nodecg: NodeCG): void => {
 	 * Expects an API key a method and endpoint within the method.
 	 */
 	const v1_routes = [
+		"/v1/:key/:method/:endpoint/:param1/:param2/:param3/:param4/:param5/param6*",
+		"/v1/:key/:method/:endpoint/:param1/:param2/:param3/:param4/:param5*",
+		"/v1/:key/:method/:endpoint/:param1/:param2/:param3/:param4*",
 		"/v1/:key/:method/:endpoint/:param1/:param2/:param3*",
 		"/v1/:key/:method/:endpoint/:param1/:param2*",
 		"/v1/:key/:method/:endpoint/:param1*",

@@ -3,9 +3,12 @@ import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
 import * as fs from 'fs-extra';
 import * as path from "path";
+import {announcementTimersTick} from "@nodecg-vue-ts-template/scoreboard-clock";
 
 const packetBytes: number[] = [];
 let computedChecksum = 0;
+const TV_PAK_HEADER = ``;
+const TV_PAK_TAIL = ``;
 
 /*
 DAKTRONICS RTD PROTOCOL
@@ -88,37 +91,54 @@ async function writeToDumpFile(data: Buffer): Promise<void> {
 	}
 }
 
+function calculateChecksum(packet: string) {
+	// Remove the last two characters (presumed checksum) from the packet
+	const packetWithoutChecksum = packet.slice(0, -2);
+
+	// Convert each character to its ASCII code and adds all characters
+	let checksum = 0;
+	for (let i = 0; i < packetWithoutChecksum.length; i++) {
+		checksum += packetWithoutChecksum.charCodeAt(i);
+	}
+
+	// modulo 256 for two byte hex
+	checksum %= 256
+
+	// Convert the resulting checksum to a 2-digit hexadecimal string
+	return checksum.toString(16).toUpperCase().padStart(2, '0');
+}
+
+let packets: string = ""
+let staging: string[] = [];
+
 /**
  * Handler for incoming data on a Daktronics RTD serial port. This function handles the raw data coming in from
  *   the serial port and parses it into packets. It then verifies the packets' checksums and passes them to the
- *   packet handler {@link handlePacket}.
+ *   packet handler {@link handleRTDPacket}.
  * @param data Buffer containing the incoming data. This may contain multiple packets, or only part of a packet.
  *   Packets are delineated by a 0x16 byte at the start and a 0x17 byte at the end. Once a packet is completed, its
  *   checksum is verified, and if it is valid, it is passed to the packet handler
- *   {@link handlePacket}.
+ *   {@link handleRTDPacket}.
  */
 export function daktronicsRtdListener(data: Buffer) {
 	replicants.sync.status.value.error = false;
-
+	// dumping the Daktronics serial connection to a dump file
+	if (process.env.DUMP_RTD !== "false") {
+		writeToDumpFile(data);
+	}
 	if(logger.isLevelEnabled("trace")) {
 		logger.trace({rawBytes: bufferToHexString(data)},'Received data from serial port');
 	}
-
-	// dumping the Daktronics serial connection to a dump file
-	if(process.env.DUMP_RTD !== "false") {
-		writeToDumpFile(data);
-	}
-
-	for(const byte of data) {
-		if(byte === 0x16) {
+	for (const byte of data) {
+		if (byte === 0x16) {
 			// Start of a new packet. Clear the packet buffer and reset the checksum.
 			logger.trace('Byte 0x16 received, starting new packet by clearing packet buffer');
 			packetBytes.length = 0;
 			computedChecksum = 0;
-		} else if(byte === 0x17) {
+		} else if (byte === 0x17) {
 			logger.trace('Byte 0x17 received, attempting to parse data in packet buffer');
 			// Every packet+checksum must be at least 2 bytes long, as that's the length of the checksum.
-			if(packetBytes.length < 2) {
+			if (packetBytes.length < 2) {
 				logger.warn('Received a packet with a length of %d. Minimum length ' +
 					'is 2, not including the start and end bytes. Packet ignored.', packetBytes.length);
 				continue;
@@ -135,14 +155,14 @@ export function daktronicsRtdListener(data: Buffer) {
 			//   is 0xEC, then the value of the last two bytes will be 0x4543.
 			logger.trace({
 				checksumBytes
-			},'Verifying checksum');
+			}, 'Verifying checksum');
 			const checksumBuffer = Buffer.from(Buffer.from(checksumBytes).toString('ascii'), 'hex');
-			if(checksumBuffer.length !== 1) {
+			if (checksumBuffer.length !== 1) {
 				logger.warn('Computed checksum buffer has a length of %d. Expected length is 1. Packet ignored.', checksumBuffer.length);
 				continue;
 			}
 
-			if((computedChecksum % 256) !== checksumBuffer.readUInt8()) {
+			if ((computedChecksum % 256) !== checksumBuffer.readUInt8()) {
 				logger.warn(
 					{
 						received: checksumBuffer.readUInt8().toString(16),
@@ -156,7 +176,7 @@ export function daktronicsRtdListener(data: Buffer) {
 			// At this point, packetBytes contains only the actual packet data.
 			//   0x16, 0x17, and checksum bytes aren't included.
 			logger.trace('Checksum verified, passing packet to packet handler');
-			handlePacket(Buffer.from(packetBytes));
+			handleRTDPacket(Buffer.from(packetBytes));
 		} else {
 			// Add the byte to the packet buffer and add it to the checksum.
 			logger.trace('Adding byte 0x%s to packet buffer and checksum', byte.toString(16).padStart(2, '0'));
@@ -166,8 +186,42 @@ export function daktronicsRtdListener(data: Buffer) {
 	}
 }
 
+/**
+ * Handler for incoming ASCII data in the Daktronics TV Feed Format.
+ *
+ * Serial Settings: 9600-8-N-1 no control.
+ *
+ * Packets start with {@link TV_PAK_HEADER} and ends with {@link TV_PAK_TAIL}.
+ * The data is located in between the header and tail with the last 2 characters being a checksum of the payload. Checksum ({@link calculateChecksum})
+ * is calculated in by adding all the payload characters mod 256 encoded into hex string.
+ * @param data Buffer containing incoming data, may or may not require multiple data buffers to compile into an entire packet.
+ */
+export function daktronicsTVListener(data: Buffer) {
+	const hexString = data.toString();
+
+	for (const byte of hexString) {
+		if (byte === TV_PAK_HEADER) {
+			staging = []
+		} else if (byte === TV_PAK_TAIL) {
+			const packet = staging.join("");
+			const calculatedChecksum = calculateChecksum(packet);
+			const actualChecksum = packet.slice(-2); // Last two characters
+			if (calculatedChecksum === actualChecksum) // matches
+				packets = staging.join("");
+			else
+				console.error(`MISS-MATCHING CHECKSUM - calculated ${calculatedChecksum} != ${actualChecksum} for '${packet}' ignoring...`)
+		} else
+			staging.push(byte);
+	}
+	if (packets.length > 0) {
+		// console.log(packets);
+		handleTVPacket(packets);
+	}
+	packets = "";
+}
+
 const packetFrequencies: {[key: number]: number} = {};
-function handlePacket(packet: Buffer): void {
+function handleRTDPacket(packet: Buffer): void {
 	// If selected sport is undefined or isn't in the sports list, then we don't know how to parse the packet.
 	if(!replicants.sync.selectedSport.value || !sports[replicants.sync.selectedSport.value]) {
 		logger.trace('Selected sport is undefined or not in the sports list. Unsure of how to handle packet.');
@@ -215,6 +269,94 @@ function handlePacket(packet: Buffer): void {
 		return;
 	}
 	handler(trimmedData);
+}
+
+function handleTVPacket(packet: string): void {
+	const LENGTH_OF_FOOTBALL_PACKET = 43;
+
+	// currently only the Daktronics football packet is implemented
+	if (!(replicants.sync.selectedSport.value === "Football" && packet.length == LENGTH_OF_FOOTBALL_PACKET))
+		return
+
+	const footballPacket = {
+		clock: packet.substring(0, 5),
+		// unknown CHARS 5-25
+		homeScore: packet.substring(27, 29),
+		awayScore: packet.substring(25, 27),
+		period: packet.substring(29, 30),
+		ballOn: packet.substring(30, 32),
+		down: packet.substring(32, 33),
+		yardsToGo: packet.substring(33, 35),
+		// '<' or '>' or ' ' on both
+		possessionHome: packet.substring(35, 36),
+		possessionAway: packet.substring(36, 37),
+		playClock: packet.substring(37, 39),
+		timeoutsLeftHome: packet.substring(39, 40),
+		timeoutsLeftAway: packet.substring(40, 41)
+	};
+	const footballSync = replicants.sync.values.football;
+	if (footballSync.downs.value)
+		replicants.scoreboard.down.value = parseInt(footballPacket.down);
+	if (footballSync.playClock.value)
+		replicants.scoreboard.playClock.value = parseInt(footballPacket.playClock);
+	if (footballSync.possession.value) {
+		const possession = (): string => {
+			if (footballPacket.possessionHome.trim())
+				return footballPacket.possessionHome;
+			if (footballPacket.possessionAway.trim())
+				return footballPacket.possessionAway;
+			return '';
+		}
+		replicants.scoreboard.possession.value = possession();
+	}
+	if (footballSync.yardsToGo.value)
+		replicants.scoreboard.yardsToGo.value = footballPacket.yardsToGo;
+
+	const universalSync = replicants.sync.values;
+	// General Stuff
+	if (universalSync.clock.value) {
+		if (replicants.scoreboard.clock.isRunning.value) {
+			logger.trace('Clock is manually running but score sync data was received. Stopping manual clock.');
+			replicants.scoreboard.clock.isRunning.value = false;
+		}
+
+		// Clock is considered disabled whenever a blank value is sent. Conversely, it is considered enabled whenever a
+		//   non-blank value is sent.
+		if (footballPacket.clock.length === 0 && replicants.gameSettings.clock.enabled.value) {
+			logger.trace('Blank clock value received, disabling the clock.');
+			replicants.gameSettings.clock.enabled.value = false;
+		} else if(footballPacket.clock.length > 0 && !replicants.gameSettings.clock.enabled.value) {
+			logger.trace('Non-blank clock value received, enabling the clock.');
+			replicants.gameSettings.clock.enabled.value = true;
+		}
+
+		let mins, secs, tenths, minsAndSecs;
+		[minsAndSecs, tenths] = footballPacket.clock.split('.');
+		if(minsAndSecs.indexOf(':') > -1) {
+			[mins, secs] = minsAndSecs.split(':')
+		} else {
+			secs = minsAndSecs;
+			mins = '0';
+		}
+		const [minsInt, secsInt, tenthsInt] = [parseInt(mins) || 0, parseInt(secs) || 0, parseInt(tenths) || 0];
+		replicants.scoreboard.clock.time.value = minsInt * 60000 + secsInt * 1000 + tenthsInt * 100;
+		announcementTimersTick();
+	}
+	if (universalSync.period.value)
+		replicants.scoreboard.period.value = parseInt(footballPacket.period);
+
+	// Team Stuff
+	if (universalSync.teams[1].score.value)
+		replicants.teams[1].score.value = parseInt(footballPacket.homeScore);
+	if (universalSync.teams[1].timeouts.value)
+		replicants.teams[1].timeouts.value = parseInt(footballPacket.timeoutsLeftHome);
+
+	if (universalSync.teams[0].score.value)
+		replicants.teams[0].score.value = parseInt(footballPacket.awayScore);
+	if (universalSync.teams[0].timeouts.value)
+		replicants.teams[0].timeouts.value = parseInt(footballPacket.timeoutsLeftAway);
+
+
 }
 
 if(logger.isLevelEnabled("debug")) {

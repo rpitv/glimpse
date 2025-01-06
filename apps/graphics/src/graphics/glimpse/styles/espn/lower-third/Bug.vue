@@ -1,5 +1,5 @@
 <template>
-    <img :src="bug">
+	<img :src="bug">
 </template>
 
 <script setup lang="ts">
