@@ -2,6 +2,7 @@ import {Field, InputType} from "@nestjs/graphql";
 import { StringComparisonInput } from "../../../gql/string-comparison.input";
 import { NumberComparisonInput } from "../../../gql/number-comparison.input";
 import { DateComparisonInput } from "../../../gql/date-comparison.input";
+import {BooleanComparisonInput} from "../../../gql/boolean-comparison.input";
 
 /**
  * Input type for filtering Productions in ReadMany queries.
@@ -63,6 +64,11 @@ export class FilterProductionInput {
      */
     @Field(() => NumberComparisonInput, { nullable: true })
     thumbnailId?: NumberComparisonInput;
+    /**
+     * Filter by whether the Production uses Discord
+     */
+    @Field(() => BooleanComparisonInput, { nullable: true })
+    useDiscord?: BooleanComparisonInput;
 
     @Field(() => [FilterProductionInput], { nullable: true })
     AND?: FilterProductionInput[];
