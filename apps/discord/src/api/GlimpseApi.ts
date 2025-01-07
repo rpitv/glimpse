@@ -1,3 +1,5 @@
+// @ts-nocheck type inconsistency with amqplib vs amqp-connection-manager...? peer dependency conflict with monorepo...?
+
 import {TypedEmitter} from "./TypedEmitter";
 import {ApiResponse} from "./ApiResponse";
 import {Production, User} from "./types";

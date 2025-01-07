@@ -27,6 +27,18 @@ services:
     depends_on:
       - api
 
+  discord:
+    image: ghcr.io/rpitv/glimpse-discord:latest
+    restart: unless-stopped
+    env_file:
+      - apps/discord/.env.docker
+    networks:
+      - glimpse_network
+    profiles:
+      - production
+    depends_on:
+      - api
+
   video:
     image: ghcr.io/rpitv/glimpse-video:latest
     restart: unless-stopped
