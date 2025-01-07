@@ -1,6 +1,7 @@
 import {Injectable, Logger, OnModuleInit} from "@nestjs/common";
 import {RabbitMQService} from "../../amqp/rabbitmq.service";
 import {PrismaService} from "../../prisma/prisma.service";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class UserRpcService implements OnModuleInit {
@@ -8,7 +9,8 @@ export class UserRpcService implements OnModuleInit {
 
     constructor(
         private readonly rabbitMQService: RabbitMQService,
-        private readonly prismaService: PrismaService
+        private readonly prismaService: PrismaService,
+        private readonly configService: ConfigService,
     ) {}
 
     onModuleInit(): void {
@@ -75,7 +77,7 @@ export class UserRpcService implements OnModuleInit {
                 }
             })
             if(existingDiscordUser) {
-                throw new Error('User Error: You already have an RPI TV account. Log in at https://rpi.tv/login.')
+                throw new Error(`User Error: You already have an RPI TV account. Log in at ${this.configService.get<string>("WEB_URL")}/login.`)
             }
 
             const existingUsernameOrEmail = await this.prismaService.user.findFirst({

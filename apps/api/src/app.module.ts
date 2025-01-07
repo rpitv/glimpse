@@ -80,6 +80,7 @@ import {RabbitMQModule} from "./amqp/rabbitmq.module";
                     .required()
                     .uri({ scheme: ["redis", "rediss"] }),
                 RABBITMQ_URL: Joi.string().required().uri({ scheme: "amqp" }),
+                WEB_URL: Joi.string().required().uri({ scheme: ["http", "https"] }),
                 SESSION_SECRET: Joi.string().required().min(64),
                 SESSION_NAME: Joi.string().default("glimpse.sid").max(100),
                 OAUTH_SUCCESS_REDIRECT: Joi.string().default("/").uri({ relativeOnly: true }),

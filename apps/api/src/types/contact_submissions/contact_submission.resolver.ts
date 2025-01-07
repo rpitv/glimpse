@@ -19,6 +19,7 @@ import { CreateContactSubmissionGeneralInput } from "./dto/create-contact_submis
 import { ContactSubmissionType } from "@prisma/client";
 import { UpdateContactSubmissionGeneralInput } from "./dto/update-contact_submission-general.input";
 import { UpdateContactSubmissionProductionRequestInput } from "./dto/update-contact_submission-production-request.input";
+import {ConfigService} from "@nestjs/config";
 
 type CreateContactSubmissionInput = Omit<ContactSubmission, "id" | "timestamp">;
 type UpdateContactSubmissionInput = Partial<CreateContactSubmissionInput>;
@@ -26,6 +27,9 @@ type UpdateContactSubmissionInput = Partial<CreateContactSubmissionInput>;
 @Resolver(() => ContactSubmission)
 export class ContactSubmissionResolver {
     private logger: Logger = new Logger("ContactSubmissionResolver");
+
+    constructor(private readonly configService: ConfigService) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -332,7 +336,7 @@ export class ContactSubmissionResolver {
                     embeds: [
                         {
                             title: "New Production Request",
-                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}`,
+                            url: `${this.configService.get<string>("WEB_URL")}/dashboard/contact-submissions/${submission.id}`,
                             timestamp: submission.timestamp,
                             color: 0xff0000,
                             fields: [
@@ -393,7 +397,7 @@ export class ContactSubmissionResolver {
                     embeds: [
                         {
                             title: "New Contact Submission",
-                            url: `https://rpi.tv/dashboard/contact-submissions/${submission.id}`,
+                            url: `${this.configService.get<string>("WEB_URL")}/dashboard/contact-submissions/${submission.id}`,
                             timestamp: submission.timestamp,
                             color: 0xff0000,
                             fields: [
