@@ -13,6 +13,7 @@ export const getVolunteerWithNotes: CustomId = {
 
       let volunteerNotes = ``;
       const embed = new EmbedBuilder().setTitle("Volunteer Notes").setColor("#d6001c");
+      // FIXME maybe prone to error in edge cases. Notes don't have a length limit.
       for (const rsvp of production.rsvps) {
         if (!rsvp.notes) continue;
         const userName = await getDiscordUserDisplayName(rsvp.userId)
