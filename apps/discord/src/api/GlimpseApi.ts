@@ -7,6 +7,7 @@ import {GlimpseApiEvents, GlimpseApiInterface} from "./GlimpseApiInterface";
 import {ChannelWrapper, connect} from 'amqp-connection-manager'
 import { v4 } from "uuid"
 import {Replies} from "amqplib";
+import {clearTimeout} from "node:timers";
 
 export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements GlimpseApiInterface {
 
@@ -25,7 +26,12 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
      * @private
      */
     private async awaitChannel(): Promise<void> {
+        const connectionTimeout = setTimeout(() => {
+            console.warn("Unable to connect to RabbitMQ server for the past 30 seconds. Still waiting.")
+        }, 30000)
         if(this.channel) {
+            await this.channel.waitForConnect();
+            clearTimeout(connectionTimeout);
             return;
         }
         this.channel = this.amqp.createChannel({
@@ -37,6 +43,7 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
             }
         });
         await this.channel.waitForConnect();
+        clearTimeout(connectionTimeout);
     }
 
     private async setupEventListener(channel: ChannelWrapper): Promise<void> {
