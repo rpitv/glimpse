@@ -1,11 +1,28 @@
 import { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalActionRowComponent, ModalActionRowComponentBuilder } from "discord.js";
 import { Command } from "../types";
+import {glimpseApi} from "../util";
+import {UserError} from "../api";
 
 export const register: Command = {
   data: new SlashCommandBuilder()
     .setName("register")
     .setDescription("Register an account with RPI TV. Fails if you already have one."),
   async execute(interaction) {
+
+    try {
+      const existingUser = (await glimpseApi.getUserFromDiscordId(interaction.user.id)).getData();
+      if(existingUser) {
+        return await interaction.reply({ content: `You already have an account. You can log in with Discord at ${process.env.WEB_URL}/login.`, ephemeral: true });
+      }
+    } catch(e) {
+      if(e instanceof UserError) {
+        return await interaction.reply({ content: e.message, ephemeral: true });
+      } else {
+        console.error(e);
+        return await interaction.reply({ content: `There was an error! Contact an officer or developer.`, ephemeral: true });
+      }
+    }
+
     const modal = new ModalBuilder()
       .setTitle("Register Account")
       .setCustomId("register");
@@ -31,6 +48,6 @@ export const register: Command = {
 
     modal.addComponents(usernameRow, emailRow);
 
-    await interaction.showModal(modal);
+    return await interaction.showModal(modal);
   }
 }
