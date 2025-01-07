@@ -170,7 +170,7 @@ export class ProductionResolver {
             id: result.id
         });
 
-        if(result.useDiscord) {
+        if(rowToUpdate.useDiscord || result.useDiscord) {
             await this.rabbitMQService.emit('updateProduction', await this.productionRpcService.getProductionData(result.id, ctx.req.prismaTx))
         }
 
