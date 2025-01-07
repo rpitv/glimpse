@@ -1,5 +1,5 @@
-import { Production} from "../../api/types";
-import {ChannelType, Client, ForumChannel, MessageEditOptions, TextChannel, ThreadChannel} from "discord.js";
+import { Production} from "../../api";
+import {ChannelType, Client, MessageEditOptions} from "discord.js";
 import { config } from "dotenv";
 import {
     getOrCreateForumTag,
@@ -8,9 +8,8 @@ import {
     formatChannelName,
     getDiscordDataFromProduction
 } from "../../util";
-import { GlimpseApiInterface } from "../../api/GlimpseApiInterface";
+import type { GlimpseApiInterface } from "../../api";
 import moment from "moment";
-import { ProductionDiscordData } from "../../types";
 import { createProduction } from "./createProduction";
 
 config();

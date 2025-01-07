@@ -1,4 +1,4 @@
-import { CustomId, ProductionDiscordData } from "../types";
+import { CustomId } from "../types";
 import { ButtonInteraction, EmbedBuilder, ThreadChannel, userMention } from "discord.js";
 import {getDiscordDataFromProduction, getProductionFromMessageFooter, glimpseApi, updateVolunteers} from "../util";
 import {UserError} from "../api";

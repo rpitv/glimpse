@@ -1,14 +1,11 @@
-import { DiscordEvent, ProductionDiscordData } from "../../types";
+import { DiscordEvent } from "../../types";
 import {
     ActionRowBuilder,
     ActivityType,
     ButtonBuilder,
     ButtonComponentData, ChannelType,
     Client,
-    Events,
-    ForumChannel,
-    TextChannel,
-    ThreadChannel,
+    Events
 } from "discord.js";
 import { createProduction } from "../api/createProduction";
 import {getDiscordDataFromProduction, getProductionFromMessageFooter, glimpseApi} from "../../util";

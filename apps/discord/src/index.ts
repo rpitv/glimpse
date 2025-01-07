@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { Client, Collection, GatewayIntentBits } from "discord.js";
 import { discordEvents } from "./events/discord";
 import moment from "moment";
-import { GlimpseApiEvents } from "./api/GlimpseApiInterface";
+import type { GlimpseApiEvents } from "./api";
 import { glimpseAPIEvents } from "./events/api";
 import { Command, CustomId } from "./types";
 import { customIds } from "./customIds";

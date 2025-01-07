@@ -1,8 +1,8 @@
-import { Production} from "../../api/types";
-import { Client, ForumChannel, GuildForumTag, MessageCreateOptions, TextChannel, ChannelType } from "discord.js";
+import { Production} from "../../api";
+import { Client, MessageCreateOptions, ChannelType } from "discord.js";
 import { config } from "dotenv";
 import { getOrCreateForumTag, createUnvolunteerEmbed, createVolunteerEmbed, formatChannelName } from "../../util";
-import { GlimpseApiInterface } from "../../api/GlimpseApiInterface";
+import { GlimpseApiInterface } from "../../api";
 import moment from "moment";
 
 

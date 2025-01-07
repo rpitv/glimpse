@@ -1,8 +1,7 @@
-import { Production} from "../../api/types";
-import {ChannelType, Client, ForumChannel, TextChannel} from "discord.js";
+import { Production} from "../../api";
+import {ChannelType, Client} from "discord.js";
 import { config } from "dotenv";
-import { GlimpseApiInterface } from "../../api/GlimpseApiInterface";
-import { ProductionDiscordData } from "../../types";
+import type { GlimpseApiInterface } from "../../api";
 import {getDiscordDataFromProduction} from "../../util";
 
 config();

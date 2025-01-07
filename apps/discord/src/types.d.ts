@@ -1,5 +1,5 @@
 import { type SlashCommandBuilder, ChatInputCommandInteraction, Client, SlashCommandOptionsOnlyBuilder } from "discord.js"
-import { GlimpseApiInterface } from "./api/GlimpseApiInterface";
+import type { GlimpseApiInterface } from "./api";
 import { Collection } from "discord.js";
 
 export interface Command {

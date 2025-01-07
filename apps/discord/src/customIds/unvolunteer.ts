@@ -1,7 +1,6 @@
-import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, TextChannel, ThreadChannel, userMention } from "discord.js";
-import { CustomId, ProductionDiscordData } from "../types";
+import { ButtonInteraction, TextChannel, ThreadChannel } from "discord.js";
+import { CustomId } from "../types";
 import {getDiscordDataFromProduction, getProductionFromMessageFooter, glimpseApi, updateVolunteers} from "../util";
-import { Production } from "../api/types";
 import {UserError} from "../api";
 
 export const unvolunteer: CustomId = {

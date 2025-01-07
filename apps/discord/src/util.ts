@@ -1,25 +1,21 @@
 import { Moment } from "moment";
-import {Production, ProductionRSVP, User} from "./api/types";
+import {Production, ProductionRSVP} from "./api/types";
 import {
     ActionRowBuilder,
     APIEmbedField,
     ButtonBuilder,
     ButtonStyle,
     channelMention,
-    Embed,
     EmbedBuilder,
     ForumChannel, GuildForumTag,
     Message,
     MessageCreateOptions,
     MessageEditOptions,
-    messageLink, Snowflake,
-    userMention
+    messageLink, userMention
 } from "discord.js";
-import {GlimpseApi} from "./api/GlimpseApi";
+import {GlimpseApi} from "./api";
 import { config } from "dotenv";
 import {ProductionDiscordData} from "./types";
-
-export const dateFormat = "MMMM Do YYYY hh:mm A";
 
 export function formatChannelName(eventName: string, startTime: Moment): string {
   return `${startTime.format("YYYY-MM-DD")} ${eventName}`;
@@ -30,10 +26,6 @@ export function ellipsis(maxLength: number, text: string): string {
         return text.substring(0, maxLength - 3) + "...";
     }
     return text;
-}
-
-export function errorString(message: string, e) {
-  return `${message}\n\`\`\`${e}\`\`\``
 }
 
 export async function createVolunteerEmbed(production: Production, threadChannelId: string): Promise<MessageCreateOptions | MessageEditOptions> {
