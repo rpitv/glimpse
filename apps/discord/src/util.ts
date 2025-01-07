@@ -162,7 +162,7 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
     inline: false
   });
 
-  const embed = new EmbedBuilder().setTitle(`${production.name}`).setURL(`http://localhost:5173/productions/${production.id}`).setColor("#d6001c").setFooter({ text: `Production ID: ${production.id}`})
+  const embed = new EmbedBuilder().setTitle(`${production.name}`).setURL(`${process.env.WEB_URL}/productions/${production.id}`).setColor("#d6001c").setFooter({ text: `Production ID: ${production.id}`})
     .addFields(...fields);
   if (production.description && production.description?.trim() !== "")
     embed.setDescription(`${ellipsis(50, production.description)}`);
