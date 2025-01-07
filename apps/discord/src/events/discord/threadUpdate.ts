@@ -1,13 +1,13 @@
 import { ProductionDiscordData } from "../../types";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonComponentData,
-  Events,
-  TextChannel,
-  ThreadChannel,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonComponentData, ChannelType,
+    Events,
+    TextChannel,
+    ThreadChannel,
 } from "discord.js";
-import { glimpseApi } from "../../util";
+import {getDiscordDataFromProduction, getProductionFromMessageFooter, glimpseApi} from "../../util";
 
 
 export const threadUpdate = {
@@ -19,39 +19,44 @@ export const threadUpdate = {
       const productions = await glimpseApi.getLatestProductions().then((productions) => productions.getData());
       // If the production is archived but they're still "active", unarchive the thread. Otherwise, lock it.
       for (const production of productions) {
-        const discordData = JSON.parse(production.discordData.toString()).data as ProductionDiscordData;
+        const discordData = getDiscordDataFromProduction(production)
         if (discordData.threadChannelId === newChannel.id) {
           unarchive = true;
           await newChannel.setArchived(false);
           break;
         }
       }
-      
+
       // Lock the thread.
       // https://github.com/discord/discord-api-docs/issues/6928#issuecomment-2159320589
       if (!unarchive) {
         const threadMessage = await newChannel.fetchStarterMessage();
-        const volunteerButtons = threadMessage.components[0].components;
-        const disabledVolunteerRow = new ActionRowBuilder<ButtonBuilder>();
-        for (const button of volunteerButtons as Partial<ButtonComponentData>[]) {
-          const buttonBuilder = new ButtonBuilder(button);
-          disabledVolunteerRow.addComponents(buttonBuilder.setDisabled(true));
-        }
+        if(threadMessage) {
+          const volunteerButtons = threadMessage.components[0].components;
+          const disabledVolunteerRow = new ActionRowBuilder<ButtonBuilder>();
+          for (const button of volunteerButtons as Partial<ButtonComponentData>[]) {
+            const buttonBuilder = new ButtonBuilder(button);
+            disabledVolunteerRow.addComponents(buttonBuilder.setDisabled(true));
+          }
+          const production = await getProductionFromMessageFooter(threadMessage);
+          const discordData = getDiscordDataFromProduction(production)
+          const volunteerChannel = (await newChannel.guild.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID));
+          if(!volunteerChannel || volunteerChannel.type !== ChannelType.GuildText) {
+            throw new Error('Environment variable "VOLUNTEER_CHANNEL_ID" does not correspond to a found Discord Text channel.')
+          }
+          const volunteerMessage = await volunteerChannel.messages.fetch(discordData.volunteerMessageId);
+          const unvolunteerButtons = volunteerMessage.components[0].components;
+          const disabledUnvolunteerRow = new ActionRowBuilder<ButtonBuilder>();
+          for (const button of unvolunteerButtons as Partial<ButtonComponentData>[]) {
+            const buttonBuilder = new ButtonBuilder(button);
+            disabledUnvolunteerRow.addComponents(buttonBuilder.setDisabled(true));
+          }
 
-        const productionId = BigInt(threadMessage.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
-        const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
-        const discordData = JSON.parse(production.discordData.toString()).data as ProductionDiscordData;
-        const volunteerChannel = (await newChannel.guild.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID)) as TextChannel;
-        const volunteerMessage = await volunteerChannel.messages.fetch(discordData.volunteerMessageId);
-        const unvolunteerButtons = volunteerMessage.components[0].components;
-        const disabledUnvolunteerRow = new ActionRowBuilder<ButtonBuilder>();
-        for (const button of unvolunteerButtons as Partial<ButtonComponentData>[]) {
-          const buttonBuilder = new ButtonBuilder(button);
-          disabledUnvolunteerRow.addComponents(buttonBuilder.setDisabled(true));
+          await threadMessage.edit({components: [disabledVolunteerRow]});
+          await volunteerMessage.edit({components: [disabledUnvolunteerRow]});
+        } else {
+          console.warn(`Missing thread starter message for thread ${newChannel.id}. Unable to disable volunteer buttons or determine source production.`)
         }
-        
-        await threadMessage.edit({ components: [disabledVolunteerRow] });
-        await volunteerMessage.edit({ components: [disabledUnvolunteerRow] });
         await newChannel.setArchived(false);
         await newChannel.setLocked(true);
         await newChannel.setArchived(true);

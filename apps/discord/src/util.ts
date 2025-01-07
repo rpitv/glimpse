@@ -1,9 +1,23 @@
 import { Moment } from "moment";
-import { Production, ProductionRSVP } from "./api/types";
-import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonStyle, channelMention, Embed, EmbedBuilder, ForumChannel, MessageCreateOptions, MessageEditOptions, messageLink, userMention } from "discord.js";
+import {Production, ProductionRSVP, User} from "./api/types";
+import {
+    ActionRowBuilder,
+    APIEmbedField,
+    ButtonBuilder,
+    ButtonStyle,
+    channelMention,
+    Embed,
+    EmbedBuilder,
+    ForumChannel, GuildForumTag,
+    Message,
+    MessageCreateOptions,
+    MessageEditOptions,
+    messageLink, Snowflake,
+    userMention
+} from "discord.js";
 import {GlimpseApi} from "./api/GlimpseApi";
 import { config } from "dotenv";
-
+import {ProductionDiscordData} from "./types";
 
 export const dateFormat = "MMMM Do YYYY hh:mm A";
 
@@ -31,16 +45,6 @@ export async function createVolunteerEmbed(production: Production, threadChannel
 
   const fields: APIEmbedField[] = [
     {
-      name: "Event Start",
-      value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
-      inline: true
-    },
-    {
-      name: "Event End",
-      value: `__Time__\n<t:${Math.floor(new Date(endTime).valueOf() / 1000)}:F>`,
-      inline: true
-    },
-    {
       name: "Thread Channel",
       value: `${channelMention(threadChannelId)}`,
       inline: false
@@ -52,7 +56,7 @@ export async function createVolunteerEmbed(production: Production, threadChannel
     },
     {
       name: "Team Notes",
-      value: `${production.teamNotes.length === 0 ? "*No notes have been added*" : production.teamNotes}`,
+      value: `${production.teamNotes ? production.teamNotes :  "*No notes have been added*"}`,
     },
     {
       name: "~~------------~~ Volunteer List ~~-------------~~",
@@ -60,12 +64,28 @@ export async function createVolunteerEmbed(production: Production, threadChannel
       inline: false
     },
   ];
-  if (closetTime)
+
+  if (closetTime) {
     fields.unshift({
       name: "Closet",
       value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
       inline: true
     });
+  }
+  if(endTime) {
+    fields.unshift({
+      name: "Event End",
+      value: `__Time__\n<t:${Math.floor(new Date(endTime).valueOf() / 1000)}:F>`,
+      inline: true
+    })
+  }
+  if(startTime) {
+    fields.unshift({
+      name: "Event Start",
+      value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
+      inline: true
+    })
+  }
   fields.unshift({
     name: "~~-----------~~ Event Information ~~----------~~",
     value: "\u200b",
@@ -99,16 +119,6 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
 
   const fields: APIEmbedField[] = [
     {
-      name: "Event Start",
-      value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
-      inline: true
-    },
-    {
-      name: "Event End",
-      value: `__Time__\n<t:${Math.floor(new Date(endTime).valueOf() / 1000)}:F>`,
-      inline: true
-    },
-    {
       name: "Volunteer Here",
       value: `${messageLink(volunteerChannelId, volunteerMessageId)}`,
       inline: false
@@ -120,7 +130,7 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
     },
     {
       name: "Team Notes",
-      value: `${production.teamNotes.length === 0 ? "*No notes have been added*" : production.teamNotes}`,
+      value: `${production.teamNotes ? production.teamNotes :  "*No notes have been added*"}`,
     },
     {
       name: "~~-------------~~ Volunteer List ~~-------------~~",
@@ -133,12 +143,28 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
       value: "\u200b",
     }
   ];
-  if (closetTime)
+
+  if (closetTime) {
     fields.unshift({
       name: "Closet",
       value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
       inline: true
     });
+  }
+  if(endTime) {
+    fields.unshift({
+      name: "Event End",
+      value: `__Time__\n<t:${Math.floor(new Date(endTime).valueOf() / 1000)}:F>`,
+      inline: true
+    })
+  }
+  if(startTime) {
+    fields.unshift({
+      name: "Event Start",
+      value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
+      inline: true
+    })
+  }
   fields.unshift({
     name: "~~-----------~~ Event Information ~~-----------~~",
     value: "\u200b",
@@ -172,22 +198,13 @@ export async function updateVolunteers(rsvps: ProductionRSVP[]) {
   } else {
   for (const rsvp of rsvps) {
       if (rsvp.willAttend === "no") continue;
-      const user = (await glimpseApi.getUserFromUserId(rsvp.userId)).getData();
-      if (user.discord) {
-        volunteers += `${userMention(user.discord)}\n`;
-        if (rsvp.notes) {
-          notes++;
-          volunteerNotes += `${userMention(user.discord)}\n`;
-        }
+      const userDisplayName = await getDiscordUserDisplayName(rsvp.userId);
+      volunteers += `${userDisplayName}\n`;
+      if (rsvp.notes) {
+        notes++;
+        volunteerNotes += `${userDisplayName}\n`;
       }
-      // Some users may not have discord
-      else {
-        volunteers += `\`${user.username}\`\n`;
-        if (rsvp.notes) {
-          notes++;
-          volunteerNotes += `\`${user.username}\`\n`;
-        }
-      }
+
     }
     volunteers = `***${rsvps.length} Volunteer${rsvps.length === 1 ? "" : "s"}***\n` + volunteers;
     if (notes > 0)
@@ -198,12 +215,56 @@ export async function updateVolunteers(rsvps: ProductionRSVP[]) {
   return { volunteers: volunteers, volunteerNotes: volunteerNotes };
 }
 
-export async function addForumTag(forumChannel: ForumChannel, category: string) {
+export async function getOrCreateForumTag(forumChannel: ForumChannel, category: string): Promise<GuildForumTag> {
   const availableTags = forumChannel.availableTags;
   const trimmedCategoryName = category.substring(0, 20)
   if (!availableTags.find((tag) => tag.name === trimmedCategoryName)) {
     await forumChannel.setAvailableTags([...availableTags, { name: trimmedCategoryName }]);
   }
+  const foundTag = forumChannel.availableTags.find((tag) => tag.name === trimmedCategoryName);
+  if (!foundTag) {
+      throw new Error(`Failed to create tag "${category} for channel ${forumChannel.id}`)
+  }
+  return foundTag;
+}
+
+export async function getDiscordUserDisplayName(userId: bigint): Promise<string> {
+  const user = await glimpseApi.getUserFromUserId(userId).then((data) => data.getData());
+  if(!user) {
+    return `<Unknown User ${userId}>`
+  }
+  if(!user.discord) {
+    return user.username;
+  }
+  return userMention(user.discord)
+
+}
+
+export async function getProductionFromMessageFooter(message: Message): Promise<Production> {
+  const productionIdText = message.embeds?.[0]?.data.footer?.text?.match(/Production ID: (\d+)/)?.[1]
+  if(!productionIdText) {
+    throw new Error(`Unable to retrieve production ID from footer of ${message.id}`)
+  }
+  const productionId = BigInt(productionIdText);
+  const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
+  if(!production) {
+    throw new Error(`Production with ID no longer exists; retrieved from footer of ${message.id}`)
+  }
+  return production;
+}
+
+export function getDiscordDataFromProduction(production: Production): ProductionDiscordData {
+  if(!production.discordData) {
+    throw new Error(`Missing Discord data in Production ${production.id}`);
+  }
+  const parsedData = JSON.parse(production.discordData.toString()).data
+  if(!parsedData.threadChannelId || typeof parsedData.threadChannelId !== 'string') {
+    throw new Error(`Missing or malformed threadChannelId in Discord data for Production ${production.id}`)
+  }
+  if(!parsedData.volunteerMessageId || typeof parsedData.volunteerMessageId !== 'string') {
+    throw new Error(`Missing or malformed volunteerMessageId in Discord data for Production ${production.id}`)
+  }
+  return parsedData;
 }
 
 config();

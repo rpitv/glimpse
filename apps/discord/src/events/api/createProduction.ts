@@ -1,7 +1,7 @@
 import { Production} from "../../api/types";
-import { Client, ForumChannel, GuildForumTag, MessageCreateOptions, TextChannel } from "discord.js";
+import { Client, ForumChannel, GuildForumTag, MessageCreateOptions, TextChannel, ChannelType } from "discord.js";
 import { config } from "dotenv";
-import { addForumTag, createUnvolunteerEmbed, createVolunteerEmbed, formatChannelName } from "../../util";
+import { getOrCreateForumTag, createUnvolunteerEmbed, createVolunteerEmbed, formatChannelName } from "../../util";
 import { GlimpseApiInterface } from "../../api/GlimpseApiInterface";
 import moment from "moment";
 
@@ -13,19 +13,24 @@ export const createProduction = {
   async execute(production: Production, client: Client, api: GlimpseApiInterface) {
     if (!production.useDiscord) return;
 
-    const productionForum = await client.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID) as ForumChannel;
-    const volunteerChannel = await client.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID) as TextChannel;
+    const productionForum = await client.channels.fetch(process.env.PRODUCTIONS_CHANNEL_ID);
+    const volunteerChannel = await client.channels.fetch(process.env.VOLUNTEER_CHANNEL_ID);
+
+    if(!productionForum || productionForum.type !== ChannelType.GuildForum) {
+      throw new Error('Environment variable "PRODUCTIONS_CHANNEL_ID" does not correspond to a found Discord Forum channel.')
+    }
+    if(!volunteerChannel || volunteerChannel.type !== ChannelType.GuildText) {
+      throw new Error('Environment variable "VOLUNTEER_CHANNEL_ID" does not correspond to a found Discord Text channel.')
+    }
 
     let startTime = production.startTime || production.endTime || production.closetTime;
 
     // Adds the category to the list of tags if it doesn't exist.
     let discordTag: string[] = [];
     if (production.category) {
-      await addForumTag(productionForum, production.category);
-      const availableTags = productionForum.availableTags;
-      discordTag.push(availableTags.find(tag => tag.name === production.category.substring(0, 20)).id);
+      const tag = await getOrCreateForumTag(productionForum, production.category);
+      discordTag.push(tag.id);
     }
-
 
     const threadChannel = await productionForum.threads.create({
       name: `${formatChannelName(production.name, moment(startTime))}`,
@@ -37,9 +42,14 @@ export const createProduction = {
 
 
     const volunteerMessage = await volunteerChannel.send(await createVolunteerEmbed(production, threadChannel.id) as MessageCreateOptions);
-
     const threadMessage = await threadChannel.fetchStarterMessage();
-    await threadMessage.edit(await createUnvolunteerEmbed(production, volunteerChannel.id, volunteerMessage.id));
+
+    if(threadMessage) {
+      await threadMessage.edit(await createUnvolunteerEmbed(production, volunteerChannel.id, volunteerMessage.id));
+    } else {
+      console.warn(`Missing thread starter message for thread ${threadChannel.id}. Skipping edit.`)
+    }
+
     await api.setProductionDiscordData(production.id, {
       threadChannelId: threadChannel.id,
       volunteerMessageId: volunteerMessage.id

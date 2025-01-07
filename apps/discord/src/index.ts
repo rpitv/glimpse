@@ -49,8 +49,8 @@ client.customIds = new Collection<string, CustomId>();
 client.commands = new Collection<string, Command>();
 
 // Commands
-for (const command of commands)
-  client.commands.set(command.data.name, command);
+for (const command in commands)
+  client.commands.set(commands[command].data.name, commands[command]);
 
 // Discord Event Handler
 for (const event of discordEvents)

@@ -81,7 +81,7 @@ export class GlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Glimps
             correlationId: correlationId,
         })
 
-        return ApiResponse.fromJSON(await responsePromise);
+        return ApiResponse.fromJSON<T>(await responsePromise);
     }
 
     public getUserFromUserId(userId: bigint): Promise<ApiResponse<User | null>> {

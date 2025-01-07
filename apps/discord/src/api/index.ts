@@ -1,9 +1,9 @@
 import {ApiResponse} from "./ApiResponse";
 import {UserError} from "./UserError";
-import { Production, User, Role } from './types'
+import type { Production, User, Role } from './types'
 import { GlimpseApi } from "./GlimpseApi";
 import { MockGlimpseApi } from "./MockGlimpseApi";
-import { GlimpseApiInterface, GlimpseApiEvents } from "./GlimpseApiInterface";
+import type { GlimpseApiInterface, GlimpseApiEvents } from "./GlimpseApiInterface";
 
 export {
     ApiResponse,

@@ -37,7 +37,7 @@ export class ApiResponse<T> {
      * @return An ApiResponse instance created from the object.
      * @throws Error If the object does not meet the expected structure.
      */
-    public static fromObject<T>(obj: { error?: string, data?: T }): ApiResponse<T> {
+    public static fromObject<T>(obj: { error?: string, data?: T } | null): ApiResponse<T> {
         if(obj === null) {
             return new ApiResponse<T>(obj);
         }

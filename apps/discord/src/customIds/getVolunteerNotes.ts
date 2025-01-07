@@ -1,22 +1,22 @@
 import { ActionRowBuilder, ButtonInteraction, EmbedBuilder, ModalActionRowComponentBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, userMention } from "discord.js";
 import { CustomId } from "../types";
-import { glimpseApi } from "../util";
+import {getDiscordUserDisplayName, getProductionFromMessageFooter, glimpseApi} from "../util";
+import {UserError} from "../api";
 
 export const getVolunteerWithNotes: CustomId = {
   name: "getVolunteerNotes",
   async execute(interaction: ButtonInteraction) {
-    await interaction.deferReply({ ephemeral: true });
-    const message = interaction.message;
-    const productionId = BigInt(message.embeds[0].data.footer.text.match(/Production ID: (\d+)/)[1]);
 
     try {
+      await interaction.deferReply({ ephemeral: true });
+      const production = await getProductionFromMessageFooter(interaction.message);
+
       let volunteerNotes = ``;
-      const production = await glimpseApi.getProductionData(productionId).then((data) => data.getData());
       const embed = new EmbedBuilder().setTitle("Volunteer Notes").setColor("#d6001c");
       for (const rsvp of production.rsvps) {
         if (!rsvp.notes) continue;
-        const user = await glimpseApi.getUserFromUserId(rsvp.userId).then((data) => data.getData());
-        volunteerNotes += `**__${userMention(user.discord)} Notes__**\n${rsvp.notes}\n\n`;
+        const userName = await getDiscordUserDisplayName(rsvp.userId)
+        volunteerNotes += `**__${userName} Notes__**\n${rsvp.notes}\n\n`;
         if (volunteerNotes.length >= 850) {
           embed.addFields({
             name: "\u200b",
@@ -38,8 +38,8 @@ export const getVolunteerWithNotes: CustomId = {
 
       await interaction.editReply({ embeds: [embed] });
     } catch(e) {
-        if(e instanceof Error && e.message.startsWith("User Error: ")) {
-            return await interaction.editReply(`${e.message.substring("User Error: ".length)}`);
+        if(e instanceof UserError) {
+            return await interaction.editReply(e.message);
         } else {
             console.error(e);
             return await interaction.editReply(`There was an error! Contact an officer or developer.`);

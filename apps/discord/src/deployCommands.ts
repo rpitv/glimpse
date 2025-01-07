@@ -1,13 +1,14 @@
 import {REST, Routes} from 'discord.js';
 import { config } from 'dotenv';
 import commandFiles from './commands/index';
+import {Command} from "./types";
 
 config();
 
-const commands = [];
+const commands: Command[] = [];
 
 for (const command in commandFiles) {
-  commands.push(commandFiles[command as keyof typeof commandFiles].data);
+  commands.push(commandFiles[command].data);
 }
 
 if (typeof(process.env.TOKEN) === "undefined")

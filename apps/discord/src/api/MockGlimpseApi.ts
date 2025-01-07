@@ -66,7 +66,12 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
                 name: "RPI President Town Hall - Fall 2024",
                 startTime: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000),
                 useDiscord: true
-            }
+            },
+            {   id: 24n, // Production with only closet time
+                name: "RPI Football vs. Hobart College",
+                closetTime: new Date(Date.now() + 2 * 31 * 60 * 60 * 1000),
+                useDiscord: true
+            },
         ],
         productionTags: [
             {
