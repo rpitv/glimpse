@@ -99,6 +99,15 @@ export class UserRpcService implements OnModuleInit {
                     username: data.username,
                     mail: data.email,
                     discord: data.discordUserId,
+                    groups: {
+                        create: {
+                            group: {
+                                connect: {
+                                    id: 2
+                                }
+                            }
+                        }
+                    },
                 },
                 select: {
                     id: true
