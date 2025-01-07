@@ -31,6 +31,9 @@ function loadEnvironmentVariables() {
 
   if(!process.env.RABBITMQ_URL)
       throw new Error("RABBITMQ_URL environment variable not set");
+
+  if(!process.env.WEB_URL)
+      throw new Error("WEB_URL environment variable not set");
 }
 
 loadEnvironmentVariables();

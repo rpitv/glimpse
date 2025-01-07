@@ -357,7 +357,7 @@ export class MockGlimpseApi extends TypedEmitter<GlimpseApiEvents> implements Gl
         const discordUserExists = !!this.mockData.users.find(v => v.discord === discordUserId);
         if (discordUserExists) {
             return ApiResponse.fromObject({
-                error: "User Error: You already have an account. You can log in with Discord at https://rpi.tv/login."
+                error: `User Error: You already have an account. You can log in with Discord at ${process.env.WEB_URL}/login.`
             })
         }
         const usernameExists = !!this.mockData.users.find(v => v.username === username);

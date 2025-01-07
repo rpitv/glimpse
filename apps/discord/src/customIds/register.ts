@@ -15,7 +15,7 @@ export const register: CustomId = {
       const user = await glimpseApi.registerUser(interaction.user.id, username, email);
       const userData = user.getData();
       console.log(userData);
-      await interaction.editReply({ content: `You have successfully registered! You can sign in via discord at our [website](http://rpi.tv/)` });
+      await interaction.editReply({ content: `You have successfully registered! You can sign in via discord at our [website](${process.env.WEB_URL})` });
     } catch (e) {
         if(e instanceof UserError) {
             return await interaction.editReply(e.message);
