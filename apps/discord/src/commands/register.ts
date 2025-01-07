@@ -14,12 +14,14 @@ export const register: Command = {
       .setCustomId("username")
       .setLabel("Set your username, ideally your RCS ID.")
       .setStyle(TextInputStyle.Short)
+      .setMaxLength(8)
       .setPlaceholder("smithj2")
       .setRequired(true);
 
     const email = new TextInputBuilder()
       .setCustomId("email")
       .setLabel("Set your email address.")
+      .setMaxLength(300)
       .setStyle(TextInputStyle.Short)
       .setPlaceholder("smithj2@rpi.edu")
       .setRequired(true);
