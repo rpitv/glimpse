@@ -34,6 +34,7 @@ declare global {
             GUILD_ID: string
             PRODUCTIONS_CHANNEL_ID: string
             VOLUNTEER_CHANNEL_ID: string
+            ADMIN_ALERTS_CHANNEL_ID: string
             TOKEN: string
             DATABASE_URL: string
             RPITV_ID: string

@@ -20,6 +20,9 @@ function loadEnvironmentVariables() {
   if (!process.env.VOLUNTEER_CHANNEL_ID)
     throw new Error("VOLUNTEER_CHANNEL_ID environment variable not set");
 
+  if (!process.env.ADMIN_ALERTS_CHANNEL_ID)
+    throw new Error("ADMIN_ALERTS_CHANNEL_ID environment variable not set");
+
   if (!process.env.RPITV_ID)
     throw new Error("RPITV_ID environment variable not set");
 
