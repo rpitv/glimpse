@@ -22,13 +22,10 @@
   },
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
     "amqp-connection-manager": "^4.1.14",
     "discord.js": "^14.16.3",
     "dotenv": "^16.0.2",
     "moment": "^2.29.4",
-    "postgres": "^3.4.4",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -39,6 +36,8 @@
     "nodemon": "^3.1.4",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0"
   }
 }
