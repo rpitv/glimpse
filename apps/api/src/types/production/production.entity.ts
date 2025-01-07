@@ -1,7 +1,7 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 import { IsDate, MaxLength } from "class-validator";
-import { Production as PrismaProduction } from "@prisma/client";
-import { GraphQLBigInt } from "graphql-scalars";
+import {Prisma, Production as PrismaProduction} from "@prisma/client";
+import {GraphQLBigInt, GraphQLJSON} from "graphql-scalars";
 import { BigIntMin } from "../../custom-validators";
 
 @ObjectType()
@@ -84,19 +84,16 @@ export class Production implements PrismaProduction {
     teamNotes: string | null;
 
     /**
-     * The ID of the Discord server that messages related to this Production should be sent to.
+     * Whether Discord should be used for this Production to volunteer/communicate.
      */
-    @MaxLength(18)
-    @Field(() => String, { nullable: true })
-    discordServer: string | null;
+    @Field(() => Boolean)
+    useDiscord: boolean;
 
     /**
-     * The ID of the Discord channel within the Discord server that messages related to this Production should be sent
-     *  to.
+     * Schemaless data used by the Discord service to keep track of relevant channels/messages/etc.
      */
-    @MaxLength(18)
-    @Field(() => String, { nullable: true })
-    discordChannel: string | null;
+    @Field(() => GraphQLJSON, { nullable: true })
+    discordData: Prisma.JsonValue | null;
 
     /**
      * The ID of the Image which should be used as the thumbnail for this Production.

@@ -9,6 +9,9 @@ query SearchProductions($pagination: PaginationInput, $filter: FilterProductionI
     }
     name
     startTime
+		rsvps {
+			id
+		}
     tags {
       id
       tag

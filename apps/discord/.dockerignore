@@ -1,0 +1,7 @@
+node_modules
+.editorconfig
+.gitignore
+.npmrc
+.env
+.env.sample
+README.md

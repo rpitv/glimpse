@@ -38,12 +38,20 @@ import { OrderVoteResponseInput } from "../vote_response/dto/order-vote_response
 import { GraphQLBigInt } from "graphql-scalars";
 import { Rule, RuleType } from "../../casl/rule.decorator";
 import {GraphQLString} from "graphql/type";
+import {RabbitMQService} from "../../amqp/rabbitmq.service";
+import {UserRpcService} from "./user_rpc.service";
 
 @Resolver(() => User)
 export class UserResolver {
     private logger: Logger = new Logger("UserResolver");
 
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly rabbitMQService: RabbitMQService,
+        private readonly userRpcService: UserRpcService
+    ) {
+
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -182,6 +190,8 @@ export class UserResolver {
             id: result.id
         });
 
+        await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(result.id, ctx.req.prismaTx))
+
         return result;
     }
 
@@ -210,6 +220,7 @@ export class UserResolver {
             return null;
         }
 
+        const userDataToDelete = await this.userRpcService.getUserData(id, ctx.req.prismaTx)
         const result = await ctx.req.prismaTx.user.delete({
             where: {
                 id
@@ -222,6 +233,8 @@ export class UserResolver {
             subject: "User",
             id: result.id
         });
+
+        await this.rabbitMQService.emit('deleteUser', userDataToDelete);
 
         return result;
     }

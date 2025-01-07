@@ -26,8 +26,7 @@
         <v-stepper-window>
           <v-stepper-window-item :value="1" >
             <v-form ref="requiredForm">
-                <RequiredInput v-model="productionData" :closet-time-missing="closetTimeMissing"
-                 :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
+                <RequiredInput v-model="productionData" :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
             </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2" >
@@ -35,8 +34,9 @@
           </v-stepper-window-item>
           <v-stepper-window-item :value="3">
             <CategoryTable :take="take" :productionCategory="productionData.category as Category"
-              @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"/>
-            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category = {}" />
+              @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"
+            />
+            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category = {}; productionData.categoryId = null;" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
               <ImageTable :take="take" :productionImages="newProductionImages" :thumbnail="productionData.thumbnail as Image"
@@ -139,7 +139,6 @@ const productionData = ref<Partial<Production>>({});
 
 const step = ref(0);
 const loading = ref(false);
-const closetTimeMissing = ref(false);
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
 const validation = ref(false);
@@ -171,7 +170,7 @@ currentProduction.onResult((result) => {
     startTime: production?.startTime,
     teamNotes: production?.teamNotes,
     thumbnail: JSON.parse(JSON.stringify(production?.thumbnail)) ?? {},
-    thumbnailId: production?.thumbnailId
+    thumbnailId: production?.thumbnailId,
   }
 
   const tags = production?.tags;
@@ -216,8 +215,6 @@ async function validate(next: any) {
   }
   if (validation.value)
     next();
-  if (!productionData.value.closetTime)
-    closetTimeMissing.value = true;
   if (!productionData.value.startTime)
     startTimeMissing.value = true;
   if (!productionData.value.endTime)
@@ -256,7 +253,6 @@ function addPerson(person: Person) {
 
 async function editProduction() {
   try {
-
     await updateProductionMutation.mutate({
       data: {
         categoryId: productionData.value.categoryId,
@@ -268,7 +264,7 @@ async function editProduction() {
         name: productionData.value.name,
         startTime: productionData.value.startTime,
         teamNotes: productionData.value.teamNotes,
-        thumbnailId: productionData.value.thumbnailId
+        thumbnailId: productionData.value.thumbnailId,
       },
       id: props.productionId
     });
@@ -371,11 +367,10 @@ async function editProduction() {
 }
 
 watch(productionData, async () => {
-  if (requiredForm.value) {
-    const valid = await requiredForm.value.validate();
-    validation.value = valid.valid && !!productionData.value.closetLocation && !!productionData.value.closetLocation && !!productionData.value.eventLocation &&
-      !!productionData.value.closetTime && !!productionData.value.startTime && !!productionData.value.endTime;
-  }
+	if (requiredForm.value) {
+		const valid = await requiredForm.value.validate();
+		validation.value = valid.valid && !!productionData.value.eventLocation && !!productionData.value.startTime && !!productionData.value.endTime;
+	}
 }, {deep: true});
 
 onMounted(() => {

@@ -5,4 +5,4 @@ import { Production } from "../production.entity";
  * Input type for createProduction mutation
  */
 @InputType()
-export class CreateProductionInput extends OmitType(Production, ["id"], InputType) {}
+export class CreateProductionInput extends OmitType(Production, ["id", "discordData"], InputType) {}

@@ -20,8 +20,7 @@
         <v-stepper-window>
           <v-stepper-window-item :value="1">
             <v-form ref="requiredForm">
-              <RequiredInput v-model="productionData" :closet-time-missing="closetTimeMissing"
-                             :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
+              <RequiredInput v-model="productionData" :start-time-missing="startTimeMissing" :end-time-missing="endTimeMissing" />
             </v-form>
           </v-stepper-window-item>
           <v-stepper-window-item :value="2" >
@@ -31,7 +30,7 @@
             <CategoryTable :take="take" :productionCategory="productionData.category as Category"
                @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"
             />
-            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category.id = null" />
+            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category = {}; productionData.categoryId = null;" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
             <ImageTable :take="take" :productionImages="productionImages" :thumbnail="productionData.thumbnail as Image"
@@ -41,7 +40,7 @@
             <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages" @close="productionData.thumbnailId = null" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
-            <VideoTable :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
+            <VideoTable :productionName="productionData.name as string" :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
             <VideoRow :productionVideos="productionVideos" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">
@@ -58,6 +57,7 @@
               <PriorityEditor v-if="productionVideos.length > 0 || productionImages.length > 0 || creditPeople.length > 0"
                       :productionVideos="productionVideos" :productionImages="productionImages" :creditPeople="creditPeople" />
             </div>
+	          <v-checkbox v-model="productionData.useDiscord" label="Post this to Discord?" false-icon="fa-square" />
           </v-stepper-window-item>
         </v-stepper-window>
         <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 7 ? 'CREATE' : 'NEXT'"
@@ -132,12 +132,12 @@ const productionData = ref<Partial<Production>>({
   teamNotes: "",
   thumbnail: {},
   thumbnailId: null,
+	useDiscord: true
 });
 
 const step = ref(1);
 let firstTime = true;
 const loading = ref(false);
-const closetTimeMissing = ref(false);
 const startTimeMissing = ref(false);
 const endTimeMissing = ref(false);
 const validation = ref(false);
@@ -158,7 +158,6 @@ if (props.data) {
 
 watch((productionData.value), () => {
   if (productionData.value.closetTime) {
-    closetTimeMissing.value = false;
     if (!productionData.value.startTime && !productionData.value.endTime && firstTime) {
       productionData.value.startTime = productionData.value.closetTime;
       productionData.value.endTime = productionData.value.closetTime;
@@ -194,8 +193,6 @@ async function validate(next: any) {
   await requiredForm.value.validate();
   if (validation.value)
     next();
-  if (!productionData.value.closetTime)
-    closetTimeMissing.value = true;
   if (!productionData.value.startTime)
     startTimeMissing.value = true;
   if (!productionData.value.endTime)
@@ -207,8 +204,8 @@ async function createProduction() {
   try {
     let production: Partial<Production> = {
       categoryId: productionData.value.categoryId ?? null,
-      closetLocation: productionData.value.closetLocation,
-      closetTime: new Date(productionData.value.closetTime).toISOString(),
+      closetLocation: productionData.value.closetLocation ?? null,
+      closetTime: productionData.value.closetTime ? new Date(productionData.value.closetTime).toISOString() : null,
       description: productionData.value.description,
       endTime: new Date(productionData.value.endTime).toISOString(),
       eventLocation: productionData.value.eventLocation,
@@ -216,6 +213,7 @@ async function createProduction() {
       startTime: new Date(productionData.value.startTime).toISOString(),
       teamNotes: productionData.value.teamNotes,
       thumbnailId: productionData.value.thumbnailId ?? null,
+	    useDiscord: productionData.value.useDiscord
     }
 
     createdProduction = await createProductionMutation.mutate({
@@ -302,8 +300,7 @@ function addPerson(person: Person) {
 watch(productionData, async () => {
   if (requiredForm.value) {
     const valid = await requiredForm.value.validate();
-    validation.value = valid.valid && !!productionData.value.closetLocation && !!productionData.value.closetLocation && !!productionData.value.eventLocation &&
-      !!productionData.value.closetTime && !!productionData.value.startTime && !!productionData.value.endTime;
+    validation.value = valid.valid && !!productionData.value.eventLocation && !!productionData.value.startTime && !!productionData.value.endTime;
   }
 }, {deep: true});
 

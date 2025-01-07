@@ -116,6 +116,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+	videoName: {
+		type: String,
+		required: false,
+		default: null,
+	}
 });
 
 const emit = defineEmits(["close", "save"]);
@@ -137,7 +142,7 @@ const error = ref<string | null>(null);
 
 const videoDetailsInput = ref<VideoDetailsInput | null>(null);
 const videoData = ref<Partial<Video>>({
-  name: "",
+  name: props.videoName ?? "",
   format: "EMBED",
   metadata: {
     url: "",

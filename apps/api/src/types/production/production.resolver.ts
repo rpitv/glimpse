@@ -32,10 +32,18 @@ import { GraphQLBigInt } from "graphql-scalars";
 import { OrderProductionVideoInput } from "../production_video/dto/order-production_video.input";
 import { OrderProductionImageInput } from "../production_image/dto/order-production_image.input";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import {RabbitMQService} from "../../amqp/rabbitmq.service";
+import {ProductionRpcService} from "./production_rpc.service";
 
 @Resolver(() => Production)
 export class ProductionResolver {
     private logger: Logger = new Logger("ProductionResolver");
+
+    constructor(
+        private readonly rabbitMQService: RabbitMQService,
+        private readonly productionRpcService: ProductionRpcService
+    ) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -106,6 +114,10 @@ export class ProductionResolver {
             id: result.id
         });
 
+        if(result.useDiscord) {
+            await this.rabbitMQService.emit('createProduction', await this.productionRpcService.getProductionData(result.id, ctx.req.prismaTx))
+        }
+
         return result;
     }
 
@@ -158,6 +170,10 @@ export class ProductionResolver {
             id: result.id
         });
 
+        if(rowToUpdate.useDiscord || result.useDiscord) {
+            await this.rabbitMQService.emit('updateProduction', await this.productionRpcService.getProductionData(result.id, ctx.req.prismaTx))
+        }
+
         return result;
     }
 
@@ -186,6 +202,7 @@ export class ProductionResolver {
             return null;
         }
 
+        const productionDataToBeDeleted = await this.productionRpcService.getProductionData(id, ctx.req.prismaTx)
         const result = await ctx.req.prismaTx.production.delete({
             where: {
                 id
@@ -198,6 +215,10 @@ export class ProductionResolver {
             subject: "Production",
             id: result.id
         });
+
+        if(result.useDiscord) {
+            await this.rabbitMQService.emit('deleteProduction', productionDataToBeDeleted)
+        }
 
         return result;
     }

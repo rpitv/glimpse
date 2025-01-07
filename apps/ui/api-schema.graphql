@@ -186,7 +186,7 @@ type Mutation {
   deleteVideo(id: BigInt!): Video!
   deleteVote(id: BigInt!): Vote!
   deleteVoteResponse(id: BigInt!): VoteResponse!
-  generateOwnPerson(name: String!): Person
+  generateOwnPerson(name: String!): Person!
   loginLocal(password: String!, username: String!): User!
   logout: Boolean!
   updateAlertLog(id: BigInt!, input: UpdateAlertLogInput!): AlertLog!
@@ -256,8 +256,7 @@ type Production {
   closetTime: DateTime
   credits(filter: FilterCreditInput, order: [OrderCreditInput!], pagination: PaginationInput): [Credit!]
   description: String
-  discordChannel: String
-  discordServer: String
+  discordData: JSON
   endTime: DateTime
   eventLocation: String
   id: BigInt
@@ -269,6 +268,7 @@ type Production {
   teamNotes: String
   thumbnail: Image
   thumbnailId: BigInt
+  useDiscord: Boolean!
   videos(filter: FilterProductionVideoInput, order: [OrderProductionVideoInput!], pagination: PaginationInput): [ProductionVideo!]
 }
 
@@ -595,21 +595,20 @@ enum OrderDirection {
   Desc
 }
 
+enum PersonImageOrderableFields {
+  id
+  priority
+}
+
 enum PersonOrderableFields {
   graduation
   id
   name
 }
 
-enum PersonImageOrderableFields {
-  id
-  priority
-}
-
 enum PersonRoleOrderableFields {
   id
   startTime
-  priority
 }
 
 enum ProductionImageOrderableFields {
@@ -819,14 +818,13 @@ input CreateProductionInput {
   closetLocation: String
   closetTime: DateTime
   description: String
-  discordChannel: String
-  discordServer: String
   endTime: DateTime
   eventLocation: String
   name: String
   startTime: DateTime
   teamNotes: String
   thumbnailId: BigInt
+  useDiscord: Boolean!
 }
 
 input CreateProductionRSVPInput {
@@ -1095,6 +1093,7 @@ input FilterProductionInput {
   startTime: DateComparisonInput
   teamNotes: StringComparisonInput
   thumbnailId: NumberComparisonInput
+  useDiscord: BooleanComparisonInput
 }
 
 input FilterProductionRSVPInput {
@@ -1274,14 +1273,14 @@ input OrderImageInput {
   field: ImageOrderableFields!
 }
 
-input OrderPersonInput {
-  direction: OrderDirection!
-  field: PersonOrderableFields!
-}
-
 input OrderPersonImageInput {
   direction: OrderDirection!
   field: PersonImageOrderableFields!
+}
+
+input OrderPersonInput {
+  direction: OrderDirection!
+  field: PersonOrderableFields!
 }
 
 input OrderPersonRoleInput {
@@ -1489,14 +1488,13 @@ input UpdateProductionInput {
   closetLocation: String
   closetTime: DateTime
   description: String
-  discordChannel: String
-  discordServer: String
   endTime: DateTime
   eventLocation: String
   name: String
   startTime: DateTime
   teamNotes: String
   thumbnailId: BigInt
+  useDiscord: Boolean
 }
 
 input UpdateProductionRSVPInput {

@@ -111,7 +111,7 @@
               <v-card-actions>
                 <v-spacer />
                 <v-btn @click="isActive.value = false" variant="outlined" text="CANCEL"/>
-                <v-btn @click="deleteProduction(item)" variant="outlined"
+                <v-btn @click="deleteProduction(item.id)" variant="outlined"
                        text="DELETE" color="#FF5252" :disabled="isDeleting" />
               </v-card-actions>
             </v-card>
@@ -139,12 +139,16 @@
 
 import {AbilityActions, useGlimpseAbility} from "@/casl";
 import {
-  AbilitySubjects,
-  SearchProductionsDocument,
-  DeleteProductionDocument,
-  DeleteProductionImageDocument,
-  DeleteProductionTagDocument,
-  DeleteProductionVideoDocument, OrderDirection, ProductionOrderableFields, CaseSensitivity,
+	AbilitySubjects,
+	SearchProductionsDocument,
+	DeleteProductionDocument,
+	DeleteProductionImageDocument,
+	DeleteProductionTagDocument,
+	DeleteProductionVideoDocument,
+	OrderDirection,
+	ProductionOrderableFields,
+	CaseSensitivity,
+	DeleteProductionRsvpDocument, ProductionDetailsDocument,
 } from "@/graphql/types";
 import type {Production} from "@/graphql/types"
 import RouterPopup from "@/components/util/RouterPopup.vue";
@@ -173,6 +177,7 @@ const deleteMutation = useMutation(DeleteProductionDocument);
 const deleteTag = useMutation(DeleteProductionTagDocument);
 const deleteImage = useMutation(DeleteProductionImageDocument);
 const deleteVideo = useMutation(DeleteProductionVideoDocument);
+const deleteRSVP = useMutation(DeleteProductionRsvpDocument);
 const queryData = useQuery(SearchProductionsDocument, {
   pagination: {
     take: take,
@@ -248,28 +253,38 @@ function formattedTime(time: string) {
   return new Intl.DateTimeFormat("en-US", options).format(date);
 }
 
-async function deleteProduction(production: Partial<Production>) {
+async function deleteProduction(productionId: number) {
   try {
-    isDeleting.value = true;
-    const tags = production.tags;
-    const images = production.images;
-    const videos = production.videos;
-    if (images)
-      for (const image of images)
-        await deleteImage.mutate({id: parseInt(image.id)});
+		useQuery(ProductionDetailsDocument, {
+			id: productionId
+		}).onResult(async (productionQuery) => {
+			if (productionQuery.loading) return;
+			
+			const production = productionQuery.data.production as Production;
+			isDeleting.value = true;
+			const tags = production.tags;
+			const images = production.images;
+			const videos = production.videos;
+			const rsvps = production.rsvps;
+			if (images)
+				for (const image of images)
+					await deleteImage.mutate({id: parseInt(image.id)});
 
-    if (tags)
-      for (const tag of tags)
-        await deleteTag.mutate({id: parseInt(tag.id)});
+			if (tags)
+				for (const tag of tags)
+					await deleteTag.mutate({id: parseInt(tag.id)});
 
+			if (videos)
+				for (const video of videos)
+					await deleteVideo.mutate({id: parseInt(video.id)});
+			if (rsvps)
+				for (const rsvp of rsvps)
+					await deleteRSVP.mutate({id: parseInt(rsvp.id)});
 
-    if (videos)
-      for (const video of videos)
-        await deleteVideo.mutate({id: parseInt(video.id)});
+			await deleteMutation.mutate({id: parseInt(production.id)});
 
-    await deleteMutation.mutate({id: parseInt(production.id)});
-
-    await refresh();
+			await refresh();
+		});
   } catch (e) {
     console.error(e);
   }

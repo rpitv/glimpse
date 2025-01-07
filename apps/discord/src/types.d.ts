@@ -1,7 +1,9 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Collection } from "discord.js"
+import { type SlashCommandBuilder, ChatInputCommandInteraction, Client, SlashCommandOptionsOnlyBuilder } from "discord.js"
+import type { GlimpseApiInterface } from "./api";
+import { Collection } from "discord.js";
 
 export interface Command {
-    data: SlashCommandBuilder,
+    data: SlashCommandBuilder | SlashCommandOptionsOnlyBuilder,
     execute: (interaction: ChatInputCommandInteraction) => void,
 }
 
@@ -10,51 +12,42 @@ export interface CustomId {
     execute: (interaction: any) => void,
 }
 
-export interface Event {
+export interface DiscordEvent {
     name: string,
     once?: boolean,
-    execute: (interaction: any) => void;
+    execute: (...interaction: any) => void;
 }
 
-export interface Setup {
-    proCategory: string,
-    proChannel: string,
+export interface APIEvent {
+    name: string,
+    execute: (arg: any, client: Client, api: GlimpseApiInterface) => void;
 }
 
-export interface Production {
-    channelId: string,
-    channelName: string,
-    closetLocation: string,
-    closetTime: string,
-    date: string,
-    endTime: string,
-    eventName: string,
-    inputValueClosetDate: string,
-    inputValueTime: string,
-    startTime: string,
-    unVolunteerMsgId: string,
-    volunteerMsgId: string,
-    volunteers: string[],
-}
-
-export interface Productions {
-    productions: Production[]
+export interface ProductionDiscordData {
+  threadChannelId: string,
+  volunteerMessageId: string
 }
 
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
-            TOKEN: string,
-            CLIENT_ID: string,
-            RPITV_ID: string,
+            GUILD_ID: string
+            PRODUCTIONS_CHANNEL_ID: string
+            VOLUNTEER_CHANNEL_ID: string
+            ADMIN_ALERTS_CHANNEL_ID: string
+            TOKEN: string
             DATABASE_URL: string
+            RPITV_ID: string
+            CLIENT_ID: string
+            RABBITMQ_URL: string
         }
     }
 }
 
+
 declare module "discord.js" {
-    export interface Client {
-        commands: Collection<string, Command>,
-        customIds: Collection<string, CustomId>,
-    }
+  export interface Client {
+    customIds: Collection<string, CustomId>;
+    commands: Collection<string, Command>;
+  }
 }

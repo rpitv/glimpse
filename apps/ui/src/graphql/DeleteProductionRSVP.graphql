@@ -1,0 +1,5 @@
+mutation DeleteProductionRSVP($id: BigInt!) {
+	deleteProductionRSVP(id: $id) {
+		id
+	}
+}

@@ -247,8 +247,8 @@ model Production {
   closetLocation String?           @map("closet_location") @db.VarChar(100)
   eventLocation  String?           @map("event_location") @db.VarChar(100)
   teamNotes      String?           @map("team_notes")
-  discordServer  String?           @map("discord_server") @db.Char(18)
-  discordChannel String?           @map("discord_channel") @db.Char(18)
+  useDiscord     Boolean           @map("use_discord")
+  discordData    Json?             @map("discord_data") @db.Json
   thumbnailId    BigInt?           @map("thumbnail")
   closetTime     DateTime?         @map("closet_time") @db.Timestamp(6)
   credits        Credit[]

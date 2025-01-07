@@ -1,6 +1,6 @@
 {
   "name": "@rpitv/glimpse-discord",
-  "version": "1.0.0-pre.1",
+  "version": "1.0.0",
   "description": "Discord integration for the RPI TV Glimpse infrastructure",
   "license": "MIT",
   "repository": {
@@ -12,31 +12,32 @@
   },
   "homepage": "https://glimpse.rpi.tv",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
-    "start": "npx ts-node src/index.ts",
-    "dev": "nodemon src/index.ts",
-    "debug": "cls && ../../node_modules/.bin/nodemon -e ts --exec 'node --inspect=0.0.0.0:9229 --require ts-node/register src/index.ts'"
+    "delete": "tsx src/deleteCommands.ts",
+    "deploy": "tsx src/deployCommands.ts",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "types": "tsc --noEmit"
   },
   "dependencies": {
     "@discordjs/rest": "^1.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
     "amqp-connection-manager": "^4.1.14",
-    "discord.js": "^14.15.3",
+    "discord.js": "^14.16.3",
     "dotenv": "^16.0.2",
-    "drizzle-orm": "^0.33.0",
-    "eslint-plugin-drizzle": "^0.2.3",
     "moment": "^2.29.4",
-    "postgres": "^3.4.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.1",
-    "@types/node": "^18.7.14",
+    "@types/amqplib": "^0.10.6",
+    "@types/node": "^22.10.1",
     "@types/uuid": "^9.0.2",
     "drizzle-kit": "^0.24.2",
     "nodemon": "^3.1.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "@typescript-eslint/eslint-plugin": "^8.3.0",
+    "@typescript-eslint/parser": "^8.3.0"
   }
 }

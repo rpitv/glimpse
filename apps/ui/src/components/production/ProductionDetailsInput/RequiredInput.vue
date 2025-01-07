@@ -1,11 +1,11 @@
 <template>
   <v-text-field class="mt-1" variant="outlined" label="Production Name" density="compact"
-                required :rules="nameRules" v-model="modelValue.name"/>
+    required :rules="nameRules" v-model="modelValue.name" />
   <div class="second-row">
-    <v-combobox class="mt-1 input" variant="outlined" label="Closet Location" :rules="closetLocRules" density="compact"
-                required v-model="modelValue.closetLocation" :items="closetLocations" />
+    <v-combobox class="mt-1 input" variant="outlined" label="Closet Location" :rules="closetRules" density="compact"
+      v-model="modelValue.closetLocation" :items="closetLocations" />
     <v-combobox class="mt-1 input" variant="outlined" label="Event Location" :rules="eventLocRules" density="compact"
-                required v-model="modelValue.eventLocation" :items="eventLocations" />
+      required v-model="modelValue.eventLocation" :items="eventLocations" />
   </div>
   <div class="center">
     <div class="date-time-container">
@@ -14,7 +14,7 @@
           <p>Closet Time</p>
         </div>
         <div class="center">
-          <DatePicker transparent color="red" v-model="modelValue.closetTime" mode="dateTime" :is-dark="true" :rules="rules" :style="closetTimeMissing ? {'border-color': '#E57373'} : ''" />
+          <DatePicker transparent color="red" v-model="modelValue.closetTime" mode="dateTime" :is-dark="true" :rules="rules" />
         </div>
       </div>
       <div>
@@ -47,10 +47,6 @@ defineProps({
     type: Object as PropType<Partial<Production>>,
     required: true
   },
-  closetTimeMissing: {
-    type: Boolean,
-    required: true
-  },
   startTimeMissing: {
     type: Boolean,
     required: true
@@ -63,20 +59,32 @@ defineProps({
 
 defineEmits(["update:modelValue"]);
 
-/*
-  The variable is required because vue doesn't like it
-  in the template...
- */
 const nameRules = [
-  (v: string) => !!v || 'Production name is required'
+  (v: string) => {
+		if (v?.length === 0)
+			return "Production name is required";
+		if (v?.length > 100)
+			return "Production name cannot be greater than 100 characters";
+		return true;
+  }
 ];
 
-const closetLocRules = [
-  (v: string) => !!v || 'Closet Location is required'
+const closetRules = [
+	(v: string) => {
+		if (v?.length > 100)
+			return "Closet location cannot be greater than 100 characters";
+		return true;
+	}
 ]
 
 const eventLocRules = [
-  (v: string) => !!v || 'Event Location is required'
+  (v: string) => {
+		if (v?.length === 0)
+			return "Event location is required";
+		if (v?.length > 100)
+			return "Event location cannot be greater than 100 characters";
+		return true;
+  }
 ]
 
 const rules =  {
@@ -113,7 +121,7 @@ const eventLocations = [
 
 .second-row {
   display: flex;
-  justify-content: space-between;
+	justify-content: space-between;
   @media (max-width: 1020px) {
     flex-direction: column;
   }

@@ -1,7 +1,7 @@
 {
   "name": "@rpitv/glimpse-api",
   "description": "GraphQL API for interacting with the Glimpse core",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -41,7 +41,8 @@
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^5.7.0",
     "@rpitv/glimpse-prisma": "*",
-    "amqplib": "^0.10.3",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.5",
     "apollo-server-express": "^3.11.1",
     "argon2": "^0.30.3",
     "class-transformer": "^0.5.1",

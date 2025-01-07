@@ -30,10 +30,18 @@ import { OrderUserInput } from "../user/dto/order-user.input";
 import { GraphQLBigInt } from "graphql-scalars";
 import { Image } from "../image/image.entity";
 import { Rule, RuleType } from "../../casl/rule.decorator";
+import {RabbitMQService} from "../../amqp/rabbitmq.service";
+import {UserRpcService} from "../user/user_rpc.service";
 
 @Resolver(() => Person)
 export class PersonResolver {
     private logger: Logger = new Logger("PersonResolver");
+
+    constructor(
+        private readonly rabbitMQService: RabbitMQService,
+        private readonly userRpcService: UserRpcService,
+    ) {
+    }
 
     // -------------------- Generic Resolvers --------------------
 
@@ -94,7 +102,14 @@ export class PersonResolver {
         }
 
         const result = await ctx.req.prismaTx.person.create({
-            data: input
+            data: input,
+            include: {
+                users: {
+                    select: {
+                        id: true
+                    }
+                }
+            }
         });
 
         await ctx.req.prismaTx.genAuditLog({
@@ -103,6 +118,10 @@ export class PersonResolver {
             subject: "Person",
             id: result.id
         });
+
+        for(const user of result.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }
@@ -145,7 +164,14 @@ export class PersonResolver {
             where: {
                 id
             },
-            data: input
+            data: input,
+            include: {
+                users: {
+                    select: {
+                        id: true
+                    }
+                }
+            }
         });
 
         await ctx.req.prismaTx.genAuditLog({
@@ -155,6 +181,11 @@ export class PersonResolver {
             subject: "Person",
             id: result.id
         });
+
+
+        for(const user of result.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }
@@ -187,6 +218,12 @@ export class PersonResolver {
         const result = await ctx.req.prismaTx.person.delete({
             where: {
                 id
+            }, include: {
+                users: {
+                    select: {
+                        id: true
+                    }
+                }
             }
         });
 
@@ -196,6 +233,10 @@ export class PersonResolver {
             subject: "Person",
             id: result.id
         });
+
+        for(const user of result.users) {
+            await this.rabbitMQService.emit('updateUser', await this.userRpcService.getUserData(user.id, ctx.req.prismaTx))
+        }
 
         return result;
     }

@@ -9,11 +9,12 @@
       >
         <CreateVideoCard
           closable
+          :videoName="props.productionName"
           @save="
             refresh();
             showCreatePopup = false;
           "
-                @close="showCreatePopup = false"
+          @close="showCreatePopup = false"
         />
         <template #trigger>
             <v-btn class="top-button text-none" variant="outlined" rounded color="green"
@@ -85,7 +86,11 @@ const props = defineProps({
   productionVideos: {
     type: Object as PropType<ProductionVideo[]>,
     required: true
-  }
+  },
+	productionName: {
+		type: String,
+		required: true
+	}
 });
 
 const emit = defineEmits(["addVideo"])
