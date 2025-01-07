@@ -351,7 +351,7 @@ export type CreateProductionInput = {
   startTime?: InputMaybe<Scalars['DateTime']>;
   teamNotes?: InputMaybe<Scalars['String']>;
   thumbnailId?: InputMaybe<Scalars['BigInt']>;
-  useDiscord?: InputMaybe<Scalars['Boolean']>;
+  useDiscord: Scalars['Boolean'];
 };
 
 export type CreateProductionRsvpInput = {
@@ -907,7 +907,7 @@ export type Mutation = {
   deleteVideo: Video;
   deleteVote: Vote;
   deleteVoteResponse: VoteResponse;
-  generateOwnPerson?: Maybe<Person>;
+  generateOwnPerson: Person;
   loginLocal: User;
   logout: Scalars['Boolean'];
   updateAlertLog: AlertLog;
@@ -1593,7 +1593,6 @@ export type PersonRole = {
 
 export enum PersonRoleOrderableFields {
   Id = 'id',
-  Priority = 'priority',
   StartTime = 'startTime'
 }
 
@@ -1617,7 +1616,7 @@ export type Production = {
   teamNotes?: Maybe<Scalars['String']>;
   thumbnail?: Maybe<Image>;
   thumbnailId?: Maybe<Scalars['BigInt']>;
-  useDiscord?: Maybe<Scalars['Boolean']>;
+  useDiscord: Scalars['Boolean'];
   videos?: Maybe<Array<ProductionVideo>>;
 };
 
@@ -2440,7 +2439,6 @@ export type UpdateProductionInput = {
   closetLocation?: InputMaybe<Scalars['String']>;
   closetTime?: InputMaybe<Scalars['DateTime']>;
   description?: InputMaybe<Scalars['String']>;
-  discordData?: InputMaybe<Scalars['JSON']>;
   endTime?: InputMaybe<Scalars['DateTime']>;
   eventLocation?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -3144,7 +3142,7 @@ export type GenerateOwnPersonMutationVariables = Exact<{
 }>;
 
 
-export type GenerateOwnPersonMutation = { __typename?: 'Mutation', generateOwnPerson?: { __typename?: 'Person', id?: any | null } | null };
+export type GenerateOwnPersonMutation = { __typename?: 'Mutation', generateOwnPerson: { __typename?: 'Person', id?: any | null } };
 
 export type GroupDetailsQueryVariables = Exact<{
   id: Scalars['BigInt'];
@@ -3211,7 +3209,7 @@ export type ProductionDetailsQueryVariables = Exact<{
 }>;
 
 
-export type ProductionDetailsQuery = { __typename?: 'Query', production?: { __typename?: 'Production', id?: any | null, categoryId?: any | null, closetLocation?: string | null, closetTime?: any | null, description?: string | null, discordData?: any | null, endTime?: any | null, eventLocation?: string | null, name?: string | null, startTime?: any | null, teamNotes?: string | null, thumbnailId?: any | null, useDiscord?: boolean | null, category?: { __typename?: 'Category', id?: any | null, name?: string | null, parentId?: any | null, priority?: number | null } | null, credits?: Array<{ __typename?: 'Credit', id?: any | null, priority?: number | null, title?: string | null, personId?: any | null, person?: { __typename?: 'Person', id?: any | null, name?: string | null } | null }> | null, images?: Array<{ __typename?: 'ProductionImage', id?: any | null, priority?: number | null, imageId?: any | null, image?: { __typename?: 'Image', id?: any | null, description?: string | null, name?: string | null, path?: string | null } | null }> | null, rsvps?: Array<{ __typename?: 'ProductionRSVP', id?: any | null, notes?: string | null, userId?: any | null }> | null, tags?: Array<{ __typename?: 'ProductionTag', id?: any | null, tag?: string | null, productionId?: any | null }> | null, thumbnail?: { __typename?: 'Image', id?: any | null, name?: string | null, description?: string | null, path?: string | null } | null, videos?: Array<{ __typename?: 'ProductionVideo', id?: any | null, priority?: number | null, videoId?: any | null, video?: { __typename?: 'Video', id?: any | null, name?: string | null, metadata?: any | null } | null }> | null } | null };
+export type ProductionDetailsQuery = { __typename?: 'Query', production?: { __typename?: 'Production', id?: any | null, categoryId?: any | null, closetLocation?: string | null, closetTime?: any | null, description?: string | null, discordData?: any | null, endTime?: any | null, eventLocation?: string | null, name?: string | null, startTime?: any | null, teamNotes?: string | null, thumbnailId?: any | null, useDiscord: boolean, category?: { __typename?: 'Category', id?: any | null, name?: string | null, parentId?: any | null, priority?: number | null } | null, credits?: Array<{ __typename?: 'Credit', id?: any | null, priority?: number | null, title?: string | null, personId?: any | null, person?: { __typename?: 'Person', id?: any | null, name?: string | null } | null }> | null, images?: Array<{ __typename?: 'ProductionImage', id?: any | null, priority?: number | null, imageId?: any | null, image?: { __typename?: 'Image', id?: any | null, description?: string | null, name?: string | null, path?: string | null } | null }> | null, rsvps?: Array<{ __typename?: 'ProductionRSVP', id?: any | null, notes?: string | null, userId?: any | null }> | null, tags?: Array<{ __typename?: 'ProductionTag', id?: any | null, tag?: string | null, productionId?: any | null }> | null, thumbnail?: { __typename?: 'Image', id?: any | null, name?: string | null, description?: string | null, path?: string | null } | null, videos?: Array<{ __typename?: 'ProductionVideo', id?: any | null, priority?: number | null, videoId?: any | null, video?: { __typename?: 'Video', id?: any | null, name?: string | null, metadata?: any | null } | null }> | null } | null };
 
 export type ReadProductionQueryVariables = Exact<{
   id: Scalars['BigInt'];

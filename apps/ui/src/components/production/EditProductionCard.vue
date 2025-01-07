@@ -164,7 +164,6 @@ currentProduction.onResult((result) => {
     closetLocation: production?.closetLocation,
     closetTime: production?.closetTime,
     description: production?.description,
-	  discordData: production?.discordData,
     endTime: production?.endTime,
     eventLocation: production?.eventLocation,
     name: production?.name,
