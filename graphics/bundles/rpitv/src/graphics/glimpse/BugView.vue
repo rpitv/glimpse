@@ -8,8 +8,8 @@
 <script setup lang="ts">
 import ESPNBug from "./styles/espn/Bug.vue";
 import RPITVBug from "./styles/rpitv/Bug.vue";
-import { espnStyles, rpiTVStyles} from "../glimpse/util";
-import { loadReplicants } from "../../../src/browser-common/replicants";
+import { espnStyles, rpiTVStyles} from "./util";
+import { loadReplicants } from "../../browser-common/replicants";
 
 defineProps({
 	preview: {
@@ -23,7 +23,7 @@ const replicants = await loadReplicants();
 </script>
 
 <style scoped lang="scss">
-@import url("./styles/transition.scss");
+@import url("styles/transition.scss");
 
 .container {
 	position: absolute;

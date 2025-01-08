@@ -8,8 +8,8 @@
 <script setup lang="ts">
 import ESPNCopyright from "./styles/espn/lower-third/Copyright.vue";
 import RPITVCopyright from "./styles/rpitv/Copyright.vue";
-import { loadReplicants } from "../../../src/browser-common/replicants"
-import { espnStyles, rpiTVStyles } from "../glimpse/util";
+import { loadReplicants } from "../../browser-common/replicants"
+import { espnStyles, rpiTVStyles } from "./util";
 import {computed, ref} from "vue";
 
 defineProps({
@@ -24,6 +24,6 @@ const replicants = await loadReplicants();
 </script>
 
 <style scoped lang="scss">
-@import url("./styles/transition.scss");
+@import url("styles/transition.scss");
 
 </style>

@@ -65,9 +65,9 @@ import type {Ref} from "vue";
 import TeamView from "./TeamView.vue";
 import {Announcement} from "../../../../common/Announcement";
 import gsap from "gsap";
-import {calcLinearGrad, isLighter} from "../../../../dashboard/util";
+import {calcLinearGrad, isLighter} from "@nodecg-vue-ts-template/util";
 import { CustomEase } from "gsap/CustomEase";
-import { isLightColor } from "../../../../dashboard/util";
+import { isLightColor } from "@nodecg-vue-ts-template/util";
 
 gsap.registerPlugin(CustomEase);
 

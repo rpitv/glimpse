@@ -6,8 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../../src/browser-common/replicants";
-import { espnStyles, rpiTVStyles} from "../glimpse/util";
+import { loadReplicants } from "../../browser-common/replicants";
+import { espnStyles, rpiTVStyles} from "./util";
 import ESPNCommentators from "./styles/espn/lower-third/Commentators.vue";
 import RPITVCommentators from "./styles/rpitv/Commentators.vue";
 
@@ -23,5 +23,5 @@ const replicants = await loadReplicants();
 </script>
 
 <style scoped lang="scss">
-@import url("./styles/transition.scss");
+@import url("styles/transition.scss");
 </style>

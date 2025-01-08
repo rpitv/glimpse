@@ -12,15 +12,15 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "node ../..",
-    "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
+    "start": "node ../../..",
+    "start-dev": "npx nodemon ../../.. | npx pino-pretty -c",
     "clean": "npx ts-node clean.ts",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
-    "build:extension": "tsc -b tsconfig.extension.json",
+    "build:extension": "node_modules/.bin/tsc -b tsconfig.extension.json",
     "dev": "run-p watch:* start-dev",
     "watch:browser": "vite",
-    "watch:extension": "tsc -b tsconfig.extension.json -w"
+    "watch:extension": "node_modules/.bin/tsc -b tsconfig.extension.json -w"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.3.0",

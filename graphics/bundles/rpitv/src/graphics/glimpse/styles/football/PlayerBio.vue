@@ -14,15 +14,15 @@
 <script setup lang="ts">
 import { loadReplicants } from '../../../../browser-common/replicants';
 import { computed, ref, type CSSProperties} from "vue";
-import {calcLinearGrad, isLighter, isLightColor} from "../../../../dashboard/util";
+import {calcLinearGrad, isLighter, isLightColor} from "@nodecg-vue-ts-template/util";
 
 const replicants = await loadReplicants();
 const playerBio = replicants.lowerThird.playerBio;
 const linearGrad = ref<string>("");
 
 const teamColor = computed(() => {
-    const currentTeamColor = !playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "leftTeam" ? playerBio.image.leftTeamColor.value : 
-			(!playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "rightTeam" ? playerBio.image.rightTeamColor.value : 
+    const currentTeamColor = !playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "leftTeam" ? playerBio.image.leftTeamColor.value :
+			(!playerBio.image.syncTeamColor.value && playerBio.action.player.teamSide.value === "rightTeam" ? playerBio.image.rightTeamColor.value :
 			(playerBio.action.player.teamSide.value === "leftTeam" ? replicants.teams[1].primaryColor.value : (playerBio.action.player.teamSide.value === "rightTeam" ? replicants.teams[0].primaryColor.value : "")))
     linearGrad.value = calcLinearGrad(currentTeamColor);
     return currentTeamColor

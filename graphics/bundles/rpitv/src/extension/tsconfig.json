@@ -2,6 +2,6 @@
   "extends": "../../tsconfig.extension.json",
   "compilerOptions": {
 	"module": "esnext",
-	"target": "esnext",
+	"target": "esnext"
   }
 }

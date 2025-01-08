@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import {NConfigProvider, darkTheme} from "naive-ui";
-import Slideshow from "../slideshow/Slideshow.vue";
+import Slideshow from "./Slideshow.vue";
 
 </script>
 

@@ -15,8 +15,8 @@
 <script setup lang="ts">
 import {computed, defineProps, ref, watch} from "vue";
 import {loadReplicants} from "../../../../browser-common/replicants";
-import { isLightColor } from "../../../../dashboard/util";
-import { calcLinearGrad, isLighter } from "../../../../dashboard/util";
+import { isLightColor } from "@nodecg-vue-ts-template/util";
+import { calcLinearGrad, isLighter } from "@nodecg-vue-ts-template/util";
 import gsap from "gsap";
 
 const props = defineProps({

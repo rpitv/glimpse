@@ -15,8 +15,8 @@
 <script setup lang="ts">
 import { loadReplicants } from "../../../../browser-common/replicants";
 import {computed, ref, watch} from "vue";
-import { calcLinearGrad, isLighter } from "../../../../dashboard/util";
-import { isLightColor } from "../../../../dashboard/util";
+import { calcLinearGrad, isLighter } from "@nodecg-vue-ts-template/util";
+import { isLightColor } from "@nodecg-vue-ts-template/util";
 
 const replicants = await loadReplicants();
 
