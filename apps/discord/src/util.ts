@@ -57,13 +57,6 @@ export async function createVolunteerEmbed(production: Production, threadChannel
     },
   ];
 
-  if (closetTime) {
-    fields.unshift({
-      name: "Closet",
-      value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
-      inline: true
-    });
-  }
   if(endTime) {
     fields.unshift({
       name: "Event End",
@@ -77,6 +70,13 @@ export async function createVolunteerEmbed(production: Production, threadChannel
       value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
       inline: true
     })
+  }
+  if (closetTime) {
+    fields.unshift({
+      name: "Closet",
+      value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
+      inline: true
+    });
   }
   fields.unshift({
     name: "~~-----------~~ Event Information ~~----------~~",
@@ -134,14 +134,6 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
       value: "\u200b",
     }
   ];
-
-  if (closetTime) {
-    fields.unshift({
-      name: "Closet",
-      value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
-      inline: true
-    });
-  }
   if(endTime) {
     fields.unshift({
       name: "Event End",
@@ -155,6 +147,13 @@ export async function createUnvolunteerEmbed(production: Production, volunteerCh
       value: `__Time__\n<t:${Math.floor(new Date(startTime).valueOf() / 1000)}:F>\n__Location__\n${production.eventLocation}`,
       inline: true
     })
+  }
+  if (closetTime) {
+    fields.unshift({
+      name: "Closet",
+      value: `__Time__\n<t:${Math.floor(new Date(closetTime).valueOf() / 1000)}:F>\n__Location__\n${production.closetLocation}`,
+      inline: true
+    });
   }
   fields.unshift({
     name: "~~-----------~~ Event Information ~~-----------~~",
