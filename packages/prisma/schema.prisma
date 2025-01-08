@@ -352,7 +352,7 @@ model User {
   username         String           @unique(map: "users_username_uindex") @db.VarChar(8)
   mail             String           @unique(map: "users_mail_uindex") @db.VarChar(300)
   personId         BigInt?          @map("person")
-  discord          String?          @unique(map: "users_discord_uindex") @db.Char(18)
+  discord          String?          @unique(map: "users_discord_uindex") @db.Char(32)
   password         String?          @db.VarChar(300)
   joined           DateTime         @default(now()) @db.Timestamp(6)
   accessLogs       AccessLog[]
