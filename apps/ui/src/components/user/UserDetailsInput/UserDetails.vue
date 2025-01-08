@@ -39,8 +39,8 @@ const emailRule = () => {
 const discordRule = () => {
   if (!props.userData.discord)
     return true;
-  if (!validator.isNumeric(props.userData.discord as string) || props.userData.discord?.length !== 18)
-    return "Discord IDs must be 18 digits long";
+  if (!validator.isNumeric(props.userData.discord as string) || props.userData.discord?.length < 18 || props.userData.discord?.length > 32)
+    return "Discord IDs must be 18-32 digits long";
   return true;
 }
 

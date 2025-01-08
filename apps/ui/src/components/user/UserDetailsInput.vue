@@ -8,7 +8,7 @@
         <n-input maxlength="300" v-model:value="inputUser.mail" />
       </n-form-item-grid-item>
       <n-form-item-grid-item path="discord" label="Discord ID">
-        <n-input minlength="18" maxlength="18" v-model:value="inputUser.discord" />
+        <n-input minlength="18" maxlength="32" v-model:value="inputUser.discord" />
       </n-form-item-grid-item>
     </n-grid>
   </n-form>
@@ -93,8 +93,8 @@ const rules: FormRules = {
         if(!value) {
           return;
         }
-        if(!validator.isNumeric(value) || value.length !== 18) {
-          return new Error("Discord IDs must be 18 digits long.");
+        if(!validator.isNumeric(value) || value.length < 18 || value.length > 32) {
+          return new Error("Discord IDs must be 18-32 digits long.");
         }
       }
     }
