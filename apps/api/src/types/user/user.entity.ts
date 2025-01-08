@@ -57,7 +57,7 @@ export class User implements PrismaUser {
      * Discord account ID for this user, or null if the user does not have a linked Discord account.
      */
     @IsNumberString()
-    @Length(18, 18)
+    @Length(18, 32)
     @IsOptional()
     @Field(() => String, { nullable: true })
     discord: string | null;
