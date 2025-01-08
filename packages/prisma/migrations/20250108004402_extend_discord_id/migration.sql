@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "users" ALTER COLUMN "discord" SET DATA TYPE CHAR(32);
+ALTER TABLE "users" ALTER COLUMN "discord" SET DATA TYPE VARCHAR(32);
