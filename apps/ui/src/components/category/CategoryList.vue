@@ -10,10 +10,10 @@
         <template #default>
           <CreateCategoryCard
               closable
-              @save="(id: number) => {
+              @save="(category: Category) => {
                 showCreatePopup = false;
                 refresh();
-                createdCategory = { id: id, show: true };
+                createdCategory = { id: category.id, show: true };
               }"
               @close="showCreatePopup = false"
           />

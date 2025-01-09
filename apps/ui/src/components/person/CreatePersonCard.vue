@@ -155,7 +155,7 @@ async function validate(next: () => void) {
     return;
   }
   loading.value = false;
-  emit("save", createdPerson?.data?.person.id);
+  emit("save", createdPerson?.data?.person);
 }
 
 const checkDisable = computed(() => {

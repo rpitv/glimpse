@@ -8,10 +8,11 @@
         :to="{ name: 'dashboard-category-create' }"
       >
         <CreatePersonCard
-          @save="
+          @save="(person: Person) => {
+						emit('addPerson', person);
             refresh();
             showCreatePopup = false;
-          "
+					}"
         />
         <template #trigger>
           <v-btn class="top-button text-none" variant="outlined" rounded color="green"
@@ -61,12 +62,12 @@
 import DashboardSearch from "@/components/DashboardSearch.vue";
 import { ability, AbilityActions } from "@/casl";
 import {
-  AbilitySubjects,
-  PersonOrderableFields,
-  OrderDirection,
-  FindPeopleDocument, CaseSensitivity
+	AbilitySubjects,
+	PersonOrderableFields,
+	OrderDirection,
+	FindPeopleDocument, CaseSensitivity
 } from "@/graphql/types";
-import type { Credit } from "@/graphql/types";
+import type { Credit, Person } from "@/graphql/types";
 import { useQuery } from "@vue/apollo-composable";
 import {subject} from "@casl/ability";
 import RouterPopup from "@/components/util/RouterPopup.vue";

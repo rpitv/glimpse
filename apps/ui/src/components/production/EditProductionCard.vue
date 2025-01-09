@@ -36,17 +36,19 @@
             <CategoryTable :take="take" :productionCategory="productionData.category as Category"
               @setCategory="(category: Category) => { productionData.category = category; productionData.categoryId = category.id }"
             />
-            <CategoryRow :productionCategory="productionData.category as Category" @close="productionData.category = {}; productionData.categoryId = null;" />
+            <CategoryRow :productionCategory="productionData.category as Category"
+             @close="productionData.category = {}; productionData.categoryId = null;" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="4" >
               <ImageTable :take="take" :productionImages="newProductionImages" :thumbnail="productionData.thumbnail as Image"
                 @setThumbnail="setThumbnail"
                 @addImage="addImage"
               />
-            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="newProductionImages" @close="productionData.thumbnail = {}" />
+            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="newProductionImages"
+                @close="productionData.thumbnail = {}; productionData.thumbnailId = null" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
-            <VideoTable :productionVideos="newProductionVideos" :take="take" @addVideo="addVideo" />
+            <VideoTable :productionVideos="newProductionVideos" :take="take" :productionName="productionData.name as string" @addVideo="addVideo" />
             <VideoRow :productionVideos="newProductionVideos" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="6">

@@ -174,8 +174,7 @@ async function nextStep() {
       error.value = "Failed to create image";
       return;
     }
-
-    emit("save", createdImage?.data?.image.id);
+    emit("save", createdImage?.data?.image);
   }
 }
 </script>

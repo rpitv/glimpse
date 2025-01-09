@@ -10,10 +10,11 @@
         <CreateVideoCard
           closable
           :videoName="props.productionName"
-          @save="
-            refresh();
-            showCreatePopup = false;
-          "
+          @save="(video: Video) => {
+							emit('addVideo', video);
+	            refresh();
+	            showCreatePopup = false;
+						}"
           @close="showCreatePopup = false"
         />
         <template #trigger>
@@ -45,8 +46,8 @@
     </template>
     <template #item.actions="{ item }">
       <VBtn variant="outlined" class="text-none"
-          :disabled="(productionVideos.findIndex((ele) => ele.videoId === item.id) !== -1)
-          || !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionVideo, {videoId: item.id}))"
+          :disabled="(productionVideos.findIndex((ele) => ele.videoId === item.id) !== -1) ||
+          !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionVideo, {videoId: item.id}))"
           @click="emit('addVideo', item)">Add Video</VBtn>
 
     </template>
@@ -63,13 +64,13 @@
 <script setup lang="ts">
 import ProductionSearch from "@/components/DashboardSearch.vue";
 import {
-  AbilitySubjects,
-  CaseSensitivity,
-  OrderDirection,
-  SearchVideosDocument,
-  VideoOrderableFields
+	AbilitySubjects,
+	CaseSensitivity,
+	OrderDirection,
+	SearchVideosDocument,
+	VideoOrderableFields
 } from "@/graphql/types";
-import type { ProductionVideo } from "@/graphql/types";
+import type { ProductionVideo, Video } from "@/graphql/types";
 import {useQuery} from "@vue/apollo-composable";
 import {ref, watch, onMounted} from "vue";
 import type {PropType} from "vue";

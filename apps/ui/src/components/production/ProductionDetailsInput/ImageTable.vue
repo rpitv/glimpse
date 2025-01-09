@@ -9,10 +9,11 @@
         >
             <CreateImageCard
               closable
-              @save="
+              @save="(image: Image) => {
+								emit('addImage', image);
                 refresh();
                 showCreatePopup = false;
-              "
+              }"
               @close="showCreatePopup = false"
             />
             <template #trigger>
@@ -46,10 +47,9 @@
       <VBtn variant="outlined" class="text-none mr-2" :disabled="thumbnail.id === item.id"
             @click="emit('setThumbnail', item)" color="blue">Set As Thumbnail</VBtn>
       <VBtn variant="outlined" class="text-none"
-            :disabled="productionImages.findIndex(
-            (ele) => ele.imageId === item.id && ele.image?.path === item.path) !== -1 ||
-            !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionImage, {imageId: item.id}))"
-            @click="emit('addImage', item, item.id)">
+          :disabled="productionImages.findIndex((ele) => ele.imageId === item.id) !== -1 ||
+          !ability.can(AbilityActions.Create, subject(AbilitySubjects.ProductionImage, {imageId: item.id}))"
+          @click="emit('addImage', item)">
         Add Image
       </VBtn>
     </template>
