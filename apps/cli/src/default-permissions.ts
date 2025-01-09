@@ -350,9 +350,16 @@ export const memberPermissions: GroupPermissionInput[] = [
     },
     {
         action: "read",
-        subject: ["UserPermission", "AccessLog", "VoteResponse", "UserGroup", "User"],
+        subject: ["UserPermission", "AccessLog", "VoteResponse", "UserGroup"],
         conditions: {
             userId: "$id"
+        }
+    },
+    {
+        action: "read",
+        subject: ["User"],
+        conditions: {
+            id: "$id"
         }
     },
     {
