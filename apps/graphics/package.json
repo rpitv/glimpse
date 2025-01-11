@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.3.0",
+    "@vue/language-core": "^2.2.0",
     "@vueuse/core": "^9.5.0",
     "animejs": "^3.2.1",
     "fast-xml-parser": "^4.3.3",
@@ -45,7 +46,7 @@
     "@types/node": "^22.5.4",
     "@types/uuid": "^8.3.4",
     "@types/xml2js": "^0.4.14",
-    "@vitejs/plugin-vue": "^2.3.3",
+    "@vitejs/plugin-vue": "^5.2.1",
     "globby": "^13.1.2",
     "naive-ui": "^2.32.1",
     "nodecg-cli": "^8.0.1",
@@ -55,12 +56,12 @@
     "pino-pretty": "^9.1.1",
     "sass": "^1.54.4",
     "typescript": "^5.5.4",
-    "vite": "^5.4.6",
-    "vite-plugin-checker": "^0.4.9",
+    "vite": "^5.1.5",
+    "vite-plugin-checker": "^0.8.0",
     "vite-plugin-nodecg": "^2.1.0",
-    "vite-plugin-vuetify": "^1.0.2",
+    "vite-plugin-vuetify": "^2.0.4",
     "vue": "^3.2.37",
-    "vue-tsc": "^0.39.5"
+    "vue-tsc": "~2.1.6"
   },
   "nodecg": {
     "compatibleRange": "^2.2.1",

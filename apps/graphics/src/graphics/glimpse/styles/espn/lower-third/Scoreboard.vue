@@ -12,9 +12,11 @@
 	<div :style="rightTeamScore">
 		{{ replicantScoreboard.rightTeam.score.value || replicants.teams[1].score }}
 	</div>
-	<div :style="description">
+	<div :style="description" ref="scalingDiv">
+		<span ref="scalingText" class="scaling-text">
 		{{ replicantScoreboard.description.text.value }}
 		{{ replicantScoreboard.description.timer.value && replicants.scoreboard.clock.time.value ? `(${formattedClockTime})` : ''}}
+		</span>
 	</div>
 	<div class="colors" :style="leftTeamPrimaryColor">
 		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[0].logo.value">
@@ -28,13 +30,15 @@
 
 <script setup lang="ts">
 import { loadReplicants } from "../../../../../browser-common/replicants";
-import { computed } from "vue";
+import { computed, watch, ref, nextTick, onMounted, onBeforeUnmount } from "vue";
 import type { CSSProperties } from "vue";
 import scoreboard from "../../../../../assets/espn/Scoreboard.png";
 
 const replicants = await loadReplicants();
 
 const replicantScoreboard = replicants.lowerThird.scoreboard;
+const scalingDiv = ref<HTMLDivElement>();
+const scalingText = ref<HTMLSpanElement>();
 
 const leftTeamName = computed((): CSSProperties => { return {
 	alignItems: "center",
@@ -148,9 +152,59 @@ const formattedClockTime = computed<string>(() => {
 		return `${minutes}:${seconds}`;
 	}
 });
+
+
+const scaleTextToFit = () => {
+	const div = scalingDiv.value;
+	const text = scalingText.value;
+	
+	if (!div || !text) return;
+	
+	const divWidth = div.clientWidth;
+	let fontSize = 2.36; // Default starting font size
+	text.style.fontSize = fontSize + "vh"
+	
+	// Adjust font size only if the text exceeds the width
+	while (text.offsetWidth > divWidth) {
+		fontSize -= 0.2;
+		text.style.fontSize = `${fontSize}vh`;
+		
+		if (fontSize <= 1) break; // Prevent infinite loop
+	}
+};
+
+// Watch for changes in the text prop
+watch([replicantScoreboard.description.text, replicants.scoreboard.clock.time, replicantScoreboard.description.autoFit, replicantScoreboard.description.fontSize],
+	async () => {
+		if (!replicantScoreboard.description.autoFit.value) {
+			const text = scalingText.value;
+			if (!text) return;
+			text.style.fontSize = replicantScoreboard.description.fontSize.value + 2.36 + "vh";
+			return;
+		}
+		await nextTick();
+		scaleTextToFit();
+	}
+);
+
+// Handle scaling on mount and cleanup on unmount
+onMounted(() => {
+	scaleTextToFit();
+	window.addEventListener("resize", scaleTextToFit);
+});
+
+onBeforeUnmount(() => {
+	window.removeEventListener("resize", scaleTextToFit);
+});
+
 </script>
 
 <style scoped>
+.scaling-text {
+	white-space: nowrap;
+	display: inline-block;
+}
+
 @font-face {
 	font-family: "swiss721_heavy";
 	src: url('../../../../../assets/espn/Swiss721Heavy.ttf')

@@ -7,7 +7,7 @@
 		<div v-for="(person, i) in searchRoster" :key="i + additionalPlayers">
 			<v-item :value="{ person, teamSide }" v-slot="{ isSelected, selectedClass, toggle}">
 				<v-card width="200" @click="toggle">
-					<v-img :gradient="isSelected ? 'to top right, rgba(0,0,255,.2), rgba(0,0,255,.2)' : ''" :src="person.image?.url" />
+					<v-img :gradient="isSelected ? 'to top right, rgba(0,0,255,.2), rgba(0,0,255,.2)' : ''" :src="person.image" />
 					<v-card-text>
 						<p>{{ person.uni ? `#${person.uni}: ` : "" }} {{ person.name }}</p>
 					</v-card-text>
@@ -24,18 +24,17 @@ import { loadReplicants } from "../../browser-common/replicants";
 const replicants = await loadReplicants();
 
 interface Person {
-	"@type": string,
-	"@context": string,
-	gender: string,
-	image: {
-		"@type": string,
-		height: number,
-		url: string,
-		width: number
-	},
-	name: string,
-	uni?: string,
-	url: string
+	custom1: string | null
+	custom2: string | null
+	height: string
+	hometown: string
+	image: string
+	name: string
+	number: string
+	position: string
+	previousTeam: string
+	weight: string
+	year: string
 }
 
 
@@ -73,7 +72,7 @@ function search() {
 		if (values.length === 0) return true;
 		for (const value of values) {
 			if (parseInt(value))
-				if (parseInt(person.uni) === parseInt(value))
+				if (parseInt(person.number) === parseInt(value))
 					return true;
 			if (person.name.toLowerCase().includes(value.toLowerCase()))
 				return true;
@@ -86,8 +85,8 @@ function search() {
 function renderPlayers(event: KeyboardEvent) {
 	if (event.key === "Enter") {
 		replicants.lowerThird.playerBio.action.player.name.value = renderedPlayers.value[renderIndex.value].name;
-		replicants.lowerThird.playerBio.action.player.number.value = renderedPlayers.value[renderIndex.value].uni as string;
-		replicants.lowerThird.playerBio.image.url.value = renderedPlayers.value[renderIndex.value].image.url;
+		replicants.lowerThird.playerBio.action.player.number.value = renderedPlayers.value[renderIndex.value].number as string;
+		replicants.lowerThird.playerBio.image.url.value = renderedPlayers.value[renderIndex.value].image;
 		replicants.lowerThird.playerBio.action.player.teamSide.value = props.teamSide as ("leftTeam" | "rightTeam" | "");
 		replicants.lowerThird.playerBio.show.value = !replicants.lowerThird.playerBio.show.value;
 
@@ -106,7 +105,7 @@ function renderPlayers(event: KeyboardEvent) {
 	for (const value of values) {
 		if (parseInt(value)) {
 			for (const person of props.roster) {
-				if (parseInt(value) === parseInt(person.uni as string)) {
+				if (parseInt(value) === parseInt(person.number as string)) {
 					renderedPlayers.value.push(person);
 					break;
 				}

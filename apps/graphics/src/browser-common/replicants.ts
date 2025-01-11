@@ -161,7 +161,7 @@ export async function loadReplicants() {
 			},
 			commentators: {
 				leftPerson: {
-					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "Dan Fridgen"}),
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
 					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "#000000"}),
 					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
 					description: await replicant<string>("description", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
@@ -177,7 +177,7 @@ export async function loadReplicants() {
 					descriptionSize: await replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
 				},
 				rightPerson:{
-					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "Dan Bahl"}),
+					name: await replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
 					nameColor: await replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "#000000"}),
 					nameSize: await replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
 					description: await replicant<string>("rightDesc", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
@@ -242,6 +242,7 @@ export async function loadReplicants() {
 			},
 			scoreboard: {
 				description: {
+          autoFit: await replicant<boolean>("autoFit", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: true}),
 					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: 0}),
 					fontColor: await replicant<string>("fontColor", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: "#000000"}),
 					text: await replicant<string>("text", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: ""}),

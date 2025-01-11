@@ -1,6 +1,5 @@
 <template>
 	<div>
-		<SlideshowView />
 		<ImageView />
 		<ScoreboardView />
 		<CopyrightView />
@@ -20,7 +19,6 @@
 <script setup lang="ts">
 import { loadReplicants } from "../../browser-common/replicants";
 import { watch } from "vue";
-import SlideshowView from "./SlideshowView.vue";
 import ImageView from "./ImageView.vue";
 import ESPNProduced from "./styles/espn/lower-third/Produced.vue";
 import ESPNBanner from "./styles/espn/Banner.vue";

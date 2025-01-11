@@ -18,7 +18,6 @@
 import {loadReplicants} from "../../../../browser-common/replicants";
 
 const replicants = await loadReplicants();
-const showCopyright = replicants.lowerThird.showCopyright;
 
 const creditsType = replicants.lowerThird.endGraphics.type;
 const creditsEnabled = replicants.lowerThird.endGraphics.show;

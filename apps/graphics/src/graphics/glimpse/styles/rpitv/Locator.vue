@@ -3,10 +3,10 @@
 	<div id="leftFill" :style="{background: replicants.teams[0].primaryColor.value}"></div>
 	<div id="rightFill" :style="{background: replicants.teams[1].primaryColor.value}"></div>
 	<div id="leftLogo" class="logo">
-		<img :src="replicants.lowerThird.school1Logo.value" :alt="replicants.teams[0].name.value">
+		<img :src="replicants.lowerThird.locator.leftTeam.logo.value" :alt="replicants.teams[0].name.value">
 	</div>
 	<div id="rightLogo" class="logo">
-		<img :src="replicants.lowerThird.school2Logo.value" :alt="replicants.teams[1].name.value">
+		<img :src="replicants.lowerThird.locator.rightTeam.logo.value" :alt="replicants.teams[1].name.value">
 	</div>
 	<div id="leftTeam">{{replicants.teams[0].schoolName.value}}</div>
 	<div id="rightTeam">{{replicants.teams[1].schoolName.value}}</div>

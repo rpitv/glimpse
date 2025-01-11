@@ -55,7 +55,7 @@ const action = computed((): CSSProperties => {
 
 </script>
 
-<style>
+<style scoped>
 @font-face {
 	font-family: "Roboto Condensed";
 	src: url("../../../../assets/football/RobotoCondensed-Bold.ttf") format('truetype');

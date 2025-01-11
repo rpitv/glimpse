@@ -53,18 +53,17 @@ const sidearmsLinks = ["https://www.sidearmstats.com/rpi/mhockey/1.xml", "https:
 const previewLocation = `/bundles/graphics/graphics/preview.html`;
 
 interface Person {
-	"@type": string,
-	"@context": string,
-	gender: string,
-	image: {
-		"@type": string,
-		height: number,
-		url: string,
-		width: number
-	},
-	name: string,
-	uni?: string,
-	url: string
+	custom1: string | null
+	custom2: string | null
+	height: string
+	hometown: string
+	image: string
+	name: string
+	number: string
+	position: string
+	previousTeam: string
+	weight: string
+	year: string
 }
 
 const replicants = await loadReplicants();
@@ -75,49 +74,59 @@ const rightTeamRoster = ref<HTMLDivElement>();
 const rightTeamJersey = ref<HTMLDivElement>();
 const selectedPerson = ref<{
 	person: Person,
-	teamSide: string
+	teamSide: "leftTeam" | "rightTeam"
 }>();
 
 const rosters = ref<{
 	leftTeam: Person[],
 	rightTeam: Person[],
-}>({})
+}>({
+	leftTeam: [],
+	rightTeam: []
+})
 
 function fetchRoster(team: "leftTeam" | "rightTeam") {
 	replicants.http.roster[team].fetch.value = !replicants.http.roster[team].fetch.value;
 }
 
 function renderRoster(team: "leftTeam" | "rightTeam") {
-	let children;
+	let roster;
 	if (team === "leftTeam")
-		children = leftTeamRoster.value?.childNodes;
-	if (team === "rightTeam")
-		children = rightTeamRoster.value?.childNodes;
-	const scriptElements = [];
-	if (children) {
-		children.forEach((element) => {
-			if (element.tagName === "SCRIPT" && element.type === "application/ld+json" && element.innerHTML !== "[]") {
-				scriptElements.push(element);
-			}
+		roster = leftTeamRoster.value;
+	else if (team === "rightTeam")
+		roster = rightTeamRoster.value;
+	
+	const players = roster!.querySelectorAll(".sidearm-roster-player");
+	const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
+	
+	rosters.value[team] = [];
+	const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
+	
+	players.forEach((player) => {
+		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
+				.replace(/(width=)\d+/, '$1300')
+				.replace(/(quality=)\d+/, '$1100');
+		rosters.value[team].push({
+			custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
+			custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
+			height: player.querySelector(".sidearm-roster-player-height")?.textContent?.trim() as string,
+			hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string,
+			image: imageLink,
+			name: player.querySelector("h3")?.textContent?.trim() as string,
+			number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string,
+			position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string,
+			previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string,
+			weight: player.querySelector(".sidearm-roster-player-weight")?.textContent?.trim() as string,
+			year: player.querySelector(".sidearm-roster-player-academic-year")?.textContent?.trim() as string,
 		});
-		rosters.value[team] = [];
-		rosters.value[team] = JSON.parse(scriptElements[0].innerHTML).item;
-		let htmlNodes;
-		if (team === "rightTeam")
-			htmlNodes = rightTeamRoster.value?.querySelectorAll(".roster_jerseynum")
-		if (team === "leftTeam")
-			htmlNodes = leftTeamRoster.value?.querySelectorAll(".roster_jerseynum")
-		for (let i = 0; i < rosters.value[team].length; i++) {
-			rosters.value[team][i].uni = htmlNodes[i].innerHTML;
-		}
-	}
+	});
 }
 
 function playerBio() {
 	if (selectedPerson.value) {
 		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
-		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.uni as string;
-		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image.url;
+		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.number;
+		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image;
 		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
 	} else {
 		replicants.lowerThird.playerBio.action.player.name.value = "";
