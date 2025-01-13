@@ -40,7 +40,7 @@ export async function generateDocs() {
 		"table td + td { border-left: 3vw solid white; }",
 		"table tr + tr { border-bottom: 10vw solid white; }",
 		"tr > td:nth-child(2):hover, .bit-link:hover { cursor: pointer; background: yellow; }",
-		".bit-link:hover { cursor: pointer; background: yellow; }",
+		".bit-link:hover, #bitfocus_base:hover { cursor: pointer; background: yellow; }",
 		"#warn { position: sticky; top: 10; background: yellow; text-align: right; }",
 		"</style></head><body>",
 		"<noscript><h1 id='warn'>WARNING JAVASCRIPT SHOULD BE ENABLED FOR PROPER FUNCTIONALITY</h1></noscript>",

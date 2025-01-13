@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<n-checkbox @click="toggleTimer">Hide Timer</n-checkbox>
 		<n-grid :cols="2" :x-gap="10">
 			<n-grid-item class="vertical-center">
 				<n-input-group>
@@ -38,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import {NButton, NInput, NInputGroup, NGrid, NGridItem, NRadio, useMessage} from "naive-ui";
+import {NButton, NCheckbox, NInput, NInputGroup, NGrid, NGridItem, NRadio, useMessage} from "naive-ui";
 import {loadReplicants} from "../../browser-common/replicants";
 import {computed, ref} from "vue";
 import {parseTimeString} from "../util";
@@ -121,6 +122,14 @@ function timerEndsActionChanged(event: Event) {
 	}
 	// Casting because .value is of type string, but we know it's one of the three options
 	announcement.value.timer.timerEndsAction = <any>(event.target as HTMLInputElement).value
+}
+
+
+function toggleTimer() {
+	if(!announcement.value || !announcement.value.timer) {
+		return;
+	}
+	announcement.value.timer.visible = !announcement.value.timer.visible;
 }
 </script>
 

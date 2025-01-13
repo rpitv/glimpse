@@ -35,7 +35,7 @@
 				<td><v-switch v-model="replicants.lowerThird.locator.show.value" /></td>
 			</tr>
 			<tr>
-				<td><h2>Lower Third Scoreboard</h2></td>
+				<td><h2>Break Scoreboard</h2></td>
 				<td><iframe :src="previewLocation + '?lowerThirdScoreboard'" /></td>
 				<td><ScoreboardEditor /></td>
 				<td><v-switch v-model="replicants.lowerThird.scoreboard.show.value" /></td>

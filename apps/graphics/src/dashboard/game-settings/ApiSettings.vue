@@ -1,5 +1,5 @@
 <template>
-	<h1 @click="openApiLink" title="Open API Docs" id="h1ApiLabel">API (<u>Docs</u>)</h1>
+	<h1 @click="openApiLink" title="Open API Docs" id="h1ApiLabel">API (<u>docs</u>)</h1>
 	<label>Enable API? </label>
 	<n-checkbox v-model:checked="replicants.gameSettings.api.enabled.value"/>
 	<div v-if="replicants.gameSettings.api.enabled.value">
@@ -53,7 +53,7 @@ function onApiInputFocus(e: Event): void {
 function regenerateApiKey(): void {
 	dialog.warning({
 		title: "Are you sure about resting the API key?",
-		content: "This will cause all current applications using the API to stop working" +
+		content: "This will cause all current applications using the API to stop working. " +
 			"You will need to go into every application and update the key it is using.",
 		positiveText: "Yes",
 		negativeText: "No",

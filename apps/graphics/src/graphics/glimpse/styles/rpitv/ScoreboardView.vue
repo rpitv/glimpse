@@ -309,8 +309,7 @@ const announcementType = computed(() => {
 		forNone();
 		return "";
 	}
-	if (replicants.gameSettings.periods.count.value === 4 || (replicants.gameSettings.periods.count.value === 5 &&
-		replicants.gameSettings.periods.shootouts.value !== true)) {
+	if (replicants.gameSettings.periods.count.value === 4 || (replicants.gameSettings.periods.count.value === 5 && !replicants.gameSettings.periods.shootouts.value)) {
 		// If two away players are on penalty...
 		if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value) {
 			// If two home players are on penalty
@@ -407,8 +406,7 @@ const powerPlayStatus = computed(() => {
 	if (replicants.gameSettings.periods.count.value >= 5 && replicants.gameSettings.periods.shootouts.value)
 		return "";
 	// If we are in overtime
-	if (replicants.gameSettings.periods.count.value === 4 || (replicants.gameSettings.periods.count.value === 5 &&
-		replicants.gameSettings.periods.shootouts.value !== true)) {
+	if (replicants.gameSettings.periods.count.value === 4 || (replicants.gameSettings.periods.count.value === 5 && !replicants.gameSettings.periods.shootouts.value)) {
 		// If two away players are on penalty...
 		if (replicants.teams[1].player1PenaltyNumber.value && replicants.teams[1].player2PenaltyNumber.value) {
 			// If two home players are on penalty

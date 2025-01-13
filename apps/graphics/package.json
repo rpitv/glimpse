@@ -84,28 +84,28 @@
         "name": "command-palette",
         "title": "Command Palette",
         "file": "command-palette.html",
-        "workspace": "Scoreboard",
+        "workspace": "Scorebug",
         "width": "2"
       },
       {
         "name": "teams",
         "title": "Teams",
         "file": "teams.html",
-        "workspace": "Scoreboard",
+        "workspace": "Scorebug",
         "width": "6"
       },
       {
         "name": "clock",
         "title": "Clock",
         "file": "clock.html",
-        "workspace": "Scoreboard",
+        "workspace": "Scorebug",
         "width": "4"
       },
       {
         "name": "Announcements",
         "title": "Announcements",
         "file": "announcements.html",
-        "workspace": "Scoreboard",
+        "workspace": "Scorebug",
         "width": "8"
       },
       {

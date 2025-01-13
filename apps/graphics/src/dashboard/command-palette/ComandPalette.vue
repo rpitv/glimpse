@@ -6,7 +6,7 @@
 			:type="isScoreboardShown ? 'error' : 'success'"
 			@click="showScoreboard"
 		>
-			{{ isScoreboardShown ? 'Hide' : 'Show' }} Scoreboard
+			{{ isScoreboardShown ? 'Hide' : 'Show' }} Scorebug
 		</n-button>
 		<hr>
 		<textarea class="palette" ref="palette" :placeholder="paletteText" @keydown="paletteKeyPressed" />
@@ -63,7 +63,7 @@ function areClockCommandsEnabled(): boolean {
 const commands: Record<string, Command> = {
 	' ': {
 		displayedChar: 'Space',
-		title: 'Show/Hide Scoreboard',
+		title: 'Show/Hide Scorebug',
 		fn() {
 			replicants.scoreboard.visible.value = !replicants.scoreboard.visible.value;
 		},
