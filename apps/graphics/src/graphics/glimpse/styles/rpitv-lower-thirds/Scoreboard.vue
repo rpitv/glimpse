@@ -1,15 +1,15 @@
 <template>
 	<img class="scoreboard" :src="Scoreboard">
 	<div class="colors" :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[0].name.value">
-		<div :style="leftTeamName"> {{ replicantScoreboard.leftTeam.name.value || replicants.teams[0].name }}</div>
+		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[1].logo.value" :alt="replicants.teams[1].name.value">
+		<div :style="leftTeamName"> {{ replicantScoreboard.leftTeam.name.value || replicants.teams[1].name }}</div>
 	</div>
 	<div class="colors" :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value || replicants.teams[1].logo.value" :alt="replicants.teams[1].name.value">
-		<div :style="rightTeamName"> {{ replicantScoreboard.rightTeam.name.value || replicants.teams[1].name }}</div>
+		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[0].name.value">
+		<div :style="rightTeamName"> {{ replicantScoreboard.rightTeam.name.value || replicants.teams[0].name }}</div>
 	</div>
-	<div :style="leftTeamScore"> {{ replicantScoreboard.leftTeam.score.value || replicants.teams[0].score }}</div>
-	<div :style="rightTeamScore"> {{ replicantScoreboard.rightTeam.score.value || replicants.teams[1].score }}</div>
+	<div :style="leftTeamScore"> {{ replicantScoreboard.leftTeam.score.value || replicants.teams[1].score }}</div>
+	<div :style="rightTeamScore"> {{ replicantScoreboard.rightTeam.score.value || replicants.teams[0].score }}</div>
 	<div :style="description">
 		{{ replicantScoreboard.description.text.value || period }}
 		{{ replicantScoreboard.description.timer.value && replicants.scoreboard.clock.time.value ? `(${formattedClockTime})` : ''}}

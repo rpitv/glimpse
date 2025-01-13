@@ -2,16 +2,15 @@
 	<img class="locator" :src="Locator">
 	<div :style="leftTeamSecondaryColor"></div>
 	<div :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicants.lowerThird.locator.leftTeam.logo.value || replicants.teams[0].logo.value">
+		<img :style="leftTeamLogo" :src="replicants.lowerThird.locator.leftTeam.logo.value || replicants.teams[1].logo.value">
 	</div>
 	<div :style="rightTeamSecondaryColor"></div>
 	<div :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicants.lowerThird.locator.rightTeam.logo.value || replicants.teams[1].logo.value">
+		<img :style="rightTeamLogo" :src="replicants.lowerThird.locator.rightTeam.logo.value || replicants.teams[0].logo.value">
 	</div>
-	<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[0].schoolName.value }}</div>
-	<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[1].schoolName.value }}</div>
+	<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[1].schoolName.value }}</div>
+	<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[0].schoolName.value }}</div>
 	<div :style="location	">
-<!--		Houston Field House - Troy, NY-->
 	</div>
 </template>
 
@@ -25,7 +24,7 @@ const replicants = await loadReplicants();
 const replicantLocator = replicants.lowerThird.locator;
 
 const leftTeamSecondaryColor = computed((): CSSProperties => {return {
-	backgroundColor: replicantLocator.leftTeam.secondaryColor.value || replicants.teams[0].secondaryColor.value,
+	backgroundColor: replicantLocator.leftTeam.secondaryColor.value || replicants.teams[1].secondaryColor.value,
 	bottom: "22.1vh",
 	height: "9.6vh",
 	left: "29.3vw",
@@ -33,7 +32,7 @@ const leftTeamSecondaryColor = computed((): CSSProperties => {return {
 }});
 const leftTeamPrimaryColor = computed((): CSSProperties => {return {
 	alignItems: "center",
-	backgroundColor: replicantLocator.leftTeam.primaryColor.value || replicants.teams[0].primaryColor.value,
+	backgroundColor: replicantLocator.leftTeam.primaryColor.value || replicants.teams[1].primaryColor.value,
 	bottom: "22.1vh",
 	display: "flex",
 	height: "9.6vh",
@@ -43,7 +42,7 @@ const leftTeamPrimaryColor = computed((): CSSProperties => {return {
 }});
 const rightTeamPrimaryColor = computed((): CSSProperties => {return {
 	alignItems: "center",
-	backgroundColor: replicantLocator.rightTeam.primaryColor.value || replicants.teams[1].primaryColor.value,
+	backgroundColor: replicantLocator.rightTeam.primaryColor.value || replicants.teams[0].primaryColor.value,
 	bottom: "22.1vh",
 	display: "flex",
 	height: "9.6vh",
@@ -126,32 +125,5 @@ div {
 	width: 100vw;
 	height: 100vh;
 }
-.leftTeamName {
-	color: rgba(63,63,63);
-	left: 30.84vw; /* 592px / 1920px * 100 */
-	top: 79.26vh; /* 856px / 1080px * 100 */
-	width: 14vw; /* 270px / 1920px * 100 */
-	height: 5.55vh; /* 60px / 1080px * 100 */
-	word-wrap: anywhere;
 
-	font-size: calc(1.7vw);
-	display: flex;
-	justify-content: center;
-	align-content: center;
-	flex-wrap: wrap;
-}
-.rightTeamName {
-	color: rgba(63,63,63);
-	left: 54.78vw; /* 1052px / 1920px * 100 */
-	top: 79.26vh; /* 856px / 1080px * 100 */
-	width: 14vw; /* 270px / 1920px * 100 */
-	height: 5.5vh; /* 60px / 1080px * 100 */
-	word-wrap: anywhere;
-
-	font-size:calc(1.7vw);
-	display: flex;
-	justify-content: center;
-	align-content: center;
-	flex-wrap: wrap;
-}
 </style>

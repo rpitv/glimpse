@@ -2,7 +2,7 @@
 	<v-expansion-panels>
 		<v-expansion-panel title="Location">
 			<v-expansion-panel-text>
-				<v-text-field label="Location Name" v-model="replicantLocator.location.name.value" />
+				<v-combobox :items="locations" label="Location Name" v-model="replicantLocator.location.name.value" />
 				<v-number-input label="Font Size" v-model="replicantLocator.location.nameSize.value" />
 				<v-color-picker v-model="replicantLocator.location.nameColor.value" />
 				<v-text-field label="Font Color" v-model="replicantLocator.location.nameColor.value" width="300" />
@@ -49,9 +49,15 @@
 
 <script setup lang="ts">
 import { loadReplicants } from "../../../browser-common/replicants";
+import {ref} from "vue";
 
 const replicants = await loadReplicants();
 const replicantLocator = replicants.lowerThird.locator;
+const locations = ref<string[]>([
+	"Houston Field House",
+	"ECAV Stadium",
+	"ECAV Arena",
+]);
 </script>
 
 <style scoped lang="scss">

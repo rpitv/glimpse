@@ -1,12 +1,12 @@
 <template>
 	<img class="locator" :src="Locator">
 	<div :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicantLocator.leftTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[0].name.value">
-		<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[0].schoolName }}</div>
+		<img :style="leftTeamLogo" :src="replicantLocator.leftTeam.logo.value || replicants.teams[1].logo.value" :alt="replicants.teams[1].name.value">
+		<div :style="leftTeamName">{{ replicantLocator.leftTeam.name.value || replicants.teams[1].schoolName }}</div>
 	</div>
 	<div :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicantLocator.rightTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[1].name.value">
-		<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[1].schoolName }}</div>
+		<img :style="rightTeamLogo" :src="replicantLocator.rightTeam.logo.value || replicants.teams[0].logo.value" :alt="replicants.teams[0].name.value">
+		<div :style="rightTeamName">{{ replicantLocator.rightTeam.name.value || replicants.teams[0].schoolName }}</div>
 	</div>
 	<div :style="location">{{ replicantLocator.location.name.value || "Houston Field House" }}</div>
 </template>
@@ -23,7 +23,7 @@ const replicantLocator = replicants.lowerThird.locator;
 
 const leftTeamPrimaryColor = computed((): CSSProperties => {return {
 	alignItems: "center",
-	backgroundColor: replicantLocator.leftTeam.primaryColor.value || replicants.teams[0].primaryColor.value,
+	backgroundColor: replicantLocator.leftTeam.primaryColor.value || replicants.teams[1].primaryColor.value,
 	bottom: "15.7vh",
 	display: "flex",
 	height: "17.4vh",
@@ -34,7 +34,7 @@ const leftTeamPrimaryColor = computed((): CSSProperties => {return {
 }});
 const rightTeamPrimaryColor = computed((): CSSProperties => {return {
 	alignItems: "center",
-	backgroundColor: replicantLocator.rightTeam.primaryColor.value || replicants.teams[1].primaryColor.value,
+	backgroundColor: replicantLocator.rightTeam.primaryColor.value || replicants.teams[0].primaryColor.value,
 	bottom: "15.7vh",
 	display: "flex",
 	height: "17.4vh",

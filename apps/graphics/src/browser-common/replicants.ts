@@ -242,7 +242,7 @@ export async function loadReplicants() {
 			},
 			scoreboard: {
 				description: {
-          autoFit: await replicant<boolean>("autoFit", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: true}),
+					autoFit: await replicant<boolean>("autoFit", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: true}),
 					fontSize: await replicant<number>("fontSize", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: 0}),
 					fontColor: await replicant<string>("fontColor", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: "#000000"}),
 					text: await replicant<string>("text", `glimpse-graphics.graphics.lowerThird.scoreboard.description`, {defaultValue: ""}),

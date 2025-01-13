@@ -1,16 +1,16 @@
 <template>
 	<img :src="scoreboard" alt="lower_third">
 	<div :style="leftTeamName">
-		<p>{{ replicantScoreboard.leftTeam.name.value || replicants.teams[0].schoolName}}</p>
+		<p>{{ replicantScoreboard.leftTeam.name.value || replicants.teams[1].schoolName}}</p>
 	</div>
 	<div :style="leftTeamScore">
-		{{ replicantScoreboard.leftTeam.score.value || replicants.teams[0].score }}
+		{{ replicantScoreboard.leftTeam.score.value || replicants.teams[1].score }}
 	</div>
 	<div :style="rightTeamName">
-		<p>{{ replicantScoreboard.rightTeam.name.value || replicants.teams[1].schoolName }}</p>
+		<p>{{ replicantScoreboard.rightTeam.name.value || replicants.teams[0].schoolName }}</p>
 	</div>
 	<div :style="rightTeamScore">
-		{{ replicantScoreboard.rightTeam.score.value || replicants.teams[1].score }}
+		{{ replicantScoreboard.rightTeam.score.value || replicants.teams[0].score }}
 	</div>
 	<div :style="description" ref="scalingDiv">
 		<span ref="scalingText" class="scaling-text">
@@ -19,11 +19,11 @@
 		</span>
 	</div>
 	<div class="colors" :style="leftTeamPrimaryColor">
-		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[0].logo.value">
+		<img :style="leftTeamLogo" :src="replicants.lowerThird.scoreboard.leftTeam.logo.value || replicants.teams[1].logo.value">
 	</div>
 	<div class="colors" :style="leftTeamSecondaryColor"></div>
 	<div class="colors" :style="rightTeamPrimaryColor">
-		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value || replicants.teams[1].logo.value">
+		<img :style="rightTeamLogo" :src="replicants.lowerThird.scoreboard.rightTeam.logo.value || replicants.teams[0].logo.value">
 	</div>
 	<div class="colors" :style="rightTeamSecondaryColor"></div>
 </template>
@@ -101,13 +101,13 @@ const description = computed((): CSSProperties => { return {
 	width: "11vw",
 }})
 const leftTeamSecondaryColor = computed((): CSSProperties => { return {
-	backgroundColor: replicantScoreboard.leftTeam.secondaryColor.value,
+	backgroundColor: replicantScoreboard.leftTeam.secondaryColor.value || replicants.teams[1].secondaryColor.value,
 	left: "28.6vw",
 	width: "1.84vw"
 }});
 const leftTeamPrimaryColor = computed((): CSSProperties => { return {
 	alignItems: "center",
-	backgroundColor: replicantScoreboard.leftTeam.primaryColor.value,
+	backgroundColor: replicantScoreboard.leftTeam.primaryColor.value || replicants.teams[1].primaryColor.value,
 	display: "flex",
 	justifyContent: "center",
 	left: "30.7vw",
@@ -115,14 +115,14 @@ const leftTeamPrimaryColor = computed((): CSSProperties => { return {
 }});
 const rightTeamPrimaryColor = computed((): CSSProperties => { return {
 	alignItems: "center",
-	backgroundColor: replicantScoreboard.rightTeam.primaryColor.value,
+	backgroundColor: replicantScoreboard.rightTeam.primaryColor.value || replicants.teams[0].primaryColor.value,
 	display: "flex",
 	justifyContent: "center",
 	left: "61.1vw",
 	width: "8.1vw"
 }});
 const rightTeamSecondaryColor = computed((): CSSProperties => { return {
-	backgroundColor: replicantScoreboard.rightTeam.secondaryColor.value,
+	backgroundColor: replicantScoreboard.rightTeam.secondaryColor.value || replicants.teams[0].secondaryColor.value,
 	left: "69.3vw",
 	width: "1.93vw",
 }});
@@ -157,24 +157,25 @@ const formattedClockTime = computed<string>(() => {
 const scaleTextToFit = () => {
 	const div = scalingDiv.value;
 	const text = scalingText.value;
-	
+
 	if (!div || !text) return;
-	
+
 	const divWidth = div.clientWidth;
 	let fontSize = 2.36; // Default starting font size
 	text.style.fontSize = fontSize + "vh"
-	
+
 	// Adjust font size only if the text exceeds the width
 	while (text.offsetWidth > divWidth) {
 		fontSize -= 0.2;
 		text.style.fontSize = `${fontSize}vh`;
-		
+
 		if (fontSize <= 1) break; // Prevent infinite loop
 	}
 };
 
 // Watch for changes in the text prop
-watch([replicantScoreboard.description.text, replicants.scoreboard.clock.time, replicantScoreboard.description.autoFit, replicantScoreboard.description.fontSize],
+watch([replicantScoreboard.description.text, replicants.scoreboard.clock.time, replicantScoreboard.description.autoFit,
+			replicantScoreboard.description.fontSize, replicantScoreboard.description.timer],
 	async () => {
 		if (!replicantScoreboard.description.autoFit.value) {
 			const text = scalingText.value;
