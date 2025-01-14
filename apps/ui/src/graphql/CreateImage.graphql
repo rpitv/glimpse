@@ -1,5 +1,8 @@
 mutation CreateImage($data: CreateImageInput!) {
   image: createImage(input: $data) {
-    id
+		id
+		name
+		description
+		path
   }
 }

@@ -78,7 +78,7 @@ import {
   NGridItem,
 } from "naive-ui";
 import { computed, h, PropType, ref, VNode, watch } from "vue";
-import { Video } from "@/graphql/types";
+import type { Video } from "@/graphql/types";
 import { FormRules } from "naive-ui";
 
 const props = defineProps({

@@ -174,7 +174,7 @@ async function nextStep() {
       return;
     }
 
-    emit("save", createdCategory?.data?.category.id);
+    emit("save", createdCategory?.data?.category);
   }
 }
 </script>

@@ -4,7 +4,7 @@
     <v-dialog width="400" scrim="black">
       <template v-slot:activator="{ props }" >
         <v-chip v-tooltip="'Click to view image'" v-bind="props" class="ml-3" closable
-                @click:close="emit('close')">
+          @click:close="emit('close')">
           Image ID: {{ productionThumbnail.id }}
         </v-chip>
       </template>

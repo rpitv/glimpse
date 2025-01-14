@@ -10,10 +10,10 @@
         <template #default>
           <CreateImageCard
               closable
-              @save="(id: number) => {
+              @save="(image: Image) => {
                 showCreatePopup = false;
                 refresh();
-                createdImage = { id: id, show: true };
+                createdImage = { id: image.id, show: true };
               }"
               @close="showCreatePopup = false"
           />
