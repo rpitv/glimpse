@@ -5,8 +5,10 @@
 			<div class="actions">
 				<v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value" />
 				<v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value" />
-				<v-checkbox v-model="replicants.lowerThird.playerBio.image.syncTeamColor.value"  label="Sync Team Colors"/>
-				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Bio" />
+				<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.defaultTeamColor.value" label="Default Color" />
+				<v-checkbox v-model="replicants.lowerThird.playerBio.image.syncTeamColor.value" label="Sync Team Colors" />
+				<v-checkbox v-model="replicants.lowerThird.playerBio.info.show.value" label="Display Player Info" />
+				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Graphic" />
 			</div>
 		</div>
 		<br>
@@ -19,6 +21,8 @@
 						  placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25" />
 						<v-btn color="green" @click="fetchRoster('leftTeam')">Fetch Roster</v-btn>
 					</div>
+					<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.leftTeamColor.value" label="Left Team Color" />
+					<v-checkbox v-model="leftTeamSync" label="Sync Left Team Colors" />
 					<PlayerView :roster="rosters.leftTeam" teamSide="leftTeam" />
 				</v-col>
 				<v-spacer />
@@ -28,6 +32,8 @@
 									  placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25" />
 						<v-btn color="green" @click="fetchRoster('rightTeam')">Fetch Roster</v-btn>
 					</div>
+					<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.rightTeamColor.value" label="Right Team Color" />
+					<v-checkbox v-model="rightTeamSync" label="Sync Right Team Colors" />
 					<PlayerView :roster="rosters.rightTeam" teamSide="rightTeam" :additionalPlayers="rosters.leftTeam?.length" />
 				</v-col>
 			</v-row>
@@ -44,9 +50,10 @@
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../browser-common/replicants";
+import {loadReplicants} from "../../browser-common/replicants";
 import {onMounted, ref, watch} from "vue";
 import PlayerView from "./PlayerView.vue";
+import GlimpseColorPicker from "../components/GlimpseColorPicker.vue";
 
 const possiblePlays = ["Powerplay goal by", "Save made by", "Penalty by", "Goal by", "Assisted by"];
 const sidearmsLinks = ["https://www.sidearmstats.com/rpi/mhockey/1.xml", "https://www.sidearmstats.com/rpi/whockey/1.xml"];
@@ -65,6 +72,13 @@ interface Person {
 	weight: string
 	year: string
 }
+
+const visible_color_selector = ref<boolean>(false);
+
+function toggle_color_selector() {
+	visible_color_selector.value = !visible_color_selector.value;
+}
+
 
 const replicants = await loadReplicants();
 
@@ -95,13 +109,13 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 		roster = leftTeamRoster.value;
 	else if (team === "rightTeam")
 		roster = rightTeamRoster.value;
-	
+
 	const players = roster!.querySelectorAll(".sidearm-roster-player");
 	const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
-	
+
 	rosters.value[team] = [];
 	const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
-	
+
 	players.forEach((player) => {
 		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
 				.replace(/(width=)\d+/, '$1300')
@@ -128,6 +142,10 @@ function playerBio() {
 		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.number;
 		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image;
 		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
+
+		replicants.lowerThird.playerBio.info.height.value = selectedPerson.value.person.height;
+		replicants.lowerThird.playerBio.info.year.value = selectedPerson.value.person.year;
+		replicants.lowerThird.playerBio.info.hometown.value = selectedPerson.value.person.hometown;
 	} else {
 		replicants.lowerThird.playerBio.action.player.name.value = "";
 		replicants.lowerThird.playerBio.action.player.number.value = "";
@@ -158,6 +176,11 @@ onMounted(() => {
 		renderRoster("rightTeam");
 	}
 });
+
+
+
+const leftTeamSync = ref<boolean>(true);
+const rightTeamSync = ref<boolean>(true);
 </script>
 
 <style>
@@ -180,7 +203,6 @@ iframe {
 }
 
 .actions {
-
 	width: 100%;
 }
 </style>

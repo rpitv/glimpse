@@ -11,7 +11,7 @@
 		</div>
 		<LocatorView />
 		<LowerThirdScoreboardView />
-		<PlayerBioView />
+		<PlayerBioView id="PlayerBio" />
 		<BugView />
 	</div>
 </template>

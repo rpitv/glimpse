@@ -67,7 +67,7 @@ function search() {
 	// Make it possible to filter multiple players
 	let values = searchInput.value.split(",").map((x) => x.trim());
 	if (values.length > 1)
-		values = values.filter((x) => x !== ""); 
+		values = values.filter((x) => x !== "");
 	searchRoster.value = props.roster.filter((person) => {
 		if (values.length === 0) return true;
 		for (const value of values) {
