@@ -21,28 +21,22 @@ const playerBio = replicants.lowerThird.playerBio;
 const linearGrad = ref<string>("");
 
 const teamColor = computed(() => {
-	let color = ""
-	if (!playerBio.image.syncTeamColor.value ) {
-		// sync team colors disabled, check for override before default
-		if (playerBio.image.defaultTeamColor.value !== "" && playerBio.image.defaultTeamColor.value !== null) {
-			color = playerBio.image.defaultTeamColor.value
-		} else {
-			if (playerBio.action.player.teamSide.value === "leftTeam") {
-				color = playerBio.image.leftTeamColor.value
-			} else if (playerBio.action.player.teamSide.value === "rightTeam") {
-				color = playerBio.image.rightTeamColor.value
-			}
-		}
+	let color = "";
+	if (!playerBio.image.leftTeam.sync.value && playerBio.action.player.teamSide.value === "leftTeam") {
+		color = playerBio.image.leftTeam.color.value;
+	} else if (!playerBio.image.rightTeam.sync.value && playerBio.action.player.teamSide.value === "rightTeam") {
+		color = playerBio.image.rightTeam.color.value;
 	} else {
-		// team colors synced
 		if (playerBio.action.player.teamSide.value === "leftTeam") {
 			color = replicants.teams[1].primaryColor.value
 		} else if (playerBio.action.player.teamSide.value === "rightTeam") {
 			color = replicants.teams[0].primaryColor.value
+		} else {
+			color = playerBio.image.defaultTeamColor.value;
 		}
 	}
 	linearGrad.value = calcLinearGrad(color);
-	return color
+	return color;
 })
 
 const scoreboard = computed((): CSSProperties => {

@@ -6,14 +6,13 @@
 				<v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value" />
 				<v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value" />
 				<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.defaultTeamColor.value" label="Default Color" />
-				<v-checkbox v-model="replicants.lowerThird.playerBio.image.syncTeamColor.value" label="Sync Team Colors" />
 				<v-checkbox v-model="replicants.lowerThird.playerBio.info.show.value" label="Display Player Info" />
 				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Graphic" />
 			</div>
 		</div>
 		<br>
 		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />
-		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="playerBio">
+		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="getPlayerBio">
 			<v-row>
 				<v-col cols="6">
 					<div class="roster-field">
@@ -21,8 +20,6 @@
 						  placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25" />
 						<v-btn color="green" @click="fetchRoster('leftTeam')">Fetch Roster</v-btn>
 					</div>
-					<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.leftTeamColor.value" label="Left Team Color" />
-					<v-checkbox v-model="leftTeamSync" label="Sync Left Team Colors" />
 					<PlayerView :roster="rosters.leftTeam" teamSide="leftTeam" />
 				</v-col>
 				<v-spacer />
@@ -32,8 +29,6 @@
 									  placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25" />
 						<v-btn color="green" @click="fetchRoster('rightTeam')">Fetch Roster</v-btn>
 					</div>
-					<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.rightTeamColor.value" label="Right Team Color" />
-					<v-checkbox v-model="rightTeamSync" label="Sync Right Team Colors" />
 					<PlayerView :roster="rosters.rightTeam" teamSide="rightTeam" :additionalPlayers="rosters.leftTeam?.length" />
 				</v-col>
 			</v-row>
@@ -71,12 +66,6 @@ interface Person {
 	previousTeam: string
 	weight: string
 	year: string
-}
-
-const visible_color_selector = ref<boolean>(false);
-
-function toggle_color_selector() {
-	visible_color_selector.value = !visible_color_selector.value;
 }
 
 
@@ -119,7 +108,7 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 	players.forEach((player) => {
 		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
 				.replace(/(width=)\d+/, '$1300')
-				.replace(/(quality=)\d+/, '$1100');
+				.replace(/(quality=)\d+/, '$170');
 		rosters.value[team].push({
 			custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
 			custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
@@ -136,21 +125,27 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 	});
 }
 
-function playerBio() {
+function getPlayerBio() {
+	const playerBio = replicants.lowerThird.playerBio;
 	if (selectedPerson.value) {
-		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
-		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.number;
-		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image;
-		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
-
-		replicants.lowerThird.playerBio.info.height.value = selectedPerson.value.person.height;
-		replicants.lowerThird.playerBio.info.year.value = selectedPerson.value.person.year;
-		replicants.lowerThird.playerBio.info.hometown.value = selectedPerson.value.person.hometown;
+		playerBio.action.player.name.value = selectedPerson.value.person.name;
+		playerBio.action.player.number.value = selectedPerson.value.person.number;
+		playerBio.image.url.value = selectedPerson.value.person.image;
+		playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
+		playerBio.info.height.value = selectedPerson.value.person.height;
+		playerBio.info.hometown.value = selectedPerson.value.person.hometown;
+		playerBio.info.weight.value = selectedPerson.value.person.weight;
+		playerBio.info.year.value = selectedPerson.value.person.year;
+		
 	} else {
-		replicants.lowerThird.playerBio.action.player.name.value = "";
-		replicants.lowerThird.playerBio.action.player.number.value = "";
-		replicants.lowerThird.playerBio.image.url.value = "";
-		replicants.lowerThird.playerBio.action.player.teamSide.value = "";
+		playerBio.action.player.name.value = "";
+		playerBio.action.player.number.value = "";
+		playerBio.image.url.value = "";
+		playerBio.action.player.teamSide.value = "";
+		playerBio.info.height.value = "";
+		playerBio.info.hometown.value = "";
+		playerBio.info.weight.value = "";
+		playerBio.info.year.value = "";
 	}
 }
 
