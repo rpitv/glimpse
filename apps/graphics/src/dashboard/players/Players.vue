@@ -128,15 +128,14 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 function getPlayerBio() {
 	const playerBio = replicants.lowerThird.playerBio;
 	if (selectedPerson.value) {
-		playerBio.action.player.name.value = selectedPerson.value.person.name;
-		playerBio.action.player.number.value = selectedPerson.value.person.number;
-		playerBio.image.url.value = selectedPerson.value.person.image;
-		playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
-		playerBio.info.height.value = selectedPerson.value.person.height;
-		playerBio.info.hometown.value = selectedPerson.value.person.hometown;
-		playerBio.info.weight.value = selectedPerson.value.person.weight;
-		playerBio.info.year.value = selectedPerson.value.person.year;
-		
+		playerBio.action.player.name.value = selectedPerson.value.person.name || "";
+		playerBio.action.player.number.value = selectedPerson.value.person.number || "";
+		playerBio.image.url.value = selectedPerson.value.person.image || "";
+		playerBio.action.player.teamSide.value = selectedPerson.value.teamSide || "";
+		playerBio.info.height.value = selectedPerson.value.person.height || "";
+		playerBio.info.hometown.value = selectedPerson.value.person.hometown || "";
+		playerBio.info.weight.value = selectedPerson.value.person.weight || "";
+		playerBio.info.year.value = selectedPerson.value.person.year || "";
 	} else {
 		playerBio.action.player.name.value = "";
 		playerBio.action.player.number.value = "";

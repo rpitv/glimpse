@@ -1,28 +1,12 @@
 <template>
-	<div class="glimpse-color-picker-v2-container" >
-		<div ref="v_color_selector" @click="focusColorSelector">
-			<v-color-picker
-					class="vue-picker"
-					v-model="modelValue"
-					:style="{
-						'opacity': !visible_color_selector ? 0 : 100,
-						'pointer-events': visible_color_selector ? 'auto' : 'none',
-						'visibility': visible_color_selector ? 'visible' : 'hidden',
-						'transform': visible_color_selector ? 'scale(1) translateY(6.2vh) translateX(1vw)' : 'scale(0)',
-					}"
-					:disabled="disabled || !visible_color_selector"
-					@update:model-value="updateValue"
-					tabindex="0"
-					@focusout="closeColorSelector"
-			/>
-		</div>
-		<div class="color-picker-v2">
+	<div class="glimpse-color-picker-v2-container">
+		<div class="color-picker-v2" ref="inputRow">
 			<div :class="['color', disabled ? 'disabled' : '' ]" :style="{
 					'background-color': modelValue,
 					'border': visible_color_selector ? '0.2vw solid white' : '0.1vw solid #7E8592'
 				}"
-			  @click="toggle_color_selector" tabindex="0"
-				ref="color_display"
+					 @click="toggle_color_selector" tabindex="0"
+					 ref="color_display"
 			/>
 			<v-text-field
 					class="input"
@@ -31,6 +15,21 @@
 					@input="updateValue($event.target.value)"
 					:disabled="disabled"
 					hide-details
+			/>
+		</div>
+		<div ref="v_color_selector">
+			<v-color-picker
+					class="vue-picker"
+					v-model="modelValue"
+					:style="{
+						'opacity': !visible_color_selector ? 0 : 100,
+						'pointer-events': visible_color_selector ? 'auto' : 'none',
+						'visibility': visible_color_selector ? 'visible' : 'hidden',
+						'transform': visible_color_selector ? calcPosition() : 'scale(0)',
+					}"
+					:disabled="disabled || !visible_color_selector"
+					@update:model-value="updateValue"
+					tabindex="0"
 			/>
 		</div>
 	</div>
@@ -43,8 +42,10 @@ const props = withDefaults(defineProps<{
 	modelValue: string,
 	label: string,
 	disabled?: boolean,
+	top?: boolean,
 }>(), {
-	disabled: false
+	disabled: false,
+	top: false
 });
 const emit = defineEmits(["update:modelValue"]);
 
@@ -58,6 +59,16 @@ const modelValue = computed({
 const visible_color_selector = ref<boolean>(false);
 const v_color_selector = ref<HTMLElement | null>(null);
 const color_display = ref<HTMLElement | null>(null);
+const inputRow = ref<HTMLElement | null>(null);
+
+
+const calcPosition = () => {
+	if (!props.top)
+		return `scale(1)`
+
+	let inputRowHeight = inputRow?.value?.scrollHeight || 0;
+	return `scale(1) translateY(calc(-100% - ${inputRowHeight}px))`;
+}
 
 
 function updateValue(newValue: string) {
@@ -73,13 +84,6 @@ function closeColorSelector() {
 	visible_color_selector.value = false;
 }
 
-function focusColorSelector() {
-	console.log("unfocused")
-	if (v_color_selector.value)
-		v_color_selector.value.focus();
-}
-
-
 // Function to handle clicks and detect if inside or outside
 function handleClick(event: MouseEvent) {
 	if (v_color_selector.value) {
@@ -88,7 +92,6 @@ function handleClick(event: MouseEvent) {
 				event.target == color_display.value
 		) {
 		} else {
-			console.log('Click occurred outside the component');
 			closeColorSelector()
 		}
 	}
@@ -111,7 +114,6 @@ onBeforeUnmount(() => {
 	padding-bottom: 1.5vh;
 
 	.vue-picker {
-		transform: translateY(7vh);
 		position: absolute;
 		z-index: 100;
 	}
