@@ -5,13 +5,14 @@
 			<div class="actions">
 				<v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value" />
 				<v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value" />
-				<v-checkbox v-model="replicants.lowerThird.playerBio.image.syncTeamColor.value"  label="Sync Team Colors"/>
-				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Bio" />
+				<GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.defaultTeamColor.value" label="Default Color" />
+				<v-checkbox v-model="replicants.lowerThird.playerBio.info.show.value" label="Display Player Info" />
+				<v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Graphic" />
 			</div>
 		</div>
 		<br>
 		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />
-		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="playerBio">
+		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="getPlayerBio">
 			<v-row>
 				<v-col cols="6">
 					<div class="roster-field">
@@ -44,9 +45,10 @@
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../browser-common/replicants";
+import {loadReplicants} from "../../browser-common/replicants";
 import {onMounted, ref, watch} from "vue";
 import PlayerView from "./PlayerView.vue";
+import GlimpseColorPicker from "../components/GlimpseColorPicker.vue";
 
 const possiblePlays = ["Powerplay goal by", "Save made by", "Penalty by", "Goal by", "Assisted by"];
 const sidearmsLinks = ["https://www.sidearmstats.com/rpi/mhockey/1.xml", "https://www.sidearmstats.com/rpi/whockey/1.xml"];
@@ -65,6 +67,7 @@ interface Person {
 	weight: string
 	year: string
 }
+
 
 const replicants = await loadReplicants();
 
@@ -95,17 +98,17 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 		roster = leftTeamRoster.value;
 	else if (team === "rightTeam")
 		roster = rightTeamRoster.value;
-	
+
 	const players = roster!.querySelectorAll(".sidearm-roster-player");
 	const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
-	
+
 	rosters.value[team] = [];
 	const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
-	
+
 	players.forEach((player) => {
 		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
 				.replace(/(width=)\d+/, '$1300')
-				.replace(/(quality=)\d+/, '$1100');
+				.replace(/(quality=)\d+/, '$170');
 		rosters.value[team].push({
 			custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
 			custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
@@ -122,17 +125,26 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 	});
 }
 
-function playerBio() {
+function getPlayerBio() {
+	const playerBio = replicants.lowerThird.playerBio;
 	if (selectedPerson.value) {
-		replicants.lowerThird.playerBio.action.player.name.value = selectedPerson.value.person.name;
-		replicants.lowerThird.playerBio.action.player.number.value = selectedPerson.value.person.number;
-		replicants.lowerThird.playerBio.image.url.value = selectedPerson.value.person.image;
-		replicants.lowerThird.playerBio.action.player.teamSide.value = selectedPerson.value.teamSide;
+		playerBio.action.player.name.value = selectedPerson.value.person.name || "";
+		playerBio.action.player.number.value = selectedPerson.value.person.number || "";
+		playerBio.image.url.value = selectedPerson.value.person.image || "";
+		playerBio.action.player.teamSide.value = selectedPerson.value.teamSide || "";
+		playerBio.info.height.value = selectedPerson.value.person.height || "";
+		playerBio.info.hometown.value = selectedPerson.value.person.hometown || "";
+		playerBio.info.weight.value = selectedPerson.value.person.weight || "";
+		playerBio.info.year.value = selectedPerson.value.person.year || "";
 	} else {
-		replicants.lowerThird.playerBio.action.player.name.value = "";
-		replicants.lowerThird.playerBio.action.player.number.value = "";
-		replicants.lowerThird.playerBio.image.url.value = "";
-		replicants.lowerThird.playerBio.action.player.teamSide.value = "";
+		playerBio.action.player.name.value = "";
+		playerBio.action.player.number.value = "";
+		playerBio.image.url.value = "";
+		playerBio.action.player.teamSide.value = "";
+		playerBio.info.height.value = "";
+		playerBio.info.hometown.value = "";
+		playerBio.info.weight.value = "";
+		playerBio.info.year.value = "";
 	}
 }
 
@@ -158,6 +170,11 @@ onMounted(() => {
 		renderRoster("rightTeam");
 	}
 });
+
+
+
+const leftTeamSync = ref<boolean>(true);
+const rightTeamSync = ref<boolean>(true);
 </script>
 
 <style>
@@ -180,7 +197,6 @@ iframe {
 }
 
 .actions {
-
 	width: 100%;
 }
 </style>
