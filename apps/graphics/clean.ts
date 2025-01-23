@@ -1,6 +1,6 @@
-import {unlink, readFile, readdirSync, statSync, unlinkSync} from "fs";
-import { join, extname } from "path";
 import * as fs from "fs";
+import {readdirSync, statSync, unlinkSync} from "fs";
+import {extname, join} from "path";
 
 
 const directories = [

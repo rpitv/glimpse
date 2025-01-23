@@ -14,11 +14,13 @@
   "scripts": {
     "start": "node ../..",
     "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
+    "start-nodecg": "npx nodecg start",
     "clean": "npx ts-node clean.ts",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
     "dev": "run-p watch:* start-dev",
+    "cg": "run-p watch:* start-nodecg",
     "watch:browser": "vite",
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },
@@ -31,6 +33,7 @@
     "fs-extra": "^11.1.0",
     "gsap": "^3.12.2",
     "module-alias": "^2.2.2",
+    "nodecg": "^2.5.3",
     "pinia": "^2.0.23",
     "pino": "^8.7.0",
     "serialport": "^10.4.0",

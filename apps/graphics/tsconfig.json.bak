@@ -1,0 +1,28 @@
+{
+  "_comment": "originally in the example repo, copy pasted over, unsure if needed",
+  "compilerOptions": {
+    "incremental": true,
+
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM"],
+
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["nodecg/types/augment-window"],
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    "skipLibCheck": true,
+  }
+}
