@@ -1,24 +1,25 @@
 <template>
 	<div>
-		<ImageView />
-		<ScoreboardView />
-		<CopyrightView />
-		<CommentatorsView />
-		<CreditsView />
+		<ImageView id="images"/>
+		<ScoreboardView id="scorebug"/>
+		<CommentatorsView id="commentators"/>
+		<CreditsView id="credits"/>
 		<div v-if="replicants.gameSettings.style.value === 'espn'">
-			<ESPNProduced />
-			<ESPNBanner />
+			<ESPNProduced id="espn-produced"/>
+			<ESPNBanner id="espn-banner"/>
+            <ESPNTombstone id="espn-tombstone"/>
 		</div>
-		<LocatorView />
-		<LowerThirdScoreboardView />
-		<PlayerBioView id="PlayerBio" />
+    <LocatorView id="locator"/>
+		<LowerThirdScoreboardView id="break-scoreboard"/>
+		<PlayerBioView id="PlayerBio"/>
+    <CopyrightView id="copyright"/>
 		<BugView />
 	</div>
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../browser-common/replicants";
-import { watch } from "vue";
+import {loadReplicants} from "../../browser-common/replicants";
+import {watch} from "vue";
 import ImageView from "./ImageView.vue";
 import ESPNProduced from "./styles/espn/lower-third/Produced.vue";
 import ESPNBanner from "./styles/espn/Banner.vue";
@@ -30,6 +31,7 @@ import LocatorView from "./LowerThirdViews/LocatorView.vue";
 import LowerThirdScoreboardView from "./LowerThirdViews/LowerThirdScoreboardView.vue";
 import ScoreboardView from "./ScoreboardView.vue";
 import PlayerBioView from "./LowerThirdViews/PlayerBioView.vue";
+import ESPNTombstone from "./styles/espn/tomestone/Tombstone.vue";
 
 
 const replicants = await loadReplicants();
