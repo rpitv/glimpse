@@ -233,11 +233,24 @@ export async function loadReplicants() {
 				},
 				image: {
 					url: await replicant<string>("url", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: ""}),
-					syncTeamColor: await replicant<boolean>("syncTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: false}),
-					leftTeamColor: await replicant<string>("leftTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
-					rightTeamColor: await replicant<string>("rightTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+					defaultTeamColor: await replicant<string>("defaultTeamColor", `glimpse-graphics.graphics.lowerThird.playerBio.image`, {defaultValue: "#000000"}),
+          leftTeam: {
+            sync: await replicant<boolean>("sync", `glimpse-graphics.graphics.lowerThird.playerBio.image.leftTeam`, {defaultValue: true}),
+            color: await replicant("color", `glimpse-graphics.graphics.lowerThird.playerBio.image.leftTeam`, {defaultValue: "#000000"}),
+          },
+          rightTeam: {
+            sync: await replicant<boolean>("sync", `glimpse-graphics.graphics.lowerThird.playerBio.image.rightTeam`, {defaultValue: true}),
+            color: await replicant("color", `glimpse-graphics.graphics.lowerThird.playerBio.image.rightTeam`, {defaultValue: "#000000"}),
+          }
 				},
 				offset: await replicant<number>("offset", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: 0}),
+				info: {
+					show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.playerBio.info`, {defaultValue: false}),
+					height: await replicant<string>("height", `glimpse-graphics.graphics.lowerThird.playerBio.info`, {defaultValue: ""}),
+					weight: await replicant<string>("weight", `glimpse-graphics.graphics.lowerThird.playerBio.info`, {defaultValue: ""}),
+					year: await replicant<string>("year", `glimpse-graphics.graphics.lowerThird.playerBio.info`, {defaultValue: ""}),
+					hometown: await replicant<string>("hometown", `glimpse-graphics.graphics.lowerThird.playerBio.info`, {defaultValue: ""}),
+				},
 				show: await replicant<boolean>("show", `glimpse-graphics.graphics.lowerThird.playerBio`, {defaultValue: false}),
 			},
 			scoreboard: {
