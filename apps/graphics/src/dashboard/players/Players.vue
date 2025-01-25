@@ -10,7 +10,7 @@
 			</div>
 		</div>
 		<br>
-		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />
+<!--		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />-->
 		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="playerBio">
 			<v-row>
 				<v-col cols="6">
@@ -95,13 +95,13 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 		roster = leftTeamRoster.value;
 	else if (team === "rightTeam")
 		roster = rightTeamRoster.value;
-	
+
 	const players = roster!.querySelectorAll(".sidearm-roster-player");
 	const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
-	
+
 	rosters.value[team] = [];
 	const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
-	
+
 	players.forEach((player) => {
 		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
 				.replace(/(width=)\d+/, '$1300')
