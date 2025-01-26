@@ -140,7 +140,7 @@ const steps = [
 const currentStep = ref(1);
 const error = ref<string | null>(null);
 
-const videoDetailsInput = ref<VideoDetailsInput | null>(null);
+const videoDetailsInput = ref<typeof VideoDetailsInput | null>(null);
 const videoData = ref<Partial<Video>>({
   name: props.videoName ?? "",
   format: "EMBED",
@@ -186,7 +186,7 @@ async function nextStep() {
       return;
     }
 
-    emit("save", createdVideo?.data?.video.id);
+    emit("save", createdVideo?.data?.video);
   }
 }
 </script>

@@ -37,7 +37,8 @@
               @setThumbnail="setThumbnail"
               @addImage="addImage"
             />
-            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages" @close="productionData.thumbnailId = null" />
+            <ImageRow :productionThumbnail="productionData.thumbnail as Image" :productionImages="productionImages"
+              @close="productionData.thumbnail = {}; productionData.thumbnailId = null;" />
           </v-stepper-window-item>
           <v-stepper-window-item :value="5">
             <VideoTable :productionName="productionData.name as string" :productionVideos="productionVideos" :take="take" @addVideo="addVideo" />
@@ -61,7 +62,7 @@
           </v-stepper-window-item>
         </v-stepper-window>
         <v-stepper-actions @click:next="validate(next)" @click:prev="prev" prev-text="PREVIOUS" :next-text="step >= 7 ? 'CREATE' : 'NEXT'"
-                           :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
+           :disabled="loading ? 'next' : step <= 1 ? 'prev' : false">
         </v-stepper-actions>
       </template>
     </v-stepper>
@@ -299,7 +300,8 @@ function addPerson(person: Person) {
 
 watch(productionData, async () => {
   if (requiredForm.value) {
-    const valid = await requiredForm.value.validate();
+	  await requiredForm.value.validate()
+	  const valid = await requiredForm.value.validate();
     validation.value = valid.valid && !!productionData.value.eventLocation && !!productionData.value.startTime && !!productionData.value.endTime;
   }
 }, {deep: true});

@@ -1,5 +1,6 @@
 mutation CreatePerson($data: CreatePersonInput!) {
   person: createPerson(input: $data) {
-    id
+		id
+		name
   }
 }

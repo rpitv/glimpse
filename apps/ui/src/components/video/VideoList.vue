@@ -10,10 +10,10 @@
         <template #default>
           <CreateVideoCard
               closable
-              @save="(id: number) => {
+              @save="(video: Video) => {
                 showCreatePopup = false;
                 refresh();
-                createdVideo = { id: id, show: true };
+                createdVideo = { id: video.id, show: true };
               }"
               @close="showCreatePopup = false"
           />
@@ -56,7 +56,6 @@
           v-if="ability.can(AbilityActions.Update, subject(AbilitySubjects.Video, {
             id: item.id,
             name: item.name,
-            priority: item.priority
           }))"
           :max-width="1100" v-model="list[index]"
           :to="{ name: 'dashboard-video-details-edit', params: {id: item.id } }"
