@@ -1,6 +1,7 @@
 import { replicant } from "./replicant";
 import { Announcement } from "../common/Announcement";
 import { Credit } from "../common/Credit";
+import { StandingsTeam } from "../extension/util/StandingsTeam";
 
 export async function loadReplicants() {
 	return {
@@ -151,7 +152,14 @@ export async function loadReplicants() {
 			credits: {
 				credit: await replicant<Credit[]>("credit", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: []}),
 				show: await replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: false}),
-			}
+			},
+            standings: {
+                teams: await replicant<StandingsTeam[]>("teams", `glimpse-graphics.graphics.fullscreen.teams`, {defaultValue: []}),
+                show: await replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: false}),
+                title: await replicant<string>("title", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+                subtitle: await replicant<string>("subtitle", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+                headerLogoLink: await replicant<string>("headerLogoLink", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+            }
 		},
 		lowerThird: {
 			bug: {

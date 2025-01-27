@@ -6,6 +6,7 @@
 	<LocatorView v-if="locator" preview />
 	<LowerThirdScoreboardView v-if="scoreboard" preview />
 	<PlayerBioView v-if="playerBio" preview />
+    <TombstoneStandings v-if="tombstoneStandings" />
 </template>
 
 <script setup lang="ts">
@@ -17,6 +18,7 @@ import LocatorView from "../glimpse/LowerThirdViews/LocatorView.vue";
 import LowerThirdScoreboardView from "../glimpse/LowerThirdViews/LowerThirdScoreboardView.vue";
 import PlayerBioView from "../glimpse/LowerThirdViews/PlayerBioView.vue";
 import { ref } from "vue";
+import TombstoneStandings from "../glimpse/styles/espn/tomestone/StandingsTombstone.vue";
 
 const bug = ref(false);
 const commentators = ref(false);
@@ -25,6 +27,7 @@ const credits = ref(false);
 const locator = ref(false);
 const scoreboard = ref(false);
 const playerBio = ref(false);
+const tombstoneStandings = ref(false);
 
 
 const params = new URLSearchParams(window.location.search);
@@ -43,7 +46,8 @@ if (params.has("lowerThirdScoreboard"))
 	scoreboard.value = true;
 if (params.has("playerBio"))
 	playerBio.value = true;
-
+if (params.has("tombstoneStandings"))
+    tombstoneStandings.value = true;
 
 </script>
 

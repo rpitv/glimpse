@@ -47,8 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../browser-common/replicants";
-import { computed, ref } from "vue";
+import {loadReplicants} from "../../browser-common/replicants";
 import BugEditor from "./Editors/BugEditor.vue";
 import CommentatorsEditor from "./Editors/CommentatorsEditor.vue";
 import CopyrightEditor from "./Editors/CopyrightEditor.vue";

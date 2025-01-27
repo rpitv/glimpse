@@ -1,6 +1,7 @@
 import {get as nodecg} from './nodecg';
 import { Credit } from "./Credit";
 import {Announcement} from "./Announcement";
+import {StandingsTeam} from "./StandingsTeam";
 
 export const replicants = {
 	sync: {
@@ -150,7 +151,14 @@ export const replicants = {
 		credits: {
 			credit: nodecg().Replicant<Credit[]>("credit", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: []}),
 			show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.credits`, {defaultValue: false}),
-		}
+		},
+        standings: {
+            teams: nodecg().Replicant<StandingsTeam[]>("teams", `glimpse-graphics.graphics.fullscreen.teams`, {defaultValue: []}),
+            show: nodecg().Replicant<boolean>("show", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: false}),
+            title: nodecg().Replicant<string>("title", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+            subtitle: nodecg().Replicant<string>("subtitle", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+            headerLogoLink: nodecg().Replicant<string>("headerLogoLink", `glimpse-graphics.graphics.fullscreen.standings`, {defaultValue: ""}),
+        },
 	},
 	lowerThird: {
 		bug: {

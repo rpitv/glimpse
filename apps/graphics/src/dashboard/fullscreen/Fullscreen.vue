@@ -16,6 +16,12 @@
 					<td><CreditsEditor /></td>
 					<td><v-switch v-model="replicants.fullscreen.credits.show.value" /></td>
 				</tr>
+                <tr>
+                    <td><h2>Standings</h2></td>
+                    <td><iframe :src="previewLocation + '?tombstoneStandings'" /></td>
+                    <td><StandingsEditor /></td>
+                    <td><v-switch v-model="replicants.fullscreen.standings.show.value" /></td>
+                </tr>
 			</tbody>
 		</v-table>
 		<br>
@@ -23,9 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { loadReplicants } from "../../browser-common/replicants";
-import { computed, ref } from "vue";
+import {loadReplicants} from "../../browser-common/replicants";
 import CreditsEditor from "./Editors/CreditsEditor.vue";
+import StandingsEditor from "./Editors/StandingsEditor.vue";
 
 const replicants = await loadReplicants();
 const previewLocation = `/bundles/graphics/graphics/preview.html`;
