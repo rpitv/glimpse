@@ -1,13 +1,12 @@
 <template>
-	<div>
-		<v-table :hover="true">
+		<v-table>
 			<thead>
-			<tr>
-				<th>Name</th>
-				<th>Preview</th>
-				<th>Editor</th>
-				<th>Action</th>
-			</tr>
+            <tr>
+                <th class="col1">Name</th>
+                <th class="col2">Preview</th>
+                <th class="col3">Editor</th>
+                <th class="col4">Action</th>
+            </tr>
 			</thead>
 			<tbody>
 			<tr>
@@ -42,8 +41,6 @@
 			</tr>
 			</tbody>
 		</v-table>
-		<br>
-	</div>
 </template>
 
 <script setup lang="ts">
@@ -62,7 +59,20 @@ const previewLocation = `/bundles/graphics/graphics/preview.html`;
 iframe {
 	border: none;
 	aspect-ratio: 16/9;
-	width: 550px;
+    width: 100%;
 	background-color: white;
+}
+
+.col1 {
+    width: 13%;
+}
+.col2 {
+    width: 45%;
+}
+.col3 {
+    width: 30%;
+}
+.col4 {
+    width: 8%;
 }
 </style>

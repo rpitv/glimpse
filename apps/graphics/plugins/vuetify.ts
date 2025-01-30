@@ -1,12 +1,12 @@
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
 import { createVuetify } from 'vuetify';
-import { VNumberInput } from 'vuetify/labs/VNumberInput';
+import * as labsComponents from 'vuetify/labs/components';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
 export default createVuetify({
 	components: {
-		VNumberInput
+		...labsComponents
 	},
 	icons: {
 		defaultSet: 'mdi',
@@ -36,9 +36,6 @@ export default createVuetify({
 			variant: "outlined",
 		},
 		VExpansionPanels: {
-			style: {
-				width: "400px",
-			},
 			variant: "accordion"
 		},
 		VNumberInput: {

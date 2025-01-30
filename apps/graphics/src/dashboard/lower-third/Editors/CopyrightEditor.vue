@@ -1,5 +1,5 @@
 <template>
-	<v-expansion-panels style="width: 400px" variant="accordion">
+	<v-expansion-panels>
 		<v-expansion-panel title="General">
 			<v-expansion-panel-text>
 				<v-number-input label="X Offset" v-model="replicantCopyright.offsetX.value" />

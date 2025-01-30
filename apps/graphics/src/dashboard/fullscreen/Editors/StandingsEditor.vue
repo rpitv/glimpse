@@ -10,8 +10,8 @@
         <v-expansion-panel title="Team Configuration">
             <v-expansion-panel-text>
                 <div class="btns">
-                    <v-btn @click="fetchECACMenHockey">Fetch ECAC Hockey Men"s</v-btn>
-                    <v-btn @click="fetchECACWomenHockey">Fetch ECAC Hockey Women"s</v-btn>
+                    <v-btn @click="fetchECACMenHockey">Fetch ECAC Hockey Men's</v-btn>
+                    <v-btn @click="fetchECACWomenHockey">Fetch ECAC Hockey Women's</v-btn>
                     <v-btn @click="standings.teams.value = [...standings.teams.value, new StandingsTeam()]">
                         Manually Add Team
                     </v-btn>
@@ -24,17 +24,23 @@
                 </div>
             </v-expansion-panel-text>
         </v-expansion-panel>
-        <v-expansion-panel v-for="(team, i) in standings.teams.value" :key="i"
-                           :title="`#${team.position} █ ${team.teamName} █ ${team.record}`">
+        <v-expansion-panel title="Teams">
             <v-expansion-panel-text>
-                <v-text-field label="Team Name" v-model="team.teamName"/>
-                <v-number-input label="Position" :min="0" :step="1" v-model="team.position"/>
-                <v-text-field label="Team Record" v-model="team.record"/>
-                <GlimpseColorPicker v-model="team.teamColor" label="Team Color"/>
-                <v-text-field label="Logo Link" v-model="team.logoLink"/>
-                <v-btn color="red" @click="standings.teams.value = standings.teams.value.toSpliced(i, 1)">
-                    Delete Team
-                </v-btn>
+                <v-expansion-panels multiple>
+                    <v-expansion-panel v-for="(team, i) in standings.teams.value" :key="i"
+                                       :title="`#${team.position} █ ${team.teamName} █ ${team.record}`"  collapse-icon="mdi-minus" expand-icon="mdi-plus">
+                        <v-expansion-panel-text>
+                            <v-text-field label="Team Name" v-model="team.teamName"/>
+                            <v-number-input label="Position" :min="0" :step="1" v-model="team.position"/>
+                            <v-text-field label="Team Record" v-model="team.record"/>
+                            <GlimpseColorPicker v-model="team.teamColor" label="Team Color"/>
+                            <v-text-field label="Logo Link" v-model="team.logoLink"/>
+                            <v-btn color="red" @click="standings.teams.value = standings.teams.value.toSpliced(i, 1)">
+                                Delete Team
+                            </v-btn>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
             </v-expansion-panel-text>
         </v-expansion-panel>
     </v-expansion-panels>
@@ -75,18 +81,18 @@ function fetchECACHockeyRankings(men: boolean, link: string) {
     interface Team {
         name?: string | null;
         logo?: string | null;
-        conference: {
-            pts?: string | null;
-            gp?: string | null;
-            wlt?: string | null;
-            otw_otl?: string | null;
+        conference: { // only in conference games
+            pts?: string | null; // points
+            gp?: string | null; // games played
+            wlt?: string | null; // win - loss - tie
+            otw_otl?: string | null; // overtime win - overtime loss
             so_wl?: string | null;
-            gf_ga?: string | null;
+            gf_ga?: string | null; // goals for - goals against
         };
-        overall: {
-            gp?: string | null;
-            wlt?: string | null;
-            gf_ga?: string | null;
+        overall: { // all games
+            gp?: string | null; // games played
+            wlt?: string | null; // win - loss - tie
+            gf_ga?: string | null; // goals for - goals against
         };
     }
 
