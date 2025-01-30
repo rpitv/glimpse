@@ -23,7 +23,6 @@ export const createProduction = {
       throw new Error('Environment variable "VOLUNTEER_CHANNEL_ID" does not correspond to a found Discord Text channel.')
     }
 
-    let startTime = production.startTime || production.endTime || production.closetTime;
     // It doesn't return a Date, but a string. Welcome to typescript hell
     let startTime = (production.startTime || production.endTime || production.closetTime)?.toString() as string;
     // Adds the category to the list of tags if it doesn't exist.
