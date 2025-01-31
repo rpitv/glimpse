@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import {apiResponseV1} from "@nodecg-vue-ts-template/api/api";
-import {replicants} from "@nodecg-vue-ts-template/util/replicants";
+import {apiResponseV1} from "../api";
+import {replicants} from "../../util/replicants";
 
 // /football/clock_info/down/yards_to_go/possession
 function setFootballInfo(req: Request, res: Response) {

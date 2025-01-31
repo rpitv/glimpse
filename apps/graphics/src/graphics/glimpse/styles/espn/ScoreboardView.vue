@@ -368,6 +368,7 @@ div {
 	align-items: center;
 	font-family: 'Roboto', sans-serif;
 	background-color: rgb(220, 220, 220);
+	height: var(--scoreboard-height);
 
 	hr {
 		height: 50%;
@@ -388,7 +389,6 @@ div {
 		font-size: 1.5vw;
 		width: 5.9vw;
 	}
-	height: var(--scoreboard-height);
 }
 
 .announcement-section {

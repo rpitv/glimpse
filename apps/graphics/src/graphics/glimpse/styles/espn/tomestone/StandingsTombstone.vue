@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import notch from "../../../../../assets/espn/notch.svg"
 import {loadReplicants} from "../../../../../browser-common/replicants";
-import {StandingsTeam} from "@nodecg-vue-ts-template/extension/util/StandingsTeam";
+import {StandingsTeam} from "../../../../../extension/util/StandingsTeam";
 
 const replicants = await loadReplicants();
 const standings = replicants.fullscreen.standings;

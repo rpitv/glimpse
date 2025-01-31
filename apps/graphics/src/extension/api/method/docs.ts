@@ -5,7 +5,6 @@ import {endpointsScore} from "./score";
 import path from "path";
 import * as fs from "fs-extra";
 import {apiFatalPanik} from "../api";
-import {endpointsConfigs} from "@nodecg-vue-ts-template/api/method/config";
 
 /**
  * Serves the statically generated HTML file of the documentation.

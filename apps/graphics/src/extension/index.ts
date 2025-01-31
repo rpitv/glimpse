@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 
 // This must go first so we can use module aliases!
-require('module-alias').addAlias('@nodecg-vue-ts-template', require('path').join(__dirname, '.'));
 
 import type {NodeCG} from 'nodecg-types/types/server';
 import {set} from './util/nodecg';

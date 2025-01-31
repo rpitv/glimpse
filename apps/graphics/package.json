@@ -15,7 +15,7 @@
     "start": "node ../..",
     "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
     "start-nodecg": "npx nodecg start",
-    "clean": "npx ts-node clean.ts",
+    "clean": "npx tsx clean.ts",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",

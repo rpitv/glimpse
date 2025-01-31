@@ -3,7 +3,7 @@ import {replicants} from "../util/replicants";
 import {logger} from "../util/logger";
 import * as fs from 'fs-extra';
 import * as path from "path";
-import {announcementTimersTick} from "@nodecg-vue-ts-template/scoreboard-clock";
+import {announcementTimersTick} from "../scoreboard-clock";
 
 const packetBytes: number[] = [];
 let computedChecksum = 0;

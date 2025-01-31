@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import {apiResponseV1} from "@nodecg-vue-ts-template/api/api";
-import {replicants} from "@nodecg-vue-ts-template/util/replicants";
+import {apiResponseV1} from "../api";
+import {replicants} from "../../util/replicants";
 
 
 /**

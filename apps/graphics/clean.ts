@@ -1,5 +1,4 @@
-import * as fs from "fs";
-import {readdirSync, statSync, unlinkSync} from "fs";
+import {readdirSync, statSync, unlinkSync, existsSync} from "fs";
 import {extname, join} from "path";
 
 
@@ -28,7 +27,7 @@ function deleteFilesWithExtension(dir: string, extension: string) {
 directories.forEach(directory => {
 	const dirPath = join(__dirname, directory);
 
-	if (fs.existsSync(dirPath)) {
+	if (existsSync(dirPath)) {
 		if (directory === "node_modules") {
 			console.log(`Searching for ".cache" files in ${directory}...`);
 			deleteFilesWithExtension(dirPath, 'cache');
