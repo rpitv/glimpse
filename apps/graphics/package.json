@@ -12,15 +12,13 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "node ../..",
-    "start-dev": "npx nodemon ../.. | npx pino-pretty -c",
-    "start-nodecg": "npx nodecg start",
+    "start": "run-s build nodecg",
+    "nodecg": "npx nodecg start",
     "clean": "npx tsx clean.ts",
     "build": "run-s clean build:*",
     "build:browser": "vite build",
     "build:extension": "tsc -b tsconfig.extension.json",
-    "dev": "run-p watch:* start-dev",
-    "cg": "run-p watch:* start-nodecg",
+    "dev": "run-p watch:* nodecg",
     "watch:browser": "vite",
     "watch:extension": "tsc -b tsconfig.extension.json -w"
   },

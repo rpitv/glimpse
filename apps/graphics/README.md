@@ -8,75 +8,39 @@ Built using the template [nodecg-vue-ts-template](https://github.com/zoton2/node
 
 ## Setup
 
-Requires `node` version 21.15.0 and `npm` version 10.7.0
+Requires `node` version 18 and `npm` version 10.7.0
 
-Let `$BASE` be the root directory to start off with.
+*Note: Higher `node` versions might be compatible and may require `Visual Studio` with the `Desktop development with C++` 
+package installed to compile `better-sqlite3` via `node-gyp`. 
+This error message will show up when applicable during dependency installation.*
 
 ```shell
-# open a terminal and navigate to the root directory
-cd $BASE
-
 # clone the monorepo
 git clone https://github.com/rpitv/glimpse.git
 
-# installs the parent NodeCG repository
-git clone https://github.com/nodecg/nodecg.git
-cd nodecg
-git checkout fa977b387e56a49375afb159e356ee64af61f0f9
-npm i
-npm run build
+cd glimpse/apps/graphics
 
-# installs graphics bundle
-cd bundles
-# on Windows use xcopy
-xcopy ..\..\glimpse\apps\graphics graphics /S /E /K /V /F /I
-# on Unix use cp
-cp -r -v ../../glimpse/apps/graphics/ ./graphics/
-
-npm i
+# installs graphics dependencies
+npm install --no-workspaces
 ```
 
 
 
 ## Running
-
+### Production
+For production, this compiles/builds the code then starts NodeCG.
 ```shell
-cd $BASE/nodecg/bundles/graphics
-
-# TO DEVELOP
-npm run dev
-
-# TO RUN IN PRODUCTION
-npm run build
 npm run start
 ```
-Open a browser to `http://127.0.0.1:9090` for the controller. When on production the controller can be accessed from other devices using the server's IP address.
 
-This can be found with `ipconfig` in Windows and `ip a` in Unix.
-
-## Updating
-
+### Development
+For developing, this will start `vite` then NodeCG allowing for hot reloading.
 ```shell
-cd $BASE/glimpse
-
-# downloads any updates
-git pull origin
-
-# on Windows use the following
-rmdir ..\nodecg\bundles\graphics\src /s /q
-xcopy .\apps\graphics ..\nodecg\bundles\graphics /S /E /K /V /F /I /Y
-
-# on Unix use the following
-xcopy .\apps\graphics ..\nodecg\bundles\graphics /S /E /K /V /F /I
-cp -r -v ./apps/graphics/ ../../graphics/
-
-# finally change to glimpse directory and install any updates
-cd ../nodecg/bundles/graphics/
-npm i
+npm run dev
 ```
 
-## Developing
-Follow instructions in [Setup](#setup) to setup the environment. Use `npm run dev` and open a browser to `http://127.0.0.1:9090`. Changes to the source files will automatically update. To commit, copy and paste the changed files back to the `$BASE/glimpse/apps/graphics` directory and continue with using Git commit and push.
+The app can be accessed by opening a web browser to `localhost:9090` or replacing `localhost` with the server's IP address. 
+This can be found with `ipconfig` in Windows and `ip a | grep inet` in Unix.
 
 ## Issues
 Use the `Issues` tab and `Create New` with the appropriate category. Be sure in the `Labels` section on the right side to select `Module: Graphics` with the `Issue`.
