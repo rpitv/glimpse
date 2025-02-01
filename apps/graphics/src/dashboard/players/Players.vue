@@ -33,14 +33,12 @@
 				</v-col>
 			</v-row>
 		</v-item-group>
-		<div v-show="false" v-html="replicants.http.roster.leftTeam.body.value" ref="leftTeamRoster">
-		</div>
-		<div v-show="false" v-html="replicants.http.roster.leftTeam.jersey.value" ref="leftTeamJersey">
-		</div>
-		<div v-show="false" v-html="replicants.http.roster.rightTeam.body.value" ref="rightTeamRoster">
-		</div>
-		<div v-show="false" v-html="replicants.http.roster.rightTeam.jersey.value" ref="rightTeamJersey">
-		</div>
+        <div ref="fetchResponseDiv">
+            <div v-show="false" v-html="replicants.http.roster.leftTeam.body.value" ref="leftTeamRoster"></div>
+            <div v-show="false" v-html="replicants.http.roster.leftTeam.jersey.value" ref="leftTeamJersey"></div>
+            <div v-show="false" v-html="replicants.http.roster.rightTeam.body.value" ref="rightTeamRoster"></div>
+            <div v-show="false" v-html="replicants.http.roster.rightTeam.jersey.value" ref="rightTeamJersey"></div>
+        </div>
 	</div>
 </template>
 
@@ -71,6 +69,7 @@ interface Person {
 
 const replicants = await loadReplicants();
 
+const fetchResponseDiv = ref<HTMLElement>();
 const leftTeamRoster = ref<HTMLDivElement>();
 const leftTeamJersey = ref<HTMLDivElement>();
 const rightTeamRoster = ref<HTMLDivElement>();
@@ -87,6 +86,16 @@ const rosters = ref<{
 	leftTeam: [],
 	rightTeam: []
 })
+
+function deleteTags() {
+    // removes all <link> <script> and <style> tags from the received contents that are injected into the html
+    if (fetchResponseDiv.value)
+        Array.from(fetchResponseDiv.value.querySelectorAll("link, script, style")).forEach(e => {
+            try {
+                e.parentNode?.removeChild(e)
+            } catch (e) {}
+        })
+}
 
 function fetchRoster(team: "leftTeam" | "rightTeam") {
 	replicants.http.roster[team].fetch.value = !replicants.http.roster[team].fetch.value;
@@ -105,24 +114,43 @@ function renderRoster(team: "leftTeam" | "rightTeam") {
 	rosters.value[team] = [];
 	const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
 
+
 	players.forEach((player) => {
-		const imageLink = (baseURL + player.querySelector("img")?.dataset.src)
+        // processes image URLs into absolute URLs
+        const originUrl = player.querySelector("img")?.dataset.src ?? ""
+        let imgUrl = originUrl
+        try {
+            // attempts to verify url as absolute path
+            imgUrl = new URL(originUrl).href;
+        } catch (e) {
+            // fails due to relative path, try adding domain
+            try {
+                imgUrl = new URL(originUrl, baseURL).href;
+            } catch (e) {
+                // ultimate fail so resort to whatever the original is
+                imgUrl = originUrl
+            }
+        }
+
+		const imageLink = imgUrl
 				.replace(/(width=)\d+/, '$1300')
 				.replace(/(quality=)\d+/, '$170');
 		rosters.value[team].push({
-			custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
-			custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
-			height: player.querySelector(".sidearm-roster-player-height")?.textContent?.trim() as string,
-			hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string,
-			image: imageLink,
-			name: player.querySelector("h3")?.textContent?.trim() as string,
-			number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string,
-			position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string,
-			previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string,
-			weight: player.querySelector(".sidearm-roster-player-weight")?.textContent?.trim() as string,
-			year: player.querySelector(".sidearm-roster-player-academic-year")?.textContent?.trim() as string,
-		});
+            custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
+            custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
+            height: player.querySelector(".sidearm-roster-player-height")?.textContent?.trim() as string,
+            hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string,
+            image: imageLink,
+            name: player.querySelector("h3")?.textContent?.trim() as string || player.querySelector("h2")?.textContent?.trim() as string,
+            number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string,
+            position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string || player.querySelector(".sidearm-roster-player-position > span.text-bold")?.textContent?.trim() as string,
+            previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string,
+            weight: player.querySelector(".sidearm-roster-player-weight")?.textContent?.trim() as string,
+            year: player.querySelector(".sidearm-roster-player-academic-year")?.textContent?.trim() as string,
+        });
 	});
+
+    setTimeout(deleteTags, 500)
 }
 
 function getPlayerBio() {
