@@ -168,7 +168,7 @@ export const replicants = {
 		},
 		commentators: {
 			leftPerson: {
-				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "Dan Fridgen"}),
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
 				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: "#000000"}),
 				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: 0}),
 				description: nodecg().Replicant<string>("description", `glimpse-graphics.graphics.lowerThird.commentators.leftPerson`, {defaultValue: ""}),
@@ -184,7 +184,7 @@ export const replicants = {
 				descriptionSize: nodecg().Replicant<number>("descriptionSize", `glimpse-graphics.graphics.lowerThird.commentators.centerPerson`, {defaultValue: 0}),
 			},
 			rightPerson:{
-				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "Dan Bahl"}),
+				name: nodecg().Replicant<string>("name", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
 				nameColor: nodecg().Replicant<string>("nameColor", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: "#000000"}),
 				nameSize: nodecg().Replicant<number>("nameSize", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: 0}),
 				description: nodecg().Replicant<string>("rightDesc", `glimpse-graphics.graphics.lowerThird.commentators.rightPerson`, {defaultValue: ""}),
