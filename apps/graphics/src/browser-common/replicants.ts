@@ -317,15 +317,9 @@ export async function loadReplicants() {
 			roster: {
 				leftTeam: {
 					url: await replicant<string>("url", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
-					body: await replicant<any>("body", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: {}}),
-					fetch: await replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: false}),
-					jersey: await replicant<string>("jersey", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: ""}),
 				},
 				rightTeam: {
 					url: await replicant<string>("url", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
-					body: await replicant<any>("body", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: {}}),
-					fetch: await replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: false}),
-					jersey: await replicant<string>("jersey", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: ""}),
 				}
 			}
 		}

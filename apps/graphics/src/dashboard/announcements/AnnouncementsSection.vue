@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import {DataTableColumns, NButton, NDataTable, NInput, useMessage} from "naive-ui";
-import {computed, defineEmits, defineProps, h, PropType, ref, VNode} from "vue";
+import {computed, defineProps, h, PropType, ref, VNode} from "vue";
 import {Announcement} from "../../common/Announcement";
 import {v4} from "uuid";
 import {loadReplicants} from "../../browser-common/replicants";

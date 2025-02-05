@@ -15,6 +15,5 @@ export = (nodecg: NodeCG): void => {
 	require('./scoreboard-clock');
 	require("./api/api").createApi(nodecg)
 	require("./httprequests/livesidearmstats");
-    require("./httprequests/roster");
     require("./httprequests/remote-fetch").create(nodecg);
 };

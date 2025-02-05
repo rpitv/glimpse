@@ -301,15 +301,9 @@ export const replicants = {
 		roster: {
 			leftTeam: {
 				url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
-				body: nodecg().Replicant<any>("body", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: {}}),
-				fetch: nodecg().Replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: false}),
-				jersey: nodecg().Replicant<any>("jersey", `glimpse-graphics.graphics.roster.leftTeam`, {defaultValue: {}}),
 			},
 			rightTeam: {
 				url: nodecg().Replicant<string>("url", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: "https://rpiathletics.com/sports/mens-ice-hockey/roster/2024-25"}),
-				body: nodecg().Replicant<any>("body", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: {}}),
-				fetch: nodecg().Replicant<boolean>("fetch", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: false}),
-				jersey: nodecg().Replicant<any>("jersey", `glimpse-graphics.graphics.roster.rightTeam`, {defaultValue: {}}),
 			}
 		}
 	}
