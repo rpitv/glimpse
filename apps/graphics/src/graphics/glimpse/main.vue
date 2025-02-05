@@ -19,6 +19,7 @@ onMounted(() => {
 	setTimeout(() => {
 		scoreboardLoadingText.value = "Loading...";
 	}, 5000);
+    document.title = "Program GFX"
 });
 
 </script>

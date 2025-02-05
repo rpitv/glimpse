@@ -17,7 +17,7 @@ import CreditsView from "../glimpse/FullscreenViews/CreditView.vue";
 import LocatorView from "../glimpse/LowerThirdViews/LocatorView.vue";
 import LowerThirdScoreboardView from "../glimpse/LowerThirdViews/LowerThirdScoreboardView.vue";
 import PlayerBioView from "../glimpse/LowerThirdViews/PlayerBioView.vue";
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import TombstoneStandings from "../glimpse/styles/espn/tomestone/StandingsTombstone.vue";
 
 const bug = ref(false);
@@ -49,6 +49,10 @@ if (params.has("playerBio"))
 if (params.has("tombstoneStandings"))
     tombstoneStandings.value = true;
 
+
+onMounted(() => {
+    document.title = "Preview GFX"
+})
 </script>
 
 <style scoped lang="scss">

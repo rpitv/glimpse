@@ -1,38 +1,28 @@
 <template>
-    <div class="container">
-        <div class="wrapper">
-            <div class="header">
-                <img class="header-img" :src="headerLogo" alt="">
-                <div class="header-text">
-                    <span class="header-main">{{ textTitle }}</span>
-                    <span class="header-sub">{{ textSubtitle }}</span>
-                </div>
+    <TombstoneBuilder class="tombstone">
+        <div class="header">
+            <img class="header-img" :src="headerLogo" alt="">
+            <div class="header-text">
+                <span class="header-main">{{ textTitle }}</span>
+                <span class="header-sub">{{ textSubtitle }}</span>
             </div>
-            <table>
-                <tbody v-for="team in standings.teams.value.filter(team => 0 < team.position).sort(sortByPosition)">
-                <tr>
-                    <td class="logo" :style="{'background': team.teamColor}"><img :src="team.logoLink" alt=""></td>
-                    <td class="name">{{ team.teamName }}</td>
-                    <td class="record">{{ team.record }}</td>
-                </tr>
-                </tbody>
-            </table>
         </div>
-        <img class="notch vertical top left" :src="notch" alt="">
-        <img class="notch vertical top right" :src="notch" alt="">
-        <img class="notch vertical bottom left" :src="notch" alt="">
-        <img class="notch vertical bottom right" :src="notch" alt="">
-        <img class="notch horizontal top left" :src="notch" alt="">
-        <img class="notch horizontal top right" :src="notch" alt="">
-        <img class="notch horizontal bottom left" :src="notch" alt="">
-        <img class="notch horizontal bottom right" :src="notch" alt="">
-    </div>
+        <table>
+            <tbody v-for="team in standings.teams.value.filter(team => 0 < team.position).sort(sortByPosition)">
+            <tr>
+                <td class="logo" :style="{'background': team.teamColor}"><img :src="team.logoLink" alt=""></td>
+                <td class="name">{{ team.teamName }}</td>
+                <td class="record">{{ team.record }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </TombstoneBuilder>
 </template>
 
 <script setup lang="ts">
-import notch from "../../../../../assets/espn/notch.svg"
 import {loadReplicants} from "../../../../../browser-common/replicants";
 import {StandingsTeam} from "../../../../../extension/util/StandingsTeam";
+import TombstoneBuilder from "./TombstoneBuilder.vue";
 
 const replicants = await loadReplicants();
 const standings = replicants.fullscreen.standings;
@@ -56,24 +46,11 @@ function sortByPosition(a: StandingsTeam, b: StandingsTeam) {
     src: url('../../../../../assets/espn/Swiss721Medium.ttf')
 }
 
-.wrapper {
-    border: 2px #fbfbfc solid;
-    padding: 2px;
-    color: black;
-}
-
-.container {
+.tombstone {
     font-family: "swiss721_med";
-    background: #ececee;
     bottom: 7vh;
     left: 5vw;
     width: 36vw;
-    position: absolute;
-    margin: 0.5vw;
-    padding: 0.2vw;
-
-    outline: 2px #e9e9ea solid;
-    background-clip: content-box;
 }
 
 .header {
@@ -136,52 +113,5 @@ td.record {
     width: auto;
     font-size: 2.5vh;
     padding-left: 0.5vw;
-}
-
-
-.notch {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    height: 2vh;
-
-    &.vertical {
-        &.top {
-            top: 0;
-        }
-
-        &.bottom {
-            bottom: 0;
-            transform: translate(-50%, 50%);
-        }
-    }
-
-    &.horizontal {
-        transform: rotate(90deg) translate(50%, 50%);
-
-        &.top {
-            top: 10%;
-        }
-
-        &.bottom {
-            bottom: 10%;
-        }
-
-        &.left {
-            left: 0;
-        }
-
-        &.right {
-            right: 0;
-            transform: rotate(90deg) translate(50%, -50%);
-        }
-    }
-
-    &.left {
-        left: 10%;
-    }
-
-    &.right {
-        right: 10%;
-    }
 }
 </style>
