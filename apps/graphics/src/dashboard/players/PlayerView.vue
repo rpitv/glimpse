@@ -95,10 +95,10 @@ function renderPlayers(event: KeyboardEvent) {
 		playerBio.info.hometown.value = renderedPlayers.value[renderIndex.value].hometown;
 		playerBio.info.weight.value = renderedPlayers.value[renderIndex.value].weight;
 		playerBio.info.year.value = renderedPlayers.value[renderIndex.value].year;
-		
+
 		playerBio.action.player.teamSide.value = props.teamSide as ("leftTeam" | "rightTeam" | "");
 		playerBio.show.value = !playerBio.show.value;
-		
+
 		if (playerBio.show.value)
 			renderIndex.value++;
 		if (renderIndex.value >= renderedPlayers.value.length)

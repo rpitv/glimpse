@@ -84,18 +84,23 @@ const rosters = ref<{
     rightTeam: []
 })
 
-function deleteTags() {
-    // removes all <link> <script> and <style> tags from the received contents that are injected into the html
-    if (fetchResponseDiv.value)
-        Array.from(fetchResponseDiv.value.querySelectorAll("link, script, style")).forEach(e => {
-            try {
-                e.parentNode?.removeChild(e)
-            } catch (e) {
-            }
-        })
-}
 
 function fetchRoster(team: "leftTeam" | "rightTeam", link = "") {
+    rosters.value[team] = [];
+    rosters.value[team].push({
+        custom1: "",
+        custom2: "",
+        height: "",
+        hometown: "",
+        image: "",
+        name: "LOADING...",
+        number: "",
+        position: "",
+        previousTeam: "",
+        weight: "",
+        year: "",
+    })
+
     fetch("/glimpse-graphics-fetch/v1?url=" + encodeURIComponent(link))
         .then(res => res.text())
         .then(data => {
@@ -106,30 +111,51 @@ function fetchRoster(team: "leftTeam" | "rightTeam", link = "") {
 
 }
 
-function renderRoster(team: "leftTeam" | "rightTeam", roster: Document) {
-    const players = roster!.querySelectorAll(".sidearm-roster-player, .s-person-card");
-    const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
+function renderRoster(team: "leftTeam" | "rightTeam", dom: Document) {
+    const players = dom!.querySelectorAll(".sidearm-roster-player, .s-person-card");
+    const coaches = dom!.querySelectorAll(".sidearm-roster-coaches");
 
-    rosters.value[team] = [];
+    const buffer: Person[] = [] // needed to avoid "Error: Maximum recursive updates exceeded"
     const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
 
+    // scans <script> for detecting if Sidearm's running on next gen framework, if so extract the window.__INITIAL_STATE__ for object data
+    const scripts = dom.querySelectorAll("script")
+    for (const script in scripts) {
+        const text = scripts[script].textContent
+        if (text?.startsWith("window.__INITIAL_STATE__")) {
+            const jsonString = text
+                .substring("window.__INITIAL_STATE__='".length, text.length - 1) // remove the starting assignment and closing '
+                .replace(/\\'/g, "'") // escaped single quote ' get unescaped
+                .replaceAll("\\\\", "\\") // escaped \ get unescaped
 
-    // mapping used in new gen sidearm sites
-    const newGenBioItemsMap = new Map()
-    newGenBioItemsMap.set("Jersey Number", "number")
-    newGenBioItemsMap.set("Position", "position")
-    newGenBioItemsMap.set("Academic Year", "year")
-    newGenBioItemsMap.set("Height", "height")
-    newGenBioItemsMap.set("Weight", "weight")
-    newGenBioItemsMap.set("Custom Field 1", "custom1")
-    newGenBioItemsMap.set("Custom Field 2", "custom2")
+            const data = JSON.parse(jsonString)
+            // @ts-expect-error because making an interface for JSON format used this singular time is not worth it
+            data["rostersModule"]["roster"][Object.keys(data["rostersModule"]["roster"])]["players"].forEach(player => {
+                buffer.push({
+                    custom1: player["custom1"] ? player["custom1"] : "",
+                    custom2: player["custom2"] ? player["custom2"] : "",
+                    height: (player["heightFeet"] && player["heightInches"]) ? `${player["heightFeet"]}' ${player["heightInches"]}"` : "",
+                    hometown: player["hometown"] ? player["hometown"] : "",
+                    image: player["image"]["absoluteUrl"],
+                    name: `${player["firstName"]} ${player["lastName"]}`,
+                    number: player["jerseyNumber"] ? player["jerseyNumber"] : "",
+                    position: player["positionShort"] ? player["positionShort"] : "",
+                    previousTeam: player["highSchool"] ? player["highSchool"] : "",
+                    weight: player["weight"] ? `${player["weight"]} lbs` : "",
+                    year: player["academicYearShort"] ? player["academicYearShort"] : ""
+                })
+            })
 
-    // note: new gen sidearm sites use progressive loading as the user scrolls so fetching is limited
+            rosters.value[team] = [...buffer]
+            return
+        }
+    }
+
+    // older sidearm sites, use document query on elements
     players.forEach((player) => {
-
         // processes image URLs into absolute URLs
         const originUrl = player.querySelector("img")?.dataset?.src || player.querySelector("img")?.src || ""
-        let imgUrl = originUrl
+        let imgUrl;
         try {
             // attempts to verify url as absolute path
             imgUrl = new URL(originUrl).href;
@@ -149,51 +175,25 @@ function renderRoster(team: "leftTeam" | "rightTeam", roster: Document) {
             .replace("/crop", "/convert") // converts cropping links to converter links
             .replace(/(height=)\d+/, "$1") // removes the height limiter since a width limiter exists
 
-
-        const newGenSidearmsItemRetriever = (selector: string) => {
-            const childNodes = player?.querySelector(selector)?.childNodes as NodeList
-            for (const child in childNodes) {
-                if (childNodes[child].nodeType === Node.TEXT_NODE)
-                    return childNodes[child]?.textContent?.trim() || ""
-            }
-            return ""
-        }
-
-
         let data = {
             custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
             custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
             height: player.querySelector(".sidearm-roster-player-height")?.textContent?.trim() as string,
-            hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string ||
-                newGenSidearmsItemRetriever(`span[data-test-id="s-person-card-list__content-location-person-hometown"]`),
+            hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string,
             image: imageLink,
             name: player.querySelector("h3")?.textContent?.trim() as string ||
                 player.querySelector("h2")?.textContent?.trim() as string,
-            number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string ||
-                newGenSidearmsItemRetriever(".s-stamp__text"),
+            number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string,
             position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string ||
                 player.querySelector(".sidearm-roster-player-position > span.text-bold")?.textContent?.trim() as string,
-            previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string ||
-                newGenSidearmsItemRetriever(`span[data-test-id="s-person-card-list__content-location-person-high-school"]`),
+            previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string,
             weight: player.querySelector(".sidearm-roster-player-weight")?.textContent?.trim() as string,
             year: player.querySelector(".sidearm-roster-player-academic-year")?.textContent?.trim() as string,
         }
 
-        // new gen sidearm site has the bio data slots in the same overall class name where
-        // - the first child is the classification
-        // - the second child or child text is the corresponding value
-        player.querySelectorAll(".s-person-details__bio-stats-item").forEach(child => {
-            try {
-                const key = child.children[0]?.textContent?.trim() ?? ""
-                if (newGenBioItemsMap.get(key)) {
-                    // @ts-ignore string for indexing object
-                    data[newGenBioItemsMap.get(key)] = child.textContent?.replace(key, "").trim()
-                }
-            } catch (e) {}
-        })
-
-        rosters.value[team].push(data)
+        buffer.push(data)
     })
+    rosters.value[team] = [...buffer]
 }
 
 function getPlayerBio() {
