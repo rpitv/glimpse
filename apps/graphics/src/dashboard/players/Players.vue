@@ -2,9 +2,11 @@
     <div class="player-bio">
         <iframe :src="previewLocation + '?playerBio'"></iframe>
         <div class="actions">
-            <v-combobox :items="possiblePlays" style="width: 100%" label="Description" v-model="replicants.lowerThird.playerBio.action.description.value"/>
+            <v-combobox :items="possiblePlays" style="width: 100%" label="Description"
+                        v-model="replicants.lowerThird.playerBio.action.description.value"/>
             <v-number-input label="Font Size" v-model="replicants.lowerThird.playerBio.action.fontSize.value"/>
-            <GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.defaultTeamColor.value" label="Default Color"/>
+            <GlimpseColorPicker v-model="replicants.lowerThird.playerBio.image.defaultTeamColor.value"
+                                label="Default Color"/>
             <v-checkbox v-model="replicants.lowerThird.playerBio.info.show.value" label="Display Player Info"/>
             <v-switch v-model="replicants.lowerThird.playerBio.show.value" label="Show Player Graphic"/>
         </div>
@@ -15,7 +17,8 @@
         <v-row>
             <v-col cols="6">
                 <div class="roster-field">
-                    <v-text-field density="compact" label="Left Team Roster URL" v-model="replicants.http.roster.leftTeam.url.value"
+                    <v-text-field density="compact" label="Left Team Roster URL"
+                                  v-model="replicants.http.roster.leftTeam.url.value"
                                   placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25"/>
                     <v-btn color="green" @click="fetchRoster('leftTeam', replicants.http.roster.leftTeam.url.value)">
                         Fetch Roster
@@ -26,13 +29,15 @@
             <v-spacer/>
             <v-col cols="6">
                 <div class="roster-field">
-                    <v-text-field density="compact" label="Right Team Roster URL" v-model="replicants.http.roster.rightTeam.url.value"
+                    <v-text-field density="compact" label="Right Team Roster URL"
+                                  v-model="replicants.http.roster.rightTeam.url.value"
                                   placeholder="https://rpiathletics.com/sports/womens-ice-hockey/roster/2024-25"/>
                     <v-btn color="green" @click="fetchRoster('rightTeam', replicants.http.roster.rightTeam.url.value)">
                         Fetch Roster
                     </v-btn>
                 </div>
-                <PlayerView :roster="rosters.rightTeam" teamSide="rightTeam" :additionalPlayers="rosters.leftTeam?.length"/>
+                <PlayerView :roster="rosters.rightTeam" teamSide="rightTeam"
+                            :additionalPlayers="rosters.leftTeam?.length"/>
             </v-col>
         </v-row>
     </v-item-group>
@@ -102,16 +107,28 @@ function fetchRoster(team: "leftTeam" | "rightTeam", link = "") {
 }
 
 function renderRoster(team: "leftTeam" | "rightTeam", roster: Document) {
-    const players = roster!.querySelectorAll(".sidearm-roster-player");
+    const players = roster!.querySelectorAll(".sidearm-roster-player, .s-person-card");
     const coaches = roster!.querySelectorAll(".sidearm-roster-coaches");
 
     rosters.value[team] = [];
     const baseURL = replicants.http.roster[team].url.value.match(/https:\/\/[^/]+/)![0];
 
 
+    // mapping used in new gen sidearm sites
+    const newGenBioItemsMap = new Map()
+    newGenBioItemsMap.set("Jersey Number", "number")
+    newGenBioItemsMap.set("Position", "position")
+    newGenBioItemsMap.set("Academic Year", "year")
+    newGenBioItemsMap.set("Height", "height")
+    newGenBioItemsMap.set("Weight", "weight")
+    newGenBioItemsMap.set("Custom Field 1", "custom1")
+    newGenBioItemsMap.set("Custom Field 2", "custom2")
+
+    // note: new gen sidearm sites use progressive loading as the user scrolls so fetching is limited
     players.forEach((player) => {
+
         // processes image URLs into absolute URLs
-        const originUrl = player.querySelector("img")?.dataset.src ?? ""
+        const originUrl = player.querySelector("img")?.dataset?.src || player.querySelector("img")?.src || ""
         let imgUrl = originUrl
         try {
             // attempts to verify url as absolute path
@@ -127,22 +144,56 @@ function renderRoster(team: "leftTeam" | "rightTeam", roster: Document) {
         }
 
         const imageLink = imgUrl
-            .replace(/(width=)\d+/, '$1300')
-            .replace(/(quality=)\d+/, '$170');
-        rosters.value[team].push({
+            .replace(/(width=)\d+/, "$1300")
+            .replace(/(quality=)\d+/, "$170")
+            .replace("/crop", "/convert") // converts cropping links to converter links
+            .replace(/(height=)\d+/, "$1") // removes the height limiter since a width limiter exists
+
+
+        const newGenSidearmsItemRetriever = (selector: string) => {
+            const childNodes = player?.querySelector(selector)?.childNodes as NodeList
+            for (const child in childNodes) {
+                if (childNodes[child].nodeType === Node.TEXT_NODE)
+                    return childNodes[child]?.textContent?.trim() || ""
+            }
+            return ""
+        }
+
+
+        let data = {
             custom1: player.querySelector(".sidearm-roster-player-custom1")?.textContent?.trim() ?? null,
             custom2: player.querySelector(".sidearm-roster-player-custom2")?.textContent?.trim() ?? null,
             height: player.querySelector(".sidearm-roster-player-height")?.textContent?.trim() as string,
-            hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string,
+            hometown: player.querySelector(".sidearm-roster-player-hometown")?.textContent?.trim() as string ||
+                newGenSidearmsItemRetriever(`span[data-test-id="s-person-card-list__content-location-person-hometown"]`),
             image: imageLink,
-            name: player.querySelector("h3")?.textContent?.trim() as string || player.querySelector("h2")?.textContent?.trim() as string,
-            number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string,
-            position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string || player.querySelector(".sidearm-roster-player-position > span.text-bold")?.textContent?.trim() as string,
-            previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string,
+            name: player.querySelector("h3")?.textContent?.trim() as string ||
+                player.querySelector("h2")?.textContent?.trim() as string,
+            number: player.querySelector(".sidearm-roster-player-jersey-number")?.textContent?.trim() as string ||
+                newGenSidearmsItemRetriever(".s-stamp__text"),
+            position: player.querySelector(".sidearm-roster-player-position-long-short")?.textContent?.trim() as string ||
+                player.querySelector(".sidearm-roster-player-position > span.text-bold")?.textContent?.trim() as string,
+            previousTeam: player.querySelector(".sidearm-roster-player-highschool")?.textContent?.trim() as string ||
+                newGenSidearmsItemRetriever(`span[data-test-id="s-person-card-list__content-location-person-high-school"]`),
             weight: player.querySelector(".sidearm-roster-player-weight")?.textContent?.trim() as string,
             year: player.querySelector(".sidearm-roster-player-academic-year")?.textContent?.trim() as string,
-        });
-    });
+        }
+
+        // new gen sidearm site has the bio data slots in the same overall class name where
+        // - the first child is the classification
+        // - the second child or child text is the corresponding value
+        player.querySelectorAll(".s-person-details__bio-stats-item").forEach(child => {
+            try {
+                const key = child.children[0]?.textContent?.trim() ?? ""
+                if (newGenBioItemsMap.get(key)) {
+                    // @ts-ignore string for indexing object
+                    data[newGenBioItemsMap.get(key)] = child.textContent?.replace(key, "").trim()
+                }
+            } catch (e) {}
+        })
+
+        rosters.value[team].push(data)
+    })
 }
 
 function getPlayerBio() {
