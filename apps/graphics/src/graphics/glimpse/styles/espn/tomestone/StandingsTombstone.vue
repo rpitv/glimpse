@@ -75,7 +75,8 @@ function sortByPosition(a: StandingsTeam, b: StandingsTeam) {
 }
 
 .header-sub {
-    font-size: 1.5vh;
+    font-size: 2vh;
+    white-space: pre-wrap;
 }
 
 table, th, td {

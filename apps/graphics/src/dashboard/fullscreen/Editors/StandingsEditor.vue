@@ -3,7 +3,7 @@
         <v-expansion-panel title="Header Configuration">
             <v-expansion-panel-text>
                 <v-combobox :items="itemsTitle" label="Title" v-model="standings.title.value"/>
-                <v-text-field label="Subtitle" v-model="standings.subtitle.value"/>
+                <v-textarea label="Subtitle" v-model="standings.subtitle.value" />
                 <v-combobox :items="itemsLinks" label="Header Logo Link" v-model="standings.headerLogoLink.value"/>
             </v-expansion-panel-text>
         </v-expansion-panel>
@@ -105,7 +105,7 @@ function fetchECACHockeyRankings(men: boolean, link: string) {
             let teams_raw: Team[] = [];
             resDom.querySelectorAll("#main-content > article > div.sidearm-table-overflow > table > tbody > tr")
                 .forEach(row => {
-                    const cols = row.children
+                    const cols = row.querySelectorAll("td:not([aria-hidden='true'])")
                     let logoLink = (cols[0]?.querySelector(".sidearm-standings-school-logo img") as HTMLImageElement | null)?.src ?? ""
 
                     try {
@@ -118,19 +118,20 @@ function fetchECACHockeyRankings(men: boolean, link: string) {
                         "name": cols[0]?.textContent?.trim(),
                         "logo": logoLink,
                         "conference": {
-                            "pts": cols[2]?.textContent ?? "",
-                            "gp": cols[4]?.textContent ?? "",
-                            "wlt": cols[6]?.textContent ?? "",
-                            "otw_otl": cols[8]?.textContent ?? "",
-                            "so_wl": cols[9]?.textContent ?? "",
-                            "gf_ga": cols[10]?.textContent ?? "",
+                            "pts": cols[1]?.textContent ?? "",
+                            "gp": cols[2]?.textContent ?? "",
+                            "wlt": cols[3]?.textContent ?? "",
+                            "otw_otl": cols[4]?.textContent ?? "",
+                            "so_wl": cols[5]?.textContent ?? "",
+                            "gf_ga": cols[6]?.textContent ?? "",
                         },
                         "overall": {
-                            "gp": cols[11]?.textContent ?? "",
-                            "wlt": cols[12]?.textContent ?? "",
-                            "gf_ga": cols[13]?.textContent ?? "",
+                            "gp": cols[7]?.textContent ?? "",
+                            "wlt": cols[8]?.textContent ?? "",
+                            "gf_ga": cols[9]?.textContent ?? "",
                         }
                     }
+                    console.log(team)
                     teams_raw.push(team)
                 })
 
@@ -142,6 +143,7 @@ function fetchECACHockeyRankings(men: boolean, link: string) {
                 team.logoLink = teams_raw[i].logo ?? ""
                 team.teamName = teams_raw[i].name ?? ""
                 team.record = teams_raw[i].conference.wlt ?? ""
+                console.log(team)
                 teamBuilder.push(team)
             }
             standings.teams.value = [...standings.teams.value, ...teamBuilder]
