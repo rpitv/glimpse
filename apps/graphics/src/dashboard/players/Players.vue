@@ -11,7 +11,7 @@
 			</div>
 		</div>
 		<br>
-		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />
+<!--		<v-select label="Sidearms Configuration (IRRELEVANT)" :items="sidearmsLinks" v-model="replicants.http.sidearms.url.value" />-->
 		<v-item-group class="roster-field" v-model="selectedPerson" @update:modelValue="getPlayerBio">
 			<v-row>
 				<v-col cols="6">

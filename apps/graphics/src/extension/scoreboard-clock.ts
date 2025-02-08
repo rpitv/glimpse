@@ -1,7 +1,7 @@
 import {replicants} from "./util/replicants";
 import {Announcement} from "./util/Announcement";
 
-let scoreboardTimer: number | null;
+let scoreboardTimer: NodeJS.Timeout | null;
 let scoreboardTimerLastModified: number | null = null;
 
 replicants.scoreboard.clock.isRunning.on('change', (newValue: boolean) => {
@@ -13,7 +13,7 @@ replicants.scoreboard.clock.isRunning.on('change', (newValue: boolean) => {
 	if(newValue) {
 		scoreboardTimerLastModified = Date.now();
 
-		scoreboardTimer = window.setInterval(clockTick, 100);
+		scoreboardTimer = setInterval(clockTick, 100);
 	} else {
 		if(scoreboardTimer !== null) {
 			clearInterval(scoreboardTimer);
