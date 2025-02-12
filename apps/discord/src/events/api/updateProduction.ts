@@ -45,7 +45,7 @@ export const updateProduction = {
 
     const volunteerMessageId = discordData.volunteerMessageId;
 
-    let startTime = production.startTime || production.endTime || production.closetTime;
+    let startTime = (production.startTime || production.endTime || production.closetTime)?.toString() as string;
 
     // Adds the category to the list of tags if it doesn't exist.
     let discordTag: string[] = [];
@@ -59,7 +59,7 @@ export const updateProduction = {
       discordTag.push(tag.id);
     }
 
-    await threadChannel.setName(`${formatChannelName(production.name, moment(startTime))}`);
+    await threadChannel.setName(`${formatChannelName(production.name, moment(startTime).utcOffset(-5))}`);
     await threadChannel.setAppliedTags(discordTag);
 
     const threadMessage = await threadChannel.fetchStarterMessage();

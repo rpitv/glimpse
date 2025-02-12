@@ -23,17 +23,16 @@ export const createProduction = {
       throw new Error('Environment variable "VOLUNTEER_CHANNEL_ID" does not correspond to a found Discord Text channel.')
     }
 
-    let startTime = production.startTime || production.endTime || production.closetTime;
-
+    // It doesn't return a Date, but a string. Welcome to typescript hell
+    let startTime = (production.startTime || production.endTime || production.closetTime)?.toString() as string;
     // Adds the category to the list of tags if it doesn't exist.
     let discordTag: string[] = [];
     if (production.category) {
       const tag = await getOrCreateForumTag(productionForum, production.category);
       discordTag.push(tag.id);
     }
-
     const threadChannel = await productionForum.threads.create({
-      name: `${formatChannelName(production.name, moment(startTime))}`,
+      name: `${formatChannelName(production.name, moment(startTime).utcOffset(-5))}`,
       message: {
         content: `<@${process.env.RPITV_ID}>`
       },
