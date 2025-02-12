@@ -1,6 +1,6 @@
 {
   "name": "@rpitv/glimpse-discord",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Discord integration for the RPI TV Glimpse infrastructure",
   "license": "MIT",
   "repository": {
