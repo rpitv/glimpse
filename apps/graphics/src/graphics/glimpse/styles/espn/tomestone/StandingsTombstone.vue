@@ -8,11 +8,20 @@
             </div>
         </div>
         <table>
+            <thead>
+            <tr>
+                <td></td>
+                <td class="name">TEAM</td>
+                <td class="record">CON REC</td>
+                <td class="points">PTS</td>
+            </tr>
+            </thead>
             <tbody v-for="team in standings.teams.value.filter(team => 0 < team.position).sort(sortByPosition)">
             <tr>
                 <td class="logo" :style="{'background': team.teamColor}"><img :src="team.logoLink" alt=""></td>
                 <td class="name">{{ team.teamName }}</td>
                 <td class="record">{{ team.record }}</td>
+                <td class="points">{{ team.points }}</td>
             </tr>
             </tbody>
         </table>
@@ -93,6 +102,11 @@ tr {
     height: 2.8vh;
 }
 
+tbody td {
+    padding-left:  0.5vw;
+    padding-right: 0.5vw;
+}
+
 td.logo {
     width: 4vw;
     height: inherit;
@@ -105,14 +119,20 @@ td.logo img {
 }
 
 td.name {
-    width: 20vw;
+    width: 18vw;
     font-size: 2.5vh;
     padding-left: 0.5vw;
 }
 
 td.record {
-    width: auto;
+    width: 8vw;
     font-size: 2.5vh;
-    padding-left: 0.5vw;
+    text-align: center;
+}
+
+td.points {
+    width: 4vw;
+    font-size: 2.5vh;
+    text-align: center;
 }
 </style>

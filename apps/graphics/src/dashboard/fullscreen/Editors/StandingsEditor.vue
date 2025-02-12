@@ -16,8 +16,7 @@
                         Manually Add Team
                     </v-btn>
                     <v-btn @click="standings.teams.value.sort(sortByPosition)">Sort Teams in Editor</v-btn>
-                    <v-btn @click="confirmReset" color="red"
-                           :disabled="standings.teams.value.length === 0">
+                    <v-btn @click="confirmReset" color="red" :disabled="standings.teams.value.length === 0">
                         Delete All Teams
                     </v-btn>
                     <span>If position is 0, the team will not be displayed.</span>
@@ -33,6 +32,7 @@
                             <v-text-field label="Team Name" v-model="team.teamName"/>
                             <v-number-input label="Position" :min="0" :step="1" v-model="team.position"/>
                             <v-text-field label="Team Record" v-model="team.record"/>
+                            <v-number-input label="Points" :min="0" :step="0.5" v-model="team.points"/>
                             <GlimpseColorPicker v-model="team.teamColor" label="Team Color"/>
                             <v-text-field label="Logo Link" v-model="team.logoLink"/>
                             <v-btn color="red" @click="standings.teams.value = standings.teams.value.toSpliced(i, 1)">
@@ -143,6 +143,7 @@ function fetchECACHockeyRankings(men: boolean, link: string) {
                 team.logoLink = teams_raw[i].logo ?? ""
                 team.teamName = teams_raw[i].name ?? ""
                 team.record = teams_raw[i].conference.wlt ?? ""
+                team.points = parseFloat(teams_raw[i].conference?.pts) ?? 0
                 console.log(team)
                 teamBuilder.push(team)
             }

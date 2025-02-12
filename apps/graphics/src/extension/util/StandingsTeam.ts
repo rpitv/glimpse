@@ -4,6 +4,7 @@ export class StandingsTeam {
     public logoLink: string;
     public teamName: string;
     public record: string;
+    public points: number;
 
     public constructor() {
         this.position = 0;
@@ -11,5 +12,6 @@ export class StandingsTeam {
         this.logoLink = "";
         this.teamName = "";
         this.record = "";
+        this.points = 0;
     }
 }
