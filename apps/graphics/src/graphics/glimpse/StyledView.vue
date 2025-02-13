@@ -1,20 +1,21 @@
 <template>
-	<div>
-		<ImageView id="images"/>
-		<ScoreboardView id="scorebug"/>
-		<CommentatorsView id="commentators"/>
-		<CreditsView id="credits"/>
-		<div v-if="replicants.gameSettings.style.value === 'espn'">
-			<ESPNProduced id="espn-produced"/>
-			<ESPNBanner id="espn-banner"/>
+    <div>
+        <ImageView id="images"/>
+        <ScoreboardView id="scorebug"/>
+        <CommentatorsView id="commentators"/>
+        <CreditsView id="credits"/>
+        <div v-if="replicants.gameSettings.style.value === 'espn'">
+            <ESPNProduced id="espn-produced"/>
+            <ESPNBanner id="espn-banner"/>
             <ESPNTombstone id="espn-tombstone"/>
-		</div>
-    <LocatorView id="locator"/>
-		<LowerThirdScoreboardView id="break-scoreboard"/>
-		<PlayerBioView id="PlayerBio"/>
-    <CopyrightView id="copyright"/>
-		<BugView />
-	</div>
+        </div>
+        <LocatorView id="locator"/>
+        <LowerThirdScoreboardView id="break-scoreboard"/>
+        <PlayerBioView id="PlayerBio"/>
+        <BottomTextBar id="bottom-text-bar"/>
+        <CopyrightView id="copyright"/>
+        <BugView/>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -32,15 +33,16 @@ import LowerThirdScoreboardView from "./LowerThirdViews/LowerThirdScoreboardView
 import ScoreboardView from "./ScoreboardView.vue";
 import PlayerBioView from "./LowerThirdViews/PlayerBioView.vue";
 import ESPNTombstone from "./styles/espn/tomestone/Tombstone.vue";
+import BottomTextBar from "./LowerThirdViews/BottomTextBar.vue";
 
 
 const replicants = await loadReplicants();
 
 // from false to true then reload page
 watch(replicants.gameSettings.api.forceReload, (newV, oldV) => {
-	if (!oldV && newV) {
-		location.reload();
-	}
+    if (!oldV && newV) {
+        location.reload();
+    }
 });
 
 
@@ -48,11 +50,12 @@ watch(replicants.gameSettings.api.forceReload, (newV, oldV) => {
 
 <style scoped lang="scss">
 .hide {
-	opacity: 0;
-	transition: 1s;
+    opacity: 0;
+    transition: 1s;
 }
+
 .show {
-	opacity: 1;
-	transition: 1s;
+    opacity: 1;
+    transition: 1s;
 }
 </style>

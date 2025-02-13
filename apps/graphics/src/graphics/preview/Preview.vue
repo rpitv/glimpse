@@ -7,6 +7,7 @@
 	<LowerThirdScoreboardView v-if="scoreboard" preview />
 	<PlayerBioView v-if="playerBio" preview />
     <TombstoneStandings v-if="tombstoneStandings" />
+    <BottomTextBar v-if="bottomTextBar" preview />
 </template>
 
 <script setup lang="ts">
@@ -19,6 +20,7 @@ import LowerThirdScoreboardView from "../glimpse/LowerThirdViews/LowerThirdScore
 import PlayerBioView from "../glimpse/LowerThirdViews/PlayerBioView.vue";
 import {onMounted, ref} from "vue";
 import TombstoneStandings from "../glimpse/styles/espn/tomestone/StandingsTombstone.vue";
+import BottomTextBar from "../glimpse/LowerThirdViews/BottomTextBar.vue";
 
 const bug = ref(false);
 const commentators = ref(false);
@@ -28,6 +30,7 @@ const locator = ref(false);
 const scoreboard = ref(false);
 const playerBio = ref(false);
 const tombstoneStandings = ref(false);
+const bottomTextBar = ref(false);
 
 
 const params = new URLSearchParams(window.location.search);
@@ -48,6 +51,8 @@ if (params.has("playerBio"))
 	playerBio.value = true;
 if (params.has("tombstoneStandings"))
     tombstoneStandings.value = true;
+if (params.has("bottomTextBar"))
+    bottomTextBar.value = true;
 
 
 onMounted(() => {

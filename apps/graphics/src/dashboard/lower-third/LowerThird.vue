@@ -33,12 +33,18 @@
 				<td><LocatorEditor /></td>
 				<td><v-switch v-model="replicants.lowerThird.locator.show.value" /></td>
 			</tr>
-			<tr>
-				<td><h2>Break Scoreboard</h2></td>
-				<td><iframe :src="previewLocation + '?lowerThirdScoreboard'" /></td>
-				<td><ScoreboardEditor /></td>
-				<td><v-switch v-model="replicants.lowerThird.scoreboard.show.value" /></td>
-			</tr>
+            <tr>
+                <td><h2>Break Scoreboard</h2></td>
+                <td><iframe :src="previewLocation + '?lowerThirdScoreboard'" /></td>
+                <td><ScoreboardEditor /></td>
+                <td><v-switch v-model="replicants.lowerThird.scoreboard.show.value" /></td>
+            </tr>
+            <tr>
+                <td><h2>Bottom Text Bar</h2></td>
+                <td><iframe :src="previewLocation + '?bottomTextBar'" /></td>
+                <td><BottomBarTextEditor /></td>
+                <td><v-switch v-model="replicants.lowerThird.bottomTextBar.show.value" /></td>
+            </tr>
 			</tbody>
 		</v-table>
 </template>
@@ -50,6 +56,7 @@ import CommentatorsEditor from "./Editors/CommentatorsEditor.vue";
 import CopyrightEditor from "./Editors/CopyrightEditor.vue";
 import LocatorEditor from "./Editors/LocatorEditor.vue";
 import ScoreboardEditor from "./Editors/ScoreboardEditor.vue";
+import BottomBarTextEditor from "./Editors/BottomBarTextEditior.vue";
 
 const replicants = await loadReplicants();
 const previewLocation = `/bundles/graphics/graphics/preview.html`;

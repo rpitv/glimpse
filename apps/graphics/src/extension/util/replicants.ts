@@ -287,6 +287,29 @@ export const replicants = {
 			length: nodecg().Replicant<number>('length', 'glimpse-graphics.endGraphics', {defaultValue: 30}),
 			type: nodecg().Replicant<'scroll' | 'box'>("type", `glimpse-graphics.images.endGraphics`, {defaultValue: 'box'}),
 		},
+        bottomTextBar: {
+            show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.bottomTextBar`, {defaultValue: false}),
+            greyText: {
+                show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.bottomTextBar.greyText`, {defaultValue: false}),
+                text: nodecg().Replicant<string>('text', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: ""}),
+                textSize: nodecg().Replicant<number>('textSize', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: 0}),
+                alignment: nodecg().Replicant<"left" | "center" | "right">('alignment', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: "center"}),
+                offsetX: nodecg().Replicant<number>('offsetX', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: 0}),
+                offsetY: nodecg().Replicant<number>('offsetY', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: 0}),
+                textColor: nodecg().Replicant<string>('textColor', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: ""}),
+                bgColor: nodecg().Replicant<string>('bgColor', 'glimpse-graphics.bottomTextBar.greyText', {defaultValue: ""}),
+            },
+            redText: {
+                show: nodecg().Replicant<boolean>("show", `glimpse-graphics.images.bottomTextBar.redText`, {defaultValue: false}),
+                text: nodecg().Replicant<string>('text', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: ""}),
+                textSize: nodecg().Replicant<number>('textSize', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: 0}),
+                alignment: nodecg().Replicant<"left" | "center" | "right">('alignment', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: "center"}),
+                offsetX: nodecg().Replicant<number>('offsetX', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: 0}),
+                offsetY: nodecg().Replicant<number>('offsetY', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: 0}),
+                textColor: nodecg().Replicant<string>('textColor', 'glimpse-graphics.bottomTextBar.redText', {defaultValue: ""}),
+                autoResize: nodecg().Replicant<boolean>("autoResize", `glimpse-graphics.images.bottomTextBar.redText`, {defaultValue: false}),
+            }
+        },
 		showProduced: nodecg().Replicant<boolean>("showProduced", `glimpse-graphics.graphics.lowerThird`, {defaultValue: false}),
 	},
 	slideshow: {
