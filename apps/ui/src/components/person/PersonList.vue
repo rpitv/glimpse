@@ -9,10 +9,10 @@
       >
         <template #default>
           <CreatePersonCard
-              @save="(id: number) => {
+              @save="(person: Person) => {
               showCreatePopup = false;
               refresh();
-              createdPerson = { id: id, show: true };
+              createdPerson = { id: person.id, show: true };
             }"
           />
         </template>

@@ -148,7 +148,7 @@ import {
 	OrderDirection,
 	ProductionOrderableFields,
 	CaseSensitivity,
-	DeleteProductionRsvpDocument, ProductionDetailsDocument,
+	DeleteProductionRsvpDocument, ProductionDetailsDocument, DeleteCreditDocument,
 } from "@/graphql/types";
 import type {Production} from "@/graphql/types"
 import RouterPopup from "@/components/util/RouterPopup.vue";
@@ -178,6 +178,7 @@ const deleteTag = useMutation(DeleteProductionTagDocument);
 const deleteImage = useMutation(DeleteProductionImageDocument);
 const deleteVideo = useMutation(DeleteProductionVideoDocument);
 const deleteRSVP = useMutation(DeleteProductionRsvpDocument);
+const deleteCredit = useMutation(DeleteCreditDocument);
 const queryData = useQuery(SearchProductionsDocument, {
   pagination: {
     take: take,
@@ -266,20 +267,23 @@ async function deleteProduction(productionId: number) {
 			const images = production.images;
 			const videos = production.videos;
 			const rsvps = production.rsvps;
+			const credits = production.credits;
 			if (images)
 				for (const image of images)
 					await deleteImage.mutate({id: parseInt(image.id)});
-
 			if (tags)
 				for (const tag of tags)
 					await deleteTag.mutate({id: parseInt(tag.id)});
-
 			if (videos)
 				for (const video of videos)
 					await deleteVideo.mutate({id: parseInt(video.id)});
+			if (credits)
+				for (const credit of credits)
+					await deleteCredit.mutate({id: parseInt(credit.id)});
 			if (rsvps)
 				for (const rsvp of rsvps)
 					await deleteRSVP.mutate({id: parseInt(rsvp.id)});
+			
 
 			await deleteMutation.mutate({id: parseInt(production.id)});
 

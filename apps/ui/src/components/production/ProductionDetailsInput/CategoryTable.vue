@@ -9,10 +9,11 @@
       >
         <CreateCategoryCard
           closable
-          @save="
+          @save="(category: Category) => {
+						emit('setCategory', category);
             refresh();
             showCreatePopup = false;
-          "
+					}"
           @close="showCreatePopup = false"
         />
         <template #trigger>

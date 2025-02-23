@@ -1,5 +1,7 @@
 mutation CreateVideo($data: CreateVideoInput!) {
   video: createVideo(input: $data) {
-    id
+		id
+		name
+		metadata
   }
 }
