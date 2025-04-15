@@ -33,7 +33,7 @@
     "@graphql-tools/utils": "^9.1.4",
     "@keyv/redis": "^2.8.3",
     "@nestjs/apollo": "^10.1.7",
-    "@nestjs/common": "^9.3.9",
+    "@nestjs/common": "^10.4.16",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
     "@nestjs/graphql": "^10.1.7",
